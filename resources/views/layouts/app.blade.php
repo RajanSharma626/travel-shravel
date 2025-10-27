@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'My Laravel App')</title>
+    <title>@yield('title', 'CRM App')</title>
 
     <!-- Favicon -->
     <link rel="shortcut icon" href="favicon.ico">
@@ -54,14 +54,14 @@
                                     data-dropdown-animation data-bs-auto-close="outside" aria-expanded="false">
                                     <div class="avatar avatar-rounded rounded-circle avatar-xs me-2"
                                         style="background-color: #007d88;">
-                                        {{-- <span
-                                            class="initial-wrap text-white">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span> --}}
+                                        <span
+                                            class="initial-wrap text-white">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
                                     </div>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end shadow-lg border-1 rounded-3">
                                     <div class="dropdown-header">
-                                        {{-- <h6 class="fw-bold mb-0">{{ Auth::user()->name }}</h6> --}}
-                                        {{-- <small class="text-muted">ID: {{ Auth::user()->users_id }}</small> --}}
+                                        <h6 class="fw-bold mb-0">{{ Auth::user()->name }}</h6>
+                                        <small class="text-muted">ID: {{ Auth::user()->email }}</small>
                                     </div>
                                     <div class="dropdown-divider"></div>
 
@@ -88,7 +88,7 @@
             <div class="menu-header">
                 <span>
                     <a class="navbar-brand" href="/leads">
-                        <h5 class="fw-bold mb-0">Money Portal</h5>
+                        <h5 class="fw-bold mb-0">Travel Shravel</h5>
                     </a>
                     <button class="btn btn-icon btn-rounded btn-flush-dark flush-soft-hover navbar-toggle">
                         <span class="icon">
@@ -115,8 +115,7 @@
                 <div class="menu-content-wrap">
                     <div class="menu-group">
                         <ul class="navbar-nav flex-column">
-                            <li
-                                class="nav-item mb-2 {{ Route::currentRouteName() == 'home' ? 'active' : '' }}">
+                            <li class="nav-item mb-2 {{ Route::currentRouteName() == 'home' ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ route('home') }}">
                                     <span class="nav-icon-wrap">
                                         <span class="svg-icon">
@@ -137,9 +136,9 @@
                                     <span class="nav-link-text">Home</span>
                                     {{-- <span class="badge badge-sm badge-soft-pink ms-auto">Hot</span> --}}
                                 </a>
-                            </li>                   
-                            
-                            
+                            </li>
+
+
                         </ul>
                     </div>
 

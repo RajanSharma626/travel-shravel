@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Leads | Money Portal')
+@section('title', 'Leads | Travel Shreval')
 
 @section('content')
     <div class="hk-pg-wrapper pb-0">
@@ -57,8 +57,7 @@
                                                     <div class="media align-items-center">
                                                         <div class="media-body">
 
-                                                            <span
-                                                                class="d-block text-high-em text-primary"></span>
+                                                            <span class="d-block text-high-em text-primary"></span>
 
                                                         </div>
                                                     </div>
@@ -69,7 +68,7 @@
                                                 <td class="text-nowrap"></td>
                                                 <td></td>
                                                 <td>
-                                                 
+
                                                 </td>
                                             </tr>
                                             {{-- @empty
@@ -77,23 +76,23 @@
                                                     <td colspan="8" class="text-center">No leads found.</td>
                                                 </tr>
                                                 @endforelse --}}
-                                            </tbody>
-                                        </table>
+                                        </tbody>
+                                    </table>
 
-                                        <div class="d-flex justify-content-center">
-                                            {{-- {{ $leads->appends(request()->query())->links('pagination::bootstrap-5') }} --}}
-                                        </div>
+                                    <div class="d-flex justify-content-center">
+                                        {{-- {{ $leads->appends(request()->query())->links('pagination::bootstrap-5') }} --}}
                                     </div>
                                 </div>
                             </div>
                         </div>
-
                     </div>
+
                 </div>
             </div>
-
-            <!-- /Page Body -->
-            @include('layouts.footer')
-
         </div>
-    @endsection
+
+        <!-- /Page Body -->
+        @include('layouts.footer')
+
+    </div>
+@endsection
