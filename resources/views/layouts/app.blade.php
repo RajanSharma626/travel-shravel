@@ -5,7 +5,7 @@
     <!-- Meta Tags -->
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'CRM App')</title>
 
     <!-- Favicon -->
@@ -138,6 +138,27 @@
                                 </a>
                             </li>
 
+                            @if (Auth::check() && Auth::user()->role === 'Admin')
+                                <li class="nav-item mb-3 {{ Route::currentRouteName() == 'users' ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('users') }}">
+                                        <span class="nav-icon-wrap">
+                                            <span class="svg-icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                    class="icon icon-tabler icon-tabler-user" width="24"
+                                                    height="24" viewBox="0 0 24 24" stroke-width="2"
+                                                    stroke="currentColor" fill="none" stroke-linecap="round"
+                                                    stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <circle cx="12" cy="8" r="4" />
+                                                    <path d="M6 20v-1a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v1" />
+                                                </svg>
+                                            </span>
+                                        </span>
+                                        <span class="nav-link-text">Users</span>
+                                        {{-- <span class="badge badge-sm badge-soft-pink ms-auto">Hot</span> --}}
+                                    </a>
+                                </li>
+                            @endif
 
                         </ul>
                     </div>

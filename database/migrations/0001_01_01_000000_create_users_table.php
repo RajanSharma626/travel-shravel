@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->enum('role', ['Admin', 'Manager', 'Sales', 'Opration', 'Developer'])->default('Sales');
+            $table->enum('role', ['Admin', 'Sales Manager', 'Sales', 'Opration Manager', 'Opration', 'Accounts Manager', 'Accounts', 'Post Sales Manager', 'Post Sales', 'Delivery Manager', 'Delivery', 'HR', 'Developer'])->default('Sales');
             $table->enum('status', ['Active', 'Deactive'])->default('Active');
             $table->string('password');
             $table->rememberToken();
