@@ -53,27 +53,27 @@
                                         </thead>
                                         <tbody>
 
-                                            @foreach ($users as $users)
-                                                @if ($users->id != Auth::user()->id)
+                                            @foreach ($users as $user)
+                                                @if ($user->id != Auth::user()->id)
                                                     <tr>
                                                         <td>
-                                                            #{{ $users->users_id }}
+                                                            #{{ $user->id }}
                                                         </td>
                                                         <td>
                                                             <div class="media align-items-center">
                                                                 <div class="media-body">
                                                                     <span
-                                                                        class="d-block text-high-em">{{ $users->name }}</span>
+                                                                        class="d-block text-high-em">{{ $user->name }}</span>
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                        <td>{{ $users->email }}</td>
-                                                        <td>{{ $users->role }}</td>
-                                                        <td>{{ $users->created_at }}</td>
+                                                        <td>{{ $user->email }}</td>
+                                                        <td>{{ $user->role }}</td>
+                                                        <td>{{ optional($user->created_at)->format('d M, Y') }}</td>
                                                         <td>
-                                                            @if ($users->status == 'Active')
+                                                            @if ($user->status == 'Active')
                                                                 <span class="badge badge-soft-success">Active</span>
-                                                            @elseif($users->status == 'Deactive')
+                                                            @elseif($user->status == 'Deactive')
                                                                 <span class="badge badge-soft-danger">Deactive</span>
                                                             @endif
 
@@ -82,7 +82,7 @@
                                                         <td>
                                                             <div class="d-flex align-items-center">
                                                                 <div class="d-flex">
-                                                                    <a data-emp-id="{{ $users->id }}"
+                                                                    <a data-emp-id="{{ $user->id }}"
                                                                         class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover edit-users-btn"
                                                                         data-bs-toggle="modal" data-bs-target="#edit_emp"
                                                                         title="Edit">
@@ -95,8 +95,9 @@
                                                                     <a class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover del-button"
                                                                         data-bs-toggle="tooltip" data-placement="top"
                                                                         title="" data-bs-original-title="Delete"
-                                                                        href="#"><span class="icon"><span
-                                                                                class="feather-icon"><i
+                                                                        onclick="return confirm('Are you sure you want to delete {{ $user->name }}?')"
+                                                                        href="{{ route('users.delete', $user->id) }}"><span
+                                                                            class="icon"><span class="feather-icon"><i
                                                                                     data-feather="trash"></i></span></span></a>
                                                                 </div>
 
@@ -112,12 +113,12 @@
                         </div>
                     </div>
 
-                    <!-- Edit Info -->
+                    <!-- Create User -->
                     <div id="add_new_contact" class="modal fade add-new-contact" tabindex="-1" role="dialog"
                         aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                             <div class="modal-content">
-                                <form action="{{ route('userss.store') }}" method="post">
+                                <form action="{{ route('users.store') }}" method="post">
                                     @csrf
                                     <div class="modal-body">
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
@@ -151,8 +152,8 @@
                                                         <option value="Sales">Sales</option>
                                                         <option value="Accounts Manager">Accounts Manager</option>
                                                         <option value="Accounts">Accounts</option>
-                                                        <option value="Operations Manager">Operations Manager</option>
-                                                        <option value="Operations">Operations</option>
+                                                        <option value="Operation Manager">Operation Manager</option>
+                                                        <option value="Operation">Operation</option>
                                                         <option value="Post Sales Manager">Post Sales Manager</option>
                                                         <option value="Post Sales">Post Sales</option>
                                                         <option value="Delivery Manager">Delivery Manager</option>
@@ -177,13 +178,14 @@
                                         <button type="button" class="btn btn-secondary"
                                             data-bs-dismiss="modal">Discard</button>
                                         <button type="submit" class="btn btn-primary">Create
-                                            users</button>
+                                            User</button>
                                     </div>
                                 </form>
                             </div>
                         </div>
                     </div>
 
+                    {{-- Edit User --}}
                     <div id="edit_emp" class="modal fade add-new-contact" tabindex="-1" role="dialog"
                         aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -225,8 +227,8 @@
                                                         <option value="Sales">Sales</option>
                                                         <option value="Accounts Manager">Accounts Manager</option>
                                                         <option value="Accounts">Accounts</option>
-                                                        <option value="Operations Manager">Operations Manager</option>
-                                                        <option value="Operations">Operations</option>
+                                                        <option value="Operation Manager">Operation Manager</option>
+                                                        <option value="Operation">Operation</option>
                                                         <option value="Post Sales Manager">Post Sales Manager</option>
                                                         <option value="Post Sales">Post Sales</option>
                                                         <option value="Delivery Manager">Delivery Manager</option>

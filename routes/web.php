@@ -25,7 +25,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     // users routes restricted to admin only
     Route::middleware('admin')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users');
-        Route::post('/user/store', [UserController::class, 'store'])->name('userss.store');
+        Route::post('/user/store', [UserController::class, 'store'])->name('users.store');
         Route::get('/user/edit/{id}', [UserController::class, 'edit'])->name('users.edit');
         Route::post('/user/update', [UserController::class, 'update'])->name('users.update');
         Route::get('/user/delete/{id}', [UserController::class, 'destroy'])->name('users.delete');

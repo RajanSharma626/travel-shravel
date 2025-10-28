@@ -10,7 +10,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::whereNull('deleted_at')->get();
+        $users = User::whereNull('deleted_at')->orderBy('created_at', 'desc')->get();
 
         return view('users', compact('users'));
     }
@@ -25,7 +25,7 @@ class UserController extends Controller
             'password' => 'required|string|min:6',
         ]);
 
-        // Create the users (assuming userss are stored in the users table)
+        // Create the users
         User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -69,6 +69,14 @@ class UserController extends Controller
         $users->save();
 
         // Redirect back with a success message
-        return redirect()->route('users')->with('success', 'users updated successfully.');
+        return redirect()->route('users')->with('success', 'User updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $users = User::findOrFail($id);
+        $users->delete();
+
+        return redirect()->route('users')->with('success', 'User deleted successfully.');
     }
 }
