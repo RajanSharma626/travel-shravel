@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DestinationController;
+use App\Http\Controllers\LeadController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,4 +33,10 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::post('/user/update', [UserController::class, 'update'])->name('users.update');
         Route::get('/user/delete/{id}', [UserController::class, 'destroy'])->name('users.delete');
     });
+
+    Route::resource('services', ServiceController::class);
+
+    Route::resource('destinations', DestinationController::class);
+
+    Route::resource('leads', LeadController::class);
 });

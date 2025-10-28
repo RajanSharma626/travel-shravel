@@ -115,56 +115,74 @@
                 <div class="menu-content-wrap">
                     <div class="menu-group">
                         <ul class="navbar-nav flex-column">
+
+                            <!-- Dashboard -->
                             <li class="nav-item mb-2 {{ Route::currentRouteName() == 'home' ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ route('home') }}">
                                     <span class="nav-icon-wrap">
                                         <span class="svg-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                class="icon icon-tabler icon-tabler-template" width="24"
-                                                height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                stroke="currentColor" fill="none" stroke-linecap="round"
-                                                stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <rect x="4" y="4" width="16" height="4" rx="1" />
-                                                <rect x="4" y="12" width="6" height="8" rx="1" />
-                                                <line x1="14" y1="12" x2="20" y2="12" />
-                                                <line x1="14" y1="16" x2="20" y2="16" />
-                                                <line x1="14" y1="20" x2="20" y2="20" />
-                                            </svg>
+                                            <i data-feather="home"></i>
                                         </span>
                                     </span>
-                                    <span class="nav-link-text">Home</span>
-                                    {{-- <span class="badge badge-sm badge-soft-pink ms-auto">Hot</span> --}}
+                                    <span class="nav-link-text">Dashboard</span>
                                 </a>
                             </li>
 
+                            <!-- Leads -->
+                            <li class="nav-item mb-2 {{ request()->is('leads*') ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ route('leads.index') }}">
+                                    <span class="nav-icon-wrap">
+                                        <span class="svg-icon">
+                                            <i data-feather="users"></i>
+                                        </span>
+                                    </span>
+                                    <span class="nav-link-text">Leads</span>
+                                </a>
+                            </li>
+
+                            <!-- Services -->
+                            <li class="nav-item mb-2 {{ request()->is('services*') ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ route('services.index') }}">
+                                    <span class="nav-icon-wrap">
+                                        <span class="svg-icon">
+                                            <i data-feather="briefcase"></i>
+                                        </span>
+                                    </span>
+                                    <span class="nav-link-text">Services</span>
+                                </a>
+                            </li>
+
+                            <!-- Destinations -->
+                            <li class="nav-item mb-2 {{ request()->is('destinations*') ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ route('destinations.index') }}">
+                                    <span class="nav-icon-wrap">
+                                        <span class="svg-icon">
+                                            <i data-feather="map-pin"></i>
+                                        </span>
+                                    </span>
+                                    <span class="nav-link-text">Destinations</span>
+                                </a>
+                            </li>
+
+                            <!-- Users (Admin only) -->
                             @if (Auth::check() && Auth::user()->role === 'Admin')
-                                <li class="nav-item mb-3 {{ Route::currentRouteName() == 'users' ? 'active' : '' }}">
+                                <li class="nav-item mb-2 {{ request()->is('users*') ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('users') }}">
                                         <span class="nav-icon-wrap">
                                             <span class="svg-icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                    class="icon icon-tabler icon-tabler-user" width="24"
-                                                    height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                    stroke="currentColor" fill="none" stroke-linecap="round"
-                                                    stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <circle cx="12" cy="8" r="4" />
-                                                    <path d="M6 20v-1a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v1" />
-                                                </svg>
+                                                <i data-feather="user"></i>
                                             </span>
                                         </span>
                                         <span class="nav-link-text">Users</span>
-                                        {{-- <span class="badge badge-sm badge-soft-pink ms-auto">Hot</span> --}}
                                     </a>
                                 </li>
                             @endif
 
                         </ul>
                     </div>
-
                 </div>
             </div>
+
             <!-- /Main Menu -->
         </div>
         <div id="hk_menu_backdrop" class="hk-menu-backdrop"></div>

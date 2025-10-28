@@ -8,7 +8,6 @@
                     <span>Designed & Developed By </span>
                     <a href="https://www.fiverr.com/rajansharma626" target="_blank">Rajan Sharma</a>
                 </p>
-        </div>
+            </div>
     </footer>
 </div>
-
