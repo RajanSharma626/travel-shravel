@@ -35,16 +35,17 @@ class DestinationController extends Controller
             'state' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:255',
             'description' => 'nullable|string',
+            'is_active' => 'nullable|boolean',
         ]);
 
-        Destination::create($validated);
+        Destination::create($validated + ['is_active' => $request->input('is_active', 1)]);
         return redirect()->route('destinations.index')->with('success', 'Destination added successfully!');
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Destination $destination)
     {
         return view('destinations.edit', compact('destination'));
     }
@@ -60,6 +61,7 @@ class DestinationController extends Controller
             'state' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:255',
             'description' => 'nullable|string',
+            'is_active' => 'nullable|boolean',
         ]);
 
         $destination->update($validated);

@@ -117,8 +117,8 @@
                         <ul class="navbar-nav flex-column">
 
                             <!-- Dashboard -->
-                            <li class="nav-item mb-2 {{ Route::currentRouteName() == 'home' ? 'active' : '' }}">
-                                <a class="nav-link" href="{{ route('home') }}">
+                            <li class="nav-item mb-2 {{ Route::currentRouteName() == 'home' || Route::currentRouteName() == 'reports.index' ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ route('reports.index') }}">
                                     <span class="nav-icon-wrap">
                                         <span class="svg-icon">
                                             <i data-feather="home"></i>
@@ -129,7 +129,7 @@
                             </li>
 
                             <!-- Leads -->
-                            <li class="nav-item mb-2 {{ request()->is('leads*') ? 'active' : '' }}">
+                            <li class="nav-item mb-2 {{ request()->is('leads*') && !request()->is('leads/follow-up*') ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ route('leads.index') }}">
                                     <span class="nav-icon-wrap">
                                         <span class="svg-icon">
@@ -139,6 +139,20 @@
                                     <span class="nav-link-text">Leads</span>
                                 </a>
                             </li>
+
+                            <!-- Follow Up -->
+                            @can('view leads')
+                                <li class="nav-item mb-2 {{ request()->is('leads/follow-up*') ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('leads.follow-up') }}">
+                                        <span class="nav-icon-wrap">
+                                            <span class="svg-icon">
+                                                <i data-feather="clock"></i>
+                                            </span>
+                                        </span>
+                                        <span class="nav-link-text">Follow Up</span>
+                                    </a>
+                                </li>
+                            @endcan
 
                             <!-- Services -->
                             <li class="nav-item mb-2 {{ request()->is('services*') ? 'active' : '' }}">
@@ -164,8 +178,32 @@
                                 </a>
                             </li>
 
-                            <!-- Users (Admin only) -->
-                            @if (Auth::check() && Auth::user()->role === 'Admin')
+                            <!-- Incentives -->
+                            <li class="nav-item mb-2 {{ request()->is('incentives*') ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ route('incentives.index') }}">
+                                    <span class="nav-icon-wrap">
+                                        <span class="svg-icon">
+                                            <i data-feather="dollar-sign"></i>
+                                        </span>
+                                    </span>
+                                    <span class="nav-link-text">Incentives</span>
+                                </a>
+                            </li>
+
+                            <!-- Reports -->
+                            <li class="nav-item mb-2 {{ request()->is('reports*') ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ route('reports.index') }}">
+                                    <span class="nav-icon-wrap">
+                                        <span class="svg-icon">
+                                            <i data-feather="bar-chart-2"></i>
+                                        </span>
+                                    </span>
+                                    <span class="nav-link-text">Reports</span>
+                                </a>
+                            </li>
+
+                            <!-- Users (Admin/HR only) -->
+                            @can('view users')
                                 <li class="nav-item mb-2 {{ request()->is('users*') ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('users') }}">
                                         <span class="nav-icon-wrap">
@@ -176,7 +214,21 @@
                                         <span class="nav-link-text">Users</span>
                                     </a>
                                 </li>
-                            @endif
+                            @endcan
+
+                            <!-- Incentive Rules (Admin only) -->
+                            @can('view incentive rules')
+                                <li class="nav-item mb-2 {{ request()->is('incentive-rules*') ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('incentive-rules.index') }}">
+                                        <span class="nav-icon-wrap">
+                                            <span class="svg-icon">
+                                                <i data-feather="settings"></i>
+                                            </span>
+                                        </span>
+                                        <span class="nav-link-text">Incentive Rules</span>
+                                    </a>
+                                </li>
+                            @endcan
 
                         </ul>
                     </div>

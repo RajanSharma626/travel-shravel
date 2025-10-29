@@ -5,14 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
     public function index()
     {
-        $users = User::whereNull('deleted_at')->orderBy('created_at', 'desc')->get();
+        $users = User::whereNull('deleted_at')->with('roles')->orderBy('created_at', 'desc')->get();
+        $roles = Role::all();
 
-        return view('users', compact('users'));
+        return view('users', compact('users', 'roles'));
     }
 
     public function store(Request $request)
@@ -25,22 +27,35 @@ class UserController extends Controller
             'password' => 'required|string|min:6',
         ]);
 
-        // Create the users
-        User::create([
+        // Create the user
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'role' => $request->role,
+            'role' => $request->role, // Keep for backward compatibility
             'password' => Hash::make($request->password),
+            'status' => 'Active',
         ]);
 
+        // Assign role using Spatie
+        $role = Role::where('name', $request->role)->first();
+        if ($role) {
+            $user->assignRole($role);
+        }
+
         // Redirect back with a success message
-        return redirect()->route('users')->with('success', 'users created successfully.');
+        return redirect()->route('users')->with('success', 'User created successfully.');
     }
 
     public function edit($id)
     {
-        $users = User::findOrFail($id);
-        return response()->json($users);
+        $user = User::with('roles')->findOrFail($id);
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->roles->first()?->name ?? $user->role,
+            'status' => $user->status,
+        ]);
     }
 
     public function update(Request $request)
@@ -53,20 +68,26 @@ class UserController extends Controller
             'password' => 'nullable|string|min:6',
         ]);
 
-        // Find the users
-        $users = User::findOrFail($request->id);
+        // Find the user
+        $user = User::findOrFail($request->id);
 
-        // Update the users's details
-        $users->name = $request->name;
-        $users->email = $request->email;
-        $users->role = $request->role;
-        $users->status = $request->status;
+        // Update the user's details
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->role = $request->role; // Keep for backward compatibility
+        $user->status = $request->status;
 
         if ($request->password) {
-            $users->password = Hash::make($request->password);
+            $user->password = Hash::make($request->password);
         }
 
-        $users->save();
+        $user->save();
+
+        // Sync roles using Spatie
+        $role = Role::where('name', $request->role)->first();
+        if ($role) {
+            $user->syncRoles([$role]);
+        }
 
         // Redirect back with a success message
         return redirect()->route('users')->with('success', 'User updated successfully.');
@@ -74,8 +95,8 @@ class UserController extends Controller
 
     public function destroy($id)
     {
-        $users = User::findOrFail($id);
-        $users->delete();
+        $user = User::findOrFail($id);
+        $user->delete();
 
         return redirect()->route('users')->with('success', 'User deleted successfully.');
     }

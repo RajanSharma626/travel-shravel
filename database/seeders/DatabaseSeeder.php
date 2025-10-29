@@ -15,8 +15,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        $this->command->info('Seeding database...');
+        
+        // First, seed roles and permissions
+        $this->call(RolesAndPermissionsSeeder::class);
+        
+        // Then seed services and destinations
+        $this->call(ServiceSeeder::class);
+        $this->call(DestinationSeeder::class);
+        
+        // Seed users (will assign roles)
         $this->call(UserSeeder::class);
+        
+        // Seed incentive rules
+        $this->call(IncentiveRuleSeeder::class);
+        
+        // Finally, seed leads with all related data
+        $this->call(LeadSeeder::class);
+        
+        $this->command->info('Database seeding completed successfully!');
     }
 }
