@@ -62,11 +62,28 @@ class LeadSeeder extends Seeder
             $sellingPrice = rand(20000, 200000);
             $bookedValue = $status === 'booked' ? $sellingPrice * (rand(80, 100) / 100) : null;
 
+            $nameParts = preg_split('/\s+/', $customer['name']);
+            $firstName = $nameParts[0] ?? $customer['name'];
+            $lastName = null;
+            $middleName = null;
+
+            if (count($nameParts) > 1) {
+                $lastName = array_pop($nameParts);
+                if (!empty($nameParts)) {
+                    $firstName = array_shift($nameParts);
+                    if (!empty($nameParts)) {
+                        $middleName = implode(' ', $nameParts);
+                    }
+                }
+            }
+
             $lead = Lead::create([
                 'service_id' => $service->id,
                 'destination_id' => $destination->id,
-                'customer_name' => $customer['name'],
-                'phone' => $customer['phone'],
+                'first_name' => $firstName,
+                'middle_name' => $middleName,
+                'last_name' => $lastName,
+                'primary_phone' => $customer['phone'],
                 'email' => $customer['email'],
                 'address' => rand(0, 1) ? 'Mumbai, Maharashtra' : 'Delhi, India',
                 'travel_date' => Carbon::now()->addDays(rand(30, 180))->format('Y-m-d'),
@@ -158,20 +175,38 @@ class LeadSeeder extends Seeder
 
             // Create documents for booked leads
             if ($status === 'booked' && rand(0, 1)) {
-                $documentTypes = ['passport', 'visa', 'ticket', 'voucher', 'invoice', 'insurance'];
-                $documentStatuses = ['pending', 'received', 'verified', 'rejected'];
+                $documentTypes = ['Passport', 'Visa', 'Ticket', 'Voucher', 'Invoice', 'Insurance'];
+                $documentStatuses = ['not_received', 'received', 'verified', 'rejected'];
 
                 $numDocs = rand(2, 4);
                 for ($j = 0; $j < $numDocs; $j++) {
+                    $type = $documentTypes[array_rand($documentTypes)];
+                    $statusValue = $documentStatuses[array_rand($documentStatuses)];
+                    $receivedBy = null;
+                    $receivedAt = null;
+                    $verifiedBy = null;
+                    $verifiedAt = null;
+
+                    if (in_array($statusValue, ['received', 'verified'], true)) {
+                        $receivedBy = $salesUser->id;
+                        $receivedAt = Carbon::now()->subDays(rand(1, 5));
+                    }
+
+                    if ($statusValue === 'verified') {
+                        $verifiedBy = $accountsUsers->isNotEmpty() ? $accountsUsers->random()->id : null;
+                        $verifiedAt = Carbon::now()->subDays(rand(0, 2));
+                    }
+
                     Document::create([
                         'lead_id' => $lead->id,
                         'uploaded_by' => $salesUser->id,
-                        'type' => $documentTypes[array_rand($documentTypes)],
-                        'file_path' => 'documents/sample/' . $documentTypes[array_rand($documentTypes)] . '.pdf',
-                        'file_name' => ucfirst($documentTypes[array_rand($documentTypes)]) . '_' . $lead->tsq . '.pdf',
-                        'file_size' => rand(100000, 2000000),
-                        'status' => $documentStatuses[array_rand($documentStatuses)],
-                        'notes' => 'Sample document for testing',
+                        'type' => $type,
+                        'status' => $statusValue,
+                        'notes' => 'Checklist item for ' . strtolower($type),
+                        'received_by' => $receivedBy,
+                        'received_at' => $receivedAt,
+                        'verified_by' => $verifiedBy,
+                        'verified_at' => $verifiedAt,
                     ]);
                 }
             }

@@ -19,10 +19,10 @@
                                     <div class="alert alert-success">{{ session('success') }}</div>
                                 @endif
 
-                                <table class="table table-striped table-bordered w-100 mb-5" id="leadsTable">
+                                <table class="table table-striped small table-bordered w-100 mb-5" id="leadsTable">
                                     <thead>
                                         <tr>
-                                            <th>TSQ</th>
+                                            <th>Ref No.</th>
                                             <th>Customer Name</th>
                                             <th>Phone</th>
                                             <th>Service</th>
@@ -39,13 +39,12 @@
                                             <tr>
                                                 <td><strong>{{ $lead->tsq }}</strong></td>
                                                 <td>{{ $lead->customer_name }}</td>
-                                                <td>{{ $lead->phone }}</td>
+                                                <td>{{ $lead->primary_phone ?? $lead->phone }}</td>
                                                 <td>{{ $lead->service?->name ?? 'N/A' }}</td>
                                                 <td>{{ $lead->destination?->name ?? 'N/A' }}</td>
                                                 <td>
                                                     @if($lead->assignedUser && $lead->assigned_user_id == Auth::id())
-                                                        <span class="badge bg-success text-white fw-bold">
-                                                            <i data-feather="user-check" style="width: 14px; height: 14px; vertical-align: middle;"></i>
+                                                        <span class="text-primary fw-semibold">
                                                             {{ $lead->assignedUser->name }}
                                                         </span>
                                                     @else

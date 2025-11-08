@@ -40,22 +40,29 @@ class LeadController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'phone' => 'required',
-            'email' => 'nullable|email',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+            'primary_phone' => 'required|string|max:20',
+            'secondary_phone' => 'nullable|string|max:20',
+            'other_phone' => 'nullable|string|max:20',
+            'email' => 'required|email',
             'service_id' => 'nullable|exists:services,id',
             'destination_id' => 'nullable|exists:destinations,id',
             'address' => 'nullable|string',
             'travel_date' => 'nullable|date',
-            'adults' => 'nullable|integer|min:1',
+            'adults' => 'required|integer|min:1',
             'children' => 'nullable|integer|min:0',
             'infants' => 'nullable|integer|min:0',
-            'selling_price' => 'nullable|numeric|min:0',
-            'booked_value' => 'nullable|numeric|min:0',
             'assigned_user_id' => 'nullable|exists:users,id',
+            'status' => 'required|in:new,contacted,follow_up,priority,booked,closed',
         ]);
+
+        $data = $validated;
+        $data['assigned_user_id'] = $data['assigned_user_id'] ?? Auth::id();
+        $data['status'] = $data['status'] ?? 'new';
         
-        Lead::create($validated + ['assigned_user_id' => $validated['assigned_user_id'] ?? Auth::id(), 'status' => 'new']);
+        Lead::create($data);
         return redirect()->route('leads.index')->with('success', 'Lead created successfully!');
     }
 
@@ -90,18 +97,20 @@ class LeadController extends Controller
     public function update(Request $request, Lead $lead)
     {
         $validated = $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'phone' => 'required',
-            'email' => 'nullable|email',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+            'primary_phone' => 'required|string|max:20',
+            'secondary_phone' => 'nullable|string|max:20',
+            'other_phone' => 'nullable|string|max:20',
+            'email' => 'required|email',
             'service_id' => 'nullable|exists:services,id',
             'destination_id' => 'nullable|exists:destinations,id',
             'address' => 'nullable|string',
             'travel_date' => 'nullable|date',
-            'adults' => 'nullable|integer|min:1',
+            'adults' => 'required|integer|min:1',
             'children' => 'nullable|integer|min:0',
             'infants' => 'nullable|integer|min:0',
-            'selling_price' => 'nullable|numeric|min:0',
-            'booked_value' => 'nullable|numeric|min:0',
             'assigned_user_id' => 'nullable|exists:users,id',
             'status' => 'required|in:new,contacted,follow_up,priority,booked,closed',
         ]);

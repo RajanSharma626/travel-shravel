@@ -15,7 +15,13 @@ class Lead extends Model
         'service_id',
         'destination_id',
         'customer_name',
+        'first_name',
+        'middle_name',
+        'last_name',
         'phone',
+        'primary_phone',
+        'secondary_phone',
+        'other_phone',
         'email',
         'address',
         'travel_date',
@@ -31,6 +37,25 @@ class Lead extends Model
     protected $casts = [
         'travel_date' => 'date',
     ];
+
+    protected static function booted()
+    {
+        static::saving(function (Lead $lead) {
+            $names = array_filter([
+                $lead->first_name,
+                $lead->middle_name,
+                $lead->last_name,
+            ]);
+
+            if (!empty($names)) {
+                $lead->customer_name = trim(implode(' ', $names));
+            }
+
+            if ($lead->primary_phone) {
+                $lead->phone = $lead->primary_phone;
+            }
+        });
+    }
 
     public function service()
     {

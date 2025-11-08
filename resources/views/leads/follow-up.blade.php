@@ -55,7 +55,7 @@
                                                     <tr>
                                                         <td><strong>{{ $lead->tsq }}</strong></td>
                                                         <td>{{ $lead->customer_name }}</td>
-                                                        <td>{{ $lead->phone }}</td>
+                                                        <td>{{ $lead->primary_phone ?? $lead->phone }}</td>
                                                         <td>{{ $lead->service?->name ?? 'N/A' }}</td>
                                                         <td>{{ $lead->destination?->name ?? 'N/A' }}</td>
                                                         @if($isAdmin)

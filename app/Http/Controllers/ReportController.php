@@ -136,7 +136,7 @@ class ReportController extends Controller
                     return [
                         $lead->tsq,
                         $lead->customer_name,
-                        $lead->phone,
+                        $lead->primary_phone ?? $lead->phone,
                         $lead->email,
                         $lead->service?->name,
                         $lead->destination?->name,

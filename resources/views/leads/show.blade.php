@@ -57,8 +57,20 @@
                                                 <div class="d-flex flex-column gap-2">
                                                     <div class="d-flex align-items-center">
                                                         <i data-feather="phone" class="text-muted me-2" style="width: 14px; height: 14px;"></i>
-                                                        <span class="text-muted">{{ $lead->phone }}</span>
+                                                        <span class="text-muted">{{ $lead->primary_phone ?? $lead->phone }}</span>
                                                     </div>
+                                                    @if($lead->secondary_phone)
+                                                    <div class="d-flex align-items-center">
+                                                        <i data-feather="phone-forwarded" class="text-muted me-2" style="width: 14px; height: 14px;"></i>
+                                                        <span class="text-muted">{{ $lead->secondary_phone }}</span>
+                                                    </div>
+                                                    @endif
+                                                    @if($lead->other_phone)
+                                                    <div class="d-flex align-items-center">
+                                                        <i data-feather="phone-outgoing" class="text-muted me-2" style="width: 14px; height: 14px;"></i>
+                                                        <span class="text-muted">{{ $lead->other_phone }}</span>
+                                                    </div>
+                                                    @endif
                                                     @if($lead->email)
                                                     <div class="d-flex align-items-center">
                                                         <i data-feather="mail" class="text-muted me-2" style="width: 14px; height: 14px;"></i>
@@ -198,42 +210,6 @@
                                                     </div>
                                                 </form>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Financial Summary -->
-                            <div class="row mb-4">
-                                <div class="col-md-3">
-                                    <div class="card border-primary">
-                                        <div class="card-body text-center">
-                                            <h6 class="text-muted">Selling Price</h6>
-                                            <h4 class="text-primary">₹{{ number_format($lead->selling_price ?? 0, 2) }}</h4>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="card border-info">
-                                        <div class="card-body text-center">
-                                            <h6 class="text-muted">Total Paid</h6>
-                                            <h4 class="text-info">₹{{ number_format($lead->total_paid ?? 0, 2) }}</h4>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="card border-warning">
-                                        <div class="card-body text-center">
-                                            <h6 class="text-muted">Total Cost</h6>
-                                            <h4 class="text-warning">₹{{ number_format($lead->total_cost ?? 0, 2) }}</h4>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="card border-success">
-                                        <div class="card-body text-center">
-                                            <h6 class="text-muted">Profit</h6>
-                                            <h4 class="text-success">₹{{ number_format($lead->profit ?? 0, 2) }}</h4>
                                         </div>
                                     </div>
                                 </div>
