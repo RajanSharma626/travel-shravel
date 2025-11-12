@@ -14,19 +14,62 @@ use Illuminate\Support\Facades\DB;
 
 class LeadController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $leads = Lead::with(['service', 'destination', 'assignedUser', 'remarks' => function($q) {
+        $statuses = [
+            'new' => 'New',
+            'contacted' => 'Contacted',
+            'follow_up' => 'Follow Up',
+            'priority' => 'Priority',
+            'booked' => 'Booked',
+            'closed' => 'Closed',
+        ];
+
+        $filters = [
+            'status' => $request->input('status'),
+            'search' => $request->input('search'),
+        ];
+
+        $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'remarks' => function ($q) {
             $q->latest()->limit(1);
-        }])->latest()->paginate(20);
-        
+        }])->latest();
+
+        if (!empty($filters['status'])) {
+            $leadsQuery->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['search'])) {
+            $searchTerm = trim($filters['search']);
+            $likeTerm = '%' . $searchTerm . '%';
+
+            $leadsQuery->where(function ($query) use ($likeTerm) {
+                $query->where('customer_name', 'like', $likeTerm)
+                    ->orWhere('first_name', 'like', $likeTerm)
+                    ->orWhere('middle_name', 'like', $likeTerm)
+                    ->orWhere('last_name', 'like', $likeTerm)
+                    ->orWhere('phone', 'like', $likeTerm)
+                    ->orWhere('primary_phone', 'like', $likeTerm)
+                    ->orWhere('secondary_phone', 'like', $likeTerm)
+                    ->orWhere('other_phone', 'like', $likeTerm)
+                    ->orWhere('tsq', 'like', $likeTerm)
+                    ->orWhere('tsq_number', 'like', $likeTerm);
+            });
+        }
+
+        $leads = $leadsQuery->paginate(20);
+        $leads->appends($request->query());
+
         // Add latest remark to each lead
-        $leads->getCollection()->transform(function($lead) {
+        $leads->getCollection()->transform(function ($lead) {
             $lead->latest_remark = $lead->remarks->first();
             return $lead;
         });
-        
-        return view('leads.index', compact('leads'));
+
+        return view('leads.index', [
+            'leads' => $leads,
+            'statuses' => $statuses,
+            'filters' => $filters,
+        ]);
     }
 
     public function create()
@@ -61,7 +104,7 @@ class LeadController extends Controller
         $data = $validated;
         $data['assigned_user_id'] = $data['assigned_user_id'] ?? Auth::id();
         $data['status'] = $data['status'] ?? 'new';
-        
+
         Lead::create($data);
         return redirect()->route('leads.index')->with('success', 'Lead created successfully!');
     }
@@ -69,8 +112,8 @@ class LeadController extends Controller
     public function show(Lead $lead)
     {
         $lead->load([
-            'service', 
-            'destination', 
+            'service',
+            'destination',
             'assignedUser',
             'histories.changedBy',
             'remarks.user',
@@ -82,7 +125,7 @@ class LeadController extends Controller
             'documents.verifiedBy',
             'delivery.assignedTo'
         ]);
-        
+
         return view('leads.show', compact('lead'));
     }
 
@@ -114,7 +157,7 @@ class LeadController extends Controller
             'assigned_user_id' => 'nullable|exists:users,id',
             'status' => 'required|in:new,contacted,follow_up,priority,booked,closed',
         ]);
-        
+
         $lead->update($validated);
         return redirect()->route('leads.show', $lead)->with('success', 'Lead updated successfully!');
     }
@@ -151,32 +194,78 @@ class LeadController extends Controller
         return redirect()->back()->with('success', 'Assigned user updated successfully!');
     }
 
-    public function followUp()
+    public function followUp(Request $request)
     {
         $user = Auth::user();
-        
+
         // Check if user is Admin
         $isAdmin = $user->hasRole('Admin');
-        
+
         // Check if user is Sales or Post Sales (including managers)
         $isSalesOrPostSales = $user->hasAnyRole(['Admin', 'Sales', 'Sales Manager', 'Post Sales', 'Post Sales Manager']);
-        
+
+        $filters = [
+            'search' => $request->input('search'),
+            'follow_up_filter' => $request->input('follow_up_filter', 'all'),
+        ];
+
         // Build query for follow-up leads
         $query = Lead::where('status', 'follow_up')
-            ->with(['service', 'destination', 'assignedUser', 'remarks' => function($q) {
+            ->with(['service', 'destination', 'assignedUser', 'remarks' => function ($q) {
                 $q->latest()->limit(1);
             }]);
-        
+
         // For Sales and Post Sales users (non-admin), show only their assigned leads
         if (!$isAdmin && $isSalesOrPostSales) {
             $query->where('assigned_user_id', $user->id);
         }
-        
+
+        if (!empty($filters['search'])) {
+            $searchTerm = trim($filters['search']);
+            $likeTerm = '%' . $searchTerm . '%';
+
+            $query->where(function ($query) use ($likeTerm) {
+                $query->where('customer_name', 'like', $likeTerm)
+                    ->orWhere('first_name', 'like', $likeTerm)
+                    ->orWhere('middle_name', 'like', $likeTerm)
+                    ->orWhere('last_name', 'like', $likeTerm)
+                    ->orWhere('phone', 'like', $likeTerm)
+                    ->orWhere('primary_phone', 'like', $likeTerm)
+                    ->orWhere('secondary_phone', 'like', $likeTerm)
+                    ->orWhere('other_phone', 'like', $likeTerm)
+                    ->orWhere('tsq', 'like', $likeTerm)
+                    ->orWhere('tsq_number', 'like', $likeTerm);
+            });
+        }
+
         // Get leads with their latest remark
-        $leads = $query->get()->map(function($lead) {
+        $leads = $query->get()->map(function ($lead) {
             $lead->latest_remark = $lead->remarks->first();
             return $lead;
-        })->sortBy(function($lead) {
+        });
+
+        if ($filters['follow_up_filter'] !== 'all') {
+            $now = now();
+            $leads = $leads->filter(function ($lead) use ($filters, $now) {
+                $remark = $lead->latest_remark;
+                $followUpDate = $remark?->follow_up_date;
+
+                switch ($filters['follow_up_filter']) {
+                    case 'today':
+                        return $followUpDate?->isToday();
+                    case 'overdue':
+                        return $followUpDate?->isPast() && !$followUpDate->isToday();
+                    case 'upcoming':
+                        return $followUpDate?->isFuture();
+                    case 'no_date':
+                        return $followUpDate === null;
+                    default:
+                        return true;
+                }
+            });
+        }
+
+        $leads = $leads->sortBy(function ($lead) {
             // Sort by follow_up_date if available, otherwise by remark created_at, otherwise by lead updated_at
             if ($lead->latest_remark && $lead->latest_remark->follow_up_date) {
                 return $lead->latest_remark->follow_up_date->toDateString();
@@ -186,7 +275,7 @@ class LeadController extends Controller
                 return $lead->updated_at->format('Y-m-d H:i:s');
             }
         })->values();
-        
+
         // Paginate manually since we sorted after getting data
         $perPage = 20;
         $currentPage = request()->get('page', 1);
@@ -196,9 +285,13 @@ class LeadController extends Controller
             $leads->count(),
             $perPage,
             $currentPage,
-            ['path' => request()->url(), 'query' => request()->query()]
+            ['path' => request()->url(), 'query' => $request->query()]
         );
-        
-        return view('leads.follow-up', compact('leads', 'isAdmin'));
+
+        return view('leads.follow-up', [
+            'leads' => $leads,
+            'isAdmin' => $isAdmin,
+            'filters' => $filters,
+        ]);
     }
 }
