@@ -65,10 +65,17 @@ class LeadController extends Controller
             return $lead;
         });
 
+        $services = Service::orderBy('name')->get();
+        $destinations = Destination::orderBy('name')->get();
+        $users = User::orderBy('name')->get();
+
         return view('leads.index', [
             'leads' => $leads,
             'statuses' => $statuses,
             'filters' => $filters,
+            'services' => $services,
+            'destinations' => $destinations,
+            'users' => $users,
         ]);
     }
 
@@ -96,12 +103,17 @@ class LeadController extends Controller
             'travel_date' => 'nullable|date',
             'adults' => 'required|integer|min:1',
             'children' => 'nullable|integer|min:0',
+            'children_2_5' => 'nullable|integer|min:0',
+            'children_6_11' => 'nullable|integer|min:0',
             'infants' => 'nullable|integer|min:0',
             'assigned_user_id' => 'nullable|exists:users,id',
             'status' => 'required|in:new,contacted,follow_up,priority,booked,closed',
         ]);
 
         $data = $validated;
+        $data['children_2_5'] = $data['children_2_5'] ?? 0;
+        $data['children_6_11'] = $data['children_6_11'] ?? 0;
+        $data['children'] = ($data['children_2_5'] ?? 0) + ($data['children_6_11'] ?? 0);
         $data['assigned_user_id'] = $data['assigned_user_id'] ?? Auth::id();
         $data['status'] = $data['status'] ?? 'new';
 
@@ -109,7 +121,7 @@ class LeadController extends Controller
         return redirect()->route('leads.index')->with('success', 'Lead created successfully!');
     }
 
-    public function show(Lead $lead)
+    public function show(Request $request, Lead $lead)
     {
         $lead->load([
             'service',
@@ -125,6 +137,78 @@ class LeadController extends Controller
             'documents.verifiedBy',
             'delivery.assignedTo'
         ]);
+
+        if ($request->expectsJson()) {
+            $statusLabels = [
+                'new' => 'New',
+                'contacted' => 'Contacted',
+                'follow_up' => 'Follow Up',
+                'priority' => 'Priority',
+                'booked' => 'Booked',
+                'closed' => 'Closed',
+            ];
+
+            $statusColors = [
+                'new' => 'bg-info text-white',
+                'contacted' => 'bg-primary text-white',
+                'follow_up' => 'bg-warning text-dark',
+                'priority' => 'bg-danger text-white',
+                'booked' => 'bg-success text-white',
+                'closed' => 'bg-secondary text-white',
+            ];
+
+            $remarks = $lead->remarks->sortByDesc('created_at')->take(10)->values()->map(function ($remark) {
+                return [
+                    'id' => $remark->id,
+                    'remark' => $remark->remark,
+                    'visibility' => $remark->visibility,
+                    'follow_up_date' => $remark->follow_up_date ? $remark->follow_up_date->format('d M, Y') : null,
+                    'created_at' => $remark->created_at?->format('d M, Y h:i A'),
+                    'user' => [
+                        'name' => $remark->user?->name ?? 'Unknown',
+                    ],
+                ];
+            });
+
+            return response()->json([
+                'lead' => [
+                    'id' => $lead->id,
+                    'tsq' => $lead->tsq,
+                    'customer_name' => $lead->customer_name,
+                    'first_name' => $lead->first_name,
+                    'middle_name' => $lead->middle_name,
+                    'last_name' => $lead->last_name,
+                    'primary_phone' => $lead->primary_phone ?? $lead->phone,
+                    'secondary_phone' => $lead->secondary_phone,
+                    'other_phone' => $lead->other_phone,
+                    'email' => $lead->email,
+                    'address' => $lead->address,
+                    'service' => $lead->service?->name,
+                    'service_id' => $lead->service_id,
+                    'destination' => $lead->destination?->name,
+                    'destination_id' => $lead->destination_id,
+                    'travel_date' => $lead->travel_date ? $lead->travel_date->format('d M, Y') : null,
+                    'travel_date_raw' => $lead->travel_date ? $lead->travel_date->format('Y-m-d') : null,
+                    'adults' => $lead->adults,
+                    'children' => $lead->children,
+                    'children_2_5' => $lead->children_2_5 ?? 0,
+                    'children_6_11' => $lead->children_6_11 ?? 0,
+                    'infants' => $lead->infants,
+                    'assigned_user' => $lead->assignedUser?->name,
+                    'assigned_user_id' => $lead->assigned_user_id,
+                    'status' => $lead->status,
+                    'status_label' => $statusLabels[$lead->status] ?? ucfirst(str_replace('_', ' ', $lead->status)),
+                    'status_color' => $statusColors[$lead->status] ?? 'bg-primary text-white',
+                    'created_at' => $lead->created_at?->format('d M, Y h:i A'),
+                    'updated_at' => $lead->updated_at?->format('d M, Y h:i A'),
+                    'urls' => [
+                        'show' => route('leads.show', $lead),
+                        'remarks_store' => route('leads.remarks.store', $lead),
+                    ],
+                ],
+                'remarks' => $remarks,
+            ]);
+        }
 
         return view('leads.show', compact('lead'));
     }
@@ -153,12 +237,25 @@ class LeadController extends Controller
             'travel_date' => 'nullable|date',
             'adults' => 'required|integer|min:1',
             'children' => 'nullable|integer|min:0',
+            'children_2_5' => 'nullable|integer|min:0',
+            'children_6_11' => 'nullable|integer|min:0',
             'infants' => 'nullable|integer|min:0',
             'assigned_user_id' => 'nullable|exists:users,id',
             'status' => 'required|in:new,contacted,follow_up,priority,booked,closed',
         ]);
 
+        $validated['children_2_5'] = $validated['children_2_5'] ?? 0;
+        $validated['children_6_11'] = $validated['children_6_11'] ?? 0;
+        $validated['children'] = ($validated['children_2_5'] ?? 0) + ($validated['children_6_11'] ?? 0);
+
         $lead->update($validated);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Lead updated successfully!',
+            ]);
+        }
+
         return redirect()->route('leads.show', $lead)->with('success', 'Lead updated successfully!');
     }
 
@@ -189,109 +286,21 @@ class LeadController extends Controller
             'assigned_user_id' => 'required|exists:users,id',
         ]);
 
+        $oldAssignedUser = $lead->assignedUser;
         $lead->update(['assigned_user_id' => $validated['assigned_user_id']]);
+        $newAssignedUser = $lead->fresh()->assignedUser;
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'User assigned successfully!',
+                'assigned_user' => [
+                    'id' => $newAssignedUser?->id,
+                    'name' => $newAssignedUser?->name ?? 'Unassigned',
+                ],
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Assigned user updated successfully!');
     }
 
-    public function followUp(Request $request)
-    {
-        $user = Auth::user();
-
-        // Check if user is Admin
-        $isAdmin = $user->hasRole('Admin');
-
-        // Check if user is Sales or Post Sales (including managers)
-        $isSalesOrPostSales = $user->hasAnyRole(['Admin', 'Sales', 'Sales Manager', 'Post Sales', 'Post Sales Manager']);
-
-        $filters = [
-            'search' => $request->input('search'),
-            'follow_up_filter' => $request->input('follow_up_filter', 'all'),
-        ];
-
-        // Build query for follow-up leads
-        $query = Lead::where('status', 'follow_up')
-            ->with(['service', 'destination', 'assignedUser', 'remarks' => function ($q) {
-                $q->latest()->limit(1);
-            }]);
-
-        // For Sales and Post Sales users (non-admin), show only their assigned leads
-        if (!$isAdmin && $isSalesOrPostSales) {
-            $query->where('assigned_user_id', $user->id);
-        }
-
-        if (!empty($filters['search'])) {
-            $searchTerm = trim($filters['search']);
-            $likeTerm = '%' . $searchTerm . '%';
-
-            $query->where(function ($query) use ($likeTerm) {
-                $query->where('customer_name', 'like', $likeTerm)
-                    ->orWhere('first_name', 'like', $likeTerm)
-                    ->orWhere('middle_name', 'like', $likeTerm)
-                    ->orWhere('last_name', 'like', $likeTerm)
-                    ->orWhere('phone', 'like', $likeTerm)
-                    ->orWhere('primary_phone', 'like', $likeTerm)
-                    ->orWhere('secondary_phone', 'like', $likeTerm)
-                    ->orWhere('other_phone', 'like', $likeTerm)
-                    ->orWhere('tsq', 'like', $likeTerm)
-                    ->orWhere('tsq_number', 'like', $likeTerm);
-            });
-        }
-
-        // Get leads with their latest remark
-        $leads = $query->get()->map(function ($lead) {
-            $lead->latest_remark = $lead->remarks->first();
-            return $lead;
-        });
-
-        if ($filters['follow_up_filter'] !== 'all') {
-            $now = now();
-            $leads = $leads->filter(function ($lead) use ($filters, $now) {
-                $remark = $lead->latest_remark;
-                $followUpDate = $remark?->follow_up_date;
-
-                switch ($filters['follow_up_filter']) {
-                    case 'today':
-                        return $followUpDate?->isToday();
-                    case 'overdue':
-                        return $followUpDate?->isPast() && !$followUpDate->isToday();
-                    case 'upcoming':
-                        return $followUpDate?->isFuture();
-                    case 'no_date':
-                        return $followUpDate === null;
-                    default:
-                        return true;
-                }
-            });
-        }
-
-        $leads = $leads->sortBy(function ($lead) {
-            // Sort by follow_up_date if available, otherwise by remark created_at, otherwise by lead updated_at
-            if ($lead->latest_remark && $lead->latest_remark->follow_up_date) {
-                return $lead->latest_remark->follow_up_date->toDateString();
-            } elseif ($lead->latest_remark) {
-                return $lead->latest_remark->created_at->format('Y-m-d H:i:s');
-            } else {
-                return $lead->updated_at->format('Y-m-d H:i:s');
-            }
-        })->values();
-
-        // Paginate manually since we sorted after getting data
-        $perPage = 20;
-        $currentPage = request()->get('page', 1);
-        $items = $leads->slice(($currentPage - 1) * $perPage, $perPage)->all();
-        $leads = new \Illuminate\Pagination\LengthAwarePaginator(
-            $items,
-            $leads->count(),
-            $perPage,
-            $currentPage,
-            ['path' => request()->url(), 'query' => $request->query()]
-        );
-
-        return view('leads.follow-up', [
-            'leads' => $leads,
-            'isAdmin' => $isAdmin,
-            'filters' => $filters,
-        ]);
-    }
 }

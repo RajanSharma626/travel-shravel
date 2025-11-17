@@ -255,7 +255,6 @@
                                                         <div class="d-flex justify-content-between">
                                                             <div>
                                                                 <strong>{{ $remark->user->name }}</strong>
-                                                                <span class="badge bg-{{ $remark->visibility == 'internal' ? 'warning' : 'info' }} ms-2">{{ ucfirst($remark->visibility) }}</span>
                                                                 @if($remark->follow_up_date)
                                                                     <span class="badge bg-danger ms-2">Follow-up: {{ $remark->follow_up_date->format('d M, Y') }}</span>
                                                                 @endif
@@ -641,13 +640,6 @@
                     <div class="mb-3">
                         <label class="form-label">Follow-up Date (Optional)</label>
                         <input type="date" name="follow_up_date" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Visibility</label>
-                        <select name="visibility" class="form-select" required>
-                            <option value="public">Public</option>
-                            <option value="internal">Internal</option>
-                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">

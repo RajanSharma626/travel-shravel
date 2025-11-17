@@ -1,6 +1,11 @@
 @extends('layouts.app')
 @section('title', 'Add Lead | Travel Shreval')
 
+@php
+    $leadDraftKey = 'lead_form_draft_' . auth()->id();
+    $hasLeadOldInput = count(session()->getOldInput()) > 0;
+@endphp
+
 @section('content')
     <div class="hk-pg-wrapper pb-0">
         <!-- Page Body -->
@@ -35,7 +40,7 @@
 
                                 <div class="card border-0 shadow-sm mt-3">
                                     <div class="card-body p-4 p-lg-5">
-                                        <form action="{{ route('leads.store') }}" method="POST" class="lead-form">
+                                        <form action="{{ route('leads.store') }}" method="POST" class="lead-form" id="leadCreateForm">
                                             @csrf
 
                                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-lg-between mb-4">
@@ -142,8 +147,13 @@
                                                             class="form-control" required>
                                                     </div>
                                                     <div class="col-md-4">
-                                                        <label class="form-label fw-semibold">Children (2-11 yrs)</label>
-                                                        <input type="number" name="children" value="{{ old('children', 0) }}" min="0"
+                                                        <label class="form-label fw-semibold">Children (2-5 yrs)</label>
+                                                        <input type="number" name="children_2_5" value="{{ old('children_2_5', 0) }}" min="0"
+                                                            class="form-control">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label class="form-label fw-semibold">Children (6-11 yrs)</label>
+                                                        <input type="number" name="children_6_11" value="{{ old('children_6_11', 0) }}" min="0"
                                                             class="form-control">
                                                     </div>
                                                     <div class="col-md-4">
@@ -202,4 +212,84 @@
 
         @include('layouts.footer')
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+                return;
+            }
+
+            const form = document.getElementById('leadCreateForm');
+            if (!form) {
+                return;
+            }
+
+            const draftStorageKey = '{{ $leadDraftKey }}';
+            const hasOldInput = @json($hasLeadOldInput);
+            const ignoredFields = ['_token', '_method'];
+
+            const saveDraft = () => {
+                const data = {};
+                Array.from(form.elements).forEach((el) => {
+                    if (!el.name || ignoredFields.includes(el.name) || el.disabled) {
+                        return;
+                    }
+                    if ((el.type === 'checkbox' || el.type === 'radio')) {
+                        if (el.checked) {
+                            data[el.name] = el.value;
+                        }
+                        return;
+                    }
+                    data[el.name] = el.value;
+                });
+                localStorage.setItem(draftStorageKey, JSON.stringify(data));
+            };
+
+            const restoreDraft = () => {
+                const stored = localStorage.getItem(draftStorageKey);
+                if (!stored) {
+                    return;
+                }
+
+                try {
+                    const data = JSON.parse(stored);
+                    Object.entries(data).forEach(([name, value]) => {
+                        const node = form.elements[name];
+                        if (!node) {
+                            return;
+                        }
+
+                        if (node instanceof RadioNodeList) {
+                            Array.from(node).forEach((input) => {
+                                input.checked = input.value === value;
+                            });
+                        } else if (node.type === 'checkbox') {
+                            node.checked = Boolean(value);
+                        } else {
+                            node.value = value;
+                        }
+                    });
+                } catch (error) {
+                    console.error('Failed to parse lead draft from storage', error);
+                    localStorage.removeItem(draftStorageKey);
+                }
+            };
+
+            const removeDraft = () => {
+                localStorage.removeItem(draftStorageKey);
+            };
+
+            form.querySelectorAll('input, select, textarea').forEach((field) => {
+                field.addEventListener('input', saveDraft);
+                field.addEventListener('change', saveDraft);
+            });
+
+            form.addEventListener('submit', removeDraft);
+            form.addEventListener('reset', removeDraft);
+
+            if (!hasOldInput) {
+                restoreDraft();
+            }
+        });
+    </script>
 @endsection

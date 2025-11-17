@@ -26,6 +26,9 @@
 
     <!-- CSS -->
     <link href="{{ asset('dist/css/style.css') }}" rel="stylesheet" type="text/css">
+    
+    <!-- Page Styles -->
+    @stack('styles')
 </head>
 
 <body>
@@ -129,7 +132,7 @@
                             </li>
 
                             <!-- Leads -->
-                            <li class="nav-item mb-2 {{ request()->is('leads*') && !request()->is('leads/follow-up*') ? 'active' : '' }}">
+                            <li class="nav-item mb-2 {{ request()->is('leads*') ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ route('leads.index') }}">
                                     <span class="nav-icon-wrap">
                                         <span class="svg-icon">
@@ -139,20 +142,6 @@
                                     <span class="nav-link-text">Leads</span>
                                 </a>
                             </li>
-
-                            <!-- Follow Up -->
-                            @can('view leads')
-                                <li class="nav-item mb-2 {{ request()->is('leads/follow-up*') ? 'active' : '' }}">
-                                    <a class="nav-link" href="{{ route('leads.follow-up') }}">
-                                        <span class="nav-icon-wrap">
-                                            <span class="svg-icon">
-                                                <i data-feather="clock"></i>
-                                            </span>
-                                        </span>
-                                        <span class="nav-link-text">Follow Up</span>
-                                    </a>
-                                </li>
-                            @endcan
 
                             <!-- Services -->
                             <li class="nav-item mb-2 {{ request()->is('services*') ? 'active' : '' }}">
@@ -248,8 +237,7 @@
     <!-- /Wrapper -->
 
     <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
-        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
     <!-- Bootstrap Core JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
@@ -361,6 +349,9 @@
     <script src="{{ asset('dist/js/init.js') }}"></script>
     <script src="{{ asset('dist/js/chips-init.js') }}"></script>
     {{-- <script src="{{ asset('dist/js/dashboard-data.js') }}"></script> --}}
+
+    <!-- Page Scripts -->
+    @stack('scripts')
 </body>
 
 </html>

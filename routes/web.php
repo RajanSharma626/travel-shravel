@@ -86,7 +86,6 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     // Leads routes - IMPORTANT: Specific routes must come before wildcard routes
     Route::middleware('permission:view leads')->group(function () {
         Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');
-        Route::get('/leads/follow-up', [LeadController::class, 'followUp'])->name('leads.follow-up');
     });
     Route::middleware('permission:create leads')->group(function () {
         Route::get('/leads/create', [LeadController::class, 'create'])->name('leads.create');

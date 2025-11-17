@@ -27,6 +27,8 @@ class Lead extends Model
         'travel_date',
         'adults',
         'children',
+        'children_2_5',
+        'children_6_11',
         'infants',
         'assigned_user_id',
         'selling_price',

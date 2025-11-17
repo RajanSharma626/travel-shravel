@@ -136,8 +136,13 @@
                                                             class="form-control" required>
                                                     </div>
                                                     <div class="col-md-4">
-                                                        <label class="form-label fw-semibold">Children (2-11 yrs)</label>
-                                                        <input type="number" name="children" value="{{ old('children', $lead->children ?? 0) }}" min="0"
+                                                        <label class="form-label fw-semibold">Children (2-5 yrs)</label>
+                                                        <input type="number" name="children_2_5" value="{{ old('children_2_5', $lead->children_2_5 ?? 0) }}" min="0"
+                                                            class="form-control">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label class="form-label fw-semibold">Children (6-11 yrs)</label>
+                                                        <input type="number" name="children_6_11" value="{{ old('children_6_11', $lead->children_6_11 ?? 0) }}" min="0"
                                                             class="form-control">
                                                     </div>
                                                     <div class="col-md-4">
