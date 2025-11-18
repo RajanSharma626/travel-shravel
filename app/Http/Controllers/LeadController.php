@@ -31,8 +31,8 @@ class LeadController extends Controller
         ];
 
         $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'remarks' => function ($q) {
-            $q->latest()->limit(1);
-        }])->latest();
+            $q->orderBy('created_at', 'desc')->limit(1);
+        }])->orderBy('created_at', 'desc');
 
         if (!empty($filters['status'])) {
             $leadsQuery->where('status', $filters['status']);
@@ -100,6 +100,11 @@ class LeadController extends Controller
             'service_id' => 'nullable|exists:services,id',
             'destination_id' => 'nullable|exists:destinations,id',
             'address' => 'nullable|string',
+            'address_line' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'country' => 'nullable|string|max:255',
+            'pin_code' => 'nullable|string|max:20',
             'travel_date' => 'nullable|date',
             'adults' => 'required|integer|min:1',
             'children' => 'nullable|integer|min:0',
@@ -183,6 +188,11 @@ class LeadController extends Controller
                     'other_phone' => $lead->other_phone,
                     'email' => $lead->email,
                     'address' => $lead->address,
+                    'address_line' => $lead->address_line,
+                    'city' => $lead->city,
+                    'state' => $lead->state,
+                    'country' => $lead->country,
+                    'pin_code' => $lead->pin_code,
                     'service' => $lead->service?->name,
                     'service_id' => $lead->service_id,
                     'destination' => $lead->destination?->name,
@@ -210,7 +220,7 @@ class LeadController extends Controller
             ]);
         }
 
-        return view('leads.show', compact('lead'));
+        return view('leads.index', compact('lead'));
     }
 
     public function edit(Lead $lead)
@@ -234,6 +244,11 @@ class LeadController extends Controller
             'service_id' => 'nullable|exists:services,id',
             'destination_id' => 'nullable|exists:destinations,id',
             'address' => 'nullable|string',
+            'address_line' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'country' => 'nullable|string|max:255',
+            'pin_code' => 'nullable|string|max:20',
             'travel_date' => 'nullable|date',
             'adults' => 'required|integer|min:1',
             'children' => 'nullable|integer|min:0',
@@ -256,7 +271,7 @@ class LeadController extends Controller
             ]);
         }
 
-        return redirect()->route('leads.show', $lead)->with('success', 'Lead updated successfully!');
+        return redirect()->route('leads.index', $lead)->with('success', 'Lead updated successfully!');
     }
 
     public function destroy(Lead $lead)

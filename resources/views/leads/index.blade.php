@@ -1,6 +1,21 @@
 @extends('layouts.app')
 @section('title', 'Leads | Travel Shravel')
 @section('content')
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+        <div id="remarkToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 300px;"
+            data-bs-autohide="true" data-bs-delay="3000">
+            <div class="toast-header">
+                <i data-feather="info" class="me-2" style="width: 16px; height: 16px;"></i>
+                <strong class="me-auto" id="remarkToastTitle">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="remarkToastBody">
+                <!-- Toast message will be inserted here -->
+            </div>
+        </div>
+    </div>
+
     <div class="hk-pg-wrapper pb-0">
         <div class="hk-pg-body py-0">
             <div class="contactapp-wrap">
@@ -50,7 +65,8 @@
                                                 class="form-control form-control-sm"
                                                 placeholder="Enter name, ref no., or phone"
                                                 value="{{ $filters['search'] ?? '' }}">
-                                            <button type="submit" class="btn btn-primary btn-sm ms-2 d-flex"> <i class="ri-search-line me-1"></i>  Filter</button>
+                                            <button type="submit" class="btn btn-primary btn-sm ms-2 d-flex"> <i
+                                                    class="ri-search-line me-1"></i> Filter</button>
                                         </div>
                                     </div>
                                     @if ($filters['status'] || $filters['search'])
@@ -79,13 +95,15 @@
                                             <tr>
                                                 <td><strong>{{ $lead->tsq }}</strong></td>
                                                 <td>
-                                                    <a href="#" class="text-primary text-decoration-none fw-semibold view-lead-btn lead-name-link" data-lead-id="{{ $lead->id }}">
+                                                    <a href="#"
+                                                        class="text-primary text-decoration-none fw-semibold view-lead-btn lead-name-link"
+                                                        data-lead-id="{{ $lead->id }}">
                                                         {{ $lead->customer_name }}
                                                     </a>
                                                 </td>
                                                 <td>{{ $lead->primary_phone ?? $lead->phone }}</td>
                                                 <td>
-                                                    @php 
+                                                    @php
                                                         $statusColors = [
                                                             'new' => 'bg-info text-white',
                                                             'contacted' => 'bg-primary text-white',
@@ -121,34 +139,41 @@
                                                 <td>
                                                     <div class="d-flex align-items-center">
                                                         <div class="d-flex">
-                                                            <a href="#" 
-                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover view-lead-btn" 
-                                                                data-lead-id="{{ $lead->id }}"
-                                                                data-bs-toggle="tooltip" 
-                                                                data-placement="top" 
-                                                                title="View Lead">
+                                                            <a href="#"
+                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover view-lead-btn"
+                                                                data-lead-id="{{ $lead->id }}" data-bs-toggle="tooltip"
+                                                                data-placement="top" title="View Lead">
                                                                 <span class="icon">
                                                                     <span class="feather-icon">
                                                                         <i data-feather="eye"></i>
                                                                     </span>
                                                                 </span>
                                                             </a>
-                                                            
+
                                                             @can('edit leads')
-                                                            <a href="#"
-                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover assign-user-btn"
-                                                                data-lead-id="{{ $lead->id }}"
-                                                                data-lead-name="{{ $lead->customer_name }}"
-                                                                data-current-user="{{ $lead->assignedUser?->name ?? 'Unassigned' }}"
-                                                                data-bs-toggle="tooltip"
-                                                                data-placement="top"
-                                                                title="Assign Agent">
-                                                                <span class="icon">
-                                                                    <span class="feather-icon">
-                                                                        <i data-feather="user-plus"></i>
+                                                                <a href="#"
+                                                                    class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover edit-lead-btn"
+                                                                    data-lead-id="{{ $lead->id }}" data-bs-toggle="tooltip"
+                                                                    data-placement="top" title="Edit Lead">
+                                                                    <span class="icon">
+                                                                        <span class="feather-icon">
+                                                                            <i data-feather="edit"></i>
+                                                                        </span>
                                                                     </span>
-                                                                </span>
-                                                            </a>
+                                                                </a>
+                                                                <a href="#"
+                                                                    class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover assign-user-btn"
+                                                                    data-lead-id="{{ $lead->id }}"
+                                                                    data-lead-name="{{ $lead->customer_name }}"
+                                                                    data-current-user="{{ $lead->assignedUser?->name ?? 'Unassigned' }}"
+                                                                    data-bs-toggle="tooltip" data-placement="top"
+                                                                    title="Assign Agent">
+                                                                    <span class="icon">
+                                                                        <span class="feather-icon">
+                                                                            <i data-feather="user-plus"></i>
+                                                                        </span>
+                                                                    </span>
+                                                                </a>
                                                             @endcan
                                                         </div>
                                                     </div>
@@ -159,14 +184,16 @@
                                                 <td colspan="10" class="text-center">No leads found</td>
                                             </tr>
                                         @endforelse
-                                    </tbody>  
+                                    </tbody>
                                 </table>
-
-                                <div class="d-flex justify-content-center">
+                                <!-- Pagination -->
+                                <div class="d-flex justify-content-center mb-3 px-3">
                                     {{ $leads->links('pagination::bootstrap-5') }}
                                 </div>
                             </div>
                         </div>
+
+
                     </div>
                 </div>
             </div>
@@ -175,7 +202,8 @@
     </div>
 
     <!-- Add Lead Modal -->
-    <div class="modal fade" id="addLeadModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal fade" id="addLeadModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -185,6 +213,8 @@
                 <div class="modal-body">
                     <form action="{{ route('leads.store') }}" method="POST" id="addLeadForm">
                         @csrf
+                        <input type="hidden" name="_method" id="formMethod" value="POST">
+                        <input type="hidden" name="lead_id" id="editLeadId" value="">
                         <input type="hidden" name="children" id="children_total" value="{{ old('children', 0) }}">
 
                         <div class="mb-4 border rounded-3 p-3 bg-light">
@@ -192,17 +222,18 @@
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="form-label">First Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="first_name" placeholder="e.g. Ramesh" class="form-control form-control-sm"
-                                        value="{{ old('first_name') }}" required>
+                                    <input type="text" name="first_name" placeholder="e.g. Ramesh"
+                                        class="form-control form-control-sm" value="{{ old('first_name') }}" required>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Middle Name</label>
-                                    <input type="text" name="middle_name" placeholder="Optional" class="form-control form-control-sm"
-                                        value="{{ old('middle_name') }}">
+                                    <input type="text" name="middle_name" placeholder="Optional"
+                                        class="form-control form-control-sm" value="{{ old('middle_name') }}">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Last Name</label>
-                                    <input type="text" name="last_name" placeholder="e.g. Kumar" class="form-control form-control-sm" value="{{ old('last_name') }}">
+                                    <input type="text" name="last_name" placeholder="e.g. Kumar"
+                                        class="form-control form-control-sm" value="{{ old('last_name') }}">
                                 </div>
                             </div>
                         </div>
@@ -210,28 +241,126 @@
                         <div class="mb-4 border rounded-3 p-3">
                             <h6 class="text-uppercase text-muted small fw-semibold mb-3">Contact Information</h6>
                             <div class="row g-3">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label">Primary Number <span class="text-danger">*</span></label>
-                                    <input type="text" name="primary_phone" placeholder="+91 98765 43210" class="form-control form-control-sm"
-                                        value="{{ old('primary_phone') }}" required>
+                                    <input type="text" name="primary_phone" placeholder="+91 98765 43210"
+                                        class="form-control form-control-sm" value="{{ old('primary_phone') }}" required>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label">Secondary Number</label>
-                                    <input type="text" name="secondary_phone" placeholder="Alternate contact" class="form-control form-control-sm"
-                                        value="{{ old('secondary_phone') }}">
+                                    <input type="text" name="secondary_phone" placeholder="Alternate contact"
+                                        class="form-control form-control-sm" value="{{ old('secondary_phone') }}">
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label">Other Number</label>
-                                    <input type="text" name="other_phone" placeholder="Emergency contact" class="form-control form-control-sm"
-                                        value="{{ old('other_phone') }}">
+                                    <input type="text" name="other_phone" placeholder="Emergency contact"
+                                        class="form-control form-control-sm" value="{{ old('other_phone') }}">
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <label class="form-label">Email <span class="text-danger">*</span></label>
-                                    <input type="email" name="email" placeholder="customer@email.com" class="form-control form-control-sm" value="{{ old('email') }}" required>
+                                    <input type="email" name="email" placeholder="customer@email.com"
+                                        class="form-control form-control-sm" value="{{ old('email') }}" required>
                                 </div>
-                                <div class="col-md-6">
+                            </div>
+                            <div class="row g-3 mt-1">
+                                <div class="col-md-12">
                                     <label class="form-label">Address</label>
-                                    <input type="text" name="address" placeholder="Street, City, Country" class="form-control form-control-sm" value="{{ old('address') }}">
+                                    <input type="text" name="address_line"
+                                        placeholder="Street Address, Building, Apartment"
+                                        class="form-control form-control-sm" value="{{ old('address_line') }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">City</label>
+                                    <input type="text" name="city" placeholder="City"
+                                        class="form-control form-control-sm" value="{{ old('city') }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">State</label>
+                                    <input type="text" name="state" placeholder="State"
+                                        class="form-control form-control-sm" value="{{ old('state') }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Country</label>
+                                    <select name="country" class="form-select form-select-sm">
+                                        <option value="">-- Select Country --</option>
+                                        <option value="India" {{ old('country') == 'India' ? 'selected' : '' }}>India
+                                        </option>
+                                        <option value="Afghanistan"
+                                            {{ old('country') == 'Afghanistan' ? 'selected' : '' }}>Afghanistan</option>
+                                        <option value="Australia" {{ old('country') == 'Australia' ? 'selected' : '' }}>
+                                            Australia</option>
+                                        <option value="Bangladesh" {{ old('country') == 'Bangladesh' ? 'selected' : '' }}>
+                                            Bangladesh</option>
+                                        <option value="Bhutan" {{ old('country') == 'Bhutan' ? 'selected' : '' }}>Bhutan
+                                        </option>
+                                        <option value="Brazil" {{ old('country') == 'Brazil' ? 'selected' : '' }}>Brazil
+                                        </option>
+                                        <option value="Canada" {{ old('country') == 'Canada' ? 'selected' : '' }}>Canada
+                                        </option>
+                                        <option value="China" {{ old('country') == 'China' ? 'selected' : '' }}>China
+                                        </option>
+                                        <option value="France" {{ old('country') == 'France' ? 'selected' : '' }}>France
+                                        </option>
+                                        <option value="Germany" {{ old('country') == 'Germany' ? 'selected' : '' }}>
+                                            Germany</option>
+                                        <option value="Indonesia" {{ old('country') == 'Indonesia' ? 'selected' : '' }}>
+                                            Indonesia</option>
+                                        <option value="Italy" {{ old('country') == 'Italy' ? 'selected' : '' }}>Italy
+                                        </option>
+                                        <option value="Japan" {{ old('country') == 'Japan' ? 'selected' : '' }}>Japan
+                                        </option>
+                                        <option value="Malaysia" {{ old('country') == 'Malaysia' ? 'selected' : '' }}>
+                                            Malaysia</option>
+                                        <option value="Maldives" {{ old('country') == 'Maldives' ? 'selected' : '' }}>
+                                            Maldives</option>
+                                        <option value="Mauritius" {{ old('country') == 'Mauritius' ? 'selected' : '' }}>
+                                            Mauritius</option>
+                                        <option value="Myanmar" {{ old('country') == 'Myanmar' ? 'selected' : '' }}>
+                                            Myanmar</option>
+                                        <option value="Nepal" {{ old('country') == 'Nepal' ? 'selected' : '' }}>Nepal
+                                        </option>
+                                        <option value="New Zealand"
+                                            {{ old('country') == 'New Zealand' ? 'selected' : '' }}>New Zealand</option>
+                                        <option value="Pakistan" {{ old('country') == 'Pakistan' ? 'selected' : '' }}>
+                                            Pakistan</option>
+                                        <option value="Philippines"
+                                            {{ old('country') == 'Philippines' ? 'selected' : '' }}>Philippines</option>
+                                        <option value="Russia" {{ old('country') == 'Russia' ? 'selected' : '' }}>Russia
+                                        </option>
+                                        <option value="Singapore" {{ old('country') == 'Singapore' ? 'selected' : '' }}>
+                                            Singapore</option>
+                                        <option value="South Africa"
+                                            {{ old('country') == 'South Africa' ? 'selected' : '' }}>South Africa</option>
+                                        <option value="South Korea"
+                                            {{ old('country') == 'South Korea' ? 'selected' : '' }}>South Korea</option>
+                                        <option value="Sri Lanka" {{ old('country') == 'Sri Lanka' ? 'selected' : '' }}>
+                                            Sri Lanka</option>
+                                        <option value="Switzerland"
+                                            {{ old('country') == 'Switzerland' ? 'selected' : '' }}>Switzerland</option>
+                                        <option value="Thailand" {{ old('country') == 'Thailand' ? 'selected' : '' }}>
+                                            Thailand</option>
+                                        <option value="Turkey" {{ old('country') == 'Turkey' ? 'selected' : '' }}>Turkey
+                                        </option>
+                                        <option value="United Arab Emirates"
+                                            {{ old('country') == 'United Arab Emirates' ? 'selected' : '' }}>United Arab
+                                            Emirates</option>
+                                        <option value="United Kingdom"
+                                            {{ old('country') == 'United Kingdom' ? 'selected' : '' }}>United Kingdom
+                                        </option>
+                                        <option value="United States"
+                                            {{ old('country') == 'United States' ? 'selected' : '' }}>United States
+                                        </option>
+                                        <option value="Vietnam" {{ old('country') == 'Vietnam' ? 'selected' : '' }}>
+                                            Vietnam</option>
+                                        <option value="Other" {{ old('country') == 'Other' ? 'selected' : '' }}>Other
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Pin Code</label>
+                                    <input type="text" name="pin_code" placeholder="Pin Code"
+                                        class="form-control form-control-sm" value="{{ old('pin_code') }}"
+                                        maxlength="20">
                                 </div>
                             </div>
                         </div>
@@ -270,23 +399,23 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Adults <span class="text-danger">*</span></label>
-                                    <input type="number" name="adults" class="form-control form-control-sm" min="1"
-                                        value="{{ old('adults', 1) }}" required>
+                                    <input type="number" name="adults" class="form-control form-control-sm"
+                                        min="1" value="{{ old('adults', 1) }}" required>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Children (2-5 yrs)</label>
-                                    <input type="number" name="children_2_5" class="form-control form-control-sm" min="0"
-                                        value="{{ old('children_2_5', 0) }}">
+                                    <input type="number" name="children_2_5" class="form-control form-control-sm"
+                                        min="0" value="{{ old('children_2_5', 0) }}">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Children (6-11 yrs)</label>
-                                    <input type="number" name="children_6_11" class="form-control form-control-sm" min="0"
-                                        value="{{ old('children_6_11', 0) }}">
+                                    <input type="number" name="children_6_11" class="form-control form-control-sm"
+                                        min="0" value="{{ old('children_6_11', 0) }}">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Infants (below 2 yrs)</label>
-                                    <input type="number" name="infants" class="form-control form-control-sm" min="0"
-                                        value="{{ old('infants', 0) }}">
+                                    <input type="number" name="infants" class="form-control form-control-sm"
+                                        min="0" value="{{ old('infants', 0) }}">
                                 </div>
                             </div>
                         </div>
@@ -322,7 +451,7 @@
 
                         <div class="d-flex justify-content-end gap-2">
                             <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Add Lead</button>
+                            <button type="submit" class="btn btn-primary" id="addLeadSubmitBtn">Add Lead</button>
                         </div>
                     </form>
                 </div>
@@ -343,18 +472,6 @@
                         </h5>
                         <small class="text-muted" id="viewLeadMeta"></small>
                     </div>
-                    <span id="viewLeadStatus" class="badge bg-secondary me-3" style="font-size: 0.875rem; padding: 0.5rem 0.75rem;">-</span>
-                    @can('edit leads')
-                    <button type="button" class="btn btn-sm btn-outline-primary mx-2" id="editLeadBtn" title="Edit Lead">
-                        <i data-feather="edit" class="me-1" style="width: 16px; height: 16px;"></i>
-                        Edit
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary mx-2 d-none" id="cancelEditBtn" title="Cancel Edit">
-                        <i data-feather="x" class="me-1" style="width: 16px; height: 16px;"></i>
-                        Cancel
-                    </button>
-                    @endcan
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div id="viewLeadAlert" class="alert d-none mb-3" role="alert"></div>
@@ -365,117 +482,139 @@
                     </div>
 
                     <div id="viewLeadContent" class="d-none">
-                        <!-- Lead Information Cards -->
-                        <div class="row g-4 mb-4">
-                            <!-- Customer Information -->
-                            <div class="col-md-6">
-                                <div class="card border-0 shadow-sm h-100">
-                                    <div class="card-header bg-white border-bottom">
-                                        <h6 class="mb-0 fw-semibold">
-                                            <i data-feather="user" class="me-2 text-primary" style="width: 18px; height: 18px;"></i>
-                                            Customer Information
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3 pb-3 border-bottom">
-                                            <h4 class="fw-bold mb-1 text-dark" id="viewLeadCustomer">-</h4>
-                                            <div class="text-muted small" id="viewLeadTSQ"></div>
-                                        </div>
-                                        <div class="d-flex flex-column gap-2">
-                                            <div class="d-flex align-items-center" id="viewLeadPhoneContainer">
-                                                <i data-feather="phone" class="text-muted me-2" style="width: 16px; height: 16px;"></i>
-                                                <span class="small" id="viewLeadPhones"></span>
-                                            </div>
-                                            <div class="d-flex align-items-center d-none" id="viewLeadEmailContainer">
-                                                <i data-feather="mail" class="text-muted me-2" style="width: 16px; height: 16px;"></i>
-                                                <span class="small" id="viewLeadEmail"></span>
-                                            </div>
-                                            <div class="d-flex align-items-start d-none" id="viewLeadAddressContainer">
-                                                <i data-feather="map-pin" class="text-muted me-2 mt-1" style="width: 16px; height: 16px;"></i>
-                                                <span class="small" id="viewLeadAddress"></span>
-                                            </div>
-                                        </div>
-                                    </div>
+                        <!-- Customer Information -->
+                        <div class="mb-4 border rounded-3 p-3 bg-light">
+                            <h6 class="text-uppercase text-muted small fw-semibold mb-3">Customer Information</h6>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" id="viewFirstName" class="form-control form-control-sm"
+                                        readonly>
                                 </div>
-                            </div>
-
-                            <!-- Travel & Assignment Information -->
-                            <div class="col-md-6">
-                                <div class="card border-0 shadow-sm h-100">
-                                    <div class="card-header bg-white border-bottom">
-                                        <h6 class="mb-0 fw-semibold">
-                                            <i data-feather="briefcase" class="me-2 text-info" style="width: 18px; height: 18px;"></i>
-                                            Travel & Assignment
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="text-muted small me-3" style="min-width: 100px;">Service:</span>
-                                                <span class="fw-semibold" id="viewLeadService">-</span>
-                                            </div>
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="text-muted small me-3" style="min-width: 100px;">Destination:</span>
-                                                <span class="fw-semibold" id="viewLeadDestination">-</span>
-                                            </div>
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="text-muted small me-3" style="min-width: 100px;">Travel Date:</span>
-                                                <span class="fw-semibold" id="viewLeadTravelDate">-</span>
-                                            </div>
-                                            <div class="d-flex align-items-center mb-3">
-                                                <span class="text-muted small me-3" style="min-width: 100px;">Assigned To:</span>
-                                                <span class="fw-semibold" id="viewLeadAssignedUser">-</span>
-                                            </div>
-                                        </div>
-                                        <div class="pt-3 border-top">
-                                            <div class="text-muted small mb-2">Travelers:</div>
-                                            <div id="viewLeadTravelers"></div>
-                                        </div>
-                                    </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Middle Name</label>
+                                    <input type="text" id="viewMiddleName" class="form-control form-control-sm"
+                                        readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" id="viewLastName" class="form-control form-control-sm"
+                                        readonly>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Add Remark Form -->
-                        <div class="card mb-4 border-0 shadow-sm">
-                            <div class="card-header bg-white border-bottom">
-                                <h6 class="mb-0 fw-semibold">
-                                    <i data-feather="message-square" class="me-2 text-success" style="width: 18px; height: 18px;"></i>
-                                    Add Remark
-                                </h6>
+                        <!-- Contact Information -->
+                        <div class="mb-4 border rounded-3 p-3">
+                            <h6 class="text-uppercase text-muted small fw-semibold mb-3">Contact Information</h6>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Primary Number</label>
+                                    <input type="text" id="viewPrimaryPhone" class="form-control form-control-sm"
+                                        readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Secondary Number</label>
+                                    <input type="text" id="viewSecondaryPhone" class="form-control form-control-sm"
+                                        readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Other Number</label>
+                                    <input type="text" id="viewOtherPhone" class="form-control form-control-sm"
+                                        readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" id="viewEmail" class="form-control form-control-sm" readonly>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <div id="leadRemarkAlert" class="alert d-none" role="alert"></div>
-                                <form id="leadRemarkForm">
-                                    @csrf
-                                    <div class="mb-3">
-                                        <label class="form-label fw-semibold">Remark <span class="text-danger">*</span></label>
-                                        <textarea name="remark" class="form-control" rows="4" placeholder="Enter your remark here..." required></textarea>
-                                    </div>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold">
-                                                <i data-feather="calendar" class="me-1" style="width: 14px; height: 14px;"></i>
-                                                Follow-up Date
-                                            </label>
-                                            <input type="date" name="follow_up_date" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="d-flex justify-content-end mt-4">
-                                        <button type="submit" class="btn btn-primary px-4">
-                                            <i data-feather="send" class="me-1" style="width: 16px; height: 16px;"></i>
-                                            Add Remark
-                                        </button>
-                                    </div>
-                                </form>
+                            <div class="row g-3 mt-1">
+                                <div class="col-md-12">
+                                    <label class="form-label">Address</label>
+                                    <input type="text" id="viewAddressLine" class="form-control form-control-sm"
+                                        readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">City</label>
+                                    <input type="text" id="viewCity" class="form-control form-control-sm" readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">State</label>
+                                    <input type="text" id="viewState" class="form-control form-control-sm" readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Country</label>
+                                    <input type="text" id="viewCountry" class="form-control form-control-sm" readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Pin Code</label>
+                                    <input type="text" id="viewPinCode" class="form-control form-control-sm" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Travel Preferences -->
+                        <div class="mb-4 border rounded-3 p-3 bg-light">
+                            <h6 class="text-uppercase text-muted small fw-semibold mb-3">Travel Preferences</h6>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Service</label>
+                                    <input type="text" id="viewService" class="form-control form-control-sm" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Destination</label>
+                                    <input type="text" id="viewDestination" class="form-control form-control-sm"
+                                        readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Travel Date</label>
+                                    <input type="text" id="viewTravelDate" class="form-control form-control-sm"
+                                        readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Adults</label>
+                                    <input type="text" id="viewAdults" class="form-control form-control-sm" readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Children (2-5 yrs)</label>
+                                    <input type="text" id="viewChildren25" class="form-control form-control-sm"
+                                        readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Children (6-11 yrs)</label>
+                                    <input type="text" id="viewChildren611" class="form-control form-control-sm"
+                                        readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Infants (below 2 yrs)</label>
+                                    <input type="text" id="viewInfants" class="form-control form-control-sm" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Assignment -->
+                        <div class="mb-4 border rounded-3 p-3">
+                            <h6 class="text-uppercase text-muted small fw-semibold mb-3">Assignment</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Assign To</label>
+                                    <input type="text" id="viewAssignedUser" class="form-control form-control-sm"
+                                        readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Status</label>
+                                    <input type="text" id="viewStatus" class="form-control form-control-sm" readonly>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Recent Remarks -->
                         <div class="card border-0 shadow-sm">
-                            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                            <div
+                                class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
                                 <h6 class="mb-0 fw-semibold">
-                                    <i data-feather="list" class="me-2 text-warning" style="width: 18px; height: 18px;"></i>
+                                    <i data-feather="list" class="me-2 text-warning"
+                                        style="width: 18px; height: 18px;"></i>
                                     Recent Remarks
                                 </h6>
                                 <span class="badge bg-primary rounded-pill px-3 py-2" id="viewLeadRemarksCount">0</span>
@@ -492,189 +631,250 @@
                         <form id="editLeadForm">
                             @csrf
                             @method('PUT')
-                            
+                            <input type="hidden" name="children" id="editChildrenTotal" value="0">
+
                             <!-- Customer Information -->
-                            <div class="card border-0 shadow-sm mb-4">
-                                <div class="card-header bg-white border-bottom">
-                                    <h6 class="mb-0 fw-semibold">
-                                        <i data-feather="user" class="me-2 text-primary" style="width: 18px; height: 18px;"></i>
-                                        Customer Information
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row g-3">
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold">First Name <span class="text-danger">*</span></label>
-                                            <input type="text" name="first_name" id="editFirstName" class="form-control" required>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold">Middle Name</label>
-                                            <input type="text" name="middle_name" id="editMiddleName" class="form-control">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold">Last Name</label>
-                                            <input type="text" name="last_name" id="editLastName" class="form-control">
-                                        </div>
+                            <div class="mb-4 border rounded-3 p-3 bg-light">
+                                <h6 class="text-uppercase text-muted small fw-semibold mb-3">Customer Information</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                        <input type="text" name="first_name" id="editFirstName"
+                                            placeholder="e.g. Ramesh" class="form-control form-control-sm" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Middle Name</label>
+                                        <input type="text" name="middle_name" id="editMiddleName"
+                                            placeholder="Optional" class="form-control form-control-sm">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Last Name</label>
+                                        <input type="text" name="last_name" id="editLastName"
+                                            placeholder="e.g. Kumar" class="form-control form-control-sm">
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Contact Information -->
-                            <div class="card border-0 shadow-sm mb-4">
-                                <div class="card-header bg-white border-bottom">
-                                    <h6 class="mb-0 fw-semibold">
-                                        <i data-feather="phone" class="me-2 text-info" style="width: 18px; height: 18px;"></i>
-                                        Contact Information
-                                    </h6>
+                            <div class="mb-4 border rounded-3 p-3">
+                                <h6 class="text-uppercase text-muted small fw-semibold mb-3">Contact Information</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Primary Number <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" name="primary_phone" id="editPrimaryPhone"
+                                            placeholder="+91 98765 43210" class="form-control form-control-sm"
+                                            maxlength="20" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Secondary Number</label>
+                                        <input type="text" name="secondary_phone" id="editSecondaryPhone"
+                                            placeholder="Alternate contact" class="form-control form-control-sm"
+                                            maxlength="20">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Other Number</label>
+                                        <input type="text" name="other_phone" id="editOtherPhone"
+                                            placeholder="Emergency contact" class="form-control form-control-sm"
+                                            maxlength="20">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                                        <input type="email" name="email" id="editEmail"
+                                            placeholder="customer@email.com" class="form-control form-control-sm"
+                                            required>
+                                    </div>
                                 </div>
-                                <div class="card-body">
-                                    <div class="row g-3">
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold">Primary Number <span class="text-danger">*</span></label>
-                                            <input type="text" name="primary_phone" id="editPrimaryPhone" class="form-control" maxlength="20" required>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold">Secondary Number</label>
-                                            <input type="text" name="secondary_phone" id="editSecondaryPhone" class="form-control" maxlength="20">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold">Other Number</label>
-                                            <input type="text" name="other_phone" id="editOtherPhone" class="form-control" maxlength="20">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
-                                            <input type="email" name="email" id="editEmail" class="form-control" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold">Address</label>
-                                            <input type="text" name="address" id="editAddress" class="form-control">
-                                        </div>
+                                <div class="row g-3 mt-1">
+                                    <div class="col-md-12">
+                                        <label class="form-label">Address</label>
+                                        <input type="text" name="address_line" id="editAddressLine"
+                                            placeholder="Street Address, Building, Apartment"
+                                            class="form-control form-control-sm">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">City</label>
+                                        <input type="text" name="city" id="editCity" placeholder="City"
+                                            class="form-control form-control-sm">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">State</label>
+                                        <input type="text" name="state" id="editState" placeholder="State"
+                                            class="form-control form-control-sm">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Country</label>
+                                        <select name="country" id="editCountry" class="form-select form-select-sm">
+                                            <option value="">-- Select Country --</option>
+                                            <option value="India">India</option>
+                                            <option value="Afghanistan">Afghanistan</option>
+                                            <option value="Australia">Australia</option>
+                                            <option value="Bangladesh">Bangladesh</option>
+                                            <option value="Bhutan">Bhutan</option>
+                                            <option value="Brazil">Brazil</option>
+                                            <option value="Canada">Canada</option>
+                                            <option value="China">China</option>
+                                            <option value="France">France</option>
+                                            <option value="Germany">Germany</option>
+                                            <option value="Indonesia">Indonesia</option>
+                                            <option value="Italy">Italy</option>
+                                            <option value="Japan">Japan</option>
+                                            <option value="Malaysia">Malaysia</option>
+                                            <option value="Maldives">Maldives</option>
+                                            <option value="Mauritius">Mauritius</option>
+                                            <option value="Myanmar">Myanmar</option>
+                                            <option value="Nepal">Nepal</option>
+                                            <option value="New Zealand">New Zealand</option>
+                                            <option value="Pakistan">Pakistan</option>
+                                            <option value="Philippines">Philippines</option>
+                                            <option value="Russia">Russia</option>
+                                            <option value="Singapore">Singapore</option>
+                                            <option value="South Africa">South Africa</option>
+                                            <option value="South Korea">South Korea</option>
+                                            <option value="Sri Lanka">Sri Lanka</option>
+                                            <option value="Switzerland">Switzerland</option>
+                                            <option value="Thailand">Thailand</option>
+                                            <option value="Turkey">Turkey</option>
+                                            <option value="United Arab Emirates">United Arab Emirates</option>
+                                            <option value="United Kingdom">United Kingdom</option>
+                                            <option value="United States">United States</option>
+                                            <option value="Vietnam">Vietnam</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Pin Code</label>
+                                        <input type="text" name="pin_code" id="editPinCode" placeholder="Pin Code"
+                                            class="form-control form-control-sm" maxlength="20">
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Travel Information -->
-                            <div class="card border-0 shadow-sm mb-4">
-                                <div class="card-header bg-white border-bottom">
-                                    <h6 class="mb-0 fw-semibold">
-                                        <i data-feather="briefcase" class="me-2 text-success" style="width: 18px; height: 18px;"></i>
-                                        Travel Information
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold">Service <span class="text-danger">*</span></label>
-                                            <select name="service_id" id="editServiceId" class="form-select" required>
-                                                <option value="">-- Select Service --</option>
-                                                @foreach ($services as $service)
-                                                    <option value="{{ $service->id }}">{{ $service->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold">Destination <span class="text-danger">*</span></label>
-                                            <select name="destination_id" id="editDestinationId" class="form-select" required>
-                                                <option value="">-- Select Destination --</option>
-                                                @foreach ($destinations as $destination)
-                                                    <option value="{{ $destination->id }}">{{ $destination->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold">Travel Date</label>
-                                            <input type="date" name="travel_date" id="editTravelDate" class="form-control">
-                                        </div>
+                            <!-- Travel Preferences -->
+                            <div class="mb-4 border rounded-3 p-3 bg-light">
+                                <h6 class="text-uppercase text-muted small fw-semibold mb-3">Travel Preferences</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Service <span class="text-danger">*</span></label>
+                                        <select name="service_id" id="editServiceId" class="form-select form-select-sm"
+                                            required>
+                                            <option value="">-- Select Service --</option>
+                                            @foreach ($services as $service)
+                                                <option value="{{ $service->id }}">{{ $service->name }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Travelers Information -->
-                            <div class="card border-0 shadow-sm mb-4">
-                                <div class="card-header bg-white border-bottom">
-                                    <h6 class="mb-0 fw-semibold">
-                                        <i data-feather="users" class="me-2 text-warning" style="width: 18px; height: 18px;"></i>
-                                        Travelers Information
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row g-3">
-                                        <div class="col-md-3">
-                                            <label class="form-label fw-semibold">Adults</label>
-                                            <input type="number" name="adults" id="editAdults" class="form-control" min="0" value="0">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label fw-semibold">Children (2-5y)</label>
-                                            <input type="number" name="children_2_5" id="editChildren25" class="form-control" min="0" value="0">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label fw-semibold">Children (6-11y)</label>
-                                            <input type="number" name="children_6_11" id="editChildren611" class="form-control" min="0" value="0">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label fw-semibold">Infants (below 2 yrs)</label>
-                                            <input type="number" name="infants" id="editInfants" class="form-control" min="0" value="0">
-                                        </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Destination <span class="text-danger">*</span></label>
+                                        <select name="destination_id" id="editDestinationId"
+                                            class="form-select form-select-sm" required>
+                                            <option value="">-- Select Destination --</option>
+                                            @foreach ($destinations as $destination)
+                                                <option value="{{ $destination->id }}">{{ $destination->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Travel Date</label>
+                                        <input type="date" name="travel_date" id="editTravelDate"
+                                            class="form-control form-control-sm">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Adults <span class="text-danger">*</span></label>
+                                        <input type="number" name="adults" id="editAdults"
+                                            class="form-control form-control-sm" min="1" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Children (2-5 yrs)</label>
+                                        <input type="number" name="children_2_5" id="editChildren25"
+                                            class="form-control form-control-sm" min="0">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Children (6-11 yrs)</label>
+                                        <input type="number" name="children_6_11" id="editChildren611"
+                                            class="form-control form-control-sm" min="0">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Infants (below 2 yrs)</label>
+                                        <input type="number" name="infants" id="editInfants"
+                                            class="form-control form-control-sm" min="0">
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Assignment -->
-                            <div class="card border-0 shadow-sm mb-4">
-                                <div class="card-header bg-white border-bottom">
-                                    <h6 class="mb-0 fw-semibold">
-                                        <i data-feather="user-check" class="me-2 text-danger" style="width: 18px; height: 18px;"></i>
-                                        Assignment
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold">Assign To</label>
-                                            <select name="assigned_user_id" id="editAssignedUserId" class="form-select">
-                                                <option value="">-- Select User --</option>
-                                                @foreach ($users as $user)
-                                                    <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold">Status <span class="text-danger">*</span></label>
-                                            <select name="status" id="editStatus" class="form-select" required>
-                                                @foreach ($statuses as $key => $label)
-                                                    <option value="{{ $key }}">{{ $label }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                            <div class="mb-4 border rounded-3 p-3">
+                                <h6 class="text-uppercase text-muted small fw-semibold mb-3">Assignment</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Assign To</label>
+                                        <select name="assigned_user_id" id="editAssignedUserId"
+                                            class="form-select form-select-sm">
+                                            <option value="">-- Select User --</option>
+                                            @foreach ($users as $user)
+                                                <option value="{{ $user->id }}">{{ $user->name }}
+                                                    ({{ $user->email }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Status <span class="text-danger">*</span></label>
+                                        <select name="status" id="editStatus" class="form-select form-select-sm"
+                                            required>
+                                            @foreach ($statuses as $key => $label)
+                                                <option value="{{ $key }}">{{ $label }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="d-flex justify-content-end gap-2">
-                                <button type="button" class="btn btn-secondary px-4" id="cancelEditFormBtn">
-                                    <i data-feather="x" class="me-1" style="width: 16px; height: 16px;"></i>
-                                    Cancel
-                                </button>
-                                <button type="submit" class="btn btn-primary px-4">
-                                    <i data-feather="save" class="me-1" style="width: 16px; height: 16px;"></i>
-                                    Update Lead
-                                </button>
+                                <button type="button" class="btn btn-light border"
+                                    id="cancelEditFormBtn">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Update Lead</button>
                             </div>
                         </form>
                     </div>
                 </div>
                 <div class="modal-footer bg-light border-top">
-                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">
-                        <i data-feather="x" class="me-1" style="width: 16px; height: 16px;"></i>
-                        Close
-                    </button>
+                    <div class="w-100">
+                        <form id="leadRemarkForm">
+                            @csrf
+
+                            <div class="row">
+                                <div class="col-md-10 mb-3">
+                                    <label class="form-label small mb-1">Add Remark <span
+                                            class="text-danger">*</span></label>
+                                    <textarea name="remark" class="form-control form-control-sm" rows="2" placeholder="Enter your remark here..."
+                                        required></textarea>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label small mb-1">Follow-up Date</label>
+                                    <input type="date" name="follow_up_date" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-12 d-flex justify-content-end gap-2">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                                        <i data-feather="x" class="me-1" style="width: 14px; height: 14px;"></i>
+                                        Close
+                                    </button>
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i data-feather="send" class="me-1" style="width: 14px; height: 14px;"></i>
+                                        Add Remark
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Assign User Modal -->
-    <div class="modal fade" id="assignUserModal" tabindex="-1" aria-labelledby="assignUserModalLabel" aria-hidden="true">
+    <div class="modal fade" id="assignUserModal" tabindex="-1" aria-labelledby="assignUserModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-light border-bottom">
@@ -716,247 +916,263 @@
     </div>
 
     @push('styles')
-    <style>
-        .lead-name-link {
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .lead-name-link:hover {
-            text-decoration: underline !important;
-            opacity: 0.8;
-        }
-    </style>
+        <style>
+            .lead-name-link {
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .lead-name-link:hover {
+                text-decoration: underline !important;
+                opacity: 0.8;
+            }
+        </style>
     @endpush
 
     @push('scripts')
-    <script>
-        $(document).ready(function() {
-            const leadsTable = $('#leadsTable').DataTable({
-                scrollX: true,
-                autoWidth: false,
-                searching: false,
-                lengthChange: false,
-                info: false,
-                paging: true,
-                drawCallback: function() {
-                    // Initialize Feather icons after each table draw
+        <script>
+            $(document).ready(function() {
+                const leadsTable = $('#leadsTable').DataTable({
+                    scrollX: true,
+                    autoWidth: false,
+                    searching: false,
+                    lengthChange: false,
+                    info: false,
+                    paging: false,
+                    ordering: false,
+                    drawCallback: function() {
+                        // Initialize Feather icons after each table draw
+                        if (typeof feather !== 'undefined') {
+                            feather.replace();
+                        }
+                        // Initialize Bootstrap tooltips after each table draw
+                        if (typeof bootstrap !== 'undefined') {
+                            const tooltipTriggerList = [].slice.call(document.querySelectorAll(
+                                '[data-bs-toggle="tooltip"]'));
+                            tooltipTriggerList.map(function(tooltipTriggerEl) {
+                                return new bootstrap.Tooltip(tooltipTriggerEl);
+                            });
+                        }
+                    }
+                });
+
+                // Initialize Feather icons on page load
+                if (typeof feather !== 'undefined') {
+                    feather.replace();
+                }
+
+                // Initialize Bootstrap tooltips on page load
+                if (typeof bootstrap !== 'undefined') {
+                    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                    tooltipTriggerList.map(function(tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl);
+                    });
+                }
+
+
+
+                const addLeadForm = document.getElementById('addLeadForm');
+                const addLeadModalEl = document.getElementById('addLeadModal');
+                const leadsBaseUrl = @json(url('/leads'));
+
+                const updateChildrenTotal = () => {
+                    if (!addLeadForm) return;
+                    const child2_5 = parseInt(addLeadForm.elements['children_2_5']?.value || '0', 10);
+                    const child6_11 = parseInt(addLeadForm.elements['children_6_11']?.value || '0', 10);
+                    if (addLeadForm.elements['children']) {
+                        addLeadForm.elements['children'].value = (child2_5 || 0) + (child6_11 || 0);
+                    }
+                };
+
+
+                if (addLeadForm) {
+                    addLeadForm.querySelectorAll('input, select, textarea').forEach((field) => {
+                        field.addEventListener('input', () => {
+                            if (field.name === 'children_2_5' || field.name === 'children_6_11') {
+                                updateChildrenTotal();
+                            }
+                        });
+                        field.addEventListener('change', () => {
+                            if (field.name === 'children_2_5' || field.name === 'children_6_11') {
+                                updateChildrenTotal();
+                            }
+                        });
+                    });
+
+                    addLeadForm.addEventListener('submit', (event) => {
+                        updateChildrenTotal();
+
+                        // Check if it's edit mode
+                        const formMethod = document.getElementById('formMethod');
+                        const editLeadId = document.getElementById('editLeadId');
+                        const isEditMode = formMethod && formMethod.value === 'PUT' && editLeadId && editLeadId
+                            .value;
+
+                        if (isEditMode) {
+                            // Update the form action for edit mode
+                            addLeadForm.action = `${leadsBaseUrl}/${editLeadId.value}`;
+                            // The _method field is already set to PUT by populateAddLeadFormForEdit
+                            // Form will submit directly with PUT method spoofing
+                        } else {
+                            // Add mode - ensure form action is correct
+                            addLeadForm.action = '{{ route('leads.store') }}';
+                            if (formMethod) formMethod.value = 'POST';
+                        }
+                        // Let the form submit normally (no preventDefault)
+                    });
+                }
+
+                if (addLeadModalEl && typeof bootstrap !== 'undefined') {
+                    addLeadModalEl.addEventListener('shown.bs.modal', () => {
+                        updateChildrenTotal();
+                    });
+
+                    addLeadModalEl.addEventListener('hidden.bs.modal', () => {
+                        // Reset form to add mode when modal is closed
+                        resetAddLeadFormToAddMode();
+                    });
+                } else {
+                    updateChildrenTotal();
+                }
+
+                const viewLeadModalEl = document.getElementById('viewLeadModal');
+                const viewLeadLoader = document.getElementById('viewLeadLoader');
+                const viewLeadContent = document.getElementById('viewLeadContent');
+                const viewLeadAlert = document.getElementById('viewLeadAlert');
+                const viewLeadMeta = document.getElementById('viewLeadMeta');
+                const viewLeadStatus = document.getElementById('viewLeadStatus');
+                const viewLeadTitle = document.getElementById('viewLeadModalLabel');
+                const viewLeadService = document.getElementById('viewService');
+                const viewLeadDestination = document.getElementById('viewDestination');
+                const viewLeadTravelDate = document.getElementById('viewTravelDate');
+                const viewLeadAssignedUser = document.getElementById('viewAssignedUser');
+                const viewLeadRemarksContainer = document.getElementById('viewLeadRemarks');
+                const viewLeadRemarksCount = document.getElementById('viewLeadRemarksCount');
+                const remarkForm = document.getElementById('leadRemarkForm');
+
+                let viewLeadModalInstance = null;
+                let currentLeadId = null;
+
+                // Function to show Bootstrap toast
+                const showToast = (message, type = 'success') => {
+                    const toastEl = document.getElementById('remarkToast');
+                    const toastTitle = document.getElementById('remarkToastTitle');
+                    const toastBody = document.getElementById('remarkToastBody');
+
+                    if (!toastEl || !toastTitle || !toastBody) return;
+
+                    // Set toast content
+                    toastBody.textContent = message;
+
+                    // Set toast header style based on type
+                    const toastHeader = toastEl.querySelector('.toast-header');
+                    const iconEl = toastHeader?.querySelector('i');
+
+                    if (toastHeader) {
+                        // Reset classes
+                        toastHeader.className = 'toast-header';
+                        if (type === 'success') {
+                            toastHeader.classList.add('bg-success', 'text-white');
+                            toastTitle.textContent = 'Success';
+                            if (iconEl) {
+                                iconEl.setAttribute('data-feather', 'check-circle');
+                            }
+                        } else {
+                            toastHeader.classList.add('bg-danger', 'text-white');
+                            toastTitle.textContent = 'Error';
+                            if (iconEl) {
+                                iconEl.setAttribute('data-feather', 'alert-circle');
+                            }
+                        }
+                    }
+
+                    // Initialize Feather icons
                     if (typeof feather !== 'undefined') {
                         feather.replace();
                     }
-                    // Initialize Bootstrap tooltips after each table draw
+
+                    // Show toast using Bootstrap
                     if (typeof bootstrap !== 'undefined') {
-                        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                        tooltipTriggerList.map(function (tooltipTriggerEl) {
-                            return new bootstrap.Tooltip(tooltipTriggerEl);
+                        // Hide any existing toast first
+                        const existingToast = bootstrap.Toast.getInstance(toastEl);
+                        if (existingToast) {
+                            existingToast.hide();
+                        }
+
+                        // Create and show new toast
+                        const toast = new bootstrap.Toast(toastEl, {
+                            autohide: true,
+                            delay: type === 'success' ? 3000 : 5000
                         });
+                        toast.show();
                     }
-                }
-            });
-
-            // Initialize Feather icons on page load
-            if (typeof feather !== 'undefined') {
-                feather.replace();
-            }
-
-            // Initialize Bootstrap tooltips on page load
-            if (typeof bootstrap !== 'undefined') {
-                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
-                });
-            }
-
-
-
-            const addLeadForm = document.getElementById('addLeadForm');
-            const addLeadModalEl = document.getElementById('addLeadModal');
-            const draftStorageKey = 'travel_shravel_lead_draft';
-            const leadsBaseUrl = @json(url('/leads'));
-
-            const updateChildrenTotal = () => {
-                if (!addLeadForm) return;
-                const child2_5 = parseInt(addLeadForm.elements['children_2_5']?.value || '0', 10);
-                const child6_11 = parseInt(addLeadForm.elements['children_6_11']?.value || '0', 10);
-                if (addLeadForm.elements['children']) {
-                    addLeadForm.elements['children'].value = (child2_5 || 0) + (child6_11 || 0);
-                }
-            };
-
-            const hasDraftData = () => {
-                if (!window.localStorage) return false;
-                const stored = localStorage.getItem(draftStorageKey);
-                if (!stored) return false;
-                try {
-                    const parsed = JSON.parse(stored);
-                    return parsed && Object.keys(parsed).length > 0;
-                } catch (error) {
-                    localStorage.removeItem(draftStorageKey);
-                    return false;
-                }
-            };
-
-            const saveDraft = () => {
-                if (!addLeadForm || !window.localStorage) return;
-                const formData = {};
-                Array.from(addLeadForm.elements).forEach((el) => {
-                    if (!el.name || el.disabled) {
-                        return;
-                    }
-                    if (el.type === 'checkbox' || el.type === 'radio') {
-                        if (el.checked) {
-                            formData[el.name] = el.value;
-                        }
-                    } else {
-                        formData[el.name] = el.value;
-                    }
-                });
-                localStorage.setItem(draftStorageKey, JSON.stringify(formData));
-            };
-
-            const restoreDraft = () => {
-                if (!addLeadForm || !window.localStorage) return;
-                const stored = localStorage.getItem(draftStorageKey);
-                if (!stored) return;
-
-                try {
-                    const data = JSON.parse(stored);
-                    Object.entries(data).forEach(([name, value]) => {
-                        const field = addLeadForm.elements[name];
-                        if (!field) return;
-                        if (field instanceof RadioNodeList) {
-                            field.value = value;
-                        } else {
-                            field.value = value;
-                        }
-                    });
-                } catch (error) {
-                    console.error('Failed to parse lead draft', error);
-                }
-                updateChildrenTotal();
-            };
-
-            if (addLeadForm) {
-                addLeadForm.querySelectorAll('input, select, textarea').forEach((field) => {
-                    field.addEventListener('input', () => {
-                        if (field.name === 'children_2_5' || field.name === 'children_6_11') {
-                            updateChildrenTotal();
-                        }
-                        saveDraft();
-                    });
-                    field.addEventListener('change', () => {
-                        if (field.name === 'children_2_5' || field.name === 'children_6_11') {
-                            updateChildrenTotal();
-                        }
-                        saveDraft();
-                    });
-                });
-
-                addLeadForm.addEventListener('submit', () => {
-                    updateChildrenTotal();
-                    if (window.localStorage) {
-                        localStorage.removeItem(draftStorageKey);
-                    }
-                });
-            }
-
-            if (addLeadModalEl && typeof bootstrap !== 'undefined') {
-                addLeadModalEl.addEventListener('shown.bs.modal', () => {
-                    restoreDraft();
-                    updateChildrenTotal();
-                });
-
-                if (hasDraftData()) {
-                    const modalInstance = bootstrap.Modal.getOrCreateInstance(addLeadModalEl);
-                    modalInstance.show();
-                }
-            } else {
-                restoreDraft();
-                updateChildrenTotal();
-            }
-
-            const viewLeadModalEl = document.getElementById('viewLeadModal');
-            const viewLeadLoader = document.getElementById('viewLeadLoader');
-            const viewLeadContent = document.getElementById('viewLeadContent');
-            const viewLeadAlert = document.getElementById('viewLeadAlert');
-            const viewLeadMeta = document.getElementById('viewLeadMeta');
-            const viewLeadStatus = document.getElementById('viewLeadStatus');
-            const viewLeadCustomer = document.getElementById('viewLeadCustomer');
-            const viewLeadTitle = document.getElementById('viewLeadModalLabel');
-            const viewLeadTSQ = document.getElementById('viewLeadTSQ');
-            const viewLeadPhones = document.getElementById('viewLeadPhones');
-            const viewLeadPhoneContainer = document.getElementById('viewLeadPhoneContainer');
-            const viewLeadEmail = document.getElementById('viewLeadEmail');
-            const viewLeadAddress = document.getElementById('viewLeadAddress');
-            const viewLeadEmailContainer = document.getElementById('viewLeadEmailContainer');
-            const viewLeadAddressContainer = document.getElementById('viewLeadAddressContainer');
-            const viewLeadService = document.getElementById('viewLeadService');
-            const viewLeadDestination = document.getElementById('viewLeadDestination');
-            const viewLeadTravelDate = document.getElementById('viewLeadTravelDate');
-            const viewLeadAssignedUser = document.getElementById('viewLeadAssignedUser');
-            const viewLeadTravelers = document.getElementById('viewLeadTravelers');
-            const viewLeadRemarksContainer = document.getElementById('viewLeadRemarks');
-            const viewLeadRemarksCount = document.getElementById('viewLeadRemarksCount');
-            const remarkForm = document.getElementById('leadRemarkForm');
-            const remarkAlert = document.getElementById('leadRemarkAlert');
-            let viewLeadModalInstance = null;
-            let currentLeadId = null;
-
-            const escapeHtml = (unsafe) => {
-                if (unsafe === null || unsafe === undefined) {
-                    return '';
-                }
-                return String(unsafe).replace(/[&<>"']/g, function(match) {
-                    const map = {
-                        '&': '&amp;',
-                        '<': '&lt;',
-                        '>': '&gt;',
-                        '"': '&quot;',
-                        "'": '&#039;',
-                    };
-                    return map[match] || match;
-                });
-            };
-
-            const toggleText = (element, container, prefix, value) => {
-                if (!element) return;
-                if (value) {
-                    element.textContent = prefix ? `${prefix} ${value}` : value;
-                    if (container) {
-                        container.classList.remove('d-none');
-                    }
-                    element.classList.remove('d-none');
-                } else {
-                    element.textContent = '';
-                    if (container) {
-                        container.classList.add('d-none');
-                    }
-                    element.classList.add('d-none');
-                }
-            };
-
-            const renderPhoneNumbers = (primary, secondary, other) => {
-                const phones = [];
-                if (primary) phones.push({ number: primary, label: 'Primary' });
-                if (secondary) phones.push({ number: secondary, label: 'Secondary' });
-                if (other) phones.push({ number: other, label: 'Other' });
-
-                if (phones.length === 0) {
-                    return '';
-                }
-
-                // Clean phone number for tel: link (remove spaces, dashes, etc.)
-                const cleanPhone = (phone) => {
-                    return phone.replace(/[\s\-\(\)]/g, '');
                 };
 
-                return phones.map((phone, index) => {
-                    const cleaned = cleanPhone(phone.number);
-                    return `<a href="tel:${cleaned}" class="text-decoration-none text-primary fw-semibold">${escapeHtml(phone.number)}</a>${index < phones.length - 1 ? '<span class="text-muted">, </span>' : ''}`;
-                }).join('');
-            };
+                const escapeHtml = (unsafe) => {
+                    if (unsafe === null || unsafe === undefined) {
+                        return '';
+                    }
+                    return String(unsafe).replace(/[&<>"']/g, function(match) {
+                        const map = {
+                            '&': '&amp;',
+                            '<': '&lt;',
+                            '>': '&gt;',
+                            '"': '&quot;',
+                            "'": '&#039;',
+                        };
+                        return map[match] || match;
+                    });
+                };
 
-            const renderTravelerBadges = (lead) => {
-                return `
+                const toggleText = (element, container, prefix, value) => {
+                    if (!element) return;
+                    if (value) {
+                        element.textContent = prefix ? `${prefix} ${value}` : value;
+                        if (container) {
+                            container.classList.remove('d-none');
+                        }
+                        element.classList.remove('d-none');
+                    } else {
+                        element.textContent = '';
+                        if (container) {
+                            container.classList.add('d-none');
+                        }
+                        element.classList.add('d-none');
+                    }
+                };
+
+                const renderPhoneNumbers = (primary, secondary, other) => {
+                    const phones = [];
+                    if (primary) phones.push({
+                        number: primary,
+                        label: 'Primary'
+                    });
+                    if (secondary) phones.push({
+                        number: secondary,
+                        label: 'Secondary'
+                    });
+                    if (other) phones.push({
+                        number: other,
+                        label: 'Other'
+                    });
+
+                    if (phones.length === 0) {
+                        return '';
+                    }
+
+                    // Clean phone number for tel: link (remove spaces, dashes, etc.)
+                    const cleanPhone = (phone) => {
+                        return phone.replace(/[\s\-\(\)]/g, '');
+                    };
+
+                    return phones.map((phone, index) => {
+                        const cleaned = cleanPhone(phone.number);
+                        return `<a href="tel:${cleaned}" class="text-decoration-none text-primary fw-semibold">${escapeHtml(phone.number)}</a>${index < phones.length - 1 ? '<span class="text-muted">, </span>' : ''}`;
+                    }).join('');
+                };
+
+                const renderTravelerBadges = (lead) => {
+                    return `
                     <div class="d-flex flex-wrap gap-2">
                         <span class="badge bg-primary text-white px-3 py-2">
                             <i data-feather="users" class="me-1" style="width: 14px; height: 14px;"></i>
@@ -976,209 +1192,673 @@
                         </span>
                     </div>
                 `;
-            };
+                };
 
-            const renderRemarks = (remarks) => {
-                if (!remarks || !remarks.length) {
-                    return '<p class="text-muted text-center mb-0 py-3">No remarks yet.</p>';
-                }
+                const renderRemarks = (remarks) => {
+                    if (!remarks || !remarks.length) {
+                        return '<p class="text-muted text-center mb-0 py-4"><i data-feather="message-circle" class="me-2" style="width: 16px; height: 16px;"></i>No remarks yet.</p>';
+                    }
 
-                return remarks.map((remark, index) => {
-                    const followUp = remark.follow_up_date ? 
-                        `<span class="badge bg-danger text-white ms-2 px-2 py-1">
+                    return remarks.map((remark, index) => {
+                        const followUp = remark.follow_up_date ?
+                            `<span class="badge bg-light text-danger border border-danger ms-2 px-2 py-1">
                             <i data-feather="calendar" class="me-1" style="width: 12px; height: 12px;"></i>
                             Follow-up: ${escapeHtml(remark.follow_up_date)}
                         </span>` : '';
-                    return `
-                        <div class="border rounded-3 p-3 mb-3 bg-light ${index === 0 ? 'border-primary' : ''}">
+                        return `
+                        <div class="border rounded-3 p-3 mb-3 bg-white border">
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar avatar-rounded rounded-circle avatar-xs me-2" style="background-color: #007d88;">
-                                        <span class="initial-wrap text-white fw-bold" style="font-size: 0.75rem;">
+                                <div class="d-flex align-items-start flex-grow-1">
+                                    <div class="avatar avatar-rounded rounded-circle me-3 flex-shrink-0" style="background-color: #007d88; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                        <span class="text-white fw-bold" style="font-size: 0.875rem;">
                                             ${escapeHtml((remark.user?.name ?? 'U')[0].toUpperCase())}
                                         </span>
                                     </div>
-                                    <div>
-                                        <strong class="d-block">${escapeHtml(remark.user?.name ?? 'Unknown')}</strong>
-                                        ${followUp}
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                                            <strong class="text-dark">${escapeHtml(remark.user?.name ?? 'Unknown')}</strong>
+                                            ${followUp}
+                                        </div>
+                                        <p class="mb-0 text-dark" style="line-height: 1.6;">${escapeHtml(remark.remark ?? '')}</p>
                                     </div>
                                 </div>
-                                <small class="text-muted">${escapeHtml(remark.created_at ?? '')}</small>
+                                <small class="text-muted flex-shrink-0 ms-2" style="white-space: nowrap;">${escapeHtml(remark.created_at ?? '')}</small>
                             </div>
-                            <p class="mb-0 mt-2 text-dark">${escapeHtml(remark.remark ?? '')}</p>
                         </div>
                     `;
-                }).join('');
-            };
+                    }).join('');
+                };
 
-            const resetViewLeadModal = () => {
-                if (viewLeadLoader) {
-                    viewLeadLoader.classList.remove('d-none');
-                }
-                if (viewLeadContent) {
-                    viewLeadContent.classList.add('d-none');
-                }
-                if (viewLeadAlert) {
-                    viewLeadAlert.classList.add('d-none');
-                    viewLeadAlert.textContent = '';
-                    viewLeadAlert.classList.remove('alert-danger', 'alert-success');
-                }
-                if (remarkAlert) {
-                    remarkAlert.classList.add('d-none');
-                    remarkAlert.textContent = '';
-                    remarkAlert.classList.remove('alert-danger', 'alert-success');
-                }
-                if (remarkForm) {
-                    remarkForm.reset();
-                    remarkForm.dataset.leadId = '';
-                }
-            };
-
-            const showViewLeadError = (message) => {
-                if (viewLeadAlert) {
-                    viewLeadAlert.classList.remove('d-none');
-                    viewLeadAlert.classList.remove('alert-success');
-                    viewLeadAlert.classList.add('alert-danger');
-                    viewLeadAlert.textContent = message;
-                }
-                if (viewLeadLoader) {
-                    viewLeadLoader.classList.add('d-none');
-                }
-                if (viewLeadContent) {
-                    viewLeadContent.classList.add('d-none');
-                }
-            };
-
-            const loadLeadDetails = async (leadId) => {
-                if (!leadId || !leadsBaseUrl) {
-                    showViewLeadError('Invalid lead.');
-                    return;
-                }
-
-                currentLeadId = leadId;
-                resetViewLeadModal();
-
-                try {
-                    const response = await fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
-                        headers: {
-                            'Accept': 'application/json',
-                },
-            });
-
-                    if (!response.ok) {
-                        throw new Error('Unable to load lead details.');
+                const resetViewLeadModal = () => {
+                    if (viewLeadLoader) {
+                        viewLeadLoader.classList.remove('d-none');
+                    }
+                    if (viewLeadContent) {
+                        viewLeadContent.classList.add('d-none');
+                    }
+                    if (viewLeadAlert) {
+                        viewLeadAlert.classList.add('d-none');
+                        viewLeadAlert.textContent = '';
+                        viewLeadAlert.classList.remove('alert-danger', 'alert-success');
                     }
 
-                    const data = await response.json();
-                    const lead = data.lead;
-
-                    if (!lead) {
-                        throw new Error('Lead details not found.');
+                    if (remarkForm) {
+                        remarkForm.reset();
+                        remarkForm.dataset.leadId = '';
                     }
+                };
 
-                    // Store lead data for editing
-                    currentLeadData = lead;
-
+                const showViewLeadError = (message) => {
+                    if (viewLeadAlert) {
+                        viewLeadAlert.classList.remove('d-none');
+                        viewLeadAlert.classList.remove('alert-success');
+                        viewLeadAlert.classList.add('alert-danger');
+                        viewLeadAlert.textContent = message;
+                    }
                     if (viewLeadLoader) {
                         viewLeadLoader.classList.add('d-none');
                     }
                     if (viewLeadContent) {
-                        viewLeadContent.classList.remove('d-none');
+                        viewLeadContent.classList.add('d-none');
+                    }
+                };
+
+                const loadLeadDetails = async (leadId) => {
+                    if (!leadId || !leadsBaseUrl) {
+                        showViewLeadError('Invalid lead.');
+                        return;
                     }
 
-                    if (viewLeadTitle) {
-                        viewLeadTitle.textContent = `${lead.tsq ?? 'Lead'} - ${lead.customer_name ?? ''}`;
-                    }
-                    if (viewLeadMeta) {
-                        viewLeadMeta.textContent = lead.created_at ? `Created on ${lead.created_at}` : '';
-                    }
-                    if (viewLeadStatus) {
-                        const statusClass = `badge ${lead.status_color ?? 'bg-secondary text-white'}`;
-                        viewLeadStatus.className = statusClass;
-                        viewLeadStatus.textContent = lead.status_label ?? lead.status ?? '-';
-                    }
-                    if (viewLeadCustomer) {
-                        viewLeadCustomer.textContent = lead.customer_name ?? '-';
-                    }
-                    if (viewLeadTSQ) {
-                        viewLeadTSQ.textContent = lead.tsq ? `TSQ: ${lead.tsq}` : '';
-                        viewLeadTSQ.classList.toggle('d-none', !lead.tsq);
-                    }
+                    currentLeadId = leadId;
+                    resetViewLeadModal();
 
-                    // Render phone numbers as comma-separated tel: links
-                    if (viewLeadPhones && viewLeadPhoneContainer) {
-                        const phoneHtml = renderPhoneNumbers(lead.primary_phone, lead.secondary_phone, lead.other_phone);
-                        if (phoneHtml) {
-                            viewLeadPhones.innerHTML = phoneHtml;
-                            viewLeadPhoneContainer.classList.remove('d-none');
-                        } else {
-                            viewLeadPhones.innerHTML = '';
-                            viewLeadPhoneContainer.classList.add('d-none');
+                    try {
+                        const response = await fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
+                            headers: {
+                                'Accept': 'application/json',
+                            },
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Unable to load lead details.');
                         }
-                    }
 
-                    toggleText(viewLeadEmail, viewLeadEmailContainer, 'Email:', lead.email);
-                    toggleText(viewLeadAddress, viewLeadAddressContainer, 'Address:', lead.address);
+                        const data = await response.json();
+                        const lead = data.lead;
 
-                    if (viewLeadService) {
-                        viewLeadService.textContent = lead.service ?? 'N/A';
-                    }
-                    if (viewLeadDestination) {
-                        viewLeadDestination.textContent = lead.destination ?? 'N/A';
-                    }
-                    if (viewLeadTravelDate) {
-                        viewLeadTravelDate.textContent = lead.travel_date ?? 'N/A';
-                    }
-                    if (viewLeadAssignedUser) {
-                        viewLeadAssignedUser.textContent = lead.assigned_user ?? 'Unassigned';
-                    }
-                    if (viewLeadTravelers) {
-                        viewLeadTravelers.innerHTML = renderTravelerBadges(lead);
-                    }
+                        if (!lead) {
+                            throw new Error('Lead details not found.');
+                        }
 
-                    if (viewLeadRemarksCount) {
-                        viewLeadRemarksCount.textContent = data.remarks?.length ?? 0;
-                    }
-                    if (viewLeadRemarksContainer) {
-                        viewLeadRemarksContainer.innerHTML = renderRemarks(data.remarks || []);
-                    }
+                        // Store lead data for editing
+                        currentLeadData = lead;
 
-                    if (remarkForm) {
-                        remarkForm.dataset.leadId = lead.id;
-                    }
+                        if (viewLeadLoader) {
+                            viewLeadLoader.classList.add('d-none');
+                        }
+                        if (viewLeadContent) {
+                            viewLeadContent.classList.remove('d-none');
+                        }
 
-                    // Initialize Feather icons after content is loaded
-            if (typeof feather !== 'undefined') {
-                feather.replace();
-            }
-                } catch (error) {
-                    console.error(error);
-                    showViewLeadError(error.message || 'Unexpected error occurred.');
+                        if (viewLeadTitle) {
+                            viewLeadTitle.textContent = `${lead.tsq ?? 'Lead'} - ${lead.customer_name ?? ''}`;
+                        }
+                        if (viewLeadMeta) {
+                            viewLeadMeta.textContent = lead.created_at ? `Created on ${lead.created_at}` : '';
+                        }
+                        if (viewLeadStatus) {
+                            const statusClass = `badge ${lead.status_color ?? 'bg-secondary text-white'}`;
+                            viewLeadStatus.className = statusClass;
+                            viewLeadStatus.textContent = lead.status_label ?? lead.status ?? '-';
+                        }
+                        // Populate Customer Information
+                        const viewFirstName = document.getElementById('viewFirstName');
+                        const viewMiddleName = document.getElementById('viewMiddleName');
+                        const viewLastName = document.getElementById('viewLastName');
+                        if (viewFirstName) viewFirstName.value = lead.first_name || '';
+                        if (viewMiddleName) viewMiddleName.value = lead.middle_name || '';
+                        if (viewLastName) viewLastName.value = lead.last_name || '';
+
+                        // Populate Contact Information
+                        const viewPrimaryPhone = document.getElementById('viewPrimaryPhone');
+                        const viewSecondaryPhone = document.getElementById('viewSecondaryPhone');
+                        const viewOtherPhone = document.getElementById('viewOtherPhone');
+                        const viewEmail = document.getElementById('viewEmail');
+                        if (viewPrimaryPhone) viewPrimaryPhone.value = lead.primary_phone || '';
+                        if (viewSecondaryPhone) viewSecondaryPhone.value = lead.secondary_phone || '';
+                        if (viewOtherPhone) viewOtherPhone.value = lead.other_phone || '';
+                        if (viewEmail) viewEmail.value = lead.email || '';
+
+                        // Populate Address fields
+                        const viewAddressLine = document.getElementById('viewAddressLine');
+                        const viewCity = document.getElementById('viewCity');
+                        const viewState = document.getElementById('viewState');
+                        const viewCountry = document.getElementById('viewCountry');
+                        const viewPinCode = document.getElementById('viewPinCode');
+                        if (viewAddressLine) viewAddressLine.value = lead.address_line || '';
+                        if (viewCity) viewCity.value = lead.city || '';
+                        if (viewState) viewState.value = lead.state || '';
+                        if (viewCountry) viewCountry.value = lead.country || '';
+                        if (viewPinCode) viewPinCode.value = lead.pin_code || '';
+
+                        // Populate Travel Preferences
+                        if (viewLeadService) {
+                            viewLeadService.value = lead.service ?? 'N/A';
+                        }
+                        if (viewLeadDestination) {
+                            viewLeadDestination.value = lead.destination ?? 'N/A';
+                        }
+                        if (viewLeadTravelDate) {
+                            viewLeadTravelDate.value = lead.travel_date ?? 'N/A';
+                        }
+                        const viewAdults = document.getElementById('viewAdults');
+                        const viewChildren25 = document.getElementById('viewChildren25');
+                        const viewChildren611 = document.getElementById('viewChildren611');
+                        const viewInfants = document.getElementById('viewInfants');
+                        if (viewAdults) viewAdults.value = lead.adults ?? 0;
+                        if (viewChildren25) viewChildren25.value = lead.children_2_5 ?? 0;
+                        if (viewChildren611) viewChildren611.value = lead.children_6_11 ?? 0;
+                        if (viewInfants) viewInfants.value = lead.infants ?? 0;
+
+                        // Populate Assignment
+                        if (viewLeadAssignedUser) {
+                            viewLeadAssignedUser.value = lead.assigned_user ?? 'Unassigned';
+                        }
+                        const viewStatus = document.getElementById('viewStatus');
+                        if (viewStatus) {
+                            viewStatus.value = lead.status_label ?? lead.status ?? 'N/A';
+                        }
+
+                        if (viewLeadRemarksCount) {
+                            viewLeadRemarksCount.textContent = data.remarks?.length ?? 0;
+                        }
+                        if (viewLeadRemarksContainer) {
+                            viewLeadRemarksContainer.innerHTML = renderRemarks(data.remarks || []);
+                        }
+
+                        if (remarkForm) {
+                            remarkForm.dataset.leadId = lead.id;
+                        }
+
+                        // Initialize Feather icons after content is loaded
+                        if (typeof feather !== 'undefined') {
+                            feather.replace();
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        showViewLeadError(error.message || 'Unexpected error occurred.');
+                    }
+                };
+
+                // Store loadLeadDetails on window for access in global event handler
+                window.loadLeadDetails = loadLeadDetails;
+
+                // Initialize modal instance first and store on window for access
+                if (viewLeadModalEl && typeof bootstrap !== 'undefined') {
+                    if (!viewLeadModalInstance) {
+                        viewLeadModalInstance = new bootstrap.Modal(viewLeadModalEl, {
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+                        // Store on window for access in event handler
+                        window.viewLeadModalInstance = viewLeadModalInstance;
+                    }
                 }
-            };
 
-            // Store loadLeadDetails on window for access in global event handler
-            window.loadLeadDetails = loadLeadDetails;
+                // Use event delegation on document to catch clicks on dynamically created buttons
+                // This must be outside the conditional to work with DataTable
+                // Use a named function to prevent duplicate listeners
+                if (!window.viewLeadClickHandler) {
+                    window.viewLeadClickHandler = function(event) {
+                        // Check if the clicked element or its parent has the view-lead-btn class
+                        const button = event.target.closest('.view-lead-btn');
+                        if (!button) {
+                            return;
+                        }
 
-            // Initialize modal instance first and store on window for access
-            if (viewLeadModalEl && typeof bootstrap !== 'undefined') {
-                if (!viewLeadModalInstance) {
-                    viewLeadModalInstance = new bootstrap.Modal(viewLeadModalEl, {
-                        backdrop: 'static',
-                        keyboard: false
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
+
+                        if (!leadId) {
+                            console.error('No lead ID found on button', button);
+                            return;
+                        }
+
+                        // Get modal element
+                        const modalEl = document.getElementById('viewLeadModal');
+                        if (!modalEl) {
+                            console.error('View lead modal element not found');
+                            return;
+                        }
+
+                        // Get or create modal instance
+                        let modalInstance = window.viewLeadModalInstance || viewLeadModalInstance;
+                        if (!modalInstance && typeof bootstrap !== 'undefined') {
+                            modalInstance = new bootstrap.Modal(modalEl, {
+                                backdrop: 'static',
+                                keyboard: false
+                            });
+                            window.viewLeadModalInstance = modalInstance;
+                            viewLeadModalInstance = modalInstance;
+                        }
+
+                        if (modalInstance) {
+                            modalInstance.show();
+                            // Use window.loadLeadDetails which was stored from document.ready
+                            if (typeof window.loadLeadDetails === 'function') {
+                                window.loadLeadDetails(leadId);
+                            } else {
+                                console.error('loadLeadDetails function not found on window');
+                            }
+                        } else {
+                            console.error('Bootstrap modal not available');
+                        }
+                    };
+
+                    // Attach the event listener with capture phase
+                    document.addEventListener('click', window.viewLeadClickHandler, true);
+                }
+
+                if (viewLeadModalEl) {
+                    viewLeadModalEl.addEventListener('shown.bs.modal', () => {
+                        // Initialize Feather icons when modal is shown
+                        if (typeof feather !== 'undefined') {
+                            feather.replace();
+                        }
                     });
-                    // Store on window for access in event handler
-                    window.viewLeadModalInstance = viewLeadModalInstance;
-                }
-            }
 
-            // Use event delegation on document to catch clicks on dynamically created buttons
-            // This must be outside the conditional to work with DataTable
-            // Use a named function to prevent duplicate listeners
-            if (!window.viewLeadClickHandler) {
-                window.viewLeadClickHandler = function(event) {
-                    // Check if the clicked element or its parent has the view-lead-btn class
-                    const button = event.target.closest('.view-lead-btn');
+                    viewLeadModalEl.addEventListener('hidden.bs.modal', () => {
+                        currentLeadId = null;
+                        currentLeadData = null;
+                        resetViewLeadModal();
+                        // Reset to view mode if in edit mode
+                        const viewContent = document.getElementById('viewLeadContent');
+                        const editContent = document.getElementById('editLeadContent');
+                        const cancelBtn = document.getElementById('cancelEditBtn');
+                        const modalTitle = document.getElementById('viewLeadModalTitle');
+                        if (viewContent) viewContent.classList.remove('d-none');
+                        if (editContent) editContent.classList.add('d-none');
+                        if (cancelBtn) cancelBtn.classList.add('d-none');
+                        if (modalTitle) modalTitle.textContent = 'Lead Details';
+                    });
+                }
+
+                if (remarkForm) {
+                    remarkForm.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+                        if (!currentLeadId || !leadsBaseUrl) {
+                            return;
+                        }
+
+
+
+                        const formData = new FormData(remarkForm);
+
+                        try {
+                            const response = await fetch(`${leadsBaseUrl}/${currentLeadId}/remarks`, {
+                                method: 'POST',
+                                headers: {
+                                    'Accept': 'application/json',
+                                },
+                                body: formData,
+                            });
+
+                            const payload = await response.json();
+
+                            if (!response.ok) {
+                                const message = payload?.message || Object.values(payload?.errors || {})[0]
+                                    ?.[0] || 'Failed to add remark.';
+                                throw new Error(message);
+                            }
+
+                            // Show success toast
+                            showToast(payload?.message || 'Remark added successfully!', 'success');
+
+
+                            remarkForm.reset();
+
+
+
+                            // Add new remark to the list without reloading the entire modal
+                            if (payload?.remark && viewLeadRemarksContainer) {
+                                // Get current remarks from the container
+                                const currentRemarksHtml = viewLeadRemarksContainer.innerHTML;
+                                const isEmpty = currentRemarksHtml.includes('No remarks yet');
+
+                                // Render the new remark (it should be first in the list)
+                                const newRemarkHtml = renderRemarks([payload.remark]);
+
+                                if (isEmpty) {
+                                    // If no remarks existed, replace the empty message
+                                    viewLeadRemarksContainer.innerHTML = newRemarkHtml;
+                                } else {
+                                    // Prepend the new remark to the existing list
+                                    viewLeadRemarksContainer.innerHTML = newRemarkHtml + currentRemarksHtml;
+                                }
+
+                                // Update remark count
+                                if (viewLeadRemarksCount) {
+                                    const currentCount = parseInt(viewLeadRemarksCount.textContent) || 0;
+                                    viewLeadRemarksCount.textContent = currentCount + 1;
+                                }
+
+                                // Initialize Feather icons for the new remark
+                                if (typeof feather !== 'undefined') {
+                                    feather.replace();
+                                }
+                            }
+                        } catch (error) {
+                            // Show error toast
+                            showToast(error.message || 'Unable to add remark.', 'error');
+
+
+                        }
+                    });
+                }
+
+                // Edit Lead Functionality
+                const cancelEditBtn = document.getElementById('cancelEditBtn');
+                const cancelEditFormBtn = document.getElementById('cancelEditFormBtn');
+                const editLeadContent = document.getElementById('editLeadContent');
+                const editLeadForm = document.getElementById('editLeadForm');
+                const editLeadAlert = document.getElementById('editLeadAlert');
+                const viewLeadModalTitle = document.getElementById('viewLeadModalTitle');
+                let currentEditLeadId = null;
+                let currentLeadData = null;
+
+                // Function to update children total for edit form
+                const updateEditChildrenTotal = () => {
+                    const editLeadForm = document.getElementById('editLeadForm');
+                    if (!editLeadForm) return;
+                    const child2_5 = parseInt(editLeadForm.elements['children_2_5']?.value || '0', 10);
+                    const child6_11 = parseInt(editLeadForm.elements['children_6_11']?.value || '0', 10);
+                    const editChildrenTotal = document.getElementById('editChildrenTotal');
+                    if (editChildrenTotal) {
+                        editChildrenTotal.value = (child2_5 || 0) + (child6_11 || 0);
+                    }
+                };
+
+                // Function to populate edit form with lead data
+                const populateEditForm = (lead) => {
+                    if (!lead) return;
+
+                    document.getElementById('editFirstName').value = lead.first_name || '';
+                    document.getElementById('editMiddleName').value = lead.middle_name || '';
+                    document.getElementById('editLastName').value = lead.last_name || '';
+                    document.getElementById('editPrimaryPhone').value = lead.primary_phone || '';
+                    document.getElementById('editSecondaryPhone').value = lead.secondary_phone || '';
+                    document.getElementById('editOtherPhone').value = lead.other_phone || '';
+                    document.getElementById('editEmail').value = lead.email || '';
+                    document.getElementById('editAddressLine').value = lead.address_line || '';
+                    document.getElementById('editCity').value = lead.city || '';
+                    document.getElementById('editState').value = lead.state || '';
+                    document.getElementById('editCountry').value = lead.country || '';
+                    document.getElementById('editPinCode').value = lead.pin_code || '';
+                    document.getElementById('editServiceId').value = lead.service_id || '';
+                    document.getElementById('editDestinationId').value = lead.destination_id || '';
+                    document.getElementById('editTravelDate').value = lead.travel_date_raw || '';
+                    document.getElementById('editAdults').value = lead.adults || 0;
+                    document.getElementById('editChildren25').value = lead.children_2_5 || 0;
+                    document.getElementById('editChildren611').value = lead.children_6_11 || 0;
+                    document.getElementById('editInfants').value = lead.infants || 0;
+                    document.getElementById('editAssignedUserId').value = lead.assigned_user_id || '';
+                    document.getElementById('editStatus').value = lead.status || 'new';
+
+                    // Update children total
+                    updateEditChildrenTotal();
+                };
+
+                // Function to switch to edit mode
+                const switchToEditMode = () => {
+                    if (viewLeadContent) viewLeadContent.classList.add('d-none');
+                    if (editLeadContent) editLeadContent.classList.remove('d-none');
+                    if (cancelEditBtn) cancelEditBtn.classList.remove('d-none');
+                    if (viewLeadModalTitle) viewLeadModalTitle.textContent = 'Edit Lead';
+                    if (typeof feather !== 'undefined') feather.replace();
+                };
+
+                // Function to switch back to view mode
+                const switchToViewMode = () => {
+                    if (viewLeadContent) viewLeadContent.classList.remove('d-none');
+                    if (editLeadContent) editLeadContent.classList.add('d-none');
+                    if (cancelEditBtn) cancelEditBtn.classList.add('d-none');
+                    if (viewLeadModalTitle) viewLeadModalTitle.textContent = 'Lead Details';
+                    if (editLeadAlert) {
+                        editLeadAlert.classList.add('d-none');
+                        editLeadAlert.textContent = '';
+                    }
+                };
+
+                // Function to populate Add Lead form for editing
+                const populateAddLeadFormForEdit = (lead) => {
+                    if (!lead || !addLeadForm) return;
+
+                    // Set form mode to edit
+                    const formMethod = document.getElementById('formMethod');
+                    const editLeadId = document.getElementById('editLeadId');
+                    const modalLabel = document.getElementById('addLeadModalLabel');
+                    const submitBtn = document.getElementById('addLeadSubmitBtn');
+
+                    if (formMethod) formMethod.value = 'PUT';
+                    if (editLeadId) editLeadId.value = lead.id;
+                    if (modalLabel) modalLabel.textContent = 'Edit Lead';
+                    if (submitBtn) submitBtn.textContent = 'Update Lead';
+
+                    // Update form action for direct form submission
+                    addLeadForm.action = `${leadsBaseUrl}/${lead.id}`;
+
+                    // Populate form fields
+                    if (addLeadForm.elements['first_name']) addLeadForm.elements['first_name'].value = lead
+                        .first_name || '';
+                    if (addLeadForm.elements['middle_name']) addLeadForm.elements['middle_name'].value = lead
+                        .middle_name || '';
+                    if (addLeadForm.elements['last_name']) addLeadForm.elements['last_name'].value = lead
+                        .last_name || '';
+                    if (addLeadForm.elements['primary_phone']) addLeadForm.elements['primary_phone'].value = lead
+                        .primary_phone || '';
+                    if (addLeadForm.elements['secondary_phone']) addLeadForm.elements['secondary_phone'].value =
+                        lead.secondary_phone || '';
+                    if (addLeadForm.elements['other_phone']) addLeadForm.elements['other_phone'].value = lead
+                        .other_phone || '';
+                    if (addLeadForm.elements['email']) addLeadForm.elements['email'].value = lead.email || '';
+                    if (addLeadForm.elements['address_line']) addLeadForm.elements['address_line'].value = lead
+                        .address_line || '';
+                    if (addLeadForm.elements['city']) addLeadForm.elements['city'].value = lead.city || '';
+                    if (addLeadForm.elements['state']) addLeadForm.elements['state'].value = lead.state || '';
+                    if (addLeadForm.elements['country']) addLeadForm.elements['country'].value = lead.country || '';
+                    if (addLeadForm.elements['pin_code']) addLeadForm.elements['pin_code'].value = lead.pin_code ||
+                        '';
+                    if (addLeadForm.elements['service_id']) addLeadForm.elements['service_id'].value = lead
+                        .service_id || '';
+                    if (addLeadForm.elements['destination_id']) addLeadForm.elements['destination_id'].value = lead
+                        .destination_id || '';
+                    if (addLeadForm.elements['travel_date']) {
+                        const travelDateInput = addLeadForm.elements['travel_date'];
+                        travelDateInput.value = lead.travel_date_raw || '';
+                    }
+                    if (addLeadForm.elements['adults']) addLeadForm.elements['adults'].value = lead.adults || 0;
+                    if (addLeadForm.elements['children_2_5']) addLeadForm.elements['children_2_5'].value = lead
+                        .children_2_5 || 0;
+                    if (addLeadForm.elements['children_6_11']) addLeadForm.elements['children_6_11'].value = lead
+                        .children_6_11 || 0;
+                    if (addLeadForm.elements['infants']) addLeadForm.elements['infants'].value = lead.infants || 0;
+                    if (addLeadForm.elements['assigned_user_id']) addLeadForm.elements['assigned_user_id'].value =
+                        lead.assigned_user_id || '';
+                    if (addLeadForm.elements['status']) addLeadForm.elements['status'].value = lead.status || 'new';
+
+                    // Update children total
+                    updateChildrenTotal();
+                };
+
+                // Function to reset form to add mode
+                const resetAddLeadFormToAddMode = () => {
+                    if (!addLeadForm) return;
+
+                    const formMethod = document.getElementById('formMethod');
+                    const editLeadId = document.getElementById('editLeadId');
+                    const modalLabel = document.getElementById('addLeadModalLabel');
+                    const submitBtn = document.getElementById('addLeadSubmitBtn');
+
+                    if (formMethod) formMethod.value = 'POST';
+                    if (editLeadId) editLeadId.value = '';
+                    if (modalLabel) modalLabel.textContent = 'Add Lead';
+                    if (submitBtn) submitBtn.textContent = 'Add Lead';
+
+                    // Reset form action
+                    addLeadForm.action = '{{ route('leads.store') }}';
+
+                    // Reset form
+                    addLeadForm.reset();
+                    updateChildrenTotal();
+                };
+
+                // Edit button click handler (from table) - opens Add Lead modal in edit mode
+                if (!window.editLeadClickHandler) {
+                    window.editLeadClickHandler = function(event) {
+                        const button = event.target.closest('.edit-lead-btn');
+                        if (!button) {
+                            return;
+                        }
+
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
+
+                        if (!leadId) {
+                            console.error('No lead ID found on edit button', button);
+                            return;
+                        }
+
+                        // Fetch lead data and open Add Lead modal in edit mode
+                        fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
+                                headers: {
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.lead) {
+                                    // Open Add Lead modal
+                                    if (addLeadModalEl && typeof bootstrap !== 'undefined') {
+                                        const modalInstance = bootstrap.Modal.getOrCreateInstance(
+                                            addLeadModalEl);
+                                        populateAddLeadFormForEdit(data.lead);
+                                        modalInstance.show();
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error loading lead for edit:', error);
+                                alert('Unable to load lead details for editing.');
+                            });
+                    };
+                    document.addEventListener('click', window.editLeadClickHandler);
+                }
+
+                // Cancel edit button handlers
+                if (cancelEditBtn) {
+                    cancelEditBtn.addEventListener('click', () => {
+                        switchToViewMode();
+                    });
+                }
+
+                if (cancelEditFormBtn) {
+                    cancelEditFormBtn.addEventListener('click', () => {
+                        switchToViewMode();
+                    });
+                }
+
+                // Add event listeners for children fields in edit form
+                if (editLeadForm) {
+                    editLeadForm.querySelectorAll('input[name="children_2_5"], input[name="children_6_11"]').forEach((
+                        field) => {
+                        field.addEventListener('input', updateEditChildrenTotal);
+                        field.addEventListener('change', updateEditChildrenTotal);
+                    });
+                }
+
+                // Edit form submission
+                if (editLeadForm) {
+                    editLeadForm.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+                        if (!currentEditLeadId || !leadsBaseUrl) {
+                            return;
+                        }
+
+                        // Update children total before submission
+                        updateEditChildrenTotal();
+
+                        if (editLeadAlert) {
+                            editLeadAlert.classList.add('d-none');
+                            editLeadAlert.classList.remove('alert-danger', 'alert-success');
+                        }
+
+                        try {
+                            const formData = new FormData(editLeadForm);
+                            // Ensure _method is set for Laravel method spoofing
+                            formData.append('_method', 'PUT');
+                            const response = await fetch(`${leadsBaseUrl}/${currentEditLeadId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Accept': 'application/json',
+                                },
+                                body: formData,
+                            });
+
+                            const payload = await response.json();
+
+                            if (!response.ok) {
+                                const message = payload?.message || Object.values(payload?.errors || {})[0]
+                                    ?.[0] || 'Failed to update lead.';
+                                throw new Error(message);
+                            }
+
+                            if (editLeadAlert) {
+                                editLeadAlert.classList.remove('d-none');
+                                editLeadAlert.classList.add('alert-success');
+                                editLeadAlert.textContent = payload?.message ||
+                                    'Lead updated successfully!';
+                            }
+
+                            // Reload lead details and switch back to view mode
+                            setTimeout(() => {
+                                if (typeof window.loadLeadDetails === 'function') {
+                                    window.loadLeadDetails(currentEditLeadId);
+                                }
+                                switchToViewMode();
+                            }, 1000);
+                        } catch (error) {
+                            if (editLeadAlert) {
+                                editLeadAlert.classList.remove('d-none');
+                                editLeadAlert.classList.add('alert-danger');
+                                editLeadAlert.textContent = error.message || 'Unable to update lead.';
+                            }
+                        }
+                    });
+                }
+
+
+                // Assign User Modal
+                const assignUserModalEl = document.getElementById('assignUserModal');
+                const assignUserButtons = document.querySelectorAll('.assign-user-btn');
+                const assignUserLeadName = document.getElementById('assignUserLeadName');
+                const assignUserCurrentUser = document.getElementById('assignUserCurrentUser');
+                const assignUserSelect = document.getElementById('assignUserSelect');
+                const assignUserSubmitBtn = document.getElementById('assignUserSubmitBtn');
+                const assignUserAlert = document.getElementById('assignUserAlert');
+                let assignUserModalInstance = null;
+                let currentAssignLeadId = null;
+
+                if (assignUserModalEl && typeof bootstrap !== 'undefined') {
+                    assignUserModalInstance = new bootstrap.Modal(assignUserModalEl);
+                }
+
+                // Handle assign user button clicks
+                document.addEventListener('click', function(event) {
+                    const button = event.target.closest('.assign-user-btn');
                     if (!button) {
                         return;
                     }
@@ -1187,387 +1867,119 @@
                     event.stopPropagation();
 
                     const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
-                    
+                    const leadName = button.dataset.leadName || button.getAttribute('data-lead-name');
+                    const currentUser = button.dataset.currentUser || button.getAttribute('data-current-user');
+
                     if (!leadId) {
-                        console.error('No lead ID found on button', button);
+                        console.error('No lead ID found on button');
                         return;
                     }
 
-                    // Get modal element
-                    const modalEl = document.getElementById('viewLeadModal');
-                    if (!modalEl) {
-                        console.error('View lead modal element not found');
-                        return;
+                    currentAssignLeadId = leadId;
+
+                    if (assignUserLeadName) {
+                        assignUserLeadName.value = leadName || 'N/A';
                     }
-
-                    // Get or create modal instance
-                    let modalInstance = window.viewLeadModalInstance || viewLeadModalInstance;
-                    if (!modalInstance && typeof bootstrap !== 'undefined') {
-                        modalInstance = new bootstrap.Modal(modalEl, {
-                            backdrop: 'static',
-                            keyboard: false
-                        });
-                        window.viewLeadModalInstance = modalInstance;
-                        viewLeadModalInstance = modalInstance;
+                    if (assignUserCurrentUser) {
+                        assignUserCurrentUser.value = currentUser || 'Unassigned';
                     }
-
-                    if (modalInstance) {
-                        modalInstance.show();
-                        // Use window.loadLeadDetails which was stored from document.ready
-                        if (typeof window.loadLeadDetails === 'function') {
-                            window.loadLeadDetails(leadId);
-                        } else {
-                            console.error('loadLeadDetails function not found on window');
-                        }
-                    } else {
-                        console.error('Bootstrap modal not available');
+                    if (assignUserSelect) {
+                        assignUserSelect.value = '';
                     }
-                };
-
-                // Attach the event listener with capture phase
-                document.addEventListener('click', window.viewLeadClickHandler, true);
-            }
-
-            if (viewLeadModalEl) {
-                viewLeadModalEl.addEventListener('shown.bs.modal', () => {
-                    // Initialize Feather icons when modal is shown
-                    if (typeof feather !== 'undefined') {
-                        feather.replace();
-                    }
-                });
-
-                viewLeadModalEl.addEventListener('hidden.bs.modal', () => {
-                    currentLeadId = null;
-                    currentLeadData = null;
-                    resetViewLeadModal();
-                    // Reset to view mode if in edit mode
-                    const viewContent = document.getElementById('viewLeadContent');
-                    const editContent = document.getElementById('editLeadContent');
-                    const editBtn = document.getElementById('editLeadBtn');
-                    const cancelBtn = document.getElementById('cancelEditBtn');
-                    const modalTitle = document.getElementById('viewLeadModalTitle');
-                    if (viewContent) viewContent.classList.remove('d-none');
-                    if (editContent) editContent.classList.add('d-none');
-                    if (editBtn) editBtn.classList.remove('d-none');
-                    if (cancelBtn) cancelBtn.classList.add('d-none');
-                    if (modalTitle) modalTitle.textContent = 'Lead Details';
-                });
-            }
-
-            if (remarkForm) {
-                remarkForm.addEventListener('submit', async (event) => {
-                    event.preventDefault();
-                    if (!currentLeadId || !leadsBaseUrl) {
-                        return;
-                    }
-
-                    remarkAlert.classList.add('d-none');
-                    remarkAlert.classList.remove('alert-danger', 'alert-success');
-
-                    const formData = new FormData(remarkForm);
-
-                    try {
-                        const response = await fetch(`${leadsBaseUrl}/${currentLeadId}/remarks`, {
-                            method: 'POST',
-                            headers: {
-                                'Accept': 'application/json',
-                            },
-                            body: formData,
-                        });
-
-                        const payload = await response.json();
-
-                        if (!response.ok) {
-                            const message = payload?.message || Object.values(payload?.errors || {})[0]?.[0] || 'Failed to add remark.';
-                            throw new Error(message);
-                        }
-
-                        remarkAlert.classList.remove('d-none');
-                        remarkAlert.classList.add('alert-success');
-                        remarkAlert.textContent = payload?.message || 'Remark added successfully!';
-                        remarkForm.reset();
-                        if (typeof window.loadLeadDetails === 'function') {
-                            window.loadLeadDetails(currentLeadId);
-                        }
-                    } catch (error) {
-                        remarkAlert.classList.remove('d-none');
-                        remarkAlert.classList.add('alert-danger');
-                        remarkAlert.textContent = error.message || 'Unable to add remark.';
-                    }
-                });
-            }
-
-            // Edit Lead Functionality
-            const editLeadBtn = document.getElementById('editLeadBtn');
-            const cancelEditBtn = document.getElementById('cancelEditBtn');
-            const cancelEditFormBtn = document.getElementById('cancelEditFormBtn');
-            const editLeadContent = document.getElementById('editLeadContent');
-            const editLeadForm = document.getElementById('editLeadForm');
-            const editLeadAlert = document.getElementById('editLeadAlert');
-            const viewLeadModalTitle = document.getElementById('viewLeadModalTitle');
-            let currentEditLeadId = null;
-            let currentLeadData = null;
-
-            // Function to populate edit form with lead data
-            const populateEditForm = (lead) => {
-                if (!lead) return;
-
-                document.getElementById('editFirstName').value = lead.first_name || '';
-                document.getElementById('editMiddleName').value = lead.middle_name || '';
-                document.getElementById('editLastName').value = lead.last_name || '';
-                document.getElementById('editPrimaryPhone').value = lead.primary_phone || '';
-                document.getElementById('editSecondaryPhone').value = lead.secondary_phone || '';
-                document.getElementById('editOtherPhone').value = lead.other_phone || '';
-                document.getElementById('editEmail').value = lead.email || '';
-                document.getElementById('editAddress').value = lead.address || '';
-                document.getElementById('editServiceId').value = lead.service_id || '';
-                document.getElementById('editDestinationId').value = lead.destination_id || '';
-                document.getElementById('editTravelDate').value = lead.travel_date_raw || '';
-                document.getElementById('editAdults').value = lead.adults || 0;
-                document.getElementById('editChildren25').value = lead.children_2_5 || 0;
-                document.getElementById('editChildren611').value = lead.children_6_11 || 0;
-                document.getElementById('editInfants').value = lead.infants || 0;
-                document.getElementById('editAssignedUserId').value = lead.assigned_user_id || '';
-                document.getElementById('editStatus').value = lead.status || 'new';
-            };
-
-            // Function to switch to edit mode
-            const switchToEditMode = () => {
-                if (viewLeadContent) viewLeadContent.classList.add('d-none');
-                if (editLeadContent) editLeadContent.classList.remove('d-none');
-                if (editLeadBtn) editLeadBtn.classList.add('d-none');
-                if (cancelEditBtn) cancelEditBtn.classList.remove('d-none');
-                if (viewLeadModalTitle) viewLeadModalTitle.textContent = 'Edit Lead';
-                if (typeof feather !== 'undefined') feather.replace();
-            };
-
-            // Function to switch back to view mode
-            const switchToViewMode = () => {
-                if (viewLeadContent) viewLeadContent.classList.remove('d-none');
-                if (editLeadContent) editLeadContent.classList.add('d-none');
-                if (editLeadBtn) editLeadBtn.classList.remove('d-none');
-                if (cancelEditBtn) cancelEditBtn.classList.add('d-none');
-                if (viewLeadModalTitle) viewLeadModalTitle.textContent = 'Lead Details';
-                if (editLeadAlert) {
-                    editLeadAlert.classList.add('d-none');
-                    editLeadAlert.textContent = '';
-                }
-            };
-
-            // Edit button click handler
-            if (editLeadBtn) {
-                editLeadBtn.addEventListener('click', () => {
-                    if (currentLeadId && currentLeadData) {
-                        currentEditLeadId = currentLeadId;
-                        populateEditForm(currentLeadData);
-                        switchToEditMode();
-                    }
-                });
-            }
-
-            // Cancel edit button handlers
-            if (cancelEditBtn) {
-                cancelEditBtn.addEventListener('click', () => {
-                    switchToViewMode();
-                });
-            }
-
-            if (cancelEditFormBtn) {
-                cancelEditFormBtn.addEventListener('click', () => {
-                    switchToViewMode();
-                });
-            }
-
-            // Edit form submission
-            if (editLeadForm) {
-                editLeadForm.addEventListener('submit', async (event) => {
-                    event.preventDefault();
-                    if (!currentEditLeadId || !leadsBaseUrl) {
-                        return;
-                    }
-
-                    if (editLeadAlert) {
-                        editLeadAlert.classList.add('d-none');
-                        editLeadAlert.classList.remove('alert-danger', 'alert-success');
-                    }
-
-                    try {
-                        const formData = new FormData(editLeadForm);
-                        // Ensure _method is set for Laravel method spoofing
-                        formData.append('_method', 'PUT');
-                        const response = await fetch(`${leadsBaseUrl}/${currentEditLeadId}`, {
-                            method: 'POST',
-                            headers: {
-                                'Accept': 'application/json',
-                            },
-                            body: formData,
-                        });
-
-                        const payload = await response.json();
-
-                        if (!response.ok) {
-                            const message = payload?.message || Object.values(payload?.errors || {})[0]?.[0] || 'Failed to update lead.';
-                            throw new Error(message);
-                        }
-
-                        if (editLeadAlert) {
-                            editLeadAlert.classList.remove('d-none');
-                            editLeadAlert.classList.add('alert-success');
-                            editLeadAlert.textContent = payload?.message || 'Lead updated successfully!';
-                        }
-
-                        // Reload lead details and switch back to view mode
-                        setTimeout(() => {
-                            if (typeof window.loadLeadDetails === 'function') {
-                                window.loadLeadDetails(currentEditLeadId);
-                            }
-                            switchToViewMode();
-                        }, 1000);
-                    } catch (error) {
-                        if (editLeadAlert) {
-                            editLeadAlert.classList.remove('d-none');
-                            editLeadAlert.classList.add('alert-danger');
-                            editLeadAlert.textContent = error.message || 'Unable to update lead.';
-                        }
-                    }
-                });
-            }
-
-
-            // Assign User Modal
-            const assignUserModalEl = document.getElementById('assignUserModal');
-            const assignUserButtons = document.querySelectorAll('.assign-user-btn');
-            const assignUserLeadName = document.getElementById('assignUserLeadName');
-            const assignUserCurrentUser = document.getElementById('assignUserCurrentUser');
-            const assignUserSelect = document.getElementById('assignUserSelect');
-            const assignUserSubmitBtn = document.getElementById('assignUserSubmitBtn');
-            const assignUserAlert = document.getElementById('assignUserAlert');
-            let assignUserModalInstance = null;
-            let currentAssignLeadId = null;
-
-            if (assignUserModalEl && typeof bootstrap !== 'undefined') {
-                assignUserModalInstance = new bootstrap.Modal(assignUserModalEl);
-            }
-
-            // Handle assign user button clicks
-            document.addEventListener('click', function(event) {
-                const button = event.target.closest('.assign-user-btn');
-                if (!button) {
-                    return;
-                }
-
-                event.preventDefault();
-                event.stopPropagation();
-
-                const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
-                const leadName = button.dataset.leadName || button.getAttribute('data-lead-name');
-                const currentUser = button.dataset.currentUser || button.getAttribute('data-current-user');
-
-                if (!leadId) {
-                    console.error('No lead ID found on button');
-                    return;
-                }
-
-                currentAssignLeadId = leadId;
-
-                if (assignUserLeadName) {
-                    assignUserLeadName.value = leadName || 'N/A';
-                }
-                if (assignUserCurrentUser) {
-                    assignUserCurrentUser.value = currentUser || 'Unassigned';
-                }
-                if (assignUserSelect) {
-                    assignUserSelect.value = '';
-                }
-                if (assignUserAlert) {
-                    assignUserAlert.classList.add('d-none');
-                    assignUserAlert.textContent = '';
-                }
-
-                if (assignUserModalInstance) {
-                    assignUserModalInstance.show();
-                }
-            });
-
-            // Handle assign user form submission
-            if (assignUserSubmitBtn) {
-                assignUserSubmitBtn.addEventListener('click', async function() {
-                    if (!currentAssignLeadId || !assignUserSelect || !leadsBaseUrl) {
-                        return;
-                    }
-
-                    const userId = assignUserSelect.value;
-                    if (!userId) {
-                        if (assignUserAlert) {
-                            assignUserAlert.classList.remove('d-none');
-                            assignUserAlert.classList.remove('alert-success');
-                            assignUserAlert.classList.add('alert-danger');
-                            assignUserAlert.textContent = 'Please select a user to assign.';
-                        }
-                        return;
-                    }
-
                     if (assignUserAlert) {
                         assignUserAlert.classList.add('d-none');
-                        assignUserAlert.classList.remove('alert-danger', 'alert-success');
+                        assignUserAlert.textContent = '';
                     }
 
-                    try {
-                        const response = await fetch(`${leadsBaseUrl}/${currentAssignLeadId}/assign-user`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-                            },
-                            body: JSON.stringify({
-                                assigned_user_id: userId
-                            })
-                        });
+                    if (assignUserModalInstance) {
+                        assignUserModalInstance.show();
+                    }
+                });
 
-                        const payload = await response.json();
-
-                        if (!response.ok) {
-                            const message = payload?.message || Object.values(payload?.errors || {})[0]?.[0] || 'Failed to assign user.';
-                            throw new Error(message);
+                // Handle assign user form submission
+                if (assignUserSubmitBtn) {
+                    assignUserSubmitBtn.addEventListener('click', async function() {
+                        if (!currentAssignLeadId || !assignUserSelect || !leadsBaseUrl) {
+                            return;
                         }
 
-                        if (assignUserAlert) {
-                            assignUserAlert.classList.remove('d-none');
-                            assignUserAlert.classList.add('alert-success');
-                            assignUserAlert.textContent = payload?.message || 'User assigned successfully!';
-                        }
-
-                        // Close modal after a short delay
-                        setTimeout(() => {
-                            if (assignUserModalInstance) {
-                                assignUserModalInstance.hide();
+                        const userId = assignUserSelect.value;
+                        if (!userId) {
+                            if (assignUserAlert) {
+                                assignUserAlert.classList.remove('d-none');
+                                assignUserAlert.classList.remove('alert-success');
+                                assignUserAlert.classList.add('alert-danger');
+                                assignUserAlert.textContent = 'Please select a user to assign.';
                             }
-                            // Reload page to update the table
-                            window.location.reload();
-                        }, 1000);
-                    } catch (error) {
-                        if (assignUserAlert) {
-                            assignUserAlert.classList.remove('d-none');
-                            assignUserAlert.classList.add('alert-danger');
-                            assignUserAlert.textContent = error.message || 'Unable to assign user.';
+                            return;
                         }
-                    }
-                });
-            }
 
-            // Initialize Feather icons when assign modal is shown
-            if (assignUserModalEl) {
-                assignUserModalEl.addEventListener('shown.bs.modal', () => {
-                    if (typeof feather !== 'undefined') {
-                        feather.replace();
-                    }
-                });
-            }
-        });
-    </script>
+                        if (assignUserAlert) {
+                            assignUserAlert.classList.add('d-none');
+                            assignUserAlert.classList.remove('alert-danger', 'alert-success');
+                        }
+
+                        try {
+                            const response = await fetch(
+                                `${leadsBaseUrl}/${currentAssignLeadId}/assign-user`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                                'meta[name="csrf-token"]')?.getAttribute('content') ||
+                                            ''
+                                    },
+                                    body: JSON.stringify({
+                                        assigned_user_id: userId
+                                    })
+                                });
+
+                            const payload = await response.json();
+
+                            if (!response.ok) {
+                                const message = payload?.message || Object.values(payload?.errors || {})[0]
+                                    ?.[0] || 'Failed to assign user.';
+                                throw new Error(message);
+                            }
+
+                            if (assignUserAlert) {
+                                assignUserAlert.classList.remove('d-none');
+                                assignUserAlert.classList.add('alert-success');
+                                assignUserAlert.textContent = payload?.message ||
+                                    'User assigned successfully!';
+                            }
+
+                            // Close modal after a short delay
+                            setTimeout(() => {
+                                if (assignUserModalInstance) {
+                                    assignUserModalInstance.hide();
+                                }
+                                // Reload page to update the table
+                                window.location.reload();
+                            }, 1000);
+                        } catch (error) {
+                            if (assignUserAlert) {
+                                assignUserAlert.classList.remove('d-none');
+                                assignUserAlert.classList.add('alert-danger');
+                                assignUserAlert.textContent = error.message || 'Unable to assign user.';
+                            }
+                        }
+                    });
+                }
+
+                // Initialize Feather icons when assign modal is shown
+                if (assignUserModalEl) {
+                    assignUserModalEl.addEventListener('shown.bs.modal', () => {
+                        if (typeof feather !== 'undefined') {
+                            feather.replace();
+                        }
+                    });
+                }
+            });
+        </script>
     @endpush
-    
+
     @if ($errors->any())
         <script>
             document.addEventListener('DOMContentLoaded', function() {
