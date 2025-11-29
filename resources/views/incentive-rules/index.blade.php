@@ -72,7 +72,7 @@
 
 <!-- Add/Edit Rule Modal -->
 <div class="modal fade" id="addRuleModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <form id="ruleForm" method="POST">
                 @csrf

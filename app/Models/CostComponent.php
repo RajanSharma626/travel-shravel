@@ -11,10 +11,9 @@ class CostComponent extends Model
 
     protected $fillable = [
         'lead_id',
-        'type',
-        'description',
+        'name',
         'amount',
-        'entered_by',
+        'entered_by_user_id',
     ];
 
     protected $casts = [
@@ -28,6 +27,6 @@ class CostComponent extends Model
 
     public function enteredBy()
     {
-        return $this->belongsTo(User::class, 'entered_by');
+        return $this->belongsTo(User::class, 'entered_by_user_id');
     }
 }

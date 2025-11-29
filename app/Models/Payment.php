@@ -13,20 +13,24 @@ class Payment extends Model
         'lead_id',
         'amount',
         'method',
-        'paid_on',
-        'due_date',
+        'payment_date',
+        'reference',
         'status',
-        'notes',
+        'created_by',
     ];
 
     protected $casts = [
-        'paid_on' => 'date',
-        'due_date' => 'date',
+        'payment_date' => 'date',
         'amount' => 'decimal:2',
     ];
 
     public function lead()
     {
         return $this->belongsTo(Lead::class);
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

@@ -11,20 +11,17 @@ class Delivery extends Model
 
     protected $fillable = [
         'lead_id',
-        'assigned_to',
-        'status',
-        'attachments',
+        'operation_id',
+        'assigned_to_delivery_user_id',
+        'delivery_status',
         'courier_id',
-        'tracking_info',
-        'expected_delivery_date',
-        'actual_delivery_date',
-        'delivery_notes',
+        'delivery_method',
+        'remarks',
+        'delivered_at',
     ];
 
     protected $casts = [
-        'expected_delivery_date' => 'date',
-        'actual_delivery_date' => 'date',
-        'attachments' => 'array',
+        'delivered_at' => 'datetime',
     ];
 
     public function lead()
@@ -32,8 +29,18 @@ class Delivery extends Model
         return $this->belongsTo(Lead::class);
     }
 
+    public function operation()
+    {
+        return $this->belongsTo(Operation::class);
+    }
+
     public function assignedTo()
     {
-        return $this->belongsTo(User::class, 'assigned_to');
+        return $this->belongsTo(User::class, 'assigned_to_delivery_user_id');
+    }
+
+    public function files()
+    {
+        return $this->hasMany(DeliveryFile::class);
     }
 }

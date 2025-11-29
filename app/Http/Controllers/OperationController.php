@@ -9,6 +9,54 @@ use Illuminate\Support\Facades\Auth;
 
 class OperationController extends Controller
 {
+    public function index(Request $request)
+    {
+        $filters = [
+            'search' => $request->input('search'),
+        ];
+
+        // Show all booked leads for Operations team
+        $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'operation', 'remarks' => function ($q) {
+            $q->orderBy('created_at', 'desc')->limit(1);
+        }])
+            ->where('status', 'booked')
+            ->orderBy('created_at', 'desc');
+
+        // Search filter - same as bookings page
+        if (!empty($filters['search'])) {
+            $searchTerm = trim($filters['search']);
+            $likeTerm = '%' . $searchTerm . '%';
+
+            $leadsQuery->where(function ($query) use ($likeTerm) {
+                $query->where('customer_name', 'like', $likeTerm)
+                    ->orWhere('first_name', 'like', $likeTerm)
+                    ->orWhere('middle_name', 'like', $likeTerm)
+                    ->orWhere('last_name', 'like', $likeTerm)
+                    ->orWhere('phone', 'like', $likeTerm)
+                    ->orWhere('primary_phone', 'like', $likeTerm)
+                    ->orWhere('secondary_phone', 'like', $likeTerm)
+                    ->orWhere('other_phone', 'like', $likeTerm)
+                    ->orWhere('tsq', 'like', $likeTerm)
+                    ->orWhere('tsq_number', 'like', $likeTerm);
+            });
+        }
+
+        $leads = $leadsQuery->paginate(20);
+        $leads->appends($request->query());
+
+        // Add latest remark to each lead
+        $leads->getCollection()->transform(function ($lead) {
+            $lead->latest_remark = $lead->remarks->first();
+            return $lead;
+        });
+
+        $services = \App\Models\Service::orderBy('name')->get();
+        $destinations = \App\Models\Destination::orderBy('name')->get();
+        $users = \App\Models\User::orderBy('name')->get();
+
+        return view('operations.index', compact('leads', 'filters', 'services', 'destinations', 'users'));
+    }
+
     public function store(Request $request, Lead $lead)
     {
         $validated = $request->validate([

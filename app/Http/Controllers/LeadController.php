@@ -14,6 +14,21 @@ use Illuminate\Support\Facades\DB;
 
 class LeadController extends Controller
 {
+    /**
+     * Check if user is Admin or Manager (can see all leads)
+     */
+    private function canSeeAllLeads()
+    {
+        $user = Auth::user();
+        return $user->hasRole('Admin') || 
+               $user->hasRole('Developer') ||
+               $user->hasRole('Sales Manager') ||
+               $user->hasRole('Operation Manager') ||
+               $user->hasRole('Accounts Manager') ||
+               $user->hasRole('Post Sales Manager') ||
+               $user->hasRole('Delivery Manager');
+    }
+
     public function index(Request $request)
     {
         $statuses = [
@@ -33,6 +48,11 @@ class LeadController extends Controller
         $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'remarks' => function ($q) {
             $q->orderBy('created_at', 'desc')->limit(1);
         }])->orderBy('created_at', 'desc');
+
+        // Filter by assigned user if not admin/manager
+        if (!$this->canSeeAllLeads()) {
+            $leadsQuery->where('assigned_user_id', Auth::id());
+        }
 
         if (!empty($filters['status'])) {
             $leadsQuery->where('status', $filters['status']);
@@ -72,6 +92,64 @@ class LeadController extends Controller
         return view('leads.index', [
             'leads' => $leads,
             'statuses' => $statuses,
+            'filters' => $filters,
+            'services' => $services,
+            'destinations' => $destinations,
+            'users' => $users,
+        ]);
+    }
+
+    public function bookings(Request $request)
+    {
+        $filters = [
+            'search' => $request->input('search'),
+        ];
+
+        // Only show booked leads
+        $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'remarks' => function ($q) {
+            $q->orderBy('created_at', 'desc')->limit(1);
+        }])
+        ->where('status', 'booked')
+        ->orderBy('created_at', 'desc');
+
+        // Filter by assigned user if not admin/manager
+        if (!$this->canSeeAllLeads()) {
+            $leadsQuery->where('assigned_user_id', Auth::id());
+        }
+
+        if (!empty($filters['search'])) {
+            $searchTerm = trim($filters['search']);
+            $likeTerm = '%' . $searchTerm . '%';
+
+            $leadsQuery->where(function ($query) use ($likeTerm) {
+                $query->where('customer_name', 'like', $likeTerm)
+                    ->orWhere('first_name', 'like', $likeTerm)
+                    ->orWhere('middle_name', 'like', $likeTerm)
+                    ->orWhere('last_name', 'like', $likeTerm)
+                    ->orWhere('phone', 'like', $likeTerm)
+                    ->orWhere('primary_phone', 'like', $likeTerm)
+                    ->orWhere('secondary_phone', 'like', $likeTerm)
+                    ->orWhere('other_phone', 'like', $likeTerm)
+                    ->orWhere('tsq', 'like', $likeTerm)
+                    ->orWhere('tsq_number', 'like', $likeTerm);
+            });
+        }
+
+        $leads = $leadsQuery->paginate(20);
+        $leads->appends($request->query());
+
+        // Add latest remark to each lead
+        $leads->getCollection()->transform(function ($lead) {
+            $lead->latest_remark = $lead->remarks->first();
+            return $lead;
+        });
+
+        $services = Service::orderBy('name')->get();
+        $destinations = Destination::orderBy('name')->get();
+        $users = User::orderBy('name')->get();
+
+        return view('leads.bookings', [
+            'leads' => $leads,
             'filters' => $filters,
             'services' => $services,
             'destinations' => $destinations,
@@ -175,6 +253,15 @@ class LeadController extends Controller
                 ];
             });
 
+            $documents = $lead->documents->map(function ($doc) {
+                return [
+                    'id' => $doc->id,
+                    'type' => $doc->type,
+                    'status' => $doc->status,
+                    'notes' => $doc->notes,
+                ];
+            });
+
             return response()->json([
                 'lead' => [
                     'id' => $lead->id,
@@ -210,6 +297,28 @@ class LeadController extends Controller
                     'status_label' => $statusLabels[$lead->status] ?? ucfirst(str_replace('_', ' ', $lead->status)),
                     'status_color' => $statusColors[$lead->status] ?? 'bg-primary text-white',
                     'created_at' => $lead->created_at?->format('d M, Y h:i A'),
+                    'selling_price' => $lead->selling_price,
+                    'cost_components' => $lead->costComponents->map(function ($cc) {
+                        return [
+                            'id' => $cc->id,
+                            'name' => $cc->name,
+                            'amount' => $cc->amount,
+                            'entered_by' => [
+                                'name' => $cc->enteredBy?->name ?? 'N/A',
+                            ],
+                            'created_at' => $cc->created_at?->format('Y-m-d'),
+                        ];
+                    }),
+                    'payments' => $lead->payments->map(function ($p) {
+                        return [
+                            'id' => $p->id,
+                            'amount' => $p->amount,
+                            'method' => $p->method,
+                            'payment_date' => $p->payment_date?->format('Y-m-d'),
+                            'reference' => $p->reference,
+                            'status' => $p->status,
+                        ];
+                    }),
                     'updated_at' => $lead->updated_at?->format('d M, Y h:i A'),
                     'urls' => [
                         'show' => route('leads.show', $lead),
@@ -217,6 +326,7 @@ class LeadController extends Controller
                     ],
                 ],
                 'remarks' => $remarks,
+                'documents' => $documents,
             ]);
         }
 

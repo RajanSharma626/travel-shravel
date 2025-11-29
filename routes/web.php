@@ -86,6 +86,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     // Leads routes - IMPORTANT: Specific routes must come before wildcard routes
     Route::middleware('permission:view leads')->group(function () {
         Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');
+        Route::get('/bookings', [LeadController::class, 'bookings'])->name('bookings.index');
     });
     Route::middleware('permission:create leads')->group(function () {
         Route::get('/leads/create', [LeadController::class, 'create'])->name('leads.create');
@@ -122,12 +123,19 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::delete('/leads/{lead}/remarks/{remark}', [LeadRemarkController::class, 'destroy'])->name('leads.remarks.destroy');
     });
 
-    // Payments
+    // Accounts & Payments
     Route::middleware('permission:view payments')->group(function () {
-        Route::get('/leads/{lead}/payments', [PaymentController::class, 'index'])->name('leads.payments.index');
+        Route::get('/accounts', [PaymentController::class, 'index'])->name('accounts.index');
+        Route::get('/api/accounts/dashboard', [PaymentController::class, 'dashboard'])->name('api.accounts.dashboard');
+        Route::get('/api/accounts/leads', [PaymentController::class, 'leads'])->name('api.accounts.leads');
+        Route::get('/api/accounts/export', [PaymentController::class, 'export'])->name('api.accounts.export');
+    });
+    Route::middleware('permission:view payments')->group(function () {
+        Route::get('/leads/{lead}/payments', [PaymentController::class, 'show'])->name('leads.payments.index');
     });
     Route::middleware('permission:create payments')->group(function () {
         Route::post('/leads/{lead}/payments', [PaymentController::class, 'store'])->name('leads.payments.store');
+        Route::post('/api/accounts/{lead}/add-payment', [PaymentController::class, 'addPayment'])->name('api.accounts.add-payment');
     });
     Route::middleware('permission:edit payments')->group(function () {
         Route::put('/leads/{lead}/payments/{payment}', [PaymentController::class, 'update'])->name('leads.payments.update');
@@ -142,6 +150,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     });
     Route::middleware('permission:create costs')->group(function () {
         Route::post('/leads/{lead}/cost-components', [CostComponentController::class, 'store'])->name('leads.cost-components.store');
+        Route::post('/api/accounts/{lead}/add-cost', [CostComponentController::class, 'addCost'])->name('api.accounts.add-cost');
     });
     Route::middleware('permission:edit costs')->group(function () {
         Route::put('/leads/{lead}/cost-components/{costComponent}', [CostComponentController::class, 'update'])->name('leads.cost-components.update');
@@ -152,7 +161,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
 
     // Operations
     Route::middleware('permission:view operations')->group(function () {
-        Route::get('/leads/{lead}/operations', [OperationController::class, 'index'])->name('leads.operations.index');
+        Route::get('/operations', [OperationController::class, 'index'])->name('operations.index');
     });
     Route::middleware('permission:create operations')->group(function () {
         Route::post('/leads/{lead}/operations', [OperationController::class, 'store'])->name('leads.operations.store');
@@ -165,12 +174,15 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::post('/leads/{lead}/operations/{operation}/reject', [OperationController::class, 'reject'])->name('leads.operations.reject');
     });
 
-    // Documents
+    // Post Sales & Documents
     Route::middleware('permission:view documents')->group(function () {
-        Route::get('/leads/{lead}/documents', [DocumentController::class, 'index'])->name('leads.documents.index');
+        Route::get('/post-sales', [DocumentController::class, 'index'])->name('post-sales.index');
+        Route::get('/leads/{lead}/documents', [DocumentController::class, 'show'])->name('leads.documents.index');
+        Route::get('/leads/{lead}/documents/{document}/download', [DocumentController::class, 'download'])->name('leads.documents.download');
     });
     Route::middleware('permission:upload documents')->group(function () {
         Route::post('/leads/{lead}/documents', [DocumentController::class, 'store'])->name('leads.documents.store');
+        Route::put('/leads/{lead}/documents/bulk-update', [DocumentController::class, 'bulkUpdate'])->name('leads.documents.bulk-update');
     });
     Route::middleware('permission:verify documents')->group(function () {
         Route::put('/leads/{lead}/documents/{document}', [DocumentController::class, 'update'])->name('leads.documents.update');
@@ -181,7 +193,10 @@ Route::middleware(['auth', 'check.active'])->group(function () {
 
     // Deliveries
     Route::middleware('permission:view deliveries')->group(function () {
-        Route::get('/leads/{lead}/deliveries', [DeliveryController::class, 'index'])->name('leads.deliveries.index');
+        Route::get('/deliveries', [DeliveryController::class, 'index'])->name('deliveries.index');
+    });
+    Route::middleware('permission:view deliveries')->group(function () {
+        Route::get('/leads/{lead}/deliveries', [DeliveryController::class, 'show'])->name('leads.deliveries.index');
     });
     Route::middleware('permission:assign deliveries')->group(function () {
         Route::post('/leads/{lead}/deliveries', [DeliveryController::class, 'store'])->name('leads.deliveries.store');
@@ -189,6 +204,15 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     Route::middleware('permission:update deliveries')->group(function () {
         Route::put('/leads/{lead}/deliveries/{delivery}', [DeliveryController::class, 'update'])->name('leads.deliveries.update');
         Route::post('/leads/{lead}/deliveries/{delivery}/upload', [DeliveryController::class, 'upload'])->name('leads.deliveries.upload');
+    });
+    
+    // Delivery API Routes
+    Route::prefix('api/delivery')->middleware(['auth:sanctum'])->group(function () {
+        Route::get('/', [DeliveryController::class, 'apiIndex'])->name('api.delivery.index');
+        Route::post('/{delivery}/assign', [DeliveryController::class, 'assign'])->middleware('permission:assign deliveries')->name('api.delivery.assign');
+        Route::put('/{delivery}/status', [DeliveryController::class, 'updateStatus'])->middleware('permission:update deliveries')->name('api.delivery.update-status');
+        Route::post('/{delivery}/upload-files', [DeliveryController::class, 'uploadFiles'])->middleware('permission:update deliveries')->name('api.delivery.upload-files');
+        Route::get('/export', [DeliveryController::class, 'export'])->middleware('permission:export reports')->name('api.delivery.export');
     });
 
     // Incentives

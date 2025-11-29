@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'CRM App')</title>
 
     <!-- Favicon -->
@@ -26,7 +27,7 @@
 
     <!-- CSS -->
     <link href="{{ asset('dist/css/style.css') }}" rel="stylesheet" type="text/css">
-    
+
     <!-- Page Styles -->
     @stack('styles')
 </head>
@@ -120,35 +121,142 @@
                         <ul class="navbar-nav flex-column">
 
                             <!-- Dashboard -->
-                            <li class="nav-item mb-2 {{ Route::currentRouteName() == 'home' || Route::currentRouteName() == 'reports.index' ? 'active' : '' }}">
+                            <li
+                                class="nav-item mb-2 {{ Route::currentRouteName() == 'home' || Route::currentRouteName() == 'reports.index' ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ route('reports.index') }}">
                                     <span class="nav-icon-wrap">
                                         <span class="svg-icon">
-                                            <i data-feather="home"></i>
+                                            <i data-feather="home" class="small"></i>
                                         </span>
                                     </span>
                                     <span class="nav-link-text">Dashboard</span>
                                 </a>
                             </li>
 
-                            <!-- Leads -->
-                            <li class="nav-item mb-2 {{ request()->is('leads*') ? 'active' : '' }}">
-                                <a class="nav-link" href="{{ route('leads.index') }}">
+                            <!-- Sales Tab - Visible to Admin, Sales, Sales Manager -->
+                            @if (Auth::user()->hasRole('Admin') ||
+                                    Auth::user()->hasRole('Developer') ||
+                                    Auth::user()->hasRole('Sales') ||
+                                    Auth::user()->hasRole('Sales Manager'))
+                                @php
+                                    $isSalesActive = request()->is('leads*') || request()->is('bookings*');
+                                    $isLeadsActive = request()->is('leads*');
+                                    $isBookingsActive = request()->is('bookings*');
+                                @endphp
+                                <li class="nav-item {{ $isSalesActive ? 'active' : '' }}">
+                                    <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse"
+                                        data-bs-target="#dash_chat" aria-expanded="{{ $isSalesActive ? 'true' : 'false' }}">
+                                        <span class="nav-icon-wrap">
+                                            <span class="svg-icon">
+                                                <i data-feather="users" class="small"></i>
+                                            </span>
+                                        </span>
+                                        <span class="nav-link-text">Sales</span>
+                                    </a>
+                                    <ul id="dash_chat" class="nav flex-column nav-children collapse {{ $isSalesActive ? 'show' : '' }}">
+                                        <li class="nav-item">
+                                            <ul class="nav flex-column">
+                                                <li class="nav-item {{ $isLeadsActive ? 'active' : '' }}">
+                                                    <a class="nav-link {{ $isLeadsActive ? 'active fw-semibold' : '' }}" href="{{ route('leads.index') }}"><span
+                                                            class="nav-link-text">Leads</span></a>
+                                                </li>
+                                                <li class="nav-item {{ $isBookingsActive ? 'active' : '' }}">
+                                                    <a class="nav-link {{ $isBookingsActive ? 'active fw-semibold' : '' }}" href="{{ route('bookings.index') }}"><span
+                                                            class="nav-link-text">Bookings</span></a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            @endif
+
+                            <!-- Operations Tab - Visible to Admin, Operation, Operation Manager -->
+                            @if (Auth::user()->hasRole('Admin') ||
+                                    Auth::user()->hasRole('Developer') ||
+                                    Auth::user()->hasRole('Operation') ||
+                                    Auth::user()->hasRole('Operation Manager'))
+                               
+
+                                <li class="nav-item mb-2 {{ request()->is('operations*') ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('operations.index') }}">
+                                        <span class="nav-icon-wrap">
+                                            <span class="svg-icon"><i data-feather="settings"
+                                                class="small"></i></span>
+                                        </span>
+                                        <span class="nav-link-text">Operations</span>
+                                    </a>
+                                </li>
+                            @endif
+
+                            <!-- Post Sales Tab - Visible to Admin, Post Sales, Post Sales Manager -->
+                            @if (Auth::user()->hasRole('Admin') ||
+                                    Auth::user()->hasRole('Developer') ||
+                                    Auth::user()->hasRole('Post Sales') ||
+                                    Auth::user()->hasRole('Post Sales Manager'))
+                                <li class="nav-item mb-2 {{ request()->is('post-sales*') ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('post-sales.index') }}">
+                                        <span class="nav-icon-wrap">
+                                            <span class="svg-icon">
+                                                <i data-feather="check-circle" class="small"></i>
+                                            </span>
+                                        </span>
+                                        <span class="nav-link-text">Post Sales</span>
+                                    </a>
+                                </li>
+                            @endif
+
+                            <!-- Accounts Tab - Visible to Admin, Accounts, Accounts Manager -->
+                            @if (Auth::user()->hasRole('Admin') ||
+                                    Auth::user()->hasRole('Developer') ||
+                                    Auth::user()->hasRole('Accounts') ||
+                                    Auth::user()->hasRole('Accounts Manager'))
+                                <li class="nav-item mb-2 {{ request()->is('accounts*') ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('accounts.index') }}">
+                                        <span class="nav-icon-wrap">
+                                            <span class="svg-icon">
+                                                <i data-feather="credit-card" class="small"></i>
+                                            </span>
+                                        </span>
+                                        <span class="nav-link-text">Accounts</span>
+                                    </a>
+                                </li>
+                            @endif
+
+                            <!-- Delivery Tab - Visible to Admin, Delivery, Delivery Manager -->
+                            @if (Auth::user()->hasRole('Admin') ||
+                                    Auth::user()->hasRole('Developer') ||
+                                    Auth::user()->hasRole('Delivery') ||
+                                    Auth::user()->hasRole('Delivery Manager'))
+                                <li class="nav-item mb-2 {{ request()->is('deliveries*') ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('deliveries.index') }}">
+                                        <span class="nav-icon-wrap">
+                                            <span class="svg-icon">
+                                                <i data-feather="truck" class="small"></i>
+                                            </span>
+                                        </span>
+                                        <span class="nav-link-text">Delivery</span>
+                                    </a>
+                                </li>
+                            @endif
+
+                            <!-- HR -->
+                            {{-- <li class="nav-item mb-2 {{ request()->is('hr*') ? 'active' : '' }}">
+                                <a class="nav-link" href="#">
                                     <span class="nav-icon-wrap">
                                         <span class="svg-icon">
-                                            <i data-feather="users"></i>
+                                            <i data-feather="users" class="small"></i>
                                         </span>
                                     </span>
-                                    <span class="nav-link-text">Leads</span>
+                                    <span class="nav-link-text">HR</span>
                                 </a>
-                            </li>
+                            </li> --}}
 
                             <!-- Services -->
                             <li class="nav-item mb-2 {{ request()->is('services*') ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ route('services.index') }}">
                                     <span class="nav-icon-wrap">
                                         <span class="svg-icon">
-                                            <i data-feather="briefcase"></i>
+                                            <i data-feather="briefcase" class="small"></i>
                                         </span>
                                     </span>
                                     <span class="nav-link-text">Services</span>
@@ -160,7 +268,7 @@
                                 <a class="nav-link" href="{{ route('destinations.index') }}">
                                     <span class="nav-icon-wrap">
                                         <span class="svg-icon">
-                                            <i data-feather="map-pin"></i>
+                                            <i data-feather="map-pin" class="small"></i>
                                         </span>
                                     </span>
                                     <span class="nav-link-text">Destinations</span>
@@ -168,28 +276,28 @@
                             </li>
 
                             <!-- Incentives -->
-                            <li class="nav-item mb-2 {{ request()->is('incentives*') ? 'active' : '' }}">
+                            {{-- <li class="nav-item mb-2 {{ request()->is('incentives*') ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ route('incentives.index') }}">
                                     <span class="nav-icon-wrap">
                                         <span class="svg-icon">
-                                            <i data-feather="dollar-sign"></i>
+                                            <i data-feather="dollar-sign" class="small"></i>
                                         </span>
                                     </span>
                                     <span class="nav-link-text">Incentives</span>
                                 </a>
-                            </li>
+                            </li> --}}
 
                             <!-- Reports -->
-                            <li class="nav-item mb-2 {{ request()->is('reports*') ? 'active' : '' }}">
+                            {{-- <li class="nav-item mb-2 {{ request()->is('reports*') ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ route('reports.index') }}">
                                     <span class="nav-icon-wrap">
                                         <span class="svg-icon">
-                                            <i data-feather="bar-chart-2"></i>
+                                            <i data-feather="bar-chart-2" class="small"></i>
                                         </span>
                                     </span>
                                     <span class="nav-link-text">Reports</span>
                                 </a>
-                            </li>
+                            </li> --}}
 
                             <!-- Users (Admin/HR only) -->
                             @can('view users')
@@ -197,7 +305,7 @@
                                     <a class="nav-link" href="{{ route('users') }}">
                                         <span class="nav-icon-wrap">
                                             <span class="svg-icon">
-                                                <i data-feather="user"></i>
+                                                <i data-feather="user" class="small"></i>
                                             </span>
                                         </span>
                                         <span class="nav-link-text">Users</span>
@@ -205,19 +313,31 @@
                                 </li>
                             @endcan
 
+                            <!-- Settings -->
+                            {{-- <li class="nav-item mb-2 {{ request()->is('settings*') ? 'active' : '' }}">
+                                <a class="nav-link" href="#">
+                                    <span class="nav-icon-wrap">
+                                        <span class="svg-icon">
+                                            <i data-feather="settings" class="small"></i>
+                                        </span>
+                                    </span>
+                                    <span class="nav-link-text">Settings</span>
+                                </a>
+                            </li> --}}
+
                             <!-- Incentive Rules (Admin only) -->
-                            @can('view incentive rules')
+                            {{-- @can('view incentive rules')
                                 <li class="nav-item mb-2 {{ request()->is('incentive-rules*') ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('incentive-rules.index') }}">
                                         <span class="nav-icon-wrap">
                                             <span class="svg-icon">
-                                                <i data-feather="settings"></i>
+                                                <i data-feather="file-text" class="small"></i>
                                             </span>
                                         </span>
                                         <span class="nav-link-text">Incentive Rules</span>
                                     </a>
                                 </li>
-                            @endcan
+                            @endcan --}}
 
                         </ul>
                     </div>
@@ -237,7 +357,8 @@
     <!-- /Wrapper -->
 
     <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
     <!-- Bootstrap Core JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
@@ -349,6 +470,47 @@
     <script src="{{ asset('dist/js/init.js') }}"></script>
     <script src="{{ asset('dist/js/chips-init.js') }}"></script>
     {{-- <script src="{{ asset('dist/js/dashboard-data.js') }}"></script> --}}
+
+    <!-- Sidebar Menu Logic -->
+    <script>
+        $(document).ready(function() {
+            // Keep submenu open if child is active on page load
+            $('.nav-item.active').each(function() {
+                const parentSubmenu = $(this).closest('.nav-children');
+                if (parentSubmenu.length) {
+                    parentSubmenu.addClass('show');
+                    parentSubmenu.prev('.nav-link[data-bs-toggle="collapse"]').attr('aria-expanded', 'true');
+                }
+            });
+
+            // Add fw-semibold to active submenu items on page load
+            $('.nav-children .nav-link.active').addClass('fw-semibold');
+
+            // Handle submenu collapse/expand - close others when opening one
+            $('.nav-link[data-bs-toggle="collapse"]').on('click', function(e) {
+                const target = $(this).data('bs-target');
+                const isExpanded = $(this).attr('aria-expanded') === 'true';
+                
+                // Close other submenus
+                $('.nav-link[data-bs-toggle="collapse"]').not(this).each(function() {
+                    const otherTarget = $(this).data('bs-target');
+                    if (otherTarget) {
+                        $(otherTarget).collapse('hide');
+                        $(this).attr('aria-expanded', 'false');
+                    }
+                });
+            });
+
+            // Update aria-expanded when collapse events fire
+            $('.nav-children').on('show.bs.collapse', function() {
+                $(this).prev('.nav-link[data-bs-toggle="collapse"]').attr('aria-expanded', 'true');
+            });
+            
+            $('.nav-children').on('hide.bs.collapse', function() {
+                $(this).prev('.nav-link[data-bs-toggle="collapse"]').attr('aria-expanded', 'false');
+            });
+        });
+    </script>
 
     <!-- Page Scripts -->
     @stack('scripts')

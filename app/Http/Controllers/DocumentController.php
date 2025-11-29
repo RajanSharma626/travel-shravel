@@ -6,25 +6,92 @@ use App\Models\Lead;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
+    public function index(Request $request)
+    {
+        $filters = [
+            'search' => $request->input('search'),
+        ];
+
+        // Show all booked leads for Post Sales team
+        $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'documents', 'operation', 'remarks' => function ($q) {
+            $q->orderBy('created_at', 'desc')->limit(1);
+        }])
+            ->where('status', 'booked')
+            ->orderBy('created_at', 'desc');
+
+        // Search filter - same as bookings/operations page
+        if (!empty($filters['search'])) {
+            $searchTerm = trim($filters['search']);
+            $likeTerm = '%' . $searchTerm . '%';
+
+            $leadsQuery->where(function ($query) use ($likeTerm) {
+                $query->where('customer_name', 'like', $likeTerm)
+                    ->orWhere('first_name', 'like', $likeTerm)
+                    ->orWhere('middle_name', 'like', $likeTerm)
+                    ->orWhere('last_name', 'like', $likeTerm)
+                    ->orWhere('phone', 'like', $likeTerm)
+                    ->orWhere('primary_phone', 'like', $likeTerm)
+                    ->orWhere('secondary_phone', 'like', $likeTerm)
+                    ->orWhere('other_phone', 'like', $likeTerm)
+                    ->orWhere('tsq', 'like', $likeTerm)
+                    ->orWhere('tsq_number', 'like', $likeTerm);
+            });
+        }
+
+        $leads = $leadsQuery->paginate(20);
+        $leads->appends($request->query());
+
+        // Add latest remark to each lead
+        $leads->getCollection()->transform(function ($lead) {
+            $lead->latest_remark = $lead->remarks->first();
+            return $lead;
+        });
+
+        $services = \App\Models\Service::orderBy('name')->get();
+        $destinations = \App\Models\Destination::orderBy('name')->get();
+        $users = \App\Models\User::orderBy('name')->get();
+
+        return view('post-sales.index', compact('leads', 'filters', 'services', 'destinations', 'users'));
+    }
+
+    public function show(Lead $lead)
+    {
+        // Redirect to lead show page - documents section
+        return redirect()->route('leads.show', $lead)->with('active_tab', 'documents');
+    }
+
     public function store(Request $request, Lead $lead)
     {
         $validated = $request->validate([
             'type' => 'required|string|max:255',
             'status' => 'nullable|in:not_received,received,verified,rejected',
             'notes' => 'nullable|string',
+            'file' => 'nullable|file|max:10240', // 10MB max
         ]);
 
-        $lead->documents()->create([
+        $documentData = [
             'uploaded_by' => Auth::id(),
             'type' => $validated['type'],
             'status' => $validated['status'] ?? 'not_received',
             'notes' => $validated['notes'] ?? null,
-        ]);
+        ];
 
-        return redirect()->back()->with('success', 'Document checklist item created successfully!');
+        // Note: file_path, file_name, file_size columns were removed in migration
+        // File upload functionality is not available in the current schema
+
+        // Update received_by and received_at when marking as received
+        if (($validated['status'] ?? 'not_received') == 'received') {
+            $documentData['received_by'] = Auth::id();
+            $documentData['received_at'] = now();
+        }
+
+        $lead->documents()->create($documentData);
+
+        return redirect()->back()->with('success', 'Document added successfully!');
     }
 
     public function update(Request $request, Lead $lead, Document $document)
@@ -33,6 +100,7 @@ class DocumentController extends Controller
             'type' => 'required|string|max:255',
             'status' => 'required|in:not_received,received,verified,rejected',
             'notes' => 'nullable|string',
+            'file' => 'nullable|file|max:10240', // 10MB max
         ]);
 
         $updateData = [
@@ -40,6 +108,19 @@ class DocumentController extends Controller
             'status' => $validated['status'],
             'notes' => $validated['notes'] ?? null,
         ];
+
+        // Handle file upload if provided
+        if ($request->hasFile('file')) {
+            // Delete old file if exists
+            if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
+                Storage::disk('public')->delete($document->file_path);
+            }
+            $file = $request->file('file');
+            $path = $file->store('documents/' . $lead->id, 'public');
+            $updateData['file_path'] = $path;
+            $updateData['file_name'] = $file->getClientOriginalName();
+            $updateData['file_size'] = $file->getSize();
+        }
 
         // Update received_by and received_at when marking as received
         if ($validated['status'] == 'received' && $document->status != 'received') {
@@ -59,7 +140,74 @@ class DocumentController extends Controller
 
     public function destroy(Lead $lead, Document $document)
     {
+        // Delete file if exists
+        if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
+            Storage::disk('public')->delete($document->file_path);
+        }
         $document->delete();
-        return redirect()->back()->with('success', 'Document checklist item deleted successfully!');
+        return redirect()->back()->with('success', 'Document deleted successfully!');
+    }
+
+    public function download(Lead $lead, Document $document)
+    {
+        if (!$document->file_path || empty($document->file_path) || !Storage::disk('public')->exists($document->file_path)) {
+            return redirect()->back()->with('error', 'File not found!');
+        }
+
+        return Storage::disk('public')->download($document->file_path);
+    }
+
+    public function bulkUpdate(Request $request, Lead $lead)
+    {
+        $validated = $request->validate([
+            'documents' => 'nullable|array',
+            'documents.*' => 'string|max:255',
+        ]);
+
+        $documentTypes = ['Aadhaar Card', 'Passport', 'Visa', 'Ticket', 'Voucher', 'Invoice', 'Insurance', 'Medical Certificate'];
+        $selectedDocuments = $validated['documents'] ?? [];
+
+        foreach ($documentTypes as $docType) {
+            $document = $lead->documents()->where('type', $docType)->first();
+            
+            if (in_array($docType, $selectedDocuments)) {
+                // Document should be marked as received
+                if ($document) {
+                    // Update existing document
+                    if (!in_array($document->status, ['received', 'verified'])) {
+                        $document->update([
+                            'status' => 'received',
+                            'received_by' => Auth::id(),
+                            'received_at' => now(),
+                        ]);
+                    }
+                } else {
+                    // Create new document
+                    $lead->documents()->create([
+                        'uploaded_by' => Auth::id(),
+                        'type' => $docType,
+                        'status' => 'received',
+                        'received_by' => Auth::id(),
+                        'received_at' => now(),
+                    ]);
+                }
+            } else {
+                // Document should be marked as not received (only if it exists)
+                if ($document && in_array($document->status, ['received', 'verified'])) {
+                    $document->update([
+                        'status' => 'not_received',
+                    ]);
+                }
+            }
+        }
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Documents updated successfully!'
+            ]);
+        }
+        
+        return redirect()->back()->with('success', 'Documents updated successfully!');
     }
 }

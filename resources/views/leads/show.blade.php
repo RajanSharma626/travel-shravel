@@ -624,7 +624,7 @@
 
 <!-- Add Remark Modal -->
 <div class="modal fade" id="addRemarkModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form action="{{ route('leads.remarks.store', $lead->id) }}" method="POST">
                 @csrf
@@ -653,7 +653,7 @@
 
 <!-- Add Payment Modal -->
 <div class="modal fade" id="addPaymentModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form action="{{ route('leads.payments.store', $lead->id) }}" method="POST">
                 @csrf
@@ -709,7 +709,7 @@
 
 <!-- Add Cost Component Modal -->
 <div class="modal fade" id="addCostModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form action="{{ route('leads.cost-components.store', $lead->id) }}" method="POST">
                 @csrf
@@ -750,7 +750,7 @@
 
 <!-- Add Operation Modal -->
 <div class="modal fade" id="addOperationModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form action="{{ route('leads.operations.store', $lead->id) }}" method="POST">
                 @csrf
@@ -791,7 +791,7 @@
 @foreach(['Passport', 'Visa', 'Ticket', 'Voucher', 'Invoice', 'Identity Proof', 'Address Proof', 'Insurance', 'Medical Certificate'] as $docType)
 @if(!$lead->documents->where('type', $docType)->first())
 <div class="modal fade" id="createDocumentModal{{ str_replace(' ', '', $docType) }}" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form action="{{ route('leads.documents.store', $lead->id) }}" method="POST">
                 @csrf
@@ -827,7 +827,7 @@
 <!-- Edit Document Status Modals -->
 @foreach($lead->documents as $document)
 <div class="modal fade" id="editDocumentModal{{ $document->id }}" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form action="{{ route('leads.documents.update', [$lead->id, $document->id]) }}" method="POST">
                 @csrf
@@ -867,7 +867,7 @@
 
 <!-- Add Delivery Modal -->
 <div class="modal fade" id="addDeliveryModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form action="{{ route('leads.deliveries.store', $lead->id) }}" method="POST">
                 @csrf
@@ -905,7 +905,7 @@
 <!-- Edit Operation Modal -->
 @if($lead->operation)
 <div class="modal fade" id="editOperationModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form action="{{ route('leads.operations.update', [$lead->id, $lead->operation->id]) }}" method="POST">
                 @csrf
@@ -947,7 +947,7 @@
 <!-- Edit Delivery Modal -->
 @if($lead->delivery)
 <div class="modal fade" id="editDeliveryModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form action="{{ route('leads.deliveries.update', [$lead->id, $lead->delivery->id]) }}" method="POST">
                 @csrf
@@ -1008,7 +1008,7 @@
 <!-- Change Assigned User Modal -->
 @can('edit leads')
 <div class="modal fade" id="changeAssignedUserModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form action="{{ route('leads.updateAssignedUser', $lead->id) }}" method="POST">
                 @csrf
