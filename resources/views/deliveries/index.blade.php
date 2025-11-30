@@ -62,17 +62,17 @@
                                                         <span>Pending</span>
                                                         <span class="badge bg-light text-dark" id="pendingCount">0</span>
                                                     </h6>
-                                                </div>
+                                                        </div>
                                                 <div class="card-body p-2" id="pendingColumn" style="min-height: 400px; max-height: 70vh; overflow-y: auto;">
                                                     @forelse ($leads as $lead)
                                                         @if (!$lead->delivery || $lead->delivery->delivery_status === 'Pending')
                                                             @include('deliveries.partials.kanban-card', ['lead' => $lead])
-                                                        @endif
+                                                            @endif
                                                     @empty
                                                         <div class="text-center text-muted py-4">No pending deliveries</div>
                                                     @endforelse
-                                                </div>
-                                            </div>
+                                                        </div>
+                                                    </div>
                                         </div>
 
                                         <!-- In Process Column -->
@@ -89,12 +89,12 @@
                                                         @if ($lead->delivery && $lead->delivery->delivery_status === 'In_Process')
                                                             @include('deliveries.partials.kanban-card', ['lead' => $lead])
                                                         @endif
-                                                    @empty
+                                        @empty
                                                         <div class="text-center text-muted py-4">No in-process deliveries</div>
-                                                    @endforelse
-                                                </div>
-                                            </div>
-                                        </div>
+                                        @endforelse
+                                    </div>
+                                    </div>
+                                </div>
 
                                         <!-- Delivered Column -->
                                         <div class="col-md-4">
@@ -109,7 +109,7 @@
                                                     @forelse ($leads as $lead)
                                                         @if ($lead->delivery && $lead->delivery->delivery_status === 'Delivered')
                                                             @include('deliveries.partials.kanban-card', ['lead' => $lead])
-                                                        @endif
+                                @endif
                                                     @empty
                                                         <div class="text-center text-muted py-4">No delivered items</div>
                                                     @endforelse
@@ -741,8 +741,8 @@
                                 alert('Failed to update delivery status. Please try again.');
                             }
                         }
-                    });
-                }
+                });
+            }
             });
 
             // Safe feather replace function
@@ -1483,7 +1483,7 @@
                     }
                 });
             }
-            
+
             // Initialize feather icons
             if (typeof feather !== 'undefined') {
                 feather.replace();

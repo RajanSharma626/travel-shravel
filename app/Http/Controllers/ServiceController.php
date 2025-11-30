@@ -44,6 +44,15 @@ class ServiceController extends Controller
     /**
      * Display the specified resource.
      */
+    public function show(Service $service)
+    {
+        // Redirect to edit page since there's no dedicated show view
+        return redirect()->route('services.edit', $service);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function edit(Service $service)
     {
         return view('services.edit', compact('service'));

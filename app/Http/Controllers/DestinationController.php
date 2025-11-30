@@ -43,6 +43,15 @@ class DestinationController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     */
+    public function show(Destination $destination)
+    {
+        // Redirect to edit page since there's no dedicated show view
+        return redirect()->route('destinations.edit', $destination);
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
     public function edit(Destination $destination)

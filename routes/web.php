@@ -52,7 +52,6 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     // Services
     Route::middleware('permission:view services')->group(function () {
         Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
-        Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
     });
     Route::middleware('permission:create services')->group(function () {
         Route::get('/services/create', [ServiceController::class, 'create'])->name('services.create');
@@ -65,11 +64,13 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     Route::middleware('permission:delete services')->group(function () {
         Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
     });
+    Route::middleware('permission:view services')->group(function () {
+        Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
+    });
 
     // Destinations
     Route::middleware('permission:view destinations')->group(function () {
         Route::get('/destinations', [DestinationController::class, 'index'])->name('destinations.index');
-        Route::get('/destinations/{destination}', [DestinationController::class, 'show'])->name('destinations.show');
     });
     Route::middleware('permission:create destinations')->group(function () {
         Route::get('/destinations/create', [DestinationController::class, 'create'])->name('destinations.create');
@@ -81,6 +82,9 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     });
     Route::middleware('permission:delete destinations')->group(function () {
         Route::delete('/destinations/{destination}', [DestinationController::class, 'destroy'])->name('destinations.destroy');
+    });
+    Route::middleware('permission:view destinations')->group(function () {
+        Route::get('/destinations/{destination}', [DestinationController::class, 'show'])->name('destinations.show');
     });
 
     // Leads routes - IMPORTANT: Specific routes must come before wildcard routes

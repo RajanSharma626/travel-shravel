@@ -181,7 +181,7 @@
                                     <a class="nav-link" href="{{ route('operations.index') }}">
                                         <span class="nav-icon-wrap">
                                             <span class="svg-icon"><i data-feather="settings"
-                                                class="small"></i></span>
+                                                    class="small"></i></span>
                                         </span>
                                         <span class="nav-link-text">Operations</span>
                                     </a>
