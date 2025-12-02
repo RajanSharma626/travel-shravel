@@ -139,14 +139,12 @@
                                                                 </a>
                                                             @endcan
 
-                                                            <a href="#"
-                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover booking-file-btn"
-                                                                data-lead-id="{{ $lead->id }}" data-bs-toggle="tooltip"
-                                                                data-placement="top" title="Booking File">
-                                                                <span class="icon">
-                                                                    <span class="feather-icon">
-                                                                        <i data-feather="file-text"></i>
-                                                                    </span>
+                                                            <a href="{{ route('bookings.form', $lead) }}"
+                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover"
+                                                                data-bs-toggle="tooltip" data-placement="top"
+                                                                title="Booking File"> <span class="icon"> <span
+                                                                        class="feather-icon"> <i
+                                                                            data-feather="file-text"></i> </span>
                                                                 </span>
                                                             </a>
                                                         </div>
@@ -161,15 +159,16 @@
                                     </tbody>
                                 </table>
                                 <!-- Pagination -->
-                                @if($leads->hasPages())
-                                <div class="d-flex justify-content-between align-items-center mt-4 mb-3 px-3">
-                                    <div class="text-muted small">
-                                        Showing {{ $leads->firstItem() ?? 0 }} to {{ $leads->lastItem() ?? 0 }} of {{ $leads->total() }} entries
+                                @if ($leads->hasPages())
+                                    <div class="d-flex justify-content-between align-items-center mt-4 mb-3 px-3">
+                                        <div class="text-muted small">
+                                            Showing {{ $leads->firstItem() ?? 0 }} to {{ $leads->lastItem() ?? 0 }} of
+                                            {{ $leads->total() }} entries
+                                        </div>
+                                        <div>
+                                            {{ $leads->links('pagination::bootstrap-5') }}
+                                        </div>
                                     </div>
-                                    <div>
-                                        {{ $leads->links('pagination::bootstrap-5') }}
-                                    </div>
-                                </div>
                                 @endif
                             </div>
                         </div>
@@ -624,21 +623,22 @@
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <label class="form-label">TSQ Number</label>
-                                    <input type="text" name="tsq" id="bookingTsq" class="form-control form-control-sm" readonly>
+                                    <input type="text" name="tsq" id="bookingTsq"
+                                        class="form-control form-control-sm" readonly>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Booking Reference</label>
-                                    <input type="text" name="booking_reference" id="bookingReference" 
+                                    <input type="text" name="booking_reference" id="bookingReference"
                                         class="form-control form-control-sm" placeholder="Enter booking reference">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Booking Date</label>
-                                    <input type="date" name="booking_date" id="bookingDate" 
+                                    <input type="date" name="booking_date" id="bookingDate"
                                         class="form-control form-control-sm">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Travel Agent</label>
-                                    <input type="text" name="travel_agent" id="bookingTravelAgent" 
+                                    <input type="text" name="travel_agent" id="bookingTravelAgent"
                                         class="form-control form-control-sm" placeholder="Agent name">
                                 </div>
                             </div>
@@ -653,15 +653,18 @@
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="form-label">Customer Name</label>
-                                    <input type="text" id="bookingCustomerName" class="form-control form-control-sm" readonly>
+                                    <input type="text" id="bookingCustomerName" class="form-control form-control-sm"
+                                        readonly>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Email</label>
-                                    <input type="email" id="bookingEmail" class="form-control form-control-sm" readonly>
+                                    <input type="email" id="bookingEmail" class="form-control form-control-sm"
+                                        readonly>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Phone</label>
-                                    <input type="text" id="bookingPhone" class="form-control form-control-sm" readonly>
+                                    <input type="text" id="bookingPhone" class="form-control form-control-sm"
+                                        readonly>
                                 </div>
                                 <div class="col-md-12">
                                     <label class="form-label">Address</label>
@@ -679,38 +682,43 @@
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <label class="form-label">Service</label>
-                                    <input type="text" id="bookingService" class="form-control form-control-sm" readonly>
+                                    <input type="text" id="bookingService" class="form-control form-control-sm"
+                                        readonly>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Destination</label>
-                                    <input type="text" id="bookingDestination" class="form-control form-control-sm" readonly>
+                                    <input type="text" id="bookingDestination" class="form-control form-control-sm"
+                                        readonly>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Travel Date</label>
-                                    <input type="date" name="travel_date" id="bookingTravelDate" 
+                                    <input type="date" name="travel_date" id="bookingTravelDate"
                                         class="form-control form-control-sm">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Return Date</label>
-                                    <input type="date" name="return_date" id="bookingReturnDate" 
+                                    <input type="date" name="return_date" id="bookingReturnDate"
                                         class="form-control form-control-sm">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Duration (Days)</label>
-                                    <input type="number" name="duration" id="bookingDuration" 
+                                    <input type="number" name="duration" id="bookingDuration"
                                         class="form-control form-control-sm" min="1" placeholder="Nights">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Adults</label>
-                                    <input type="number" id="bookingAdults" class="form-control form-control-sm" readonly>
+                                    <input type="number" id="bookingAdults" class="form-control form-control-sm"
+                                        readonly>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Children</label>
-                                    <input type="number" id="bookingChildren" class="form-control form-control-sm" readonly>
+                                    <input type="number" id="bookingChildren" class="form-control form-control-sm"
+                                        readonly>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Infants</label>
-                                    <input type="number" id="bookingInfants" class="form-control form-control-sm" readonly>
+                                    <input type="number" id="bookingInfants" class="form-control form-control-sm"
+                                        readonly>
                                 </div>
                             </div>
                         </div>
@@ -724,12 +732,13 @@
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="form-label">Hotel Name</label>
-                                    <input type="text" name="hotel_name" id="bookingHotelName" 
+                                    <input type="text" name="hotel_name" id="bookingHotelName"
                                         class="form-control form-control-sm" placeholder="Hotel name">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Hotel Category</label>
-                                    <select name="hotel_category" id="bookingHotelCategory" class="form-select form-select-sm">
+                                    <select name="hotel_category" id="bookingHotelCategory"
+                                        class="form-select form-select-sm">
                                         <option value="">-- Select --</option>
                                         <option value="3 Star">3 Star</option>
                                         <option value="4 Star">4 Star</option>
@@ -740,17 +749,17 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Room Type</label>
-                                    <input type="text" name="room_type" id="bookingRoomType" 
+                                    <input type="text" name="room_type" id="bookingRoomType"
                                         class="form-control form-control-sm" placeholder="e.g. Deluxe, Suite">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Check-in Date</label>
-                                    <input type="date" name="checkin_date" id="bookingCheckinDate" 
+                                    <input type="date" name="checkin_date" id="bookingCheckinDate"
                                         class="form-control form-control-sm">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Check-out Date</label>
-                                    <input type="date" name="checkout_date" id="bookingCheckoutDate" 
+                                    <input type="date" name="checkout_date" id="bookingCheckoutDate"
                                         class="form-control form-control-sm">
                                 </div>
                                 <div class="col-md-4">
@@ -776,42 +785,43 @@
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <label class="form-label">Airline</label>
-                                    <input type="text" name="airline" id="bookingAirline" 
+                                    <input type="text" name="airline" id="bookingAirline"
                                         class="form-control form-control-sm" placeholder="Airline name">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Flight Number</label>
-                                    <input type="text" name="flight_number" id="bookingFlightNumber" 
+                                    <input type="text" name="flight_number" id="bookingFlightNumber"
                                         class="form-control form-control-sm" placeholder="e.g. AI 101">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Departure Date</label>
-                                    <input type="date" name="departure_date" id="bookingDepartureDate" 
+                                    <input type="date" name="departure_date" id="bookingDepartureDate"
                                         class="form-control form-control-sm">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Departure Time</label>
-                                    <input type="time" name="departure_time" id="bookingDepartureTime" 
+                                    <input type="time" name="departure_time" id="bookingDepartureTime"
                                         class="form-control form-control-sm">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Return Flight Number</label>
-                                    <input type="text" name="return_flight_number" id="bookingReturnFlightNumber" 
+                                    <input type="text" name="return_flight_number" id="bookingReturnFlightNumber"
                                         class="form-control form-control-sm" placeholder="e.g. AI 102">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Return Date</label>
-                                    <input type="date" name="return_flight_date" id="bookingReturnFlightDate" 
+                                    <input type="date" name="return_flight_date" id="bookingReturnFlightDate"
                                         class="form-control form-control-sm">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Return Time</label>
-                                    <input type="time" name="return_flight_time" id="bookingReturnFlightTime" 
+                                    <input type="time" name="return_flight_time" id="bookingReturnFlightTime"
                                         class="form-control form-control-sm">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Class</label>
-                                    <select name="flight_class" id="bookingFlightClass" class="form-select form-select-sm">
+                                    <select name="flight_class" id="bookingFlightClass"
+                                        class="form-select form-select-sm">
                                         <option value="">-- Select --</option>
                                         <option value="Economy">Economy</option>
                                         <option value="Premium Economy">Premium Economy</option>
@@ -831,7 +841,8 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Package Type</label>
-                                    <select name="package_type" id="bookingPackageType" class="form-select form-select-sm">
+                                    <select name="package_type" id="bookingPackageType"
+                                        class="form-select form-select-sm">
                                         <option value="">-- Select --</option>
                                         <option value="Standard">Standard</option>
                                         <option value="Deluxe">Deluxe</option>
@@ -841,18 +852,18 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Inclusions</label>
-                                    <textarea name="inclusions" id="bookingInclusions" class="form-control form-control-sm" 
-                                        rows="3" placeholder="List package inclusions"></textarea>
+                                    <textarea name="inclusions" id="bookingInclusions" class="form-control form-control-sm" rows="3"
+                                        placeholder="List package inclusions"></textarea>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Exclusions</label>
-                                    <textarea name="exclusions" id="bookingExclusions" class="form-control form-control-sm" 
-                                        rows="3" placeholder="List package exclusions"></textarea>
+                                    <textarea name="exclusions" id="bookingExclusions" class="form-control form-control-sm" rows="3"
+                                        placeholder="List package exclusions"></textarea>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Special Requests</label>
-                                    <textarea name="special_requests" id="bookingSpecialRequests" class="form-control form-control-sm" 
-                                        rows="3" placeholder="Any special requests or notes"></textarea>
+                                    <textarea name="special_requests" id="bookingSpecialRequests" class="form-control form-control-sm" rows="3"
+                                        placeholder="Any special requests or notes"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -866,23 +877,26 @@
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <label class="form-label">Selling Price</label>
-                                    <input type="number" name="selling_price" id="bookingSellingPrice" 
-                                        class="form-control form-control-sm" step="0.01" min="0" placeholder="0.00">
+                                    <input type="number" name="selling_price" id="bookingSellingPrice"
+                                        class="form-control form-control-sm" step="0.01" min="0"
+                                        placeholder="0.00">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Booked Value</label>
-                                    <input type="number" name="booked_value" id="bookingBookedValue" 
-                                        class="form-control form-control-sm" step="0.01" min="0" placeholder="0.00">
+                                    <input type="number" name="booked_value" id="bookingBookedValue"
+                                        class="form-control form-control-sm" step="0.01" min="0"
+                                        placeholder="0.00">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Total Cost</label>
-                                    <input type="number" name="total_cost" id="bookingTotalCost" 
-                                        class="form-control form-control-sm" step="0.01" min="0" placeholder="0.00" readonly>
+                                    <input type="number" name="total_cost" id="bookingTotalCost"
+                                        class="form-control form-control-sm" step="0.01" min="0"
+                                        placeholder="0.00" readonly>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Profit</label>
-                                    <input type="number" id="bookingProfit" 
-                                        class="form-control form-control-sm" step="0.01" readonly>
+                                    <input type="number" id="bookingProfit" class="form-control form-control-sm"
+                                        step="0.01" readonly>
                                 </div>
                             </div>
                         </div>
@@ -896,22 +910,24 @@
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <label class="form-label">Advance Amount</label>
-                                    <input type="number" name="advance_amount" id="bookingAdvanceAmount" 
-                                        class="form-control form-control-sm" step="0.01" min="0" placeholder="0.00">
+                                    <input type="number" name="advance_amount" id="bookingAdvanceAmount"
+                                        class="form-control form-control-sm" step="0.01" min="0"
+                                        placeholder="0.00">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Advance Date</label>
-                                    <input type="date" name="advance_date" id="bookingAdvanceDate" 
+                                    <input type="date" name="advance_date" id="bookingAdvanceDate"
                                         class="form-control form-control-sm">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Balance Amount</label>
-                                    <input type="number" name="balance_amount" id="bookingBalanceAmount" 
-                                        class="form-control form-control-sm" step="0.01" min="0" placeholder="0.00">
+                                    <input type="number" name="balance_amount" id="bookingBalanceAmount"
+                                        class="form-control form-control-sm" step="0.01" min="0"
+                                        placeholder="0.00">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Balance Due Date</label>
-                                    <input type="date" name="balance_due_date" id="bookingBalanceDueDate" 
+                                    <input type="date" name="balance_due_date" id="bookingBalanceDueDate"
                                         class="form-control form-control-sm">
                                 </div>
                             </div>
@@ -926,43 +942,50 @@
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="doc_passport" id="bookingDocPassport">
+                                        <input class="form-check-input" type="checkbox" name="doc_passport"
+                                            id="bookingDocPassport">
                                         <label class="form-check-label" for="bookingDocPassport">Passport</label>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="doc_visa" id="bookingDocVisa">
+                                        <input class="form-check-input" type="checkbox" name="doc_visa"
+                                            id="bookingDocVisa">
                                         <label class="form-check-label" for="bookingDocVisa">Visa</label>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="doc_ticket" id="bookingDocTicket">
+                                        <input class="form-check-input" type="checkbox" name="doc_ticket"
+                                            id="bookingDocTicket">
                                         <label class="form-check-label" for="bookingDocTicket">Ticket</label>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="doc_voucher" id="bookingDocVoucher">
+                                        <input class="form-check-input" type="checkbox" name="doc_voucher"
+                                            id="bookingDocVoucher">
                                         <label class="form-check-label" for="bookingDocVoucher">Voucher</label>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="doc_invoice" id="bookingDocInvoice">
+                                        <input class="form-check-input" type="checkbox" name="doc_invoice"
+                                            id="bookingDocInvoice">
                                         <label class="form-check-label" for="bookingDocInvoice">Invoice</label>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="doc_insurance" id="bookingDocInsurance">
+                                        <input class="form-check-input" type="checkbox" name="doc_insurance"
+                                            id="bookingDocInsurance">
                                         <label class="form-check-label" for="bookingDocInsurance">Insurance</label>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="doc_other" id="bookingDocOther">
+                                        <input class="form-check-input" type="checkbox" name="doc_other"
+                                            id="bookingDocOther">
                                         <label class="form-check-label" for="bookingDocOther">Other</label>
                                     </div>
                                 </div>
@@ -980,117 +1003,119 @@
     </div>
 
     @push('scripts')
-    <script>
-        $(document).ready(function() {
-            const leadsBaseUrl = '/leads';
-            
-            // Initialize DataTable without search, length menu, ordering, and pagination
-            // We use Laravel's server-side pagination instead
-            if ($('#bookingsTable').length) {
-                $('#bookingsTable').DataTable({
-                    searching: false, // Disable search box
-                    lengthChange: false, // Disable entries per page selector
-                    ordering: false, // Disable column ordering
-                    info: false, // Disable DataTable info (we use Laravel pagination)
-                    paging: false, // Disable DataTable pagination (we use Laravel pagination)
-                    dom: 'rt' // Only show table (r), table (t) - no info or pagination
-                });
-            }
+        <script>
+            $(document).ready(function() {
+                const leadsBaseUrl = '/leads';
 
-            // Safe feather replace function
-            const safeFeatherReplace = (container) => {
-                if (typeof feather === 'undefined' || !feather.icons) return;
-                
-                // Use setTimeout to ensure DOM is ready
-                setTimeout(function() {
-                    try {
-                        // Validate icons exist before replacing
-                        const selector = container ? container.querySelectorAll('[data-feather]') : document.querySelectorAll('[data-feather]');
-                        
-                        if (selector && selector.length > 0) {
-                            // Replace icons, validating each one individually
-                            const icons = Array.from(selector);
-                            icons.forEach(function(icon) {
-                                try {
-                                    // Skip if already replaced (has SVG content)
-                                    if (icon.tagName === 'svg' || icon.querySelector('svg')) {
-                                        return;
-                                    }
-                                    
-                                    const iconName = icon.getAttribute('data-feather');
-                                    if (!iconName) return;
-                                    
-                                    // Validate icon exists and has toSvg method
-                                    const iconObj = feather.icons[iconName];
-                                    if (!iconObj || typeof iconObj.toSvg !== 'function') {
-                                        // Icon doesn't exist, skip silently
-                                        return;
-                                    }
-                                    
-                                    // Get icon attributes
-                                    const attrs = {};
-                                    Array.from(icon.attributes).forEach(function(attr) {
-                                        if (attr.name !== 'data-feather' && attr.name !== 'class') {
-                                            attrs[attr.name] = attr.value;
+                // Initialize DataTable without search, length menu, ordering, and pagination
+                // We use Laravel's server-side pagination instead
+                if ($('#bookingsTable').length) {
+                    $('#bookingsTable').DataTable({
+                        searching: false, // Disable search box
+                        lengthChange: false, // Disable entries per page selector
+                        ordering: false, // Disable column ordering
+                        info: false, // Disable DataTable info (we use Laravel pagination)
+                        paging: false, // Disable DataTable pagination (we use Laravel pagination)
+                        dom: 'rt' // Only show table (r), table (t) - no info or pagination
+                    });
+                }
+
+                // Safe feather replace function
+                const safeFeatherReplace = (container) => {
+                    if (typeof feather === 'undefined' || !feather.icons) return;
+
+                    // Use setTimeout to ensure DOM is ready
+                    setTimeout(function() {
+                        try {
+                            // Validate icons exist before replacing
+                            const selector = container ? container.querySelectorAll('[data-feather]') :
+                                document.querySelectorAll('[data-feather]');
+
+                            if (selector && selector.length > 0) {
+                                // Replace icons, validating each one individually
+                                const icons = Array.from(selector);
+                                icons.forEach(function(icon) {
+                                    try {
+                                        // Skip if already replaced (has SVG content)
+                                        if (icon.tagName === 'svg' || icon.querySelector('svg')) {
+                                            return;
                                         }
-                                    });
-                                    
-                                    // Replace icon
-                                    const svg = iconObj.toSvg(attrs);
-                                    if (svg) {
-                                        icon.outerHTML = svg;
+
+                                        const iconName = icon.getAttribute('data-feather');
+                                        if (!iconName) return;
+
+                                        // Validate icon exists and has toSvg method
+                                        const iconObj = feather.icons[iconName];
+                                        if (!iconObj || typeof iconObj.toSvg !== 'function') {
+                                            // Icon doesn't exist, skip silently
+                                            return;
+                                        }
+
+                                        // Get icon attributes
+                                        const attrs = {};
+                                        Array.from(icon.attributes).forEach(function(attr) {
+                                            if (attr.name !== 'data-feather' && attr
+                                                .name !== 'class') {
+                                                attrs[attr.name] = attr.value;
+                                            }
+                                        });
+
+                                        // Replace icon
+                                        const svg = iconObj.toSvg(attrs);
+                                        if (svg) {
+                                            icon.outerHTML = svg;
+                                        }
+                                    } catch (e) {
+                                        // Skip invalid icons silently - don't log to avoid console spam
                                     }
-                    } catch (e) {
-                                    // Skip invalid icons silently - don't log to avoid console spam
+                                });
+                            }
+                        } catch (e) {
+                            console.warn('Feather icon replacement error:', e);
+                        }
+                    }, 10);
+                };
+
+                // View Lead Modal Elements
+                const viewLeadModalEl = document.getElementById('viewLeadModal');
+                const viewLeadLoader = document.getElementById('viewLeadLoader');
+                const viewLeadContent = document.getElementById('viewLeadContent');
+                const viewLeadAlert = document.getElementById('viewLeadAlert');
+                const viewLeadMeta = document.getElementById('viewLeadMeta');
+                const viewLeadTitle = document.getElementById('viewLeadModalTitle');
+                let viewLeadModalInstance = null;
+                let currentLeadId = null;
+
+                // Escape HTML function
+                const escapeHtml = (unsafe) => {
+                    if (unsafe === null || unsafe === undefined) {
+                        return '';
                     }
-                            });
-                }
-                    } catch (e) {
-                        console.warn('Feather icon replacement error:', e);
+                    return String(unsafe).replace(/[&<>"']/g, function(match) {
+                        const map = {
+                            '&': '&amp;',
+                            '<': '&lt;',
+                            '>': '&gt;',
+                            '"': '&quot;',
+                            "'": '&#039;',
+                        };
+                        return map[match] || match;
+                    });
+                };
+
+                // Render remarks function
+                const renderRemarks = (remarks) => {
+                    if (!remarks || !remarks.length) {
+                        return '<p class="text-muted text-center mb-0 py-4"><i data-feather="message-circle" class="me-2" style="width: 16px; height: 16px;"></i>No remarks yet.</p>';
                     }
-                }, 10);
-            };
 
-            // View Lead Modal Elements
-            const viewLeadModalEl = document.getElementById('viewLeadModal');
-            const viewLeadLoader = document.getElementById('viewLeadLoader');
-            const viewLeadContent = document.getElementById('viewLeadContent');
-            const viewLeadAlert = document.getElementById('viewLeadAlert');
-            const viewLeadMeta = document.getElementById('viewLeadMeta');
-            const viewLeadTitle = document.getElementById('viewLeadModalTitle');
-            let viewLeadModalInstance = null;
-            let currentLeadId = null;
-
-            // Escape HTML function
-            const escapeHtml = (unsafe) => {
-                if (unsafe === null || unsafe === undefined) {
-                    return '';
-                }
-                return String(unsafe).replace(/[&<>"']/g, function(match) {
-                    const map = {
-                        '&': '&amp;',
-                        '<': '&lt;',
-                        '>': '&gt;',
-                        '"': '&quot;',
-                        "'": '&#039;',
-                    };
-                    return map[match] || match;
-                });
-            };
-
-            // Render remarks function
-            const renderRemarks = (remarks) => {
-                if (!remarks || !remarks.length) {
-                    return '<p class="text-muted text-center mb-0 py-4"><i data-feather="message-circle" class="me-2" style="width: 16px; height: 16px;"></i>No remarks yet.</p>';
-                }
-
-                return remarks.map((remark, index) => {
-                    const followUp = remark.follow_up_date ?
-                        `<span class="badge bg-light text-danger border border-danger ms-2 px-2 py-1">
+                    return remarks.map((remark, index) => {
+                        const followUp = remark.follow_up_date ?
+                            `<span class="badge bg-light text-danger border border-danger ms-2 px-2 py-1">
                             <i data-feather="calendar" class="me-1" style="width: 12px; height: 12px;"></i>
                             Follow-up: ${escapeHtml(remark.follow_up_date)}
                         </span>` : '';
-                    return `
+                        return `
                         <div class="border rounded-3 p-3 mb-3 bg-white border">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div class="d-flex align-items-start flex-grow-1">
@@ -1111,755 +1136,766 @@
                             </div>
                         </div>
                     `;
-                }).join('');
-            };
+                    }).join('');
+                };
 
-            // Reset view lead modal
-            const resetViewLeadModal = () => {
-                if (viewLeadLoader) {
-                    viewLeadLoader.classList.remove('d-none');
-                }
-                if (viewLeadContent) {
-                    viewLeadContent.classList.add('d-none');
-                }
-                if (viewLeadAlert) {
-                    viewLeadAlert.classList.add('d-none');
-                    viewLeadAlert.textContent = '';
-                    viewLeadAlert.classList.remove('alert-danger', 'alert-success');
-                }
-            };
-
-            // Show view lead error
-            const showViewLeadError = (message) => {
-                if (viewLeadAlert) {
-                    viewLeadAlert.classList.remove('d-none');
-                    viewLeadAlert.classList.remove('alert-success');
-                    viewLeadAlert.classList.add('alert-danger');
-                    viewLeadAlert.textContent = message;
-                }
-                if (viewLeadLoader) {
-                    viewLeadLoader.classList.add('d-none');
-                }
-                if (viewLeadContent) {
-                    viewLeadContent.classList.add('d-none');
-                }
-            };
-
-            // Load lead details
-            const loadLeadDetails = async (leadId) => {
-                if (!leadId || !leadsBaseUrl) {
-                    showViewLeadError('Invalid lead.');
-                    return Promise.reject('Invalid lead.');
-                }
-
-                currentLeadId = leadId;
-                resetViewLeadModal();
-
-                try {
-                    const response = await fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
-                        headers: {
-                            'Accept': 'application/json',
-                        },
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Unable to load lead details.');
+                // Reset view lead modal
+                const resetViewLeadModal = () => {
+                    if (viewLeadLoader) {
+                        viewLeadLoader.classList.remove('d-none');
                     }
-
-                    const data = await response.json();
-                    const lead = data.lead;
-
-                    if (!lead) {
-                        throw new Error('Lead details not found.');
+                    if (viewLeadContent) {
+                        viewLeadContent.classList.add('d-none');
                     }
+                    if (viewLeadAlert) {
+                        viewLeadAlert.classList.add('d-none');
+                        viewLeadAlert.textContent = '';
+                        viewLeadAlert.classList.remove('alert-danger', 'alert-success');
+                    }
+                };
 
-                    // Store lead data for editing
-                    window.currentLeadData = lead;
-
+                // Show view lead error
+                const showViewLeadError = (message) => {
+                    if (viewLeadAlert) {
+                        viewLeadAlert.classList.remove('d-none');
+                        viewLeadAlert.classList.remove('alert-success');
+                        viewLeadAlert.classList.add('alert-danger');
+                        viewLeadAlert.textContent = message;
+                    }
                     if (viewLeadLoader) {
                         viewLeadLoader.classList.add('d-none');
                     }
                     if (viewLeadContent) {
-                        viewLeadContent.classList.remove('d-none');
+                        viewLeadContent.classList.add('d-none');
+                    }
+                };
+
+                // Load lead details
+                const loadLeadDetails = async (leadId) => {
+                    if (!leadId || !leadsBaseUrl) {
+                        showViewLeadError('Invalid lead.');
+                        return Promise.reject('Invalid lead.');
                     }
 
-                    if (viewLeadTitle) {
-                        viewLeadTitle.textContent = `${lead.tsq ?? 'Lead'} - ${lead.customer_name ?? ''}`;
-                    }
-                    if (viewLeadMeta) {
-                        viewLeadMeta.textContent = lead.created_at ? `Created on ${lead.created_at}` : '';
-                    }
-
-                    // Populate Customer Information
-                    const viewFirstName = document.getElementById('viewFirstName');
-                    const viewMiddleName = document.getElementById('viewMiddleName');
-                    const viewLastName = document.getElementById('viewLastName');
-                    if (viewFirstName) viewFirstName.value = lead.first_name || '';
-                    if (viewMiddleName) viewMiddleName.value = lead.middle_name || '';
-                    if (viewLastName) viewLastName.value = lead.last_name || '';
-
-                    // Populate Contact Information
-                    const viewPrimaryPhone = document.getElementById('viewPrimaryPhone');
-                    const viewSecondaryPhone = document.getElementById('viewSecondaryPhone');
-                    const viewOtherPhone = document.getElementById('viewOtherPhone');
-                    const viewEmail = document.getElementById('viewEmail');
-                    if (viewPrimaryPhone) viewPrimaryPhone.value = lead.primary_phone || '';
-                    if (viewSecondaryPhone) viewSecondaryPhone.value = lead.secondary_phone || '';
-                    if (viewOtherPhone) viewOtherPhone.value = lead.other_phone || '';
-                    if (viewEmail) viewEmail.value = lead.email || '';
-
-                    // Populate Address fields
-                    const viewAddressLine = document.getElementById('viewAddressLine');
-                    const viewCity = document.getElementById('viewCity');
-                    const viewState = document.getElementById('viewState');
-                    const viewCountry = document.getElementById('viewCountry');
-                    const viewPinCode = document.getElementById('viewPinCode');
-                    if (viewAddressLine) viewAddressLine.value = lead.address_line || '';
-                    if (viewCity) viewCity.value = lead.city || '';
-                    if (viewState) viewState.value = lead.state || '';
-                    if (viewCountry) viewCountry.value = lead.country || '';
-                    if (viewPinCode) viewPinCode.value = lead.pin_code || '';
-
-                    // Populate Travel Preferences
-                    const viewLeadService = document.getElementById('viewService');
-                    const viewLeadDestination = document.getElementById('viewDestination');
-                    const viewLeadTravelDate = document.getElementById('viewTravelDate');
-                    if (viewLeadService) {
-                        viewLeadService.value = lead.service ?? 'N/A';
-                    }
-                    if (viewLeadDestination) {
-                        viewLeadDestination.value = lead.destination ?? 'N/A';
-                    }
-                    if (viewLeadTravelDate) {
-                        viewLeadTravelDate.value = lead.travel_date ?? 'N/A';
-                    }
-                    const viewAdults = document.getElementById('viewAdults');
-                    const viewChildren25 = document.getElementById('viewChildren25');
-                    const viewChildren611 = document.getElementById('viewChildren611');
-                    const viewInfants = document.getElementById('viewInfants');
-                    if (viewAdults) viewAdults.value = lead.adults ?? 0;
-                    if (viewChildren25) viewChildren25.value = lead.children_2_5 ?? 0;
-                    if (viewChildren611) viewChildren611.value = lead.children_6_11 ?? 0;
-                    if (viewInfants) viewInfants.value = lead.infants ?? 0;
-
-                    // Populate Assignment
-                    const viewLeadAssignedUser = document.getElementById('viewAssignedUser');
-                    if (viewLeadAssignedUser) {
-                        viewLeadAssignedUser.value = lead.assigned_user ?? 'Unassigned';
-                    }
-                    const viewStatus = document.getElementById('viewStatus');
-                    if (viewStatus) {
-                        viewStatus.value = lead.status_label ?? lead.status ?? 'N/A';
-                    }
-
-                    const viewLeadRemarksCount = document.getElementById('viewLeadRemarksCount');
-                    const viewLeadRemarksContainer = document.getElementById('viewLeadRemarks');
-                    if (viewLeadRemarksCount) {
-                        viewLeadRemarksCount.textContent = data.remarks?.length ?? 0;
-                    }
-                    if (viewLeadRemarksContainer) {
-                        viewLeadRemarksContainer.innerHTML = renderRemarks(data.remarks || []);
-                    }
-
-                    // Initialize Feather icons after content is loaded
-                    safeFeatherReplace(viewLeadContent);
-                    
-                    return Promise.resolve(data);
-                } catch (error) {
-                    console.error(error);
-                    showViewLeadError(error.message || 'Unexpected error occurred.');
-                    return Promise.reject(error);
-                }
-            };
-
-            // Store loadLeadDetails on window for access in global event handler
-            window.loadLeadDetails = loadLeadDetails;
-
-            // Edit Lead Functionality
-            const editLeadContent = document.getElementById('editLeadContent');
-            const editLeadForm = document.getElementById('editLeadForm');
-            const editLeadAlert = document.getElementById('editLeadAlert');
-            const cancelEditFormBtn = document.getElementById('cancelEditFormBtn');
-            let currentEditLeadId = null;
-
-            // Function to update children total for edit form
-            const updateEditChildrenTotal = () => {
-                if (!editLeadForm) return;
-                const child2_5 = parseInt(editLeadForm.elements['children_2_5']?.value || '0', 10);
-                const child6_11 = parseInt(editLeadForm.elements['children_6_11']?.value || '0', 10);
-                const editChildrenTotal = document.getElementById('editChildrenTotal');
-                if (editChildrenTotal) {
-                    editChildrenTotal.value = (child2_5 || 0) + (child6_11 || 0);
-                }
-            };
-
-            // Function to populate edit form with lead data
-            const populateEditForm = (lead) => {
-                if (!lead) return;
-
-                document.getElementById('editFirstName').value = lead.first_name || '';
-                document.getElementById('editMiddleName').value = lead.middle_name || '';
-                document.getElementById('editLastName').value = lead.last_name || '';
-                document.getElementById('editPrimaryPhone').value = lead.primary_phone || '';
-                document.getElementById('editSecondaryPhone').value = lead.secondary_phone || '';
-                document.getElementById('editOtherPhone').value = lead.other_phone || '';
-                document.getElementById('editEmail').value = lead.email || '';
-                document.getElementById('editAddressLine').value = lead.address_line || '';
-                document.getElementById('editCity').value = lead.city || '';
-                document.getElementById('editState').value = lead.state || '';
-                document.getElementById('editCountry').value = lead.country || '';
-                document.getElementById('editPinCode').value = lead.pin_code || '';
-                document.getElementById('editServiceId').value = lead.service_id || '';
-                document.getElementById('editDestinationId').value = lead.destination_id || '';
-                document.getElementById('editTravelDate').value = lead.travel_date_raw || '';
-                document.getElementById('editAdults').value = lead.adults || 0;
-                document.getElementById('editChildren25').value = lead.children_2_5 || 0;
-                document.getElementById('editChildren611').value = lead.children_6_11 || 0;
-                document.getElementById('editInfants').value = lead.infants || 0;
-                document.getElementById('editAssignedUserId').value = lead.assigned_user_id || '';
-                document.getElementById('editStatus').value = lead.status || 'booked';
-
-                // Update children total
-                updateEditChildrenTotal();
-            };
-
-            // Function to switch to edit mode
-            const switchToEditMode = () => {
-                if (viewLeadContent) viewLeadContent.classList.add('d-none');
-                if (editLeadContent) editLeadContent.classList.remove('d-none');
-                if (viewLeadTitle) viewLeadTitle.textContent = 'Edit Lead';
-                safeFeatherReplace(viewLeadModalEl);
-            };
-
-            // Function to switch back to view mode
-            const switchToViewMode = () => {
-                if (viewLeadContent) viewLeadContent.classList.remove('d-none');
-                if (editLeadContent) editLeadContent.classList.add('d-none');
-                if (viewLeadTitle) viewLeadTitle.textContent = 'Lead Details';
-                if (editLeadAlert) {
-                    editLeadAlert.classList.add('d-none');
-                    editLeadAlert.textContent = '';
-                }
-            };
-
-            // Cancel edit button handler
-            if (cancelEditFormBtn) {
-                cancelEditFormBtn.addEventListener('click', () => {
-                    switchToViewMode();
-                });
-            }
-
-            // Add event listeners for children fields in edit form
-            if (editLeadForm) {
-                editLeadForm.querySelectorAll('input[name="children_2_5"], input[name="children_6_11"]').forEach((field) => {
-                    field.addEventListener('input', updateEditChildrenTotal);
-                    field.addEventListener('change', updateEditChildrenTotal);
-                });
-            }
-
-            // Edit form submission
-            if (editLeadForm) {
-                editLeadForm.addEventListener('submit', async (event) => {
-                    event.preventDefault();
-                    if (!currentEditLeadId || !leadsBaseUrl) {
-                        return;
-                    }
-
-                    // Update children total before submission
-                    updateEditChildrenTotal();
-
-                    if (editLeadAlert) {
-                        editLeadAlert.classList.add('d-none');
-                        editLeadAlert.classList.remove('alert-danger', 'alert-success');
-                    }
+                    currentLeadId = leadId;
+                    resetViewLeadModal();
 
                     try {
-                        const formData = new FormData(editLeadForm);
-                        // Ensure _method is set for Laravel method spoofing
-                        formData.append('_method', 'PUT');
-                        const response = await fetch(`${leadsBaseUrl}/${currentEditLeadId}`, {
-                            method: 'POST',
+                        const response = await fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
                             headers: {
                                 'Accept': 'application/json',
                             },
-                            body: formData,
                         });
-
-                        const payload = await response.json();
 
                         if (!response.ok) {
-                            const message = payload?.message || Object.values(payload?.errors || {})[0]?.[0] || 'Failed to update lead.';
-                            throw new Error(message);
+                            throw new Error('Unable to load lead details.');
                         }
 
-                        if (editLeadAlert) {
-                            editLeadAlert.classList.remove('d-none');
-                            editLeadAlert.classList.add('alert-success');
-                            editLeadAlert.textContent = payload?.message || 'Lead updated successfully!';
+                        const data = await response.json();
+                        const lead = data.lead;
+
+                        if (!lead) {
+                            throw new Error('Lead details not found.');
                         }
 
-                        // Reload lead details and switch back to view mode
-                        setTimeout(() => {
-                            if (typeof window.loadLeadDetails === 'function') {
-                                window.loadLeadDetails(currentEditLeadId);
-                            }
-                            switchToViewMode();
-                            // Reload page to refresh table
-                            window.location.reload();
-                        }, 1000);
-                    } catch (error) {
-                        if (editLeadAlert) {
-                            editLeadAlert.classList.remove('d-none');
-                            editLeadAlert.classList.add('alert-danger');
-                            editLeadAlert.textContent = error.message || 'Unable to update lead.';
-                        }
-                    }
-                });
-            }
+                        // Store lead data for editing
+                        window.currentLeadData = lead;
 
-            // Edit button click handler - opens modal in edit mode
-            if (!window.editLeadClickHandler) {
-                window.editLeadClickHandler = function(event) {
-                    const button = event.target.closest('.edit-lead-btn');
-                    if (!button) {
-                        return;
-                    }
-
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
-
-                    if (!leadId) {
-                        console.error('No lead ID found on edit button', button);
-                        return;
-                    }
-
-                    currentEditLeadId = leadId;
-                    currentLeadId = leadId;
-
-                    // Get modal element
-                    const modalEl = document.getElementById('viewLeadModal');
-                    if (!modalEl) {
-                        console.error('View lead modal element not found');
-                        return;
-                    }
-
-                    // Get or create modal instance
-                    let modalInstance = window.viewLeadModalInstance || viewLeadModalInstance;
-                    if (!modalInstance && typeof bootstrap !== 'undefined') {
-                        modalInstance = new bootstrap.Modal(modalEl, {
-                            backdrop: 'static',
-                            keyboard: false
-                        });
-                        window.viewLeadModalInstance = modalInstance;
-                        viewLeadModalInstance = modalInstance;
-                    }
-
-                    if (modalInstance) {
-                        modalInstance.show();
-                        
-                        // Reset modal state
-                        resetViewLeadModal();
                         if (viewLeadLoader) {
-                            viewLeadLoader.classList.remove('d-none');
+                            viewLeadLoader.classList.add('d-none');
                         }
-                        
-                        // Load lead data for editing
-                        fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
-                            headers: {
-                                'Accept': 'application/json',
-                            },
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.lead) {
-                                window.currentLeadData = data.lead;
-                                
-                                // Hide loader
-                                if (viewLeadLoader) {
-                                    viewLeadLoader.classList.add('d-none');
+                        if (viewLeadContent) {
+                            viewLeadContent.classList.remove('d-none');
+                        }
+
+                        if (viewLeadTitle) {
+                            viewLeadTitle.textContent = `${lead.tsq ?? 'Lead'} - ${lead.customer_name ?? ''}`;
+                        }
+                        if (viewLeadMeta) {
+                            viewLeadMeta.textContent = lead.created_at ? `Created on ${lead.created_at}` : '';
+                        }
+
+                        // Populate Customer Information
+                        const viewFirstName = document.getElementById('viewFirstName');
+                        const viewMiddleName = document.getElementById('viewMiddleName');
+                        const viewLastName = document.getElementById('viewLastName');
+                        if (viewFirstName) viewFirstName.value = lead.first_name || '';
+                        if (viewMiddleName) viewMiddleName.value = lead.middle_name || '';
+                        if (viewLastName) viewLastName.value = lead.last_name || '';
+
+                        // Populate Contact Information
+                        const viewPrimaryPhone = document.getElementById('viewPrimaryPhone');
+                        const viewSecondaryPhone = document.getElementById('viewSecondaryPhone');
+                        const viewOtherPhone = document.getElementById('viewOtherPhone');
+                        const viewEmail = document.getElementById('viewEmail');
+                        if (viewPrimaryPhone) viewPrimaryPhone.value = lead.primary_phone || '';
+                        if (viewSecondaryPhone) viewSecondaryPhone.value = lead.secondary_phone || '';
+                        if (viewOtherPhone) viewOtherPhone.value = lead.other_phone || '';
+                        if (viewEmail) viewEmail.value = lead.email || '';
+
+                        // Populate Address fields
+                        const viewAddressLine = document.getElementById('viewAddressLine');
+                        const viewCity = document.getElementById('viewCity');
+                        const viewState = document.getElementById('viewState');
+                        const viewCountry = document.getElementById('viewCountry');
+                        const viewPinCode = document.getElementById('viewPinCode');
+                        if (viewAddressLine) viewAddressLine.value = lead.address_line || '';
+                        if (viewCity) viewCity.value = lead.city || '';
+                        if (viewState) viewState.value = lead.state || '';
+                        if (viewCountry) viewCountry.value = lead.country || '';
+                        if (viewPinCode) viewPinCode.value = lead.pin_code || '';
+
+                        // Populate Travel Preferences
+                        const viewLeadService = document.getElementById('viewService');
+                        const viewLeadDestination = document.getElementById('viewDestination');
+                        const viewLeadTravelDate = document.getElementById('viewTravelDate');
+                        if (viewLeadService) {
+                            viewLeadService.value = lead.service ?? 'N/A';
+                        }
+                        if (viewLeadDestination) {
+                            viewLeadDestination.value = lead.destination ?? 'N/A';
+                        }
+                        if (viewLeadTravelDate) {
+                            viewLeadTravelDate.value = lead.travel_date ?? 'N/A';
+                        }
+                        const viewAdults = document.getElementById('viewAdults');
+                        const viewChildren25 = document.getElementById('viewChildren25');
+                        const viewChildren611 = document.getElementById('viewChildren611');
+                        const viewInfants = document.getElementById('viewInfants');
+                        if (viewAdults) viewAdults.value = lead.adults ?? 0;
+                        if (viewChildren25) viewChildren25.value = lead.children_2_5 ?? 0;
+                        if (viewChildren611) viewChildren611.value = lead.children_6_11 ?? 0;
+                        if (viewInfants) viewInfants.value = lead.infants ?? 0;
+
+                        // Populate Assignment
+                        const viewLeadAssignedUser = document.getElementById('viewAssignedUser');
+                        if (viewLeadAssignedUser) {
+                            viewLeadAssignedUser.value = lead.assigned_user ?? 'Unassigned';
+                        }
+                        const viewStatus = document.getElementById('viewStatus');
+                        if (viewStatus) {
+                            viewStatus.value = lead.status_label ?? lead.status ?? 'N/A';
+                        }
+
+                        const viewLeadRemarksCount = document.getElementById('viewLeadRemarksCount');
+                        const viewLeadRemarksContainer = document.getElementById('viewLeadRemarks');
+                        if (viewLeadRemarksCount) {
+                            viewLeadRemarksCount.textContent = data.remarks?.length ?? 0;
+                        }
+                        if (viewLeadRemarksContainer) {
+                            viewLeadRemarksContainer.innerHTML = renderRemarks(data.remarks || []);
+                        }
+
+                        // Initialize Feather icons after content is loaded
+                        safeFeatherReplace(viewLeadContent);
+
+                        return Promise.resolve(data);
+                    } catch (error) {
+                        console.error(error);
+                        showViewLeadError(error.message || 'Unexpected error occurred.');
+                        return Promise.reject(error);
+                    }
+                };
+
+                // Store loadLeadDetails on window for access in global event handler
+                window.loadLeadDetails = loadLeadDetails;
+
+                // Edit Lead Functionality
+                const editLeadContent = document.getElementById('editLeadContent');
+                const editLeadForm = document.getElementById('editLeadForm');
+                const editLeadAlert = document.getElementById('editLeadAlert');
+                const cancelEditFormBtn = document.getElementById('cancelEditFormBtn');
+                let currentEditLeadId = null;
+
+                // Function to update children total for edit form
+                const updateEditChildrenTotal = () => {
+                    if (!editLeadForm) return;
+                    const child2_5 = parseInt(editLeadForm.elements['children_2_5']?.value || '0', 10);
+                    const child6_11 = parseInt(editLeadForm.elements['children_6_11']?.value || '0', 10);
+                    const editChildrenTotal = document.getElementById('editChildrenTotal');
+                    if (editChildrenTotal) {
+                        editChildrenTotal.value = (child2_5 || 0) + (child6_11 || 0);
+                    }
+                };
+
+                // Function to populate edit form with lead data
+                const populateEditForm = (lead) => {
+                    if (!lead) return;
+
+                    document.getElementById('editFirstName').value = lead.first_name || '';
+                    document.getElementById('editMiddleName').value = lead.middle_name || '';
+                    document.getElementById('editLastName').value = lead.last_name || '';
+                    document.getElementById('editPrimaryPhone').value = lead.primary_phone || '';
+                    document.getElementById('editSecondaryPhone').value = lead.secondary_phone || '';
+                    document.getElementById('editOtherPhone').value = lead.other_phone || '';
+                    document.getElementById('editEmail').value = lead.email || '';
+                    document.getElementById('editAddressLine').value = lead.address_line || '';
+                    document.getElementById('editCity').value = lead.city || '';
+                    document.getElementById('editState').value = lead.state || '';
+                    document.getElementById('editCountry').value = lead.country || '';
+                    document.getElementById('editPinCode').value = lead.pin_code || '';
+                    document.getElementById('editServiceId').value = lead.service_id || '';
+                    document.getElementById('editDestinationId').value = lead.destination_id || '';
+                    document.getElementById('editTravelDate').value = lead.travel_date_raw || '';
+                    document.getElementById('editAdults').value = lead.adults || 0;
+                    document.getElementById('editChildren25').value = lead.children_2_5 || 0;
+                    document.getElementById('editChildren611').value = lead.children_6_11 || 0;
+                    document.getElementById('editInfants').value = lead.infants || 0;
+                    document.getElementById('editAssignedUserId').value = lead.assigned_user_id || '';
+                    document.getElementById('editStatus').value = lead.status || 'booked';
+
+                    // Update children total
+                    updateEditChildrenTotal();
+                };
+
+                // Function to switch to edit mode
+                const switchToEditMode = () => {
+                    if (viewLeadContent) viewLeadContent.classList.add('d-none');
+                    if (editLeadContent) editLeadContent.classList.remove('d-none');
+                    if (viewLeadTitle) viewLeadTitle.textContent = 'Edit Lead';
+                    safeFeatherReplace(viewLeadModalEl);
+                };
+
+                // Function to switch back to view mode
+                const switchToViewMode = () => {
+                    if (viewLeadContent) viewLeadContent.classList.remove('d-none');
+                    if (editLeadContent) editLeadContent.classList.add('d-none');
+                    if (viewLeadTitle) viewLeadTitle.textContent = 'Lead Details';
+                    if (editLeadAlert) {
+                        editLeadAlert.classList.add('d-none');
+                        editLeadAlert.textContent = '';
+                    }
+                };
+
+                // Cancel edit button handler
+                if (cancelEditFormBtn) {
+                    cancelEditFormBtn.addEventListener('click', () => {
+                        switchToViewMode();
+                    });
+                }
+
+                // Add event listeners for children fields in edit form
+                if (editLeadForm) {
+                    editLeadForm.querySelectorAll('input[name="children_2_5"], input[name="children_6_11"]').forEach((
+                        field) => {
+                        field.addEventListener('input', updateEditChildrenTotal);
+                        field.addEventListener('change', updateEditChildrenTotal);
+                    });
+                }
+
+                // Edit form submission
+                if (editLeadForm) {
+                    editLeadForm.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+                        if (!currentEditLeadId || !leadsBaseUrl) {
+                            return;
+                        }
+
+                        // Update children total before submission
+                        updateEditChildrenTotal();
+
+                        if (editLeadAlert) {
+                            editLeadAlert.classList.add('d-none');
+                            editLeadAlert.classList.remove('alert-danger', 'alert-success');
+                        }
+
+                        try {
+                            const formData = new FormData(editLeadForm);
+                            // Ensure _method is set for Laravel method spoofing
+                            formData.append('_method', 'PUT');
+                            const response = await fetch(`${leadsBaseUrl}/${currentEditLeadId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Accept': 'application/json',
+                                },
+                                body: formData,
+                            });
+
+                            const payload = await response.json();
+
+                            if (!response.ok) {
+                                const message = payload?.message || Object.values(payload?.errors || {})[0]
+                                    ?.[0] || 'Failed to update lead.';
+                                throw new Error(message);
+                            }
+
+                            if (editLeadAlert) {
+                                editLeadAlert.classList.remove('d-none');
+                                editLeadAlert.classList.add('alert-success');
+                                editLeadAlert.textContent = payload?.message ||
+                                'Lead updated successfully!';
+                            }
+
+                            // Reload lead details and switch back to view mode
+                            setTimeout(() => {
+                                if (typeof window.loadLeadDetails === 'function') {
+                                    window.loadLeadDetails(currentEditLeadId);
                                 }
-                                
-                                // Populate edit form with current lead data
-                                populateEditForm(data.lead);
-                                
-                                // Switch to edit mode
-                                switchToEditMode();
-                                
-                                // Initialize Feather icons
-                                safeFeatherReplace(viewLeadModalEl);
-                            } else {
-                                throw new Error('Lead details not found.');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error loading lead for edit:', error);
-                            if (viewLeadLoader) {
-                                viewLeadLoader.classList.add('d-none');
-                            }
+                                switchToViewMode();
+                                // Reload page to refresh table
+                                window.location.reload();
+                            }, 1000);
+                        } catch (error) {
                             if (editLeadAlert) {
                                 editLeadAlert.classList.remove('d-none');
                                 editLeadAlert.classList.add('alert-danger');
-                                editLeadAlert.textContent = 'Unable to load lead details for editing.';
+                                editLeadAlert.textContent = error.message || 'Unable to update lead.';
                             }
-                        });
-                    } else {
-                        console.error('Bootstrap modal not available');
-                    }
-                };
-
-                document.addEventListener('click', window.editLeadClickHandler, true);
-            }
-
-            // Remark form submission
-            const remarkForm = document.getElementById('leadRemarkForm');
-            if (remarkForm) {
-                remarkForm.addEventListener('submit', async (event) => {
-                    event.preventDefault();
-                    if (!currentLeadId || !leadsBaseUrl) {
-                        return;
-                    }
-
-                    const formData = new FormData(remarkForm);
-
-                    try {
-                        const response = await fetch(`${leadsBaseUrl}/${currentLeadId}/remarks`, {
-                            method: 'POST',
-                            headers: {
-                                'Accept': 'application/json',
-                            },
-                            body: formData,
-                        });
-
-                        const payload = await response.json();
-
-                        if (!response.ok) {
-                            const message = payload?.message || Object.values(payload?.errors || {})[0]?.[0] || 'Failed to add remark.';
-                            throw new Error(message);
                         }
-
-                        // Show success message
-                        if (viewLeadAlert) {
-                            viewLeadAlert.classList.remove('d-none');
-                            viewLeadAlert.classList.remove('alert-danger');
-                            viewLeadAlert.classList.add('alert-success');
-                            viewLeadAlert.textContent = payload?.message || 'Remark added successfully!';
-                        }
-
-                        remarkForm.reset();
-
-                        // Reload remarks
-                        if (typeof window.loadLeadDetails === 'function') {
-                            window.loadLeadDetails(currentLeadId);
-                        }
-                    } catch (error) {
-                        if (viewLeadAlert) {
-                            viewLeadAlert.classList.remove('d-none');
-                            viewLeadAlert.classList.remove('alert-success');
-                            viewLeadAlert.classList.add('alert-danger');
-                            viewLeadAlert.textContent = error.message || 'Unable to add remark.';
-                        }
-                    }
-                });
-            }
-
-            // Initialize modal instance
-            if (viewLeadModalEl && typeof bootstrap !== 'undefined') {
-                if (!viewLeadModalInstance) {
-                    viewLeadModalInstance = new bootstrap.Modal(viewLeadModalEl, {
-                        backdrop: 'static',
-                        keyboard: false
                     });
-                    window.viewLeadModalInstance = viewLeadModalInstance;
                 }
-            }
 
-            // View Lead click handler
-            if (!window.viewLeadClickHandler) {
-                window.viewLeadClickHandler = function(event) {
-                    const button = event.target.closest('.view-lead-btn');
-                    if (!button) {
-                        return;
-                    }
+                // Edit button click handler - opens modal in edit mode
+                if (!window.editLeadClickHandler) {
+                    window.editLeadClickHandler = function(event) {
+                        const button = event.target.closest('.edit-lead-btn');
+                        if (!button) {
+                            return;
+                        }
 
-                    event.preventDefault();
-                    event.stopPropagation();
+                        event.preventDefault();
+                        event.stopPropagation();
 
-                    const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
+                        const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
 
-                    if (!leadId) {
-                        console.error('No lead ID found on button', button);
-                        return;
-                    }
+                        if (!leadId) {
+                            console.error('No lead ID found on edit button', button);
+                            return;
+                        }
 
-                    const modalEl = document.getElementById('viewLeadModal');
-                    if (!modalEl) {
-                        console.error('View lead modal element not found');
-                        return;
-                    }
+                        currentEditLeadId = leadId;
+                        currentLeadId = leadId;
 
-                    let modalInstance = window.viewLeadModalInstance || viewLeadModalInstance;
-                    if (!modalInstance && typeof bootstrap !== 'undefined') {
-                        modalInstance = new bootstrap.Modal(modalEl, {
+                        // Get modal element
+                        const modalEl = document.getElementById('viewLeadModal');
+                        if (!modalEl) {
+                            console.error('View lead modal element not found');
+                            return;
+                        }
+
+                        // Get or create modal instance
+                        let modalInstance = window.viewLeadModalInstance || viewLeadModalInstance;
+                        if (!modalInstance && typeof bootstrap !== 'undefined') {
+                            modalInstance = new bootstrap.Modal(modalEl, {
+                                backdrop: 'static',
+                                keyboard: false
+                            });
+                            window.viewLeadModalInstance = modalInstance;
+                            viewLeadModalInstance = modalInstance;
+                        }
+
+                        if (modalInstance) {
+                            modalInstance.show();
+
+                            // Reset modal state
+                            resetViewLeadModal();
+                            if (viewLeadLoader) {
+                                viewLeadLoader.classList.remove('d-none');
+                            }
+
+                            // Load lead data for editing
+                            fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
+                                    headers: {
+                                        'Accept': 'application/json',
+                                    },
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.lead) {
+                                        window.currentLeadData = data.lead;
+
+                                        // Hide loader
+                                        if (viewLeadLoader) {
+                                            viewLeadLoader.classList.add('d-none');
+                                        }
+
+                                        // Populate edit form with current lead data
+                                        populateEditForm(data.lead);
+
+                                        // Switch to edit mode
+                                        switchToEditMode();
+
+                                        // Initialize Feather icons
+                                        safeFeatherReplace(viewLeadModalEl);
+                                    } else {
+                                        throw new Error('Lead details not found.');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error loading lead for edit:', error);
+                                    if (viewLeadLoader) {
+                                        viewLeadLoader.classList.add('d-none');
+                                    }
+                                    if (editLeadAlert) {
+                                        editLeadAlert.classList.remove('d-none');
+                                        editLeadAlert.classList.add('alert-danger');
+                                        editLeadAlert.textContent = 'Unable to load lead details for editing.';
+                                    }
+                                });
+                        } else {
+                            console.error('Bootstrap modal not available');
+                        }
+                    };
+
+                    document.addEventListener('click', window.editLeadClickHandler, true);
+                }
+
+                // Remark form submission
+                const remarkForm = document.getElementById('leadRemarkForm');
+                if (remarkForm) {
+                    remarkForm.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+                        if (!currentLeadId || !leadsBaseUrl) {
+                            return;
+                        }
+
+                        const formData = new FormData(remarkForm);
+
+                        try {
+                            const response = await fetch(`${leadsBaseUrl}/${currentLeadId}/remarks`, {
+                                method: 'POST',
+                                headers: {
+                                    'Accept': 'application/json',
+                                },
+                                body: formData,
+                            });
+
+                            const payload = await response.json();
+
+                            if (!response.ok) {
+                                const message = payload?.message || Object.values(payload?.errors || {})[0]
+                                    ?.[0] || 'Failed to add remark.';
+                                throw new Error(message);
+                            }
+
+                            // Show success message
+                            if (viewLeadAlert) {
+                                viewLeadAlert.classList.remove('d-none');
+                                viewLeadAlert.classList.remove('alert-danger');
+                                viewLeadAlert.classList.add('alert-success');
+                                viewLeadAlert.textContent = payload?.message ||
+                                'Remark added successfully!';
+                            }
+
+                            remarkForm.reset();
+
+                            // Reload remarks
+                            if (typeof window.loadLeadDetails === 'function') {
+                                window.loadLeadDetails(currentLeadId);
+                            }
+                        } catch (error) {
+                            if (viewLeadAlert) {
+                                viewLeadAlert.classList.remove('d-none');
+                                viewLeadAlert.classList.remove('alert-success');
+                                viewLeadAlert.classList.add('alert-danger');
+                                viewLeadAlert.textContent = error.message || 'Unable to add remark.';
+                            }
+                        }
+                    });
+                }
+
+                // Initialize modal instance
+                if (viewLeadModalEl && typeof bootstrap !== 'undefined') {
+                    if (!viewLeadModalInstance) {
+                        viewLeadModalInstance = new bootstrap.Modal(viewLeadModalEl, {
                             backdrop: 'static',
                             keyboard: false
                         });
-                        window.viewLeadModalInstance = modalInstance;
-                        viewLeadModalInstance = modalInstance;
+                        window.viewLeadModalInstance = viewLeadModalInstance;
                     }
+                }
 
-                    if (modalInstance) {
-                        modalInstance.show();
-                        if (typeof window.loadLeadDetails === 'function') {
-                            window.loadLeadDetails(leadId);
+                // View Lead click handler
+                if (!window.viewLeadClickHandler) {
+                    window.viewLeadClickHandler = function(event) {
+                        const button = event.target.closest('.view-lead-btn');
+                        if (!button) {
+                            return;
+                        }
+
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
+
+                        if (!leadId) {
+                            console.error('No lead ID found on button', button);
+                            return;
+                        }
+
+                        const modalEl = document.getElementById('viewLeadModal');
+                        if (!modalEl) {
+                            console.error('View lead modal element not found');
+                            return;
+                        }
+
+                        let modalInstance = window.viewLeadModalInstance || viewLeadModalInstance;
+                        if (!modalInstance && typeof bootstrap !== 'undefined') {
+                            modalInstance = new bootstrap.Modal(modalEl, {
+                                backdrop: 'static',
+                                keyboard: false
+                            });
+                            window.viewLeadModalInstance = modalInstance;
+                            viewLeadModalInstance = modalInstance;
+                        }
+
+                        if (modalInstance) {
+                            modalInstance.show();
+                            if (typeof window.loadLeadDetails === 'function') {
+                                window.loadLeadDetails(leadId);
+                            } else {
+                                console.error('loadLeadDetails function not found on window');
+                            }
                         } else {
-                            console.error('loadLeadDetails function not found on window');
+                            console.error('Bootstrap modal not available');
                         }
-                    } else {
-                        console.error('Bootstrap modal not available');
+                    };
+
+                    document.addEventListener('click', window.viewLeadClickHandler, true);
+                }
+
+                if (viewLeadModalEl) {
+                    viewLeadModalEl.addEventListener('shown.bs.modal', () => {
+                        safeFeatherReplace(viewLeadModalEl);
+                    });
+
+                    viewLeadModalEl.addEventListener('hidden.bs.modal', () => {
+                        currentLeadId = null;
+                        currentEditLeadId = null;
+                        resetViewLeadModal();
+                        switchToViewMode();
+                    });
+                }
+
+                // Initialize feather icons
+                safeFeatherReplace();
+
+                // Booking File Modal
+                const bookingFileModalEl = document.getElementById('bookingFileModal');
+                const bookingFileForm = document.getElementById('bookingFileForm');
+                const bookingFileLoader = document.getElementById('bookingFileLoader');
+
+                // Handle booking file button clicks
+                document.addEventListener('click', function(event) {
+                    if (event.target.closest('.booking-file-btn')) {
+                        event.preventDefault();
+                        const btn = event.target.closest('.booking-file-btn');
+                        const leadId = btn.getAttribute('data-lead-id');
+
+                        if (!leadId) return;
+
+                        // Show loader, hide form
+                        if (bookingFileLoader) bookingFileLoader.classList.remove('d-none');
+                        if (bookingFileForm) bookingFileForm.classList.add('d-none');
+
+                        // Open modal
+                        if (bookingFileModalEl && typeof bootstrap !== 'undefined') {
+                            const modalInstance = bootstrap.Modal.getOrCreateInstance(bookingFileModalEl);
+                            modalInstance.show();
+                        }
+
+                        // Fetch lead data
+                        fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
+                                headers: {
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.lead) {
+                                    populateBookingFileForm(data.lead);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error loading booking file:', error);
+                                alert('Unable to load booking file data.');
+                            })
+                            .finally(() => {
+                                // Hide loader, show form
+                                if (bookingFileLoader) bookingFileLoader.classList.add('d-none');
+                                if (bookingFileForm) bookingFileForm.classList.remove('d-none');
+
+                                // Initialize Feather icons
+                                safeFeatherReplace(bookingFileModalEl);
+                            });
                     }
-                };
-
-                document.addEventListener('click', window.viewLeadClickHandler, true);
-            }
-
-            if (viewLeadModalEl) {
-                viewLeadModalEl.addEventListener('shown.bs.modal', () => {
-                    safeFeatherReplace(viewLeadModalEl);
                 });
 
-                viewLeadModalEl.addEventListener('hidden.bs.modal', () => {
-                    currentLeadId = null;
-                    currentEditLeadId = null;
-                    resetViewLeadModal();
-                    switchToViewMode();
-                });
-            }
-
-            // Initialize feather icons
-            safeFeatherReplace();
-
-            // Booking File Modal
-            const bookingFileModalEl = document.getElementById('bookingFileModal');
-            const bookingFileForm = document.getElementById('bookingFileForm');
-            const bookingFileLoader = document.getElementById('bookingFileLoader');
-
-            // Handle booking file button clicks
-            document.addEventListener('click', function(event) {
-                if (event.target.closest('.booking-file-btn')) {
-                    event.preventDefault();
-                    const btn = event.target.closest('.booking-file-btn');
-                    const leadId = btn.getAttribute('data-lead-id');
-
-                    if (!leadId) return;
-
-                    // Show loader, hide form
-                    if (bookingFileLoader) bookingFileLoader.classList.remove('d-none');
-                    if (bookingFileForm) bookingFileForm.classList.add('d-none');
-
-                    // Open modal
-                    if (bookingFileModalEl && typeof bootstrap !== 'undefined') {
-                        const modalInstance = bootstrap.Modal.getOrCreateInstance(bookingFileModalEl);
-                        modalInstance.show();
+                // Function to populate booking file form
+                function populateBookingFileForm(lead) {
+                    // Set lead ID
+                    if (document.getElementById('bookingFileLeadId')) {
+                        document.getElementById('bookingFileLeadId').value = lead.id;
                     }
 
-                    // Fetch lead data
-                    fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
-                        headers: { 'Accept': 'application/json' }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.lead) {
-                            populateBookingFileForm(data.lead);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error loading booking file:', error);
-                        alert('Unable to load booking file data.');
-                    })
-                    .finally(() => {
-                        // Hide loader, show form
-                        if (bookingFileLoader) bookingFileLoader.classList.add('d-none');
-                        if (bookingFileForm) bookingFileForm.classList.remove('d-none');
-                        
-                        // Initialize Feather icons
+                    // Booking Reference
+                    if (document.getElementById('bookingTsq')) {
+                        document.getElementById('bookingTsq').value = lead.tsq || '';
+                    }
+                    if (document.getElementById('bookingDate')) {
+                        document.getElementById('bookingDate').value = lead.created_at ? new Date(lead.created_at)
+                            .toISOString().split('T')[0] : '';
+                    }
+
+                    // Customer Details (readonly)
+                    if (document.getElementById('bookingCustomerName')) {
+                        document.getElementById('bookingCustomerName').value = lead.customer_name || '';
+                    }
+                    if (document.getElementById('bookingEmail')) {
+                        document.getElementById('bookingEmail').value = lead.email || '';
+                    }
+                    if (document.getElementById('bookingPhone')) {
+                        document.getElementById('bookingPhone').value = lead.primary_phone || lead.phone || '';
+                    }
+                    if (document.getElementById('bookingAddress')) {
+                        const addressParts = [
+                            lead.address_line,
+                            lead.city,
+                            lead.state,
+                            lead.country,
+                            lead.pin_code
+                        ].filter(Boolean);
+                        document.getElementById('bookingAddress').value = addressParts.join(', ') || '';
+                    }
+
+                    // Travel Details
+                    if (document.getElementById('bookingService')) {
+                        document.getElementById('bookingService').value = lead.service?.name || '';
+                    }
+                    if (document.getElementById('bookingDestination')) {
+                        document.getElementById('bookingDestination').value = lead.destination?.name || '';
+                    }
+                    if (document.getElementById('bookingTravelDate')) {
+                        document.getElementById('bookingTravelDate').value = lead.travel_date_raw || '';
+                    }
+                    if (document.getElementById('bookingAdults')) {
+                        document.getElementById('bookingAdults').value = lead.adults || 0;
+                    }
+                    if (document.getElementById('bookingChildren')) {
+                        const totalChildren = (parseInt(lead.children_2_5 || 0) + parseInt(lead.children_6_11 || 0));
+                        document.getElementById('bookingChildren').value = totalChildren || 0;
+                    }
+                    if (document.getElementById('bookingInfants')) {
+                        document.getElementById('bookingInfants').value = lead.infants || 0;
+                    }
+
+                    // Pricing
+                    if (document.getElementById('bookingSellingPrice')) {
+                        document.getElementById('bookingSellingPrice').value = lead.selling_price || '';
+                    }
+                    if (document.getElementById('bookingBookedValue')) {
+                        document.getElementById('bookingBookedValue').value = lead.booked_value || '';
+                    }
+
+                    // Calculate profit
+                    updateBookingProfit();
+                }
+
+                // Function to calculate and update profit
+                function updateBookingProfit() {
+                    const sellingPrice = parseFloat(document.getElementById('bookingSellingPrice')?.value || 0);
+                    const totalCost = parseFloat(document.getElementById('bookingTotalCost')?.value || 0);
+                    const profit = sellingPrice - totalCost;
+
+                    if (document.getElementById('bookingProfit')) {
+                        document.getElementById('bookingProfit').value = profit.toFixed(2);
+                    }
+                }
+
+                // Update profit when selling price or total cost changes
+                if (document.getElementById('bookingSellingPrice')) {
+                    document.getElementById('bookingSellingPrice').addEventListener('input', updateBookingProfit);
+                }
+                if (document.getElementById('bookingTotalCost')) {
+                    document.getElementById('bookingTotalCost').addEventListener('input', updateBookingProfit);
+                }
+
+                // Handle booking file form submission
+                if (bookingFileForm) {
+                    bookingFileForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+
+                        const formData = new FormData(bookingFileForm);
+                        const leadId = formData.get('lead_id');
+
+                        fetch(`${leadsBaseUrl}/${leadId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                        ?.content || formData.get('_token'),
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(Object.fromEntries(formData))
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                alert('Booking file saved successfully!');
+                                if (bookingFileModalEl && typeof bootstrap !== 'undefined') {
+                                    const modalInstance = bootstrap.Modal.getInstance(bookingFileModalEl);
+                                    if (modalInstance) modalInstance.hide();
+                                }
+                                window.location.reload();
+                            })
+                            .catch(error => {
+                                console.error('Error saving booking file:', error);
+                                alert('Unable to save booking file.');
+                            });
+                    });
+                }
+
+                // Initialize Feather icons when booking file modal is shown
+                if (bookingFileModalEl) {
+                    bookingFileModalEl.addEventListener('shown.bs.modal', () => {
                         safeFeatherReplace(bookingFileModalEl);
                     });
                 }
-            });
 
-            // Function to populate booking file form
-            function populateBookingFileForm(lead) {
-                // Set lead ID
-                if (document.getElementById('bookingFileLeadId')) {
-                    document.getElementById('bookingFileLeadId').value = lead.id;
-                }
-
-                // Booking Reference
-                if (document.getElementById('bookingTsq')) {
-                    document.getElementById('bookingTsq').value = lead.tsq || '';
-                }
-                if (document.getElementById('bookingDate')) {
-                    document.getElementById('bookingDate').value = lead.created_at ? new Date(lead.created_at).toISOString().split('T')[0] : '';
-                }
-
-                // Customer Details (readonly)
-                if (document.getElementById('bookingCustomerName')) {
-                    document.getElementById('bookingCustomerName').value = lead.customer_name || '';
-                }
-                if (document.getElementById('bookingEmail')) {
-                    document.getElementById('bookingEmail').value = lead.email || '';
-                }
-                if (document.getElementById('bookingPhone')) {
-                    document.getElementById('bookingPhone').value = lead.primary_phone || lead.phone || '';
-                }
-                if (document.getElementById('bookingAddress')) {
-                    const addressParts = [
-                        lead.address_line,
-                        lead.city,
-                        lead.state,
-                        lead.country,
-                        lead.pin_code
-                    ].filter(Boolean);
-                    document.getElementById('bookingAddress').value = addressParts.join(', ') || '';
-                }
-
-                // Travel Details
-                if (document.getElementById('bookingService')) {
-                    document.getElementById('bookingService').value = lead.service?.name || '';
-                }
-                if (document.getElementById('bookingDestination')) {
-                    document.getElementById('bookingDestination').value = lead.destination?.name || '';
-                }
-                if (document.getElementById('bookingTravelDate')) {
-                    document.getElementById('bookingTravelDate').value = lead.travel_date_raw || '';
-                }
-                if (document.getElementById('bookingAdults')) {
-                    document.getElementById('bookingAdults').value = lead.adults || 0;
-                }
-                if (document.getElementById('bookingChildren')) {
-                    const totalChildren = (parseInt(lead.children_2_5 || 0) + parseInt(lead.children_6_11 || 0));
-                    document.getElementById('bookingChildren').value = totalChildren || 0;
-                }
-                if (document.getElementById('bookingInfants')) {
-                    document.getElementById('bookingInfants').value = lead.infants || 0;
-                }
-
-                // Pricing
-                if (document.getElementById('bookingSellingPrice')) {
-                    document.getElementById('bookingSellingPrice').value = lead.selling_price || '';
-                }
-                if (document.getElementById('bookingBookedValue')) {
-                    document.getElementById('bookingBookedValue').value = lead.booked_value || '';
-                }
-
-                // Calculate profit
-                updateBookingProfit();
-            }
-
-            // Function to calculate and update profit
-            function updateBookingProfit() {
-                const sellingPrice = parseFloat(document.getElementById('bookingSellingPrice')?.value || 0);
-                const totalCost = parseFloat(document.getElementById('bookingTotalCost')?.value || 0);
-                const profit = sellingPrice - totalCost;
-                
-                if (document.getElementById('bookingProfit')) {
-                    document.getElementById('bookingProfit').value = profit.toFixed(2);
-                }
-            }
-
-            // Update profit when selling price or total cost changes
-            if (document.getElementById('bookingSellingPrice')) {
-                document.getElementById('bookingSellingPrice').addEventListener('input', updateBookingProfit);
-            }
-            if (document.getElementById('bookingTotalCost')) {
-                document.getElementById('bookingTotalCost').addEventListener('input', updateBookingProfit);
-            }
-
-            // Handle booking file form submission
-            if (bookingFileForm) {
-                bookingFileForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    const formData = new FormData(bookingFileForm);
-                    const leadId = formData.get('lead_id');
-
-                    fetch(`${leadsBaseUrl}/${leadId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || formData.get('_token'),
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(Object.fromEntries(formData))
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        alert('Booking file saved successfully!');
-                        if (bookingFileModalEl && typeof bootstrap !== 'undefined') {
-                            const modalInstance = bootstrap.Modal.getInstance(bookingFileModalEl);
-                            if (modalInstance) modalInstance.hide();
+                // Initialize Bootstrap tooltips
+                if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+                    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                    tooltipTriggerList.map(function(tooltipTriggerEl) {
+                        try {
+                            return new bootstrap.Tooltip(tooltipTriggerEl);
+                        } catch (e) {
+                            console.warn('Tooltip initialization failed:', e);
+                            return null;
                         }
-                        window.location.reload();
-                    })
-                    .catch(error => {
-                        console.error('Error saving booking file:', error);
-                        alert('Unable to save booking file.');
+                    });
+                }
+
+                // Re-initialize tooltips after dynamic content is added (e.g., after table updates)
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.addedNodes.length > 0 && typeof bootstrap !== 'undefined' &&
+                            bootstrap.Tooltip) {
+                            mutation.addedNodes.forEach(function(node) {
+                                if (node.nodeType === 1) { // Element node
+                                    const tooltips = node.querySelectorAll ? node
+                                        .querySelectorAll('[data-bs-toggle="tooltip"]') : [];
+                                    tooltips.forEach(function(tooltipEl) {
+                                        try {
+                                            // Check if tooltip already exists
+                                            if (!bootstrap.Tooltip.getInstance(
+                                                    tooltipEl)) {
+                                                new bootstrap.Tooltip(tooltipEl);
+                                            }
+                                        } catch (e) {
+                                            // Skip if initialization fails
+                                        }
+                                    });
+                                }
+                            });
+                        }
                     });
                 });
-            }
 
-            // Initialize Feather icons when booking file modal is shown
-            if (bookingFileModalEl) {
-                bookingFileModalEl.addEventListener('shown.bs.modal', () => {
-                    safeFeatherReplace(bookingFileModalEl);
-                });
-            }
-
-            // Initialize Bootstrap tooltips
-            if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
-                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    try {
-                        return new bootstrap.Tooltip(tooltipTriggerEl);
-                    } catch (e) {
-                        console.warn('Tooltip initialization failed:', e);
-                        return null;
-                    }
-                });
-            }
-
-            // Re-initialize tooltips after dynamic content is added (e.g., after table updates)
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.addedNodes.length > 0 && typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
-                        mutation.addedNodes.forEach(function(node) {
-                            if (node.nodeType === 1) { // Element node
-                                const tooltips = node.querySelectorAll ? node.querySelectorAll('[data-bs-toggle="tooltip"]') : [];
-                                tooltips.forEach(function(tooltipEl) {
-                                    try {
-                                        // Check if tooltip already exists
-                                        if (!bootstrap.Tooltip.getInstance(tooltipEl)) {
-                                            new bootstrap.Tooltip(tooltipEl);
-                                        }
-                                    } catch (e) {
-                                        // Skip if initialization fails
-                                    }
-                                });
-                            }
-                        });
-                    }
+                // Start observing the document body for changes
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
                 });
             });
-
-            // Start observing the document body for changes
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
-        });
-    </script>
+        </script>
     @endpush
 @endsection
-

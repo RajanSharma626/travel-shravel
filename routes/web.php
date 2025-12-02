@@ -35,16 +35,16 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     Route::middleware('permission:view users')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users');
     });
-    
+
     Route::middleware('permission:create users')->group(function () {
         Route::post('/user/store', [UserController::class, 'store'])->name('users.store');
     });
-    
+
     Route::middleware('permission:edit users')->group(function () {
         Route::get('/user/edit/{id}', [UserController::class, 'edit'])->name('users.edit');
         Route::post('/user/update', [UserController::class, 'update'])->name('users.update');
     });
-    
+
     Route::middleware('permission:delete users')->group(function () {
         Route::get('/user/delete/{id}', [UserController::class, 'destroy'])->name('users.delete');
     });
@@ -99,6 +99,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     Route::middleware('permission:edit leads')->group(function () {
         Route::get('/leads/{lead}/edit', [LeadController::class, 'edit'])->name('leads.edit');
         Route::put('/leads/{lead}', [LeadController::class, 'update'])->name('leads.update');
+        Route::get('/bookings/{lead}/form', [LeadController::class, 'bookingForm'])->name('bookings.form');
     });
     Route::middleware('permission:view leads')->group(function () {
         Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show');
@@ -209,7 +210,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::put('/leads/{lead}/deliveries/{delivery}', [DeliveryController::class, 'update'])->name('leads.deliveries.update');
         Route::post('/leads/{lead}/deliveries/{delivery}/upload', [DeliveryController::class, 'upload'])->name('leads.deliveries.upload');
     });
-    
+
     // Delivery API Routes
     Route::prefix('api/delivery')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/', [DeliveryController::class, 'apiIndex'])->name('api.delivery.index');

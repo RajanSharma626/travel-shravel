@@ -58,58 +58,71 @@
                                         <div class="col-md-4">
                                             <div class="card border-0 shadow-sm h-100">
                                                 <div class="card-header bg-warning text-white">
-                                                    <h6 class="mb-0 fw-bold d-flex justify-content-between align-items-center">
+                                                    <h6
+                                                        class="mb-0 fw-bold d-flex justify-content-between align-items-center">
                                                         <span>Pending</span>
                                                         <span class="badge bg-light text-dark" id="pendingCount">0</span>
                                                     </h6>
-                                                        </div>
-                                                <div class="card-body p-2" id="pendingColumn" style="min-height: 400px; max-height: 70vh; overflow-y: auto;">
+                                                </div>
+                                                <div class="card-body p-2" id="pendingColumn"
+                                                    style="min-height: 400px; max-height: 70vh; overflow-y: auto;">
                                                     @forelse ($leads as $lead)
                                                         @if (!$lead->delivery || $lead->delivery->delivery_status === 'Pending')
-                                                            @include('deliveries.partials.kanban-card', ['lead' => $lead])
-                                                            @endif
+                                                            @include('deliveries.partials.kanban-card', [
+                                                                'lead' => $lead,
+                                                            ])
+                                                        @endif
                                                     @empty
                                                         <div class="text-center text-muted py-4">No pending deliveries</div>
                                                     @endforelse
-                                                        </div>
-                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <!-- In Process Column -->
                                         <div class="col-md-4">
                                             <div class="card border-0 shadow-sm h-100">
                                                 <div class="card-header bg-info text-white">
-                                                    <h6 class="mb-0 fw-bold d-flex justify-content-between align-items-center">
+                                                    <h6
+                                                        class="mb-0 fw-bold d-flex justify-content-between align-items-center">
                                                         <span>In Process</span>
                                                         <span class="badge bg-light text-dark" id="inProcessCount">0</span>
                                                     </h6>
                                                 </div>
-                                                <div class="card-body p-2" id="inProcessColumn" style="min-height: 400px; max-height: 70vh; overflow-y: auto;">
+                                                <div class="card-body p-2" id="inProcessColumn"
+                                                    style="min-height: 400px; max-height: 70vh; overflow-y: auto;">
                                                     @forelse ($leads as $lead)
                                                         @if ($lead->delivery && $lead->delivery->delivery_status === 'In_Process')
-                                                            @include('deliveries.partials.kanban-card', ['lead' => $lead])
+                                                            @include('deliveries.partials.kanban-card', [
+                                                                'lead' => $lead,
+                                                            ])
                                                         @endif
-                                        @empty
-                                                        <div class="text-center text-muted py-4">No in-process deliveries</div>
-                                        @endforelse
-                                    </div>
-                                    </div>
-                                </div>
+                                                    @empty
+                                                        <div class="text-center text-muted py-4">No in-process deliveries
+                                                        </div>
+                                                    @endforelse
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         <!-- Delivered Column -->
                                         <div class="col-md-4">
                                             <div class="card border-0 shadow-sm h-100">
                                                 <div class="card-header bg-success text-white">
-                                                    <h6 class="mb-0 fw-bold d-flex justify-content-between align-items-center">
+                                                    <h6
+                                                        class="mb-0 fw-bold d-flex justify-content-between align-items-center">
                                                         <span>Delivered</span>
                                                         <span class="badge bg-light text-dark" id="deliveredCount">0</span>
                                                     </h6>
                                                 </div>
-                                                <div class="card-body p-2" id="deliveredColumn" style="min-height: 400px; max-height: 70vh; overflow-y: auto;">
+                                                <div class="card-body p-2" id="deliveredColumn"
+                                                    style="min-height: 400px; max-height: 70vh; overflow-y: auto;">
                                                     @forelse ($leads as $lead)
                                                         @if ($lead->delivery && $lead->delivery->delivery_status === 'Delivered')
-                                                            @include('deliveries.partials.kanban-card', ['lead' => $lead])
-                                @endif
+                                                            @include('deliveries.partials.kanban-card', [
+                                                                'lead' => $lead,
+                                                            ])
+                                                        @endif
                                                     @empty
                                                         <div class="text-center text-muted py-4">No delivered items</div>
                                                     @endforelse
@@ -550,7 +563,8 @@
                         <i data-feather="user-plus" class="me-2" style="width: 20px; height: 20px;"></i>
                         Assign Delivery
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div id="assignDeliveryAlert" class="alert d-none mb-3" role="alert"></div>
@@ -558,19 +572,21 @@
                         @csrf
                         <input type="hidden" id="assignDeliveryLeadId" name="lead_id">
                         <input type="hidden" id="assignDeliveryId" name="delivery_id">
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Assign To <span class="text-danger">*</span></label>
-                            <select name="assigned_to_delivery_user_id" id="assignDeliveryUserId" class="form-select" required>
+                            <select name="assigned_to_delivery_user_id" id="assignDeliveryUserId" class="form-select"
+                                required>
                                 <option value="">-- Select Delivery User --</option>
-                                @if(isset($deliveryUsers) && is_iterable($deliveryUsers))
+                                @if (isset($deliveryUsers) && is_iterable($deliveryUsers))
                                     @foreach ($deliveryUsers as $user)
-                                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})
+                                        </option>
                                     @endforeach
                                 @endif
                             </select>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Delivery Method</label>
                             <select name="delivery_method" id="assignDeliveryMethod" class="form-select">
@@ -580,12 +596,12 @@
                                 <option value="hand_delivery">Hand Delivery</option>
                             </select>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Remarks</label>
                             <textarea name="remarks" id="assignDeliveryRemarks" class="form-control" rows="3"></textarea>
                         </div>
-                        
+
                         <div class="d-flex justify-content-end gap-2">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-primary">Assign Delivery</button>
@@ -597,8 +613,8 @@
     </div>
 
     <!-- Update Delivery Status Modal -->
-    <div class="modal fade" id="updateDeliveryStatusModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-        aria-labelledby="updateDeliveryStatusModalLabel" aria-hidden="true">
+    <div class="modal fade" id="updateDeliveryStatusModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        tabindex="-1" aria-labelledby="updateDeliveryStatusModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
@@ -606,14 +622,15 @@
                         <i data-feather="edit" class="me-2" style="width: 20px; height: 20px;"></i>
                         Update Delivery Status
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div id="updateStatusAlert" class="alert d-none mb-3" role="alert"></div>
                     <form id="updateDeliveryStatusForm">
                         @csrf
                         <input type="hidden" id="updateStatusDeliveryId" name="delivery_id">
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Delivery Status <span class="text-danger">*</span></label>
                             <select name="delivery_status" id="updateStatusDeliveryStatus" class="form-select" required>
@@ -622,12 +639,13 @@
                                 <option value="Delivered">Delivered</option>
                             </select>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Courier ID</label>
-                            <input type="text" name="courier_id" id="updateStatusCourierId" class="form-control" placeholder="Enter courier tracking ID">
+                            <input type="text" name="courier_id" id="updateStatusCourierId" class="form-control"
+                                placeholder="Enter courier tracking ID">
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Delivery Method</label>
                             <select name="delivery_method" id="updateStatusDeliveryMethod" class="form-select">
@@ -637,12 +655,12 @@
                                 <option value="hand_delivery">Hand Delivery</option>
                             </select>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Remarks</label>
                             <textarea name="remarks" id="updateStatusRemarks" class="form-control" rows="3"></textarea>
                         </div>
-                        
+
                         <div class="d-flex justify-content-end gap-2">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-primary">Update Status</button>
@@ -654,148 +672,153 @@
     </div>
 
     @push('scripts')
-    <script>
-        $(document).ready(function() {
-            const leadsBaseUrl = '/leads';
-            
-            // Update kanban card counts
-            function updateKanbanCounts() {
-                const pendingCount = document.querySelectorAll('#pendingColumn .delivery-card').length;
-                const inProcessCount = document.querySelectorAll('#inProcessColumn .delivery-card').length;
-                const deliveredCount = document.querySelectorAll('#deliveredColumn .delivery-card').length;
-                
-                document.getElementById('pendingCount').textContent = pendingCount;
-                document.getElementById('inProcessCount').textContent = inProcessCount;
-                document.getElementById('deliveredCount').textContent = deliveredCount;
-            }
-            
-            // Initialize counts
-            updateKanbanCounts();
-            
-            // Drag and Drop functionality
-            const deliveryCards = document.querySelectorAll('.delivery-card');
-            const columns = {
-                'pendingColumn': 'Pending',
-                'inProcessColumn': 'In_Process',
-                'deliveredColumn': 'Delivered'
-            };
-            
-            deliveryCards.forEach(card => {
-                card.addEventListener('dragstart', function(e) {
-                    e.dataTransfer.setData('text/plain', this.dataset.deliveryId || this.dataset.leadId);
-                    this.classList.add('dragging');
-                });
-                
-                card.addEventListener('dragend', function(e) {
-                    this.classList.remove('dragging');
-                });
-            });
-            
-            Object.keys(columns).forEach(columnId => {
-                const column = document.getElementById(columnId);
-                if (column) {
-                    column.addEventListener('dragover', function(e) {
-                        e.preventDefault();
-                        this.classList.add('drag-over');
+        <script>
+            $(document).ready(function() {
+                const leadsBaseUrl = '/leads';
+
+                // Update kanban card counts
+                function updateKanbanCounts() {
+                    const pendingCount = document.querySelectorAll('#pendingColumn .delivery-card').length;
+                    const inProcessCount = document.querySelectorAll('#inProcessColumn .delivery-card').length;
+                    const deliveredCount = document.querySelectorAll('#deliveredColumn .delivery-card').length;
+
+                    document.getElementById('pendingCount').textContent = pendingCount;
+                    document.getElementById('inProcessCount').textContent = inProcessCount;
+                    document.getElementById('deliveredCount').textContent = deliveredCount;
+                }
+
+                // Initialize counts
+                updateKanbanCounts();
+
+                // Drag and Drop functionality
+                const deliveryCards = document.querySelectorAll('.delivery-card');
+                const columns = {
+                    'pendingColumn': 'Pending',
+                    'inProcessColumn': 'In_Process',
+                    'deliveredColumn': 'Delivered'
+                };
+
+                deliveryCards.forEach(card => {
+                    card.addEventListener('dragstart', function(e) {
+                        e.dataTransfer.setData('text/plain', this.dataset.deliveryId || this.dataset
+                            .leadId);
+                        this.classList.add('dragging');
                     });
-                    
-                    column.addEventListener('dragleave', function(e) {
-                        this.classList.remove('drag-over');
+
+                    card.addEventListener('dragend', function(e) {
+                        this.classList.remove('dragging');
                     });
-                    
-                    column.addEventListener('drop', async function(e) {
-                        e.preventDefault();
-                        this.classList.remove('drag-over');
-                        
-                        const deliveryId = e.dataTransfer.getData('text/plain');
-                        const card = document.querySelector(`[data-delivery-id="${deliveryId}"], [data-lead-id="${deliveryId}"]`);
-                        
-                        if (card && card.dataset.status !== columns[columnId]) {
-                            const newStatus = columns[columnId];
-                            
-                            // Update status via API
-                            try {
-                                const response = await fetch(`/api/delivery/${deliveryId}/status`, {
-                                    method: 'PUT',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Accept': 'application/json',
-                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
-                                    },
-                                    body: JSON.stringify({
-                                        delivery_status: newStatus
-                                    })
-                                });
-                                
-                                if (response.ok) {
-                                    // Move card to new column
-                                    card.remove();
-                                    this.appendChild(card);
-                                    card.dataset.status = newStatus;
-                                    updateKanbanCounts();
-                                } else {
-                                    throw new Error('Failed to update status');
+                });
+
+                Object.keys(columns).forEach(columnId => {
+                    const column = document.getElementById(columnId);
+                    if (column) {
+                        column.addEventListener('dragover', function(e) {
+                            e.preventDefault();
+                            this.classList.add('drag-over');
+                        });
+
+                        column.addEventListener('dragleave', function(e) {
+                            this.classList.remove('drag-over');
+                        });
+
+                        column.addEventListener('drop', async function(e) {
+                            e.preventDefault();
+                            this.classList.remove('drag-over');
+
+                            const deliveryId = e.dataTransfer.getData('text/plain');
+                            const card = document.querySelector(
+                                `[data-delivery-id="${deliveryId}"], [data-lead-id="${deliveryId}"]`
+                                );
+
+                            if (card && card.dataset.status !== columns[columnId]) {
+                                const newStatus = columns[columnId];
+
+                                // Update status via API
+                                try {
+                                    const response = await fetch(
+                                        `/api/delivery/${deliveryId}/status`, {
+                                            method: 'PUT',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'Accept': 'application/json',
+                                                'X-CSRF-TOKEN': document.querySelector(
+                                                    'meta[name="csrf-token"]')?.content
+                                            },
+                                            body: JSON.stringify({
+                                                delivery_status: newStatus
+                                            })
+                                        });
+
+                                    if (response.ok) {
+                                        // Move card to new column
+                                        card.remove();
+                                        this.appendChild(card);
+                                        card.dataset.status = newStatus;
+                                        updateKanbanCounts();
+                                    } else {
+                                        throw new Error('Failed to update status');
+                                    }
+                                } catch (error) {
+                                    console.error('Error updating delivery status:', error);
+                                    alert('Failed to update delivery status. Please try again.');
                                 }
-                            } catch (error) {
-                                console.error('Error updating delivery status:', error);
-                                alert('Failed to update delivery status. Please try again.');
                             }
-                        }
-                });
-            }
-            });
-
-            // Safe feather replace function
-            const safeFeatherReplace = (container) => {
-                if (typeof feather !== 'undefined' && container) {
-                    try {
-                        feather.replace({}, container);
-                    } catch (e) {
-                        console.warn('Feather icon replacement failed:', e);
+                        });
                     }
-                }
-            };
-
-            // View Lead Modal Elements
-            const viewLeadModalEl = document.getElementById('viewLeadModal');
-            const viewLeadLoader = document.getElementById('viewLeadLoader');
-            const viewLeadContent = document.getElementById('viewLeadContent');
-            const viewLeadAlert = document.getElementById('viewLeadAlert');
-            const viewLeadMeta = document.getElementById('viewLeadMeta');
-            const viewLeadTitle = document.getElementById('viewLeadModalTitle');
-            let viewLeadModalInstance = null;
-            let currentLeadId = null;
-
-            // Escape HTML function
-            const escapeHtml = (unsafe) => {
-                if (unsafe === null || unsafe === undefined) {
-                    return '';
-                }
-                return String(unsafe).replace(/[&<>"']/g, function(match) {
-                    const map = {
-                        '&': '&amp;',
-                        '<': '&lt;',
-                        '>': '&gt;',
-                        '"': '&quot;',
-                        "'": '&#039;',
-                    };
-                    return map[match] || match;
                 });
-            };
 
-            // Render remarks function
-            const renderRemarks = (remarks) => {
-                if (!remarks || !remarks.length) {
-                    return '<p class="text-muted text-center mb-0 py-4"><i data-feather="message-circle" class="me-2" style="width: 16px; height: 16px;"></i>No remarks yet.</p>';
-                }
+                // Safe feather replace function
+                const safeFeatherReplace = (container) => {
+                    if (typeof feather !== 'undefined' && container) {
+                        try {
+                            feather.replace({}, container);
+                        } catch (e) {
+                            console.warn('Feather icon replacement failed:', e);
+                        }
+                    }
+                };
 
-                return remarks.map((remark, index) => {
-                    const followUp = remark.follow_up_date ?
-                        `<span class="badge bg-light text-danger border border-danger ms-2 px-2 py-1">
+                // View Lead Modal Elements
+                const viewLeadModalEl = document.getElementById('viewLeadModal');
+                const viewLeadLoader = document.getElementById('viewLeadLoader');
+                const viewLeadContent = document.getElementById('viewLeadContent');
+                const viewLeadAlert = document.getElementById('viewLeadAlert');
+                const viewLeadMeta = document.getElementById('viewLeadMeta');
+                const viewLeadTitle = document.getElementById('viewLeadModalTitle');
+                let viewLeadModalInstance = null;
+                let currentLeadId = null;
+
+                // Escape HTML function
+                const escapeHtml = (unsafe) => {
+                    if (unsafe === null || unsafe === undefined) {
+                        return '';
+                    }
+                    return String(unsafe).replace(/[&<>"']/g, function(match) {
+                        const map = {
+                            '&': '&amp;',
+                            '<': '&lt;',
+                            '>': '&gt;',
+                            '"': '&quot;',
+                            "'": '&#039;',
+                        };
+                        return map[match] || match;
+                    });
+                };
+
+                // Render remarks function
+                const renderRemarks = (remarks) => {
+                    if (!remarks || !remarks.length) {
+                        return '<p class="text-muted text-center mb-0 py-4"><i data-feather="message-circle" class="me-2" style="width: 16px; height: 16px;"></i>No remarks yet.</p>';
+                    }
+
+                    return remarks.map((remark, index) => {
+                        const followUp = remark.follow_up_date ?
+                            `<span class="badge bg-light text-danger border border-danger ms-2 px-2 py-1">
                             <i data-feather="calendar" class="me-1" style="width: 12px; height: 12px;"></i>
                             Follow-up: ${escapeHtml(remark.follow_up_date)}
                         </span>` : '';
-                    return `
+                        return `
                         <div class="border rounded-3 p-3 mb-3 bg-white border">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div class="d-flex align-items-start flex-grow-1">
@@ -816,680 +839,688 @@
                             </div>
                         </div>
                     `;
-                }).join('');
-            };
+                    }).join('');
+                };
 
-            // Reset view lead modal
-            const resetViewLeadModal = () => {
-                if (viewLeadLoader) {
-                    viewLeadLoader.classList.remove('d-none');
-                }
-                if (viewLeadContent) {
-                    viewLeadContent.classList.add('d-none');
-                }
-                if (viewLeadAlert) {
-                    viewLeadAlert.classList.add('d-none');
-                    viewLeadAlert.textContent = '';
-                    viewLeadAlert.classList.remove('alert-danger', 'alert-success');
-                }
-            };
-
-            // Show view lead error
-            const showViewLeadError = (message) => {
-                if (viewLeadAlert) {
-                    viewLeadAlert.classList.remove('d-none');
-                    viewLeadAlert.classList.remove('alert-success');
-                    viewLeadAlert.classList.add('alert-danger');
-                    viewLeadAlert.textContent = message;
-                }
-                if (viewLeadLoader) {
-                    viewLeadLoader.classList.add('d-none');
-                }
-                if (viewLeadContent) {
-                    viewLeadContent.classList.add('d-none');
-                }
-            };
-
-            // Load lead details
-            const loadLeadDetails = async (leadId) => {
-                if (!leadId || !leadsBaseUrl) {
-                    showViewLeadError('Invalid lead.');
-                    return Promise.reject('Invalid lead.');
-                }
-
-                currentLeadId = leadId;
-                resetViewLeadModal();
-
-                try {
-                    const response = await fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
-                        headers: {
-                            'Accept': 'application/json',
-                        },
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Unable to load lead details.');
+                // Reset view lead modal
+                const resetViewLeadModal = () => {
+                    if (viewLeadLoader) {
+                        viewLeadLoader.classList.remove('d-none');
                     }
-
-                    const data = await response.json();
-                    const lead = data.lead;
-
-                    if (!lead) {
-                        throw new Error('Lead details not found.');
+                    if (viewLeadContent) {
+                        viewLeadContent.classList.add('d-none');
                     }
+                    if (viewLeadAlert) {
+                        viewLeadAlert.classList.add('d-none');
+                        viewLeadAlert.textContent = '';
+                        viewLeadAlert.classList.remove('alert-danger', 'alert-success');
+                    }
+                };
 
-                    // Store lead data for editing
-                    window.currentLeadData = lead;
-
+                // Show view lead error
+                const showViewLeadError = (message) => {
+                    if (viewLeadAlert) {
+                        viewLeadAlert.classList.remove('d-none');
+                        viewLeadAlert.classList.remove('alert-success');
+                        viewLeadAlert.classList.add('alert-danger');
+                        viewLeadAlert.textContent = message;
+                    }
                     if (viewLeadLoader) {
                         viewLeadLoader.classList.add('d-none');
                     }
                     if (viewLeadContent) {
-                        viewLeadContent.classList.remove('d-none');
+                        viewLeadContent.classList.add('d-none');
+                    }
+                };
+
+                // Load lead details
+                const loadLeadDetails = async (leadId) => {
+                    if (!leadId || !leadsBaseUrl) {
+                        showViewLeadError('Invalid lead.');
+                        return Promise.reject('Invalid lead.');
                     }
 
-                    if (viewLeadTitle) {
-                        viewLeadTitle.textContent = `${lead.tsq ?? 'Lead'} - ${lead.customer_name ?? ''}`;
-                    }
-                    if (viewLeadMeta) {
-                        viewLeadMeta.textContent = lead.created_at ? `Created on ${lead.created_at}` : '';
-                    }
-
-                    // Populate Customer Information
-                    const viewFirstName = document.getElementById('viewFirstName');
-                    const viewMiddleName = document.getElementById('viewMiddleName');
-                    const viewLastName = document.getElementById('viewLastName');
-                    if (viewFirstName) viewFirstName.value = lead.first_name || '';
-                    if (viewMiddleName) viewMiddleName.value = lead.middle_name || '';
-                    if (viewLastName) viewLastName.value = lead.last_name || '';
-
-                    // Populate Contact Information
-                    const viewPrimaryPhone = document.getElementById('viewPrimaryPhone');
-                    const viewSecondaryPhone = document.getElementById('viewSecondaryPhone');
-                    const viewOtherPhone = document.getElementById('viewOtherPhone');
-                    const viewEmail = document.getElementById('viewEmail');
-                    if (viewPrimaryPhone) viewPrimaryPhone.value = lead.primary_phone || '';
-                    if (viewSecondaryPhone) viewSecondaryPhone.value = lead.secondary_phone || '';
-                    if (viewOtherPhone) viewOtherPhone.value = lead.other_phone || '';
-                    if (viewEmail) viewEmail.value = lead.email || '';
-
-                    // Populate Address fields
-                    const viewAddressLine = document.getElementById('viewAddressLine');
-                    const viewCity = document.getElementById('viewCity');
-                    const viewState = document.getElementById('viewState');
-                    const viewCountry = document.getElementById('viewCountry');
-                    const viewPinCode = document.getElementById('viewPinCode');
-                    if (viewAddressLine) viewAddressLine.value = lead.address_line || '';
-                    if (viewCity) viewCity.value = lead.city || '';
-                    if (viewState) viewState.value = lead.state || '';
-                    if (viewCountry) viewCountry.value = lead.country || '';
-                    if (viewPinCode) viewPinCode.value = lead.pin_code || '';
-
-                    // Populate Travel Preferences
-                    const viewLeadService = document.getElementById('viewService');
-                    const viewLeadDestination = document.getElementById('viewDestination');
-                    const viewLeadTravelDate = document.getElementById('viewTravelDate');
-                    if (viewLeadService) {
-                        viewLeadService.value = lead.service ?? 'N/A';
-                    }
-                    if (viewLeadDestination) {
-                        viewLeadDestination.value = lead.destination ?? 'N/A';
-                    }
-                    if (viewLeadTravelDate) {
-                        viewLeadTravelDate.value = lead.travel_date ?? 'N/A';
-                    }
-                    const viewAdults = document.getElementById('viewAdults');
-                    const viewChildren25 = document.getElementById('viewChildren25');
-                    const viewChildren611 = document.getElementById('viewChildren611');
-                    const viewInfants = document.getElementById('viewInfants');
-                    if (viewAdults) viewAdults.value = lead.adults ?? 0;
-                    if (viewChildren25) viewChildren25.value = lead.children_2_5 ?? 0;
-                    if (viewChildren611) viewChildren611.value = lead.children_6_11 ?? 0;
-                    if (viewInfants) viewInfants.value = lead.infants ?? 0;
-
-                    // Populate Assignment
-                    const viewLeadAssignedUser = document.getElementById('viewAssignedUser');
-                    if (viewLeadAssignedUser) {
-                        viewLeadAssignedUser.value = lead.assigned_user ?? 'Unassigned';
-                    }
-                    const viewStatus = document.getElementById('viewStatus');
-                    if (viewStatus) {
-                        viewStatus.value = lead.status_label ?? lead.status ?? 'N/A';
-                    }
-
-                    const viewLeadRemarksCount = document.getElementById('viewLeadRemarksCount');
-                    const viewLeadRemarksContainer = document.getElementById('viewLeadRemarks');
-                    if (viewLeadRemarksCount) {
-                        viewLeadRemarksCount.textContent = data.remarks?.length ?? 0;
-                    }
-                    if (viewLeadRemarksContainer) {
-                        viewLeadRemarksContainer.innerHTML = renderRemarks(data.remarks || []);
-                    }
-
-                    // Initialize Feather icons after content is loaded
-                    safeFeatherReplace(viewLeadContent);
-                    
-                    return Promise.resolve(data);
-                } catch (error) {
-                    console.error(error);
-                    showViewLeadError(error.message || 'Unexpected error occurred.');
-                    return Promise.reject(error);
-                }
-            };
-
-            // Store loadLeadDetails on window for access in global event handler
-            window.loadLeadDetails = loadLeadDetails;
-
-            // Edit Lead Functionality
-            const editLeadContent = document.getElementById('editLeadContent');
-            const editLeadForm = document.getElementById('editLeadForm');
-            const editLeadAlert = document.getElementById('editLeadAlert');
-            const cancelEditFormBtn = document.getElementById('cancelEditFormBtn');
-            let currentEditLeadId = null;
-
-            // Function to update children total for edit form
-            const updateEditChildrenTotal = () => {
-                if (!editLeadForm) return;
-                const child2_5 = parseInt(editLeadForm.elements['children_2_5']?.value || '0', 10);
-                const child6_11 = parseInt(editLeadForm.elements['children_6_11']?.value || '0', 10);
-                const editChildrenTotal = document.getElementById('editChildrenTotal');
-                if (editChildrenTotal) {
-                    editChildrenTotal.value = (child2_5 || 0) + (child6_11 || 0);
-                }
-            };
-
-            // Function to populate edit form with lead data
-            const populateEditForm = (lead) => {
-                if (!lead) return;
-
-                document.getElementById('editFirstName').value = lead.first_name || '';
-                document.getElementById('editMiddleName').value = lead.middle_name || '';
-                document.getElementById('editLastName').value = lead.last_name || '';
-                document.getElementById('editPrimaryPhone').value = lead.primary_phone || '';
-                document.getElementById('editSecondaryPhone').value = lead.secondary_phone || '';
-                document.getElementById('editOtherPhone').value = lead.other_phone || '';
-                document.getElementById('editEmail').value = lead.email || '';
-                document.getElementById('editAddressLine').value = lead.address_line || '';
-                document.getElementById('editCity').value = lead.city || '';
-                document.getElementById('editState').value = lead.state || '';
-                document.getElementById('editCountry').value = lead.country || '';
-                document.getElementById('editPinCode').value = lead.pin_code || '';
-                document.getElementById('editServiceId').value = lead.service_id || '';
-                document.getElementById('editDestinationId').value = lead.destination_id || '';
-                document.getElementById('editTravelDate').value = lead.travel_date_raw || '';
-                document.getElementById('editAdults').value = lead.adults || 0;
-                document.getElementById('editChildren25').value = lead.children_2_5 || 0;
-                document.getElementById('editChildren611').value = lead.children_6_11 || 0;
-                document.getElementById('editInfants').value = lead.infants || 0;
-                document.getElementById('editAssignedUserId').value = lead.assigned_user_id || '';
-                document.getElementById('editStatus').value = lead.status || 'booked';
-
-                // Update children total
-                updateEditChildrenTotal();
-            };
-
-            // Function to switch to edit mode
-            const switchToEditMode = () => {
-                if (viewLeadContent) viewLeadContent.classList.add('d-none');
-                if (editLeadContent) editLeadContent.classList.remove('d-none');
-                if (viewLeadTitle) viewLeadTitle.textContent = 'Edit Lead';
-                if (typeof feather !== 'undefined') feather.replace();
-            };
-
-            // Function to switch back to view mode
-            const switchToViewMode = () => {
-                if (viewLeadContent) viewLeadContent.classList.remove('d-none');
-                if (editLeadContent) editLeadContent.classList.add('d-none');
-                if (viewLeadTitle) viewLeadTitle.textContent = 'Lead Details';
-                if (editLeadAlert) {
-                    editLeadAlert.classList.add('d-none');
-                    editLeadAlert.textContent = '';
-                }
-            };
-
-            // Cancel edit button handler
-            if (cancelEditFormBtn) {
-                cancelEditFormBtn.addEventListener('click', () => {
-                    switchToViewMode();
-                });
-            }
-
-            // Add event listeners for children fields in edit form
-            if (editLeadForm) {
-                editLeadForm.querySelectorAll('input[name="children_2_5"], input[name="children_6_11"]').forEach((field) => {
-                    field.addEventListener('input', updateEditChildrenTotal);
-                    field.addEventListener('change', updateEditChildrenTotal);
-                });
-            }
-
-            // Edit form submission
-            if (editLeadForm) {
-                editLeadForm.addEventListener('submit', async (event) => {
-                    event.preventDefault();
-                    if (!currentEditLeadId || !leadsBaseUrl) {
-                        return;
-                    }
-
-                    // Update children total before submission
-                    updateEditChildrenTotal();
-
-                    if (editLeadAlert) {
-                        editLeadAlert.classList.add('d-none');
-                        editLeadAlert.classList.remove('alert-danger', 'alert-success');
-                    }
+                    currentLeadId = leadId;
+                    resetViewLeadModal();
 
                     try {
-                        const formData = new FormData(editLeadForm);
-                        // Ensure _method is set for Laravel method spoofing
-                        formData.append('_method', 'PUT');
-                        const response = await fetch(`${leadsBaseUrl}/${currentEditLeadId}`, {
-                            method: 'POST',
+                        const response = await fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
                             headers: {
                                 'Accept': 'application/json',
                             },
-                            body: formData,
                         });
-
-                        const payload = await response.json();
 
                         if (!response.ok) {
-                            const message = payload?.message || Object.values(payload?.errors || {})[0]?.[0] || 'Failed to update lead.';
-                            throw new Error(message);
+                            throw new Error('Unable to load lead details.');
                         }
 
-                        if (editLeadAlert) {
-                            editLeadAlert.classList.remove('d-none');
-                            editLeadAlert.classList.add('alert-success');
-                            editLeadAlert.textContent = payload?.message || 'Lead updated successfully!';
+                        const data = await response.json();
+                        const lead = data.lead;
+
+                        if (!lead) {
+                            throw new Error('Lead details not found.');
                         }
 
-                        // Reload lead details and switch back to view mode
-                        setTimeout(() => {
-                            if (typeof window.loadLeadDetails === 'function') {
-                                window.loadLeadDetails(currentEditLeadId);
-                            }
-                            switchToViewMode();
-                            // Reload page to refresh table
-                            window.location.reload();
-                        }, 1000);
-                    } catch (error) {
-                        if (editLeadAlert) {
-                            editLeadAlert.classList.remove('d-none');
-                            editLeadAlert.classList.add('alert-danger');
-                            editLeadAlert.textContent = error.message || 'Unable to update lead.';
-                        }
-                    }
-                });
-            }
+                        // Store lead data for editing
+                        window.currentLeadData = lead;
 
-            // Edit button click handler - opens modal in edit mode
-            if (!window.editLeadClickHandler) {
-                window.editLeadClickHandler = function(event) {
-                    const button = event.target.closest('.edit-lead-btn');
-                    if (!button) {
-                        return;
-                    }
-
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
-
-                    if (!leadId) {
-                        console.error('No lead ID found on edit button', button);
-                        return;
-                    }
-
-                    currentEditLeadId = leadId;
-                    currentLeadId = leadId;
-
-                    // Get modal element
-                    const modalEl = document.getElementById('viewLeadModal');
-                    if (!modalEl) {
-                        console.error('View lead modal element not found');
-                        return;
-                    }
-
-                    // Get or create modal instance
-                    let modalInstance = window.viewLeadModalInstance || viewLeadModalInstance;
-                    if (!modalInstance && typeof bootstrap !== 'undefined') {
-                        modalInstance = new bootstrap.Modal(modalEl, {
-                            backdrop: 'static',
-                            keyboard: false
-                        });
-                        window.viewLeadModalInstance = modalInstance;
-                        viewLeadModalInstance = modalInstance;
-                    }
-
-                    if (modalInstance) {
-                        modalInstance.show();
-                        
-                        // Reset modal state
-                        resetViewLeadModal();
                         if (viewLeadLoader) {
-                            viewLeadLoader.classList.remove('d-none');
+                            viewLeadLoader.classList.add('d-none');
                         }
-                        
-                        // Load lead data for editing
-                        fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
-                            headers: {
-                                'Accept': 'application/json',
-                            },
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.lead) {
-                                window.currentLeadData = data.lead;
-                                
-                                // Hide loader
-                                if (viewLeadLoader) {
-                                    viewLeadLoader.classList.add('d-none');
+                        if (viewLeadContent) {
+                            viewLeadContent.classList.remove('d-none');
+                        }
+
+                        if (viewLeadTitle) {
+                            viewLeadTitle.textContent = `${lead.tsq ?? 'Lead'} - ${lead.customer_name ?? ''}`;
+                        }
+                        if (viewLeadMeta) {
+                            viewLeadMeta.textContent = lead.created_at ? `Created on ${lead.created_at}` : '';
+                        }
+
+                        // Populate Customer Information
+                        const viewFirstName = document.getElementById('viewFirstName');
+                        const viewMiddleName = document.getElementById('viewMiddleName');
+                        const viewLastName = document.getElementById('viewLastName');
+                        if (viewFirstName) viewFirstName.value = lead.first_name || '';
+                        if (viewMiddleName) viewMiddleName.value = lead.middle_name || '';
+                        if (viewLastName) viewLastName.value = lead.last_name || '';
+
+                        // Populate Contact Information
+                        const viewPrimaryPhone = document.getElementById('viewPrimaryPhone');
+                        const viewSecondaryPhone = document.getElementById('viewSecondaryPhone');
+                        const viewOtherPhone = document.getElementById('viewOtherPhone');
+                        const viewEmail = document.getElementById('viewEmail');
+                        if (viewPrimaryPhone) viewPrimaryPhone.value = lead.primary_phone || '';
+                        if (viewSecondaryPhone) viewSecondaryPhone.value = lead.secondary_phone || '';
+                        if (viewOtherPhone) viewOtherPhone.value = lead.other_phone || '';
+                        if (viewEmail) viewEmail.value = lead.email || '';
+
+                        // Populate Address fields
+                        const viewAddressLine = document.getElementById('viewAddressLine');
+                        const viewCity = document.getElementById('viewCity');
+                        const viewState = document.getElementById('viewState');
+                        const viewCountry = document.getElementById('viewCountry');
+                        const viewPinCode = document.getElementById('viewPinCode');
+                        if (viewAddressLine) viewAddressLine.value = lead.address_line || '';
+                        if (viewCity) viewCity.value = lead.city || '';
+                        if (viewState) viewState.value = lead.state || '';
+                        if (viewCountry) viewCountry.value = lead.country || '';
+                        if (viewPinCode) viewPinCode.value = lead.pin_code || '';
+
+                        // Populate Travel Preferences
+                        const viewLeadService = document.getElementById('viewService');
+                        const viewLeadDestination = document.getElementById('viewDestination');
+                        const viewLeadTravelDate = document.getElementById('viewTravelDate');
+                        if (viewLeadService) {
+                            viewLeadService.value = lead.service ?? 'N/A';
+                        }
+                        if (viewLeadDestination) {
+                            viewLeadDestination.value = lead.destination ?? 'N/A';
+                        }
+                        if (viewLeadTravelDate) {
+                            viewLeadTravelDate.value = lead.travel_date ?? 'N/A';
+                        }
+                        const viewAdults = document.getElementById('viewAdults');
+                        const viewChildren25 = document.getElementById('viewChildren25');
+                        const viewChildren611 = document.getElementById('viewChildren611');
+                        const viewInfants = document.getElementById('viewInfants');
+                        if (viewAdults) viewAdults.value = lead.adults ?? 0;
+                        if (viewChildren25) viewChildren25.value = lead.children_2_5 ?? 0;
+                        if (viewChildren611) viewChildren611.value = lead.children_6_11 ?? 0;
+                        if (viewInfants) viewInfants.value = lead.infants ?? 0;
+
+                        // Populate Assignment
+                        const viewLeadAssignedUser = document.getElementById('viewAssignedUser');
+                        if (viewLeadAssignedUser) {
+                            viewLeadAssignedUser.value = lead.assigned_user ?? 'Unassigned';
+                        }
+                        const viewStatus = document.getElementById('viewStatus');
+                        if (viewStatus) {
+                            viewStatus.value = lead.status_label ?? lead.status ?? 'N/A';
+                        }
+
+                        const viewLeadRemarksCount = document.getElementById('viewLeadRemarksCount');
+                        const viewLeadRemarksContainer = document.getElementById('viewLeadRemarks');
+                        if (viewLeadRemarksCount) {
+                            viewLeadRemarksCount.textContent = data.remarks?.length ?? 0;
+                        }
+                        if (viewLeadRemarksContainer) {
+                            viewLeadRemarksContainer.innerHTML = renderRemarks(data.remarks || []);
+                        }
+
+                        // Initialize Feather icons after content is loaded
+                        safeFeatherReplace(viewLeadContent);
+
+                        return Promise.resolve(data);
+                    } catch (error) {
+                        console.error(error);
+                        showViewLeadError(error.message || 'Unexpected error occurred.');
+                        return Promise.reject(error);
+                    }
+                };
+
+                // Store loadLeadDetails on window for access in global event handler
+                window.loadLeadDetails = loadLeadDetails;
+
+                // Edit Lead Functionality
+                const editLeadContent = document.getElementById('editLeadContent');
+                const editLeadForm = document.getElementById('editLeadForm');
+                const editLeadAlert = document.getElementById('editLeadAlert');
+                const cancelEditFormBtn = document.getElementById('cancelEditFormBtn');
+                let currentEditLeadId = null;
+
+                // Function to update children total for edit form
+                const updateEditChildrenTotal = () => {
+                    if (!editLeadForm) return;
+                    const child2_5 = parseInt(editLeadForm.elements['children_2_5']?.value || '0', 10);
+                    const child6_11 = parseInt(editLeadForm.elements['children_6_11']?.value || '0', 10);
+                    const editChildrenTotal = document.getElementById('editChildrenTotal');
+                    if (editChildrenTotal) {
+                        editChildrenTotal.value = (child2_5 || 0) + (child6_11 || 0);
+                    }
+                };
+
+                // Function to populate edit form with lead data
+                const populateEditForm = (lead) => {
+                    if (!lead) return;
+
+                    document.getElementById('editFirstName').value = lead.first_name || '';
+                    document.getElementById('editMiddleName').value = lead.middle_name || '';
+                    document.getElementById('editLastName').value = lead.last_name || '';
+                    document.getElementById('editPrimaryPhone').value = lead.primary_phone || '';
+                    document.getElementById('editSecondaryPhone').value = lead.secondary_phone || '';
+                    document.getElementById('editOtherPhone').value = lead.other_phone || '';
+                    document.getElementById('editEmail').value = lead.email || '';
+                    document.getElementById('editAddressLine').value = lead.address_line || '';
+                    document.getElementById('editCity').value = lead.city || '';
+                    document.getElementById('editState').value = lead.state || '';
+                    document.getElementById('editCountry').value = lead.country || '';
+                    document.getElementById('editPinCode').value = lead.pin_code || '';
+                    document.getElementById('editServiceId').value = lead.service_id || '';
+                    document.getElementById('editDestinationId').value = lead.destination_id || '';
+                    document.getElementById('editTravelDate').value = lead.travel_date_raw || '';
+                    document.getElementById('editAdults').value = lead.adults || 0;
+                    document.getElementById('editChildren25').value = lead.children_2_5 || 0;
+                    document.getElementById('editChildren611').value = lead.children_6_11 || 0;
+                    document.getElementById('editInfants').value = lead.infants || 0;
+                    document.getElementById('editAssignedUserId').value = lead.assigned_user_id || '';
+                    document.getElementById('editStatus').value = lead.status || 'booked';
+
+                    // Update children total
+                    updateEditChildrenTotal();
+                };
+
+                // Function to switch to edit mode
+                const switchToEditMode = () => {
+                    if (viewLeadContent) viewLeadContent.classList.add('d-none');
+                    if (editLeadContent) editLeadContent.classList.remove('d-none');
+                    if (viewLeadTitle) viewLeadTitle.textContent = 'Edit Lead';
+                    if (typeof feather !== 'undefined') feather.replace();
+                };
+
+                // Function to switch back to view mode
+                const switchToViewMode = () => {
+                    if (viewLeadContent) viewLeadContent.classList.remove('d-none');
+                    if (editLeadContent) editLeadContent.classList.add('d-none');
+                    if (viewLeadTitle) viewLeadTitle.textContent = 'Lead Details';
+                    if (editLeadAlert) {
+                        editLeadAlert.classList.add('d-none');
+                        editLeadAlert.textContent = '';
+                    }
+                };
+
+                // Cancel edit button handler
+                if (cancelEditFormBtn) {
+                    cancelEditFormBtn.addEventListener('click', () => {
+                        switchToViewMode();
+                    });
+                }
+
+                // Add event listeners for children fields in edit form
+                if (editLeadForm) {
+                    editLeadForm.querySelectorAll('input[name="children_2_5"], input[name="children_6_11"]').forEach((
+                        field) => {
+                        field.addEventListener('input', updateEditChildrenTotal);
+                        field.addEventListener('change', updateEditChildrenTotal);
+                    });
+                }
+
+                // Edit form submission
+                if (editLeadForm) {
+                    editLeadForm.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+                        if (!currentEditLeadId || !leadsBaseUrl) {
+                            return;
+                        }
+
+                        // Update children total before submission
+                        updateEditChildrenTotal();
+
+                        if (editLeadAlert) {
+                            editLeadAlert.classList.add('d-none');
+                            editLeadAlert.classList.remove('alert-danger', 'alert-success');
+                        }
+
+                        try {
+                            const formData = new FormData(editLeadForm);
+                            // Ensure _method is set for Laravel method spoofing
+                            formData.append('_method', 'PUT');
+                            const response = await fetch(`${leadsBaseUrl}/${currentEditLeadId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Accept': 'application/json',
+                                },
+                                body: formData,
+                            });
+
+                            const payload = await response.json();
+
+                            if (!response.ok) {
+                                const message = payload?.message || Object.values(payload?.errors || {})[0]
+                                    ?.[0] || 'Failed to update lead.';
+                                throw new Error(message);
+                            }
+
+                            if (editLeadAlert) {
+                                editLeadAlert.classList.remove('d-none');
+                                editLeadAlert.classList.add('alert-success');
+                                editLeadAlert.textContent = payload?.message ||
+                                'Lead updated successfully!';
+                            }
+
+                            // Reload lead details and switch back to view mode
+                            setTimeout(() => {
+                                if (typeof window.loadLeadDetails === 'function') {
+                                    window.loadLeadDetails(currentEditLeadId);
                                 }
-                                
-                                // Populate edit form with current lead data
-                                populateEditForm(data.lead);
-                                
-                                // Switch to edit mode
-                                switchToEditMode();
-                                
-                                // Initialize Feather icons
-                                safeFeatherReplace(viewLeadModalEl);
-                            } else {
-                                throw new Error('Lead details not found.');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error loading lead for edit:', error);
-                            if (viewLeadLoader) {
-                                viewLeadLoader.classList.add('d-none');
-                            }
+                                switchToViewMode();
+                                // Reload page to refresh table
+                                window.location.reload();
+                            }, 1000);
+                        } catch (error) {
                             if (editLeadAlert) {
                                 editLeadAlert.classList.remove('d-none');
                                 editLeadAlert.classList.add('alert-danger');
-                                editLeadAlert.textContent = 'Unable to load lead details for editing.';
+                                editLeadAlert.textContent = error.message || 'Unable to update lead.';
                             }
-                        });
-                    } else {
-                        console.error('Bootstrap modal not available');
-                    }
-                };
-
-                document.addEventListener('click', window.editLeadClickHandler, true);
-            }
-
-            // Remark form submission
-            const remarkForm = document.getElementById('leadRemarkForm');
-            if (remarkForm) {
-                remarkForm.addEventListener('submit', async (event) => {
-                    event.preventDefault();
-                    if (!currentLeadId || !leadsBaseUrl) {
-                        return;
-                    }
-
-                    const formData = new FormData(remarkForm);
-
-                    try {
-                        const response = await fetch(`${leadsBaseUrl}/${currentLeadId}/remarks`, {
-                            method: 'POST',
-                            headers: {
-                                'Accept': 'application/json',
-                            },
-                            body: formData,
-                        });
-
-                        const payload = await response.json();
-
-                        if (!response.ok) {
-                            const message = payload?.message || Object.values(payload?.errors || {})[0]?.[0] || 'Failed to add remark.';
-                            throw new Error(message);
                         }
-
-                        // Show success message
-                        if (viewLeadAlert) {
-                            viewLeadAlert.classList.remove('d-none');
-                            viewLeadAlert.classList.remove('alert-danger');
-                            viewLeadAlert.classList.add('alert-success');
-                            viewLeadAlert.textContent = payload?.message || 'Remark added successfully!';
-                        }
-
-                        remarkForm.reset();
-
-                        // Reload remarks
-                        if (typeof window.loadLeadDetails === 'function') {
-                            window.loadLeadDetails(currentLeadId);
-                        }
-                    } catch (error) {
-                        if (viewLeadAlert) {
-                            viewLeadAlert.classList.remove('d-none');
-                            viewLeadAlert.classList.remove('alert-success');
-                            viewLeadAlert.classList.add('alert-danger');
-                            viewLeadAlert.textContent = error.message || 'Unable to add remark.';
-                        }
-                    }
-                });
-            }
-
-            // Initialize modal instance
-            if (viewLeadModalEl && typeof bootstrap !== 'undefined') {
-                if (!viewLeadModalInstance) {
-                    viewLeadModalInstance = new bootstrap.Modal(viewLeadModalEl, {
-                        backdrop: 'static',
-                        keyboard: false
                     });
-                    window.viewLeadModalInstance = viewLeadModalInstance;
                 }
-            }
 
-            // View Lead click handler
-            if (!window.viewLeadClickHandler) {
-                window.viewLeadClickHandler = function(event) {
-                    const button = event.target.closest('.view-lead-btn');
-                    if (!button) {
-                        return;
-                    }
+                // Edit button click handler - opens modal in edit mode
+                if (!window.editLeadClickHandler) {
+                    window.editLeadClickHandler = function(event) {
+                        const button = event.target.closest('.edit-lead-btn');
+                        if (!button) {
+                            return;
+                        }
 
-                    event.preventDefault();
-                    event.stopPropagation();
+                        event.preventDefault();
+                        event.stopPropagation();
 
-                    const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
+                        const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
 
-                    if (!leadId) {
-                        console.error('No lead ID found on button', button);
-                        return;
-                    }
+                        if (!leadId) {
+                            console.error('No lead ID found on edit button', button);
+                            return;
+                        }
 
-                    const modalEl = document.getElementById('viewLeadModal');
-                    if (!modalEl) {
-                        console.error('View lead modal element not found');
-                        return;
-                    }
+                        currentEditLeadId = leadId;
+                        currentLeadId = leadId;
 
-                    let modalInstance = window.viewLeadModalInstance || viewLeadModalInstance;
-                    if (!modalInstance && typeof bootstrap !== 'undefined') {
-                        modalInstance = new bootstrap.Modal(modalEl, {
+                        // Get modal element
+                        const modalEl = document.getElementById('viewLeadModal');
+                        if (!modalEl) {
+                            console.error('View lead modal element not found');
+                            return;
+                        }
+
+                        // Get or create modal instance
+                        let modalInstance = window.viewLeadModalInstance || viewLeadModalInstance;
+                        if (!modalInstance && typeof bootstrap !== 'undefined') {
+                            modalInstance = new bootstrap.Modal(modalEl, {
+                                backdrop: 'static',
+                                keyboard: false
+                            });
+                            window.viewLeadModalInstance = modalInstance;
+                            viewLeadModalInstance = modalInstance;
+                        }
+
+                        if (modalInstance) {
+                            modalInstance.show();
+
+                            // Reset modal state
+                            resetViewLeadModal();
+                            if (viewLeadLoader) {
+                                viewLeadLoader.classList.remove('d-none');
+                            }
+
+                            // Load lead data for editing
+                            fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
+                                    headers: {
+                                        'Accept': 'application/json',
+                                    },
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.lead) {
+                                        window.currentLeadData = data.lead;
+
+                                        // Hide loader
+                                        if (viewLeadLoader) {
+                                            viewLeadLoader.classList.add('d-none');
+                                        }
+
+                                        // Populate edit form with current lead data
+                                        populateEditForm(data.lead);
+
+                                        // Switch to edit mode
+                                        switchToEditMode();
+
+                                        // Initialize Feather icons
+                                        safeFeatherReplace(viewLeadModalEl);
+                                    } else {
+                                        throw new Error('Lead details not found.');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error loading lead for edit:', error);
+                                    if (viewLeadLoader) {
+                                        viewLeadLoader.classList.add('d-none');
+                                    }
+                                    if (editLeadAlert) {
+                                        editLeadAlert.classList.remove('d-none');
+                                        editLeadAlert.classList.add('alert-danger');
+                                        editLeadAlert.textContent = 'Unable to load lead details for editing.';
+                                    }
+                                });
+                        } else {
+                            console.error('Bootstrap modal not available');
+                        }
+                    };
+
+                    document.addEventListener('click', window.editLeadClickHandler, true);
+                }
+
+                // Remark form submission
+                const remarkForm = document.getElementById('leadRemarkForm');
+                if (remarkForm) {
+                    remarkForm.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+                        if (!currentLeadId || !leadsBaseUrl) {
+                            return;
+                        }
+
+                        const formData = new FormData(remarkForm);
+
+                        try {
+                            const response = await fetch(`${leadsBaseUrl}/${currentLeadId}/remarks`, {
+                                method: 'POST',
+                                headers: {
+                                    'Accept': 'application/json',
+                                },
+                                body: formData,
+                            });
+
+                            const payload = await response.json();
+
+                            if (!response.ok) {
+                                const message = payload?.message || Object.values(payload?.errors || {})[0]
+                                    ?.[0] || 'Failed to add remark.';
+                                throw new Error(message);
+                            }
+
+                            // Show success message
+                            if (viewLeadAlert) {
+                                viewLeadAlert.classList.remove('d-none');
+                                viewLeadAlert.classList.remove('alert-danger');
+                                viewLeadAlert.classList.add('alert-success');
+                                viewLeadAlert.textContent = payload?.message ||
+                                'Remark added successfully!';
+                            }
+
+                            remarkForm.reset();
+
+                            // Reload remarks
+                            if (typeof window.loadLeadDetails === 'function') {
+                                window.loadLeadDetails(currentLeadId);
+                            }
+                        } catch (error) {
+                            if (viewLeadAlert) {
+                                viewLeadAlert.classList.remove('d-none');
+                                viewLeadAlert.classList.remove('alert-success');
+                                viewLeadAlert.classList.add('alert-danger');
+                                viewLeadAlert.textContent = error.message || 'Unable to add remark.';
+                            }
+                        }
+                    });
+                }
+
+                // Initialize modal instance
+                if (viewLeadModalEl && typeof bootstrap !== 'undefined') {
+                    if (!viewLeadModalInstance) {
+                        viewLeadModalInstance = new bootstrap.Modal(viewLeadModalEl, {
                             backdrop: 'static',
                             keyboard: false
                         });
-                        window.viewLeadModalInstance = modalInstance;
-                        viewLeadModalInstance = modalInstance;
-                    }
-
-                    if (modalInstance) {
-                        modalInstance.show();
-                        if (typeof window.loadLeadDetails === 'function') {
-                            window.loadLeadDetails(leadId);
-                        } else {
-                            console.error('loadLeadDetails function not found on window');
-                        }
-                    } else {
-                        console.error('Bootstrap modal not available');
-                    }
-                };
-
-                document.addEventListener('click', window.viewLeadClickHandler, true);
-            }
-
-            if (viewLeadModalEl) {
-                viewLeadModalEl.addEventListener('shown.bs.modal', () => {
-                    safeFeatherReplace(viewLeadModalEl);
-                });
-
-                viewLeadModalEl.addEventListener('hidden.bs.modal', () => {
-                    currentLeadId = null;
-                    currentEditLeadId = null;
-                    resetViewLeadModal();
-                    switchToViewMode();
-                });
-            }
-
-            // Assign Delivery Modal
-            const assignDeliveryModalEl = document.getElementById('assignDeliveryModal');
-            const assignDeliveryModal = assignDeliveryModalEl ? new bootstrap.Modal(assignDeliveryModalEl) : null;
-            const assignDeliveryForm = document.getElementById('assignDeliveryForm');
-            
-            document.addEventListener('click', function(e) {
-                const btn = e.target.closest('.assign-delivery-btn');
-                if (btn) {
-                    e.preventDefault();
-                    const leadId = btn.dataset.leadId;
-                    const deliveryId = btn.dataset.deliveryId;
-                    
-                    document.getElementById('assignDeliveryLeadId').value = leadId;
-                    document.getElementById('assignDeliveryId').value = deliveryId || '';
-                    if (assignDeliveryModal) assignDeliveryModal.show();
-                }
-            });
-            
-            if (assignDeliveryForm) {
-                assignDeliveryForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    const formData = new FormData(assignDeliveryForm);
-                    const alertEl = document.getElementById('assignDeliveryAlert');
-                    const deliveryId = formData.get('delivery_id');
-                    const leadId = formData.get('lead_id');
-                    
-                    try {
-                        let url, method;
-                        if (deliveryId) {
-                            // Update existing delivery
-                            url = `/api/delivery/${deliveryId}/assign`;
-                            method = 'POST';
-                        } else {
-                            // Create new delivery
-                            url = `/leads/${leadId}/deliveries`;
-                            method = 'POST';
-                        }
-                        
-                        const response = await fetch(url, {
-                            method: method,
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
-                            },
-                            body: formData
-                        });
-                        
-                        const data = await response.json();
-                        
-                        if (!response.ok) {
-                            throw new Error(data.message || 'Failed to assign delivery');
-                        }
-                        
-                        if (alertEl) {
-                            alertEl.classList.remove('d-none', 'alert-danger');
-                            alertEl.classList.add('alert-success');
-                            alertEl.textContent = data.message || 'Delivery assigned successfully!';
-                        }
-                        
-                        setTimeout(() => {
-                            if (assignDeliveryModal) assignDeliveryModal.hide();
-                            location.reload();
-                        }, 1500);
-                    } catch (error) {
-                        if (alertEl) {
-                            alertEl.classList.remove('d-none', 'alert-success');
-                            alertEl.classList.add('alert-danger');
-                            alertEl.textContent = error.message || 'Failed to assign delivery';
-                        }
-                    }
-                });
-            }
-            
-            // Update Delivery Status Modal
-            const updateStatusModalEl = document.getElementById('updateDeliveryStatusModal');
-            const updateStatusModal = updateStatusModalEl ? new bootstrap.Modal(updateStatusModalEl) : null;
-            const updateStatusForm = document.getElementById('updateDeliveryStatusForm');
-            
-            document.addEventListener('click', function(e) {
-                const btn = e.target.closest('.update-delivery-status-btn');
-                if (btn) {
-                    e.preventDefault();
-                    const deliveryId = btn.dataset.deliveryId;
-                    const card = btn.closest('.delivery-card');
-                    
-                    if (card && deliveryId) {
-                        document.getElementById('updateStatusDeliveryId').value = deliveryId;
-                        document.getElementById('updateStatusDeliveryStatus').value = card.dataset.status || 'Pending';
-                        if (updateStatusModal) updateStatusModal.show();
+                        window.viewLeadModalInstance = viewLeadModalInstance;
                     }
                 }
-            });
-            
-            if (updateStatusForm) {
-                updateStatusForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    const formData = new FormData(updateStatusForm);
-                    const alertEl = document.getElementById('updateStatusAlert');
-                    const deliveryId = formData.get('delivery_id');
-                    
-                    try {
-                        const response = await fetch(`/api/delivery/${deliveryId}/status`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
-                            },
-                            body: JSON.stringify({
-                                delivery_status: formData.get('delivery_status'),
-                                courier_id: formData.get('courier_id'),
-                                delivery_method: formData.get('delivery_method'),
-                                remarks: formData.get('remarks')
-                            })
-                        });
-                        
-                        const data = await response.json();
-                        
-                        if (!response.ok) {
-                            throw new Error(data.message || 'Failed to update delivery status');
+
+                // View Lead click handler
+                if (!window.viewLeadClickHandler) {
+                    window.viewLeadClickHandler = function(event) {
+                        const button = event.target.closest('.view-lead-btn');
+                        if (!button) {
+                            return;
                         }
-                        
-                        if (alertEl) {
-                            alertEl.classList.remove('d-none', 'alert-danger');
-                            alertEl.classList.add('alert-success');
-                            alertEl.textContent = data.message || 'Delivery status updated successfully!';
+
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
+
+                        if (!leadId) {
+                            console.error('No lead ID found on button', button);
+                            return;
                         }
-                        
-                        setTimeout(() => {
-                            if (updateStatusModal) updateStatusModal.hide();
-                            location.reload();
-                        }, 1500);
-                    } catch (error) {
-                        if (alertEl) {
-                            alertEl.classList.remove('d-none', 'alert-success');
-                            alertEl.classList.add('alert-danger');
-                            alertEl.textContent = error.message || 'Failed to update delivery status';
+
+                        const modalEl = document.getElementById('viewLeadModal');
+                        if (!modalEl) {
+                            console.error('View lead modal element not found');
+                            return;
+                        }
+
+                        let modalInstance = window.viewLeadModalInstance || viewLeadModalInstance;
+                        if (!modalInstance && typeof bootstrap !== 'undefined') {
+                            modalInstance = new bootstrap.Modal(modalEl, {
+                                backdrop: 'static',
+                                keyboard: false
+                            });
+                            window.viewLeadModalInstance = modalInstance;
+                            viewLeadModalInstance = modalInstance;
+                        }
+
+                        if (modalInstance) {
+                            modalInstance.show();
+                            if (typeof window.loadLeadDetails === 'function') {
+                                window.loadLeadDetails(leadId);
+                            } else {
+                                console.error('loadLeadDetails function not found on window');
+                            }
+                        } else {
+                            console.error('Bootstrap modal not available');
+                        }
+                    };
+
+                    document.addEventListener('click', window.viewLeadClickHandler, true);
+                }
+
+                if (viewLeadModalEl) {
+                    viewLeadModalEl.addEventListener('shown.bs.modal', () => {
+                        safeFeatherReplace(viewLeadModalEl);
+                    });
+
+                    viewLeadModalEl.addEventListener('hidden.bs.modal', () => {
+                        currentLeadId = null;
+                        currentEditLeadId = null;
+                        resetViewLeadModal();
+                        switchToViewMode();
+                    });
+                }
+
+                // Assign Delivery Modal
+                const assignDeliveryModalEl = document.getElementById('assignDeliveryModal');
+                const assignDeliveryModal = assignDeliveryModalEl ? new bootstrap.Modal(assignDeliveryModalEl) : null;
+                const assignDeliveryForm = document.getElementById('assignDeliveryForm');
+
+                document.addEventListener('click', function(e) {
+                    const btn = e.target.closest('.assign-delivery-btn');
+                    if (btn) {
+                        e.preventDefault();
+                        const leadId = btn.dataset.leadId;
+                        const deliveryId = btn.dataset.deliveryId;
+
+                        document.getElementById('assignDeliveryLeadId').value = leadId;
+                        document.getElementById('assignDeliveryId').value = deliveryId || '';
+                        if (assignDeliveryModal) assignDeliveryModal.show();
+                    }
+                });
+
+                if (assignDeliveryForm) {
+                    assignDeliveryForm.addEventListener('submit', async function(e) {
+                        e.preventDefault();
+                        const formData = new FormData(assignDeliveryForm);
+                        const alertEl = document.getElementById('assignDeliveryAlert');
+                        const deliveryId = formData.get('delivery_id');
+                        const leadId = formData.get('lead_id');
+
+                        try {
+                            let url, method;
+                            if (deliveryId) {
+                                // Update existing delivery
+                                url = `/api/delivery/${deliveryId}/assign`;
+                                method = 'POST';
+                            } else {
+                                // Create new delivery
+                                url = `/leads/${leadId}/deliveries`;
+                                method = 'POST';
+                            }
+
+                            const response = await fetch(url, {
+                                method: method,
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector(
+                                        'meta[name="csrf-token"]')?.content
+                                },
+                                body: formData
+                            });
+
+                            const data = await response.json();
+
+                            if (!response.ok) {
+                                throw new Error(data.message || 'Failed to assign delivery');
+                            }
+
+                            if (alertEl) {
+                                alertEl.classList.remove('d-none', 'alert-danger');
+                                alertEl.classList.add('alert-success');
+                                alertEl.textContent = data.message || 'Delivery assigned successfully!';
+                            }
+
+                            setTimeout(() => {
+                                if (assignDeliveryModal) assignDeliveryModal.hide();
+                                location.reload();
+                            }, 1500);
+                        } catch (error) {
+                            if (alertEl) {
+                                alertEl.classList.remove('d-none', 'alert-success');
+                                alertEl.classList.add('alert-danger');
+                                alertEl.textContent = error.message || 'Failed to assign delivery';
+                            }
+                        }
+                    });
+                }
+
+                // Update Delivery Status Modal
+                const updateStatusModalEl = document.getElementById('updateDeliveryStatusModal');
+                const updateStatusModal = updateStatusModalEl ? new bootstrap.Modal(updateStatusModalEl) : null;
+                const updateStatusForm = document.getElementById('updateDeliveryStatusForm');
+
+                document.addEventListener('click', function(e) {
+                    const btn = e.target.closest('.update-delivery-status-btn');
+                    if (btn) {
+                        e.preventDefault();
+                        const deliveryId = btn.dataset.deliveryId;
+                        const card = btn.closest('.delivery-card');
+
+                        if (card && deliveryId) {
+                            document.getElementById('updateStatusDeliveryId').value = deliveryId;
+                            document.getElementById('updateStatusDeliveryStatus').value = card.dataset.status ||
+                                'Pending';
+                            if (updateStatusModal) updateStatusModal.show();
                         }
                     }
                 });
-            }
 
-            // Initialize feather icons
-            if (typeof feather !== 'undefined') {
-                feather.replace();
-            }
-        });
-    </script>
+                if (updateStatusForm) {
+                    updateStatusForm.addEventListener('submit', async function(e) {
+                        e.preventDefault();
+                        const formData = new FormData(updateStatusForm);
+                        const alertEl = document.getElementById('updateStatusAlert');
+                        const deliveryId = formData.get('delivery_id');
+
+                        try {
+                            const response = await fetch(`/api/delivery/${deliveryId}/status`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector(
+                                        'meta[name="csrf-token"]')?.content
+                                },
+                                body: JSON.stringify({
+                                    delivery_status: formData.get('delivery_status'),
+                                    courier_id: formData.get('courier_id'),
+                                    delivery_method: formData.get('delivery_method'),
+                                    remarks: formData.get('remarks')
+                                })
+                            });
+
+                            const data = await response.json();
+
+                            if (!response.ok) {
+                                throw new Error(data.message || 'Failed to update delivery status');
+                            }
+
+                            if (alertEl) {
+                                alertEl.classList.remove('d-none', 'alert-danger');
+                                alertEl.classList.add('alert-success');
+                                alertEl.textContent = data.message ||
+                                    'Delivery status updated successfully!';
+                            }
+
+                            setTimeout(() => {
+                                if (updateStatusModal) updateStatusModal.hide();
+                                location.reload();
+                            }, 1500);
+                        } catch (error) {
+                            if (alertEl) {
+                                alertEl.classList.remove('d-none', 'alert-success');
+                                alertEl.classList.add('alert-danger');
+                                alertEl.textContent = error.message || 'Failed to update delivery status';
+                            }
+                        }
+                    });
+                }
+
+                // Initialize feather icons
+                if (typeof feather !== 'undefined') {
+                    feather.replace();
+                }
+            });
+        </script>
     @endpush
 @endsection
-

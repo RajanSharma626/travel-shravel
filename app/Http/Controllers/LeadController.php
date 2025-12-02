@@ -148,12 +148,40 @@ class LeadController extends Controller
         $destinations = Destination::orderBy('name')->get();
         $users = User::orderBy('name')->get();
 
-        return view('leads.bookings', [
+        return view('booking.bookings', [
             'leads' => $leads,
             'filters' => $filters,
             'services' => $services,
             'destinations' => $destinations,
             'users' => $users,
+        ]);
+    }
+
+    public function bookingForm(Lead $lead)
+    {
+        $lead->load([
+            'service',
+            'destination',
+            'assignedUser',
+            'createdBy',
+            'bookedBy',
+            'reassignedTo',
+            'costComponents',
+            'bookingDestinations',
+            'bookingFlights',
+            'bookingSurfaceTransports',
+            'bookingSeaTransports',
+            'bookingAccommodations',
+            'bookingItineraries'
+        ]);
+
+        $users = \App\Models\User::orderBy('name')->get();
+        $destinations = \App\Models\Destination::orderBy('name')->get();
+
+        return view('booking.booking-form', [
+            'lead' => $lead,
+            'users' => $users,
+            'destinations' => $destinations,
         ]);
     }
 
@@ -199,6 +227,13 @@ class LeadController extends Controller
         $data['children'] = ($data['children_2_5'] ?? 0) + ($data['children_6_11'] ?? 0);
         $data['assigned_user_id'] = $data['assigned_user_id'] ?? Auth::id();
         $data['status'] = $data['status'] ?? 'new';
+        $data['created_by'] = Auth::id();
+
+        // Set booked_by and booked_on if status is booked
+        if ($data['status'] === 'booked') {
+            $data['booked_by'] = Auth::id();
+            $data['booked_on'] = now();
+        }
 
         Lead::create($data);
         return redirect()->route('leads.index')->with('success', 'Lead created successfully!');
@@ -373,7 +408,154 @@ class LeadController extends Controller
         $validated['children_6_11'] = $validated['children_6_11'] ?? 0;
         $validated['children'] = ($validated['children_2_5'] ?? 0) + ($validated['children_6_11'] ?? 0);
 
+        // Set booked_by and booked_on if status is changing to booked
+        if ($validated['status'] === 'booked' && $lead->status !== 'booked') {
+            $validated['booked_by'] = Auth::id();
+            $validated['booked_on'] = now();
+        }
+
         $lead->update($validated);
+
+        // Handle booking destinations
+        if ($request->has('booking_destinations')) {
+            // Delete existing booking destinations
+            $lead->bookingDestinations()->delete();
+
+            // Create new booking destinations
+            foreach ($request->booking_destinations as $destData) {
+                if (!empty($destData['destination']) || !empty($destData['location'])) {
+                    $fromDate = !empty($destData['from_date']) ? $destData['from_date'] : null;
+                    $toDate = !empty($destData['to_date']) ? $destData['to_date'] : null;
+                    $noOfDays = null;
+                    
+                    if ($fromDate && $toDate) {
+                        $from = new \DateTime($fromDate);
+                        $to = new \DateTime($toDate);
+                        $diff = $from->diff($to);
+                        $noOfDays = $diff->days;
+                    }
+
+                    $lead->bookingDestinations()->create([
+                        'destination' => $destData['destination'] ?? null,
+                        'location' => $destData['location'] ?? null,
+                        'only_hotel' => isset($destData['only_hotel']) && $destData['only_hotel'] == '1',
+                        'only_tt' => isset($destData['only_tt']) && $destData['only_tt'] == '1',
+                        'hotel_tt' => isset($destData['hotel_tt']) && $destData['hotel_tt'] == '1',
+                        'from_date' => $fromDate,
+                        'to_date' => $toDate,
+                        'no_of_days' => $noOfDays,
+                    ]);
+                }
+            }
+        }
+
+        // Handle booking flights
+        if ($request->has('booking_flights')) {
+            // Delete existing booking flights
+            $lead->bookingFlights()->delete();
+
+            // Create new booking flights
+            foreach ($request->booking_flights as $flightData) {
+                if (!empty($flightData['airline']) || !empty($flightData['from_city']) || !empty($flightData['to_city'])) {
+                    $lead->bookingFlights()->create([
+                        'airline' => $flightData['airline'] ?? null,
+                        'info' => $flightData['info'] ?? null,
+                        'from_city' => $flightData['from_city'] ?? null,
+                        'to_city' => $flightData['to_city'] ?? null,
+                        'departure_date' => !empty($flightData['departure_date']) ? $flightData['departure_date'] : null,
+                        'departure_time' => !empty($flightData['departure_time']) ? $flightData['departure_time'] : null,
+                        'arrival_date' => !empty($flightData['arrival_date']) ? $flightData['arrival_date'] : null,
+                        'arrival_time' => !empty($flightData['arrival_time']) ? $flightData['arrival_time'] : null,
+                    ]);
+                }
+            }
+        }
+
+        // Handle booking surface transports
+        if ($request->has('booking_surface_transports')) {
+            // Delete existing booking surface transports
+            $lead->bookingSurfaceTransports()->delete();
+
+            // Create new booking surface transports
+            foreach ($request->booking_surface_transports as $transportData) {
+                if (!empty($transportData['mode']) || !empty($transportData['from_city'])) {
+                    $lead->bookingSurfaceTransports()->create([
+                        'mode' => $transportData['mode'] ?? null,
+                        'info' => $transportData['info'] ?? null,
+                        'from_city' => $transportData['from_city'] ?? null,
+                        'departure_date' => !empty($transportData['departure_date']) ? $transportData['departure_date'] : null,
+                        'departure_time' => !empty($transportData['departure_time']) ? $transportData['departure_time'] : null,
+                        'arrival_date' => !empty($transportData['arrival_date']) ? $transportData['arrival_date'] : null,
+                        'arrival_time' => !empty($transportData['arrival_time']) ? $transportData['arrival_time'] : null,
+                    ]);
+                }
+            }
+        }
+
+        // Handle booking sea transports
+        if ($request->has('booking_sea_transports')) {
+            // Delete existing booking sea transports
+            $lead->bookingSeaTransports()->delete();
+
+            // Create new booking sea transports
+            foreach ($request->booking_sea_transports as $seaTransportData) {
+                if (!empty($seaTransportData['cruise']) || !empty($seaTransportData['from_city'])) {
+                    $lead->bookingSeaTransports()->create([
+                        'cruise' => $seaTransportData['cruise'] ?? null,
+                        'info' => $seaTransportData['info'] ?? null,
+                        'from_city' => $seaTransportData['from_city'] ?? null,
+                        'departure_date' => !empty($seaTransportData['departure_date']) ? $seaTransportData['departure_date'] : null,
+                        'departure_time' => !empty($seaTransportData['departure_time']) ? $seaTransportData['departure_time'] : null,
+                        'arrival_date' => !empty($seaTransportData['arrival_date']) ? $seaTransportData['arrival_date'] : null,
+                        'arrival_time' => !empty($seaTransportData['arrival_time']) ? $seaTransportData['arrival_time'] : null,
+                    ]);
+                }
+            }
+        }
+
+        // Handle booking accommodations
+        if ($request->has('booking_accommodations')) {
+            // Delete existing booking accommodations
+            $lead->bookingAccommodations()->delete();
+
+            // Create new booking accommodations
+            foreach ($request->booking_accommodations as $accommodationData) {
+                if (!empty($accommodationData['destination']) || !empty($accommodationData['location']) || !empty($accommodationData['stay_at'])) {
+                    $lead->bookingAccommodations()->create([
+                        'destination' => $accommodationData['destination'] ?? null,
+                        'location' => $accommodationData['location'] ?? null,
+                        'stay_at' => $accommodationData['stay_at'] ?? null,
+                        'checkin_date' => !empty($accommodationData['checkin_date']) ? $accommodationData['checkin_date'] : null,
+                        'checkout_date' => !empty($accommodationData['checkout_date']) ? $accommodationData['checkout_date'] : null,
+                        'room_type' => $accommodationData['room_type'] ?? null,
+                        'meal_plan' => $accommodationData['meal_plan'] ?? null,
+                        'booking_status' => $accommodationData['booking_status'] ?? 'Pending',
+                    ]);
+                }
+            }
+        }
+
+        // Handle booking itineraries
+        if ($request->has('booking_itineraries')) {
+            // Delete existing booking itineraries
+            $lead->bookingItineraries()->delete();
+
+            // Create new booking itineraries
+            foreach ($request->booking_itineraries as $itineraryData) {
+                if (!empty($itineraryData['day_and_date']) || !empty($itineraryData['location']) || !empty($itineraryData['activity_tour_description'])) {
+                    $lead->bookingItineraries()->create([
+                        'day_and_date' => $itineraryData['day_and_date'] ?? null,
+                        'time' => !empty($itineraryData['time']) ? $itineraryData['time'] : null,
+                        'service_type' => $itineraryData['service_type'] ?? null,
+                        'location' => $itineraryData['location'] ?? null,
+                        'activity_tour_description' => $itineraryData['activity_tour_description'] ?? null,
+                        'stay_at' => $itineraryData['stay_at'] ?? null,
+                        'sure' => $itineraryData['sure'] ?? null,
+                        'remarks' => $itineraryData['remarks'] ?? null,
+                    ]);
+                }
+            }
+        }
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -398,7 +580,15 @@ class LeadController extends Controller
         ]);
 
         $oldStatus = $lead->status;
-        $lead->update(['status' => $validated['status']]);
+        $updateData = ['status' => $validated['status']];
+
+        // Set booked_by and booked_on if status is changing to booked
+        if ($validated['status'] === 'booked' && $oldStatus !== 'booked') {
+            $updateData['booked_by'] = Auth::id();
+            $updateData['booked_on'] = now();
+        }
+
+        $lead->update($updateData);
 
         // History is tracked by observer
 

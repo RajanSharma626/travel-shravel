@@ -36,6 +36,10 @@ class Lead extends Model
         'children_6_11',
         'infants',
         'assigned_user_id',
+        'created_by',
+        'booked_by',
+        'booked_on',
+        'reassigned_to',
         'selling_price',
         'booked_value',
         'status'
@@ -43,6 +47,7 @@ class Lead extends Model
 
     protected $casts = [
         'travel_date' => 'date',
+        'booked_on' => 'datetime',
     ];
 
     protected static function booted()
@@ -77,6 +82,21 @@ class Lead extends Model
     public function assignedUser()
     {
         return $this->belongsTo(User::class, 'assigned_user_id');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function bookedBy()
+    {
+        return $this->belongsTo(User::class, 'booked_by');
+    }
+
+    public function reassignedTo()
+    {
+        return $this->belongsTo(User::class, 'reassigned_to');
     }
 
     public function histories()
@@ -117,6 +137,36 @@ class Lead extends Model
     public function incentives()
     {
         return $this->hasMany(Incentive::class);
+    }
+
+    public function bookingDestinations()
+    {
+        return $this->hasMany(BookingDestination::class);
+    }
+
+    public function bookingFlights()
+    {
+        return $this->hasMany(BookingFlight::class);
+    }
+
+    public function bookingSurfaceTransports()
+    {
+        return $this->hasMany(BookingSurfaceTransport::class);
+    }
+
+    public function bookingSeaTransports()
+    {
+        return $this->hasMany(BookingSeaTransport::class);
+    }
+
+    public function bookingAccommodations()
+    {
+        return $this->hasMany(BookingAccommodation::class);
+    }
+
+    public function bookingItineraries()
+    {
+        return $this->hasMany(BookingItinerary::class);
     }
 
     // Helper methods
