@@ -10,11 +10,16 @@ class Destination extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'country', 'state', 'city', 'description', 'is_active'
+        'name'
     ];
 
     public function leads()
     {
         return $this->hasMany(Lead::class);
+    }
+
+    public function locations()
+    {
+        return $this->hasMany(Location::class);
     }
 }

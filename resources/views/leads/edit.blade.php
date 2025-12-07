@@ -50,17 +50,28 @@
                                             <div class="border rounded-3 p-4 mb-4 bg-light">
                                                 <h6 class="text-uppercase text-muted small fw-semibold mb-3">Customer Information</h6>
                                                 <div class="row g-3">
-                                                    <div class="col-md-4">
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-semibold">Salutation</label>
+                                                        <select name="salutation" class="form-select">
+                                                            <option value="">-- Select --</option>
+                                                            <option value="Mr" {{ old('salutation', $lead->salutation) == 'Mr' ? 'selected' : '' }}>Mr</option>
+                                                            <option value="Mrs" {{ old('salutation', $lead->salutation) == 'Mrs' ? 'selected' : '' }}>Mrs</option>
+                                                            <option value="Ms" {{ old('salutation', $lead->salutation) == 'Ms' ? 'selected' : '' }}>Ms</option>
+                                                            <option value="Dr" {{ old('salutation', $lead->salutation) == 'Dr' ? 'selected' : '' }}>Dr</option>
+                                                            <option value="Prof" {{ old('salutation', $lead->salutation) == 'Prof' ? 'selected' : '' }}>Prof</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-3">
                                                         <label class="form-label fw-semibold">First Name <span class="text-danger">*</span></label>
                                                         <input type="text" name="first_name" class="form-control"
                                                             placeholder="e.g. Ramesh" value="{{ old('first_name', $lead->first_name) }}" required>
                                                     </div>
-                                                    <div class="col-md-4">
+                                                    <div class="col-md-3">
                                                         <label class="form-label fw-semibold">Middle Name</label>
                                                         <input type="text" name="middle_name" class="form-control"
                                                             placeholder="Optional" value="{{ old('middle_name', $lead->middle_name) }}">
                                                     </div>
-                                                    <div class="col-md-4">
+                                                    <div class="col-md-3">
                                                         <label class="form-label fw-semibold">Last Name</label>
                                                         <input type="text" name="last_name" class="form-control"
                                                             placeholder="e.g. Kumar" value="{{ old('last_name', $lead->last_name) }}">

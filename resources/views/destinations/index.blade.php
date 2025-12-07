@@ -40,26 +40,22 @@
                                             <tr>
                                                 <th>#</th>
                                                 <th>Destination Name</th>
-                                                <th>Country</th>
-                                                <th>State</th>
-                                                <th>City</th>
-                                                <th>Status</th>
+                                                <th>Locations</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @forelse ($destinations as $destination)
+                                            @forelse ($destinations as $index => $destination)
                                                 <tr>
-                                                    <td>{{ $destination->id }}</td>
+                                                    <td>{{ ($destinations->currentPage() - 1) * $destinations->perPage() + $loop->iteration }}</td>
                                                     <td>{{ $destination->name }}</td>
-                                                    <td>{{ $destination->country ?? '-' }}</td>
-                                                    <td>{{ $destination->state ?? '-' }}</td>
-                                                    <td>{{ $destination->city ?? '-' }}</td>
                                                     <td>
-                                                        @if ($destination->is_active)
-                                                            <span class="badge bg-success">Active</span>
+                                                        @if($destination->locations && $destination->locations->count() > 0)
+                                                            @foreach($destination->locations as $location)
+                                                                <span class="badge bg-primary me-1">{{ $location->name }}</span>
+                                                            @endforeach
                                                         @else
-                                                            <span class="badge bg-secondary">Inactive</span>
+                                                            <span class="text-muted">No locations</span>
                                                         @endif
                                                     </td>
                                                     <td>
@@ -80,7 +76,7 @@
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="7" class="text-center text-muted">
+                                                    <td colspan="4" class="text-center text-muted">
                                                         No destinations found.
                                                     </td>
                                                 </tr>

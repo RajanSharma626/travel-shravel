@@ -68,9 +68,8 @@
                                             <tr>
                                                 <td><strong>{{ $lead->tsq }}</strong></td>
                                                 <td>
-                                                    <a href="#"
-                                                        class="text-primary text-decoration-none fw-semibold view-lead-btn lead-name-link"
-                                                        data-lead-id="{{ $lead->id }}">
+                                                    <a href="{{ route('bookings.form', $lead) }}"
+                                                        class="text-primary text-decoration-none fw-semibold">
                                                         {{ $lead->customer_name }}
                                                     </a>
                                                 </td>
@@ -100,29 +99,16 @@
                                                 <td>
                                                     <div class="d-flex align-items-center">
                                                         <div class="d-flex">
-                                                            <a href="#"
-                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover view-lead-btn"
-                                                                data-lead-id="{{ $lead->id }}" data-bs-toggle="tooltip"
-                                                                data-placement="top" title="View Lead">
+                                                            <a href="{{ route('bookings.form', $lead) }}"
+                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover"
+                                                                data-bs-toggle="tooltip" data-placement="top"
+                                                                title="Booking File">
                                                                 <span class="icon">
                                                                     <span class="feather-icon">
-                                                                        <i data-feather="eye"></i>
+                                                                        <i data-feather="file-text"></i>
                                                                     </span>
                                                                 </span>
                                                             </a>
-
-                                                            @can('edit leads')
-                                                                <a href="#"
-                                                                    class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover edit-lead-btn"
-                                                                    data-lead-id="{{ $lead->id }}" data-bs-toggle="tooltip"
-                                                                    data-placement="top" title="Edit Lead">
-                                                                    <span class="icon">
-                                                                        <span class="feather-icon">
-                                                                            <i data-feather="edit"></i>
-                                                                        </span>
-                                                                    </span>
-                                                                </a>
-                                                            @endcan
                                                         </div>
                                                     </div>
                                                 </td>
@@ -962,100 +948,7 @@
                 });
             }
 
-            // Edit button click handler - opens modal in edit mode
-            if (!window.editLeadClickHandler) {
-                window.editLeadClickHandler = function(event) {
-                    const button = event.target.closest('.edit-lead-btn');
-                    if (!button) {
-                        return;
-                    }
-
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
-
-                    if (!leadId) {
-                        console.error('No lead ID found on edit button', button);
-                        return;
-                    }
-
-                    currentEditLeadId = leadId;
-                    currentLeadId = leadId;
-
-                    // Get modal element
-                    const modalEl = document.getElementById('viewLeadModal');
-                    if (!modalEl) {
-                        console.error('View lead modal element not found');
-                        return;
-                    }
-
-                    // Get or create modal instance
-                    let modalInstance = window.viewLeadModalInstance || viewLeadModalInstance;
-                    if (!modalInstance && typeof bootstrap !== 'undefined') {
-                        modalInstance = new bootstrap.Modal(modalEl, {
-                            backdrop: 'static',
-                            keyboard: false
-                        });
-                        window.viewLeadModalInstance = modalInstance;
-                        viewLeadModalInstance = modalInstance;
-                    }
-
-                    if (modalInstance) {
-                        modalInstance.show();
-                        
-                        // Reset modal state
-                        resetViewLeadModal();
-                        if (viewLeadLoader) {
-                            viewLeadLoader.classList.remove('d-none');
-                        }
-                        
-                        // Load lead data for editing
-                        fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
-                            headers: {
-                                'Accept': 'application/json',
-                            },
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.lead) {
-                                window.currentLeadData = data.lead;
-                                
-                                // Hide loader
-                                if (viewLeadLoader) {
-                                    viewLeadLoader.classList.add('d-none');
-                                }
-                                
-                                // Populate edit form with current lead data
-                                populateEditForm(data.lead);
-                                
-                                // Switch to edit mode
-                                switchToEditMode();
-                                
-                                // Initialize Feather icons
-                                safeFeatherReplace(viewLeadModalEl);
-                            } else {
-                                throw new Error('Lead details not found.');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error loading lead for edit:', error);
-                            if (viewLeadLoader) {
-                                viewLeadLoader.classList.add('d-none');
-                            }
-                            if (editLeadAlert) {
-                                editLeadAlert.classList.remove('d-none');
-                                editLeadAlert.classList.add('alert-danger');
-                                editLeadAlert.textContent = 'Unable to load lead details for editing.';
-                            }
-                        });
-                    } else {
-                        console.error('Bootstrap modal not available');
-                    }
-                };
-
-                document.addEventListener('click', window.editLeadClickHandler, true);
-            }
+            // Edit button click handler removed - Operations department only sees Booking File
 
             // Remark form submission
             const remarkForm = document.getElementById('leadRemarkForm');
@@ -1120,54 +1013,7 @@
                 }
             }
 
-            // View Lead click handler
-            if (!window.viewLeadClickHandler) {
-                window.viewLeadClickHandler = function(event) {
-                    const button = event.target.closest('.view-lead-btn');
-                    if (!button) {
-                        return;
-                    }
-
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
-
-                    if (!leadId) {
-                        console.error('No lead ID found on button', button);
-                        return;
-                    }
-
-                    const modalEl = document.getElementById('viewLeadModal');
-                    if (!modalEl) {
-                        console.error('View lead modal element not found');
-                        return;
-                    }
-
-                    let modalInstance = window.viewLeadModalInstance || viewLeadModalInstance;
-                    if (!modalInstance && typeof bootstrap !== 'undefined') {
-                        modalInstance = new bootstrap.Modal(modalEl, {
-                            backdrop: 'static',
-                            keyboard: false
-                        });
-                        window.viewLeadModalInstance = modalInstance;
-                        viewLeadModalInstance = modalInstance;
-                    }
-
-                    if (modalInstance) {
-                        modalInstance.show();
-                        if (typeof window.loadLeadDetails === 'function') {
-                            window.loadLeadDetails(leadId);
-                        } else {
-                            console.error('loadLeadDetails function not found on window');
-                        }
-                    } else {
-                        console.error('Bootstrap modal not available');
-                    }
-                };
-
-                document.addEventListener('click', window.viewLeadClickHandler, true);
-            }
+            // View Lead click handler removed - Operations department only sees Booking File
 
             if (viewLeadModalEl) {
                 viewLeadModalEl.addEventListener('shown.bs.modal', () => {

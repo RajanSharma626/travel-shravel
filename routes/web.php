@@ -35,16 +35,16 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     Route::middleware('permission:view users')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users');
     });
-
+    
     Route::middleware('permission:create users')->group(function () {
         Route::post('/user/store', [UserController::class, 'store'])->name('users.store');
     });
-
+    
     Route::middleware('permission:edit users')->group(function () {
         Route::get('/user/edit/{id}', [UserController::class, 'edit'])->name('users.edit');
         Route::post('/user/update', [UserController::class, 'update'])->name('users.update');
     });
-
+    
     Route::middleware('permission:delete users')->group(function () {
         Route::get('/user/delete/{id}', [UserController::class, 'destroy'])->name('users.delete');
     });
@@ -219,6 +219,9 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::post('/{delivery}/upload-files', [DeliveryController::class, 'uploadFiles'])->middleware('permission:update deliveries')->name('api.delivery.upload-files');
         Route::get('/export', [DeliveryController::class, 'export'])->middleware('permission:export reports')->name('api.delivery.export');
     });
+
+    // Destination API Routes
+    Route::get('/api/destinations/{destination}/locations', [DestinationController::class, 'getLocations'])->name('api.destinations.locations');
 
     // Incentives
     Route::middleware('permission:view incentives')->group(function () {

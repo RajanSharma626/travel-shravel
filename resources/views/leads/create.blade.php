@@ -58,17 +58,28 @@
                                             <div class="border rounded-3 p-4 mb-4 bg-light">
                                                 <h6 class="text-uppercase text-muted small fw-semibold mb-3">Customer Information</h6>
                                                 <div class="row g-3">
-                                                    <div class="col-md-4">
+                                                    <div class="col-md-3">
+                                                        <label class="form-label fw-semibold">Salutation</label>
+                                                        <select name="salutation" class="form-select">
+                                                            <option value="">-- Select --</option>
+                                                            <option value="Mr" {{ old('salutation') == 'Mr' ? 'selected' : '' }}>Mr</option>
+                                                            <option value="Mrs" {{ old('salutation') == 'Mrs' ? 'selected' : '' }}>Mrs</option>
+                                                            <option value="Ms" {{ old('salutation') == 'Ms' ? 'selected' : '' }}>Ms</option>
+                                                            <option value="Dr" {{ old('salutation') == 'Dr' ? 'selected' : '' }}>Dr</option>
+                                                            <option value="Prof" {{ old('salutation') == 'Prof' ? 'selected' : '' }}>Prof</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-3">
                                                         <label class="form-label fw-semibold">First Name <span class="text-danger">*</span></label>
                                                         <input type="text" name="first_name" class="form-control"
                                                             placeholder="e.g. Ramesh" value="{{ old('first_name') }}" required>
                                                     </div>
-                                                    <div class="col-md-4">
+                                                    <div class="col-md-3">
                                                         <label class="form-label fw-semibold">Middle Name</label>
                                                         <input type="text" name="middle_name" class="form-control"
                                                             placeholder="Optional" value="{{ old('middle_name') }}">
                                                     </div>
-                                                    <div class="col-md-4">
+                                                    <div class="col-md-3">
                                                         <label class="form-label fw-semibold">Last Name</label>
                                                         <input type="text" name="last_name" class="form-control"
                                                             placeholder="e.g. Kumar" value="{{ old('last_name') }}">

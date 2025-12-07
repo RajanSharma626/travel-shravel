@@ -177,7 +177,7 @@
                                     Auth::user()->hasRole('Operation Manager'))
                                
 
-                                <li class="nav-item mb-2 {{ request()->is('operations*') ? 'active' : '' }}">
+                                <li class="nav-item mb-2 {{ request()->is('operations*') || (request()->is('bookings/*/form') && (Auth::user()->hasRole('Operation') || Auth::user()->hasRole('Operation Manager'))) ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('operations.index') }}">
                                         <span class="nav-icon-wrap">
                                             <span class="svg-icon"><i data-feather="settings"
@@ -193,7 +193,7 @@
                                     Auth::user()->hasRole('Developer') ||
                                     Auth::user()->hasRole('Post Sales') ||
                                     Auth::user()->hasRole('Post Sales Manager'))
-                                <li class="nav-item mb-2 {{ request()->is('post-sales*') ? 'active' : '' }}">
+                                <li class="nav-item mb-2 {{ request()->is('post-sales*') || (request()->is('bookings/*/form') && (Auth::user()->hasRole('Post Sales') || Auth::user()->hasRole('Post Sales Manager'))) ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('post-sales.index') }}">
                                         <span class="nav-icon-wrap">
                                             <span class="svg-icon">
@@ -210,7 +210,7 @@
                                     Auth::user()->hasRole('Developer') ||
                                     Auth::user()->hasRole('Accounts') ||
                                     Auth::user()->hasRole('Accounts Manager'))
-                                <li class="nav-item mb-2 {{ request()->is('accounts*') ? 'active' : '' }}">
+                                <li class="nav-item mb-2 {{ request()->is('accounts*') || (request()->routeIs('bookings.form') && (Auth::user()->hasRole('Accounts') || Auth::user()->hasRole('Accounts Manager'))) ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('accounts.index') }}">
                                         <span class="nav-icon-wrap">
                                             <span class="svg-icon">
@@ -227,7 +227,7 @@
                                     Auth::user()->hasRole('Developer') ||
                                     Auth::user()->hasRole('Delivery') ||
                                     Auth::user()->hasRole('Delivery Manager'))
-                                <li class="nav-item mb-2 {{ request()->is('deliveries*') ? 'active' : '' }}">
+                                <li class="nav-item mb-2 {{ request()->is('deliveries*') || (request()->is('bookings/*/form') && (Auth::user()->hasRole('Delivery') || Auth::user()->hasRole('Delivery Manager'))) ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('deliveries.index') }}">
                                         <span class="nav-icon-wrap">
                                             <span class="svg-icon">

@@ -12,7 +12,7 @@ class DestinationController extends Controller
      */
     public function index()
     {
-        $destinations = Destination::latest()->paginate(20);
+        $destinations = Destination::with('locations')->latest()->paginate(20);
         return view('destinations.index', compact('destinations'));
     }
 
@@ -31,14 +31,24 @@ class DestinationController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:destinations,name',
-            'country' => 'nullable|string|max:255',
-            'state' => 'nullable|string|max:255',
-            'city' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'is_active' => 'nullable|boolean',
+            'locations' => 'nullable|array',
+            'locations.*' => 'nullable|string|max:255',
         ]);
 
-        Destination::create($validated + ['is_active' => $request->input('is_active', 1)]);
+        $destination = Destination::create(['name' => $validated['name']]);
+
+        // Save locations
+        if (!empty($validated['locations'])) {
+            foreach ($validated['locations'] as $locationName) {
+                if (!empty(trim($locationName))) {
+                    $destination->locations()->create([
+                        'name' => trim($locationName),
+                        'is_active' => true,
+                    ]);
+                }
+            }
+        }
+
         return redirect()->route('destinations.index')->with('success', 'Destination added successfully!');
     }
 
@@ -56,6 +66,7 @@ class DestinationController extends Controller
      */
     public function edit(Destination $destination)
     {
+        $destination->load('locations');
         return view('destinations.edit', compact('destination'));
     }
 
@@ -66,14 +77,42 @@ class DestinationController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:destinations,name,' . $destination->id,
-            'country' => 'nullable|string|max:255',
-            'state' => 'nullable|string|max:255',
-            'city' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'is_active' => 'nullable|boolean',
+            'locations' => 'nullable|array',
+            'locations.*' => 'nullable|string|max:255',
+            'location_ids' => 'nullable|array',
+            'location_ids.*' => 'nullable|integer|exists:locations,id',
         ]);
 
-        $destination->update($validated);
+        $destination->update(['name' => $validated['name']]);
+
+        // Handle locations update
+        if (isset($validated['locations'])) {
+            // Get existing location IDs that should be kept
+            $existingLocationIds = $validated['location_ids'] ?? [];
+            
+            // Delete locations that are not in the list
+            $destination->locations()->whereNotIn('id', $existingLocationIds)->delete();
+
+            // Update or create locations
+            foreach ($validated['locations'] as $index => $locationName) {
+                if (!empty(trim($locationName))) {
+                    $locationId = $existingLocationIds[$index] ?? null;
+                    if ($locationId) {
+                        // Update existing location
+                        $destination->locations()->where('id', $locationId)->update([
+                            'name' => trim($locationName),
+                        ]);
+                    } else {
+                        // Create new location
+                        $destination->locations()->create([
+                            'name' => trim($locationName),
+                            'is_active' => true,
+                        ]);
+                    }
+                }
+            }
+        }
+
         return redirect()->route('destinations.index')->with('success', 'Destination updated successfully!');
     }
 
@@ -84,5 +123,16 @@ class DestinationController extends Controller
     {
         $destination->delete();
         return redirect()->route('destinations.index')->with('success', 'Destination deleted successfully!');
+    }
+
+    /**
+     * Get locations for a specific destination (API endpoint)
+     */
+    public function getLocations(Request $request, $destinationId)
+    {
+        $destination = Destination::findOrFail($destinationId);
+        $locations = $destination->locations()->where('is_active', true)->orderBy('name')->get();
+        
+        return response()->json($locations);
     }
 }

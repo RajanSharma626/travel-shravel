@@ -132,9 +132,8 @@
                                             <tr data-lead-id="{{ $lead->id }}">
                                                 <td><strong>{{ $lead->tsq }}</strong></td>
                                                 <td>
-                                                    <a href="#"
-                                                        class="text-primary text-decoration-none fw-semibold view-lead-btn lead-name-link"
-                                                        data-lead-id="{{ $lead->id }}">
+                                                    <a href="{{ route('bookings.form', $lead) }}"
+                                                        class="text-primary text-decoration-none fw-semibold">
                                                         {{ $lead->customer_name }}
                                                     </a>
                                                 </td>
@@ -170,13 +169,13 @@
                                                 <td>
                                                     <div class="d-flex align-items-center">
                                                         <div class="d-flex">
-                                                            <a href="#"
-                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover view-lead-btn"
-                                                                data-lead-id="{{ $lead->id }}" data-bs-toggle="tooltip"
-                                                                data-placement="top" title="View Lead">
+                                                            <a href="{{ route('bookings.form', $lead) }}"
+                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover"
+                                                                data-bs-toggle="tooltip" data-placement="top"
+                                                                title="Booking File">
                                                                 <span class="icon">
                                                                     <span class="feather-icon">
-                                                                        <i data-feather="eye"></i>
+                                                                        <i data-feather="file-text"></i>
                                                                     </span>
                                                                 </span>
                                                             </a>
@@ -934,54 +933,7 @@
                 }
             }
 
-            // View Lead click handler
-            if (!window.viewLeadClickHandler) {
-                window.viewLeadClickHandler = function(event) {
-                    const button = event.target.closest('.view-lead-btn');
-                    if (!button) {
-                        return;
-                    }
-
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
-
-                    if (!leadId) {
-                        console.error('No lead ID found on button', button);
-                        return;
-                    }
-
-                    const modalEl = document.getElementById('viewLeadModal');
-                    if (!modalEl) {
-                        console.error('View lead modal element not found');
-                        return;
-                    }
-
-                    let modalInstance = window.viewLeadModalInstance || viewLeadModalInstance;
-                    if (!modalInstance && typeof bootstrap !== 'undefined') {
-                        modalInstance = new bootstrap.Modal(modalEl, {
-                            backdrop: 'static',
-                            keyboard: false
-                        });
-                        window.viewLeadModalInstance = modalInstance;
-                        viewLeadModalInstance = modalInstance;
-                    }
-
-                    if (modalInstance) {
-                        modalInstance.show();
-                        if (typeof window.loadLeadDetails === 'function') {
-                            window.loadLeadDetails(leadId);
-                        } else {
-                            console.error('loadLeadDetails function not found on window');
-                        }
-                    } else {
-                        console.error('Bootstrap modal not available');
-                    }
-                };
-
-                document.addEventListener('click', window.viewLeadClickHandler, true);
-            }
+            // View Lead click handler removed - Accounts department only sees Booking File
 
             if (viewLeadModalEl) {
                 viewLeadModalEl.addEventListener('shown.bs.modal', () => {

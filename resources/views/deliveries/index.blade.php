@@ -33,111 +33,163 @@
                                     id="deliveriesFiltersForm">
                                     <div class="col-md-4 col-lg-3">
                                         <label for="search" class="form-label">Search</label>
-                                        <div class="d-flex">
-                                            <input type="text" name="search" id="search"
-                                                class="form-control form-control-sm"
-                                                placeholder="Enter name, ref no., or phone"
-                                                value="{{ $filters['search'] ?? '' }}">
-                                            <button type="submit" class="btn btn-primary btn-sm ms-2 d-flex"> <i
-                                                    class="ri-search-line me-1"></i> Filter</button>
-                                        </div>
-                                    </div>
-                                    @if (!empty($filters['search']) || !empty($filters['delivery_status']))
-                                        <div class="col-md-3 col-lg-2 align-self-end ms-auto">
-                                            <a href="{{ route('deliveries.index') }}"
-                                                class="btn btn-outline-danger w-100 btn-sm">Clear
-                                                Filters</a>
-                                        </div>
-                                    @endif
-                                </form>
 
-                                <!-- Kanban Board -->
-                                <div class="delivery-kanban-board mb-4">
-                                    <div class="row g-3">
-                                        <!-- Pending Column -->
-                                        <div class="col-md-4">
-                                            <div class="card border-0 shadow-sm h-100">
-                                                <div class="card-header bg-warning text-white">
-                                                    <h6
-                                                        class="mb-0 fw-bold d-flex justify-content-between align-items-center">
-                                                        <span>Pending</span>
-                                                        <span class="badge bg-light text-dark" id="pendingCount">0</span>
-                                                    </h6>
-                                                </div>
-                                                <div class="card-body p-2" id="pendingColumn"
-                                                    style="min-height: 400px; max-height: 70vh; overflow-y: auto;">
-                                                    @forelse ($leads as $lead)
-                                                        @if (!$lead->delivery || $lead->delivery->delivery_status === 'Pending')
-                                                            @include('deliveries.partials.kanban-card', [
-                                                                'lead' => $lead,
-                                                            ])
-                                                        @endif
-                                                    @empty
-                                                        <div class="text-center text-muted py-4">No pending deliveries</div>
-                                                    @endforelse
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <input type="text" name="search" id="search"
+                                            class="form-control form-control-sm" placeholder="Enter name, ref no., or phone"
+                                            value="{{ $filters['search'] ?? '' }}">
 
-                                        <!-- In Process Column -->
-                                        <div class="col-md-4">
-                                            <div class="card border-0 shadow-sm h-100">
-                                                <div class="card-header bg-info text-white">
-                                                    <h6
-                                                        class="mb-0 fw-bold d-flex justify-content-between align-items-center">
-                                                        <span>In Process</span>
-                                                        <span class="badge bg-light text-dark" id="inProcessCount">0</span>
-                                                    </h6>
-                                                </div>
-                                                <div class="card-body p-2" id="inProcessColumn"
-                                                    style="min-height: 400px; max-height: 70vh; overflow-y: auto;">
-                                                    @forelse ($leads as $lead)
-                                                        @if ($lead->delivery && $lead->delivery->delivery_status === 'In_Process')
-                                                            @include('deliveries.partials.kanban-card', [
-                                                                'lead' => $lead,
-                                                            ])
-                                                        @endif
-                                                    @empty
-                                                        <div class="text-center text-muted py-4">No in-process deliveries
-                                                        </div>
-                                                    @endforelse
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Delivered Column -->
-                                        <div class="col-md-4">
-                                            <div class="card border-0 shadow-sm h-100">
-                                                <div class="card-header bg-success text-white">
-                                                    <h6
-                                                        class="mb-0 fw-bold d-flex justify-content-between align-items-center">
-                                                        <span>Delivered</span>
-                                                        <span class="badge bg-light text-dark" id="deliveredCount">0</span>
-                                                    </h6>
-                                                </div>
-                                                <div class="card-body p-2" id="deliveredColumn"
-                                                    style="min-height: 400px; max-height: 70vh; overflow-y: auto;">
-                                                    @forelse ($leads as $lead)
-                                                        @if ($lead->delivery && $lead->delivery->delivery_status === 'Delivered')
-                                                            @include('deliveries.partials.kanban-card', [
-                                                                'lead' => $lead,
-                                                            ])
-                                                        @endif
-                                                    @empty
-                                                        <div class="text-center text-muted py-4">No delivered items</div>
-                                                    @endforelse
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                
+                            </div>
+                            <div class="col-md-3 col-lg-2">
+                                <label for="delivery_status" class="form-label">Delivery Status</label>
+                                <div class="d-flex">
+                                    <select name="delivery_status" id="delivery_status" class="form-select form-select-sm">
+                                        <option value="">All Status</option>
+                                        <option value="Pending"
+                                            {{ ($filters['delivery_status'] ?? '') == 'Pending' ? 'selected' : '' }}>Pending
+                                        </option>
+                                        <option value="In_Process"
+                                            {{ ($filters['delivery_status'] ?? '') == 'In_Process' ? 'selected' : '' }}>In
+                                            Process</option>
+                                        <option value="Delivered"
+                                            {{ ($filters['delivery_status'] ?? '') == 'Delivered' ? 'selected' : '' }}>
+                                            Delivered</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary btn-sm ms-2 d-flex"> <i
+                                            class="ri-search-line me-1"></i> Filter</button>
                                 </div>
                             </div>
+                            @if (!empty($filters['search']) || !empty($filters['delivery_status']))
+                                <div class="col-md-3 col-lg-2 align-self-end ms-auto">
+                                    <a href="{{ route('deliveries.index') }}"
+                                        class="btn btn-outline-danger w-100 btn-sm">Clear
+                                        Filters</a>
+                                </div>
+                            @endif
+                            </form>
+
+                            <!-- Delivery Table -->
+                            <table class="table table-striped small table-bordered w-100 mb-5" id="deliveriesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Ref No.</th>
+                                        <th>Customer Name</th>
+                                        <th>Phone</th>
+                                        <th>Delivery Status</th>
+                                        <th>Assigned To</th>
+                                        <th>Delivery Method</th>
+                                        <th>Courier ID</th>
+                                        <th>Delivered At</th>
+                                        <th>Last Remark</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($leads as $lead)
+                                        @php
+                                            $delivery = $lead->delivery;
+                                            $deliveryStatus = $delivery ? $delivery->delivery_status : 'Pending';
+                                        @endphp
+                                        <tr data-lead-id="{{ $lead->id }}">
+                                            <td><strong>{{ $lead->tsq }}</strong></td>
+                                            <td>
+                                                <a href="{{ route('bookings.form', $lead) }}"
+                                                    class="text-primary text-decoration-none fw-semibold">
+                                                    {{ $lead->customer_name }}
+                                                </a>
+                                            </td>
+                                            <td>{{ $lead->primary_phone ?? $lead->phone }}</td>
+                                            <td>
+                                                @if ($deliveryStatus === 'Pending')
+                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                @elseif ($deliveryStatus === 'In_Process')
+                                                    <span class="badge bg-info text-white">In Process</span>
+                                                @elseif ($deliveryStatus === 'Delivered')
+                                                    <span class="badge bg-success text-white">Delivered</span>
+                                                @else
+                                                    <span
+                                                        class="badge bg-secondary text-white">{{ $deliveryStatus }}</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                {{ $delivery && $delivery->assignedTo ? $delivery->assignedTo->name : 'Unassigned' }}
+                                            </td>
+                                            <td>
+                                                @if ($delivery && $delivery->delivery_method)
+                                                    {{ ucfirst(str_replace('_', ' ', $delivery->delivery_method)) }}
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                {{ $delivery && $delivery->courier_id ? $delivery->courier_id : '-' }}
+                                            </td>
+                                            <td>
+                                                @if ($delivery && $delivery->delivered_at)
+                                                    {{ $delivery->delivered_at->format('d M, Y h:i A') }}
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($lead->latest_remark)
+                                                    <div class="text-truncate" style="max-width: 200px;"
+                                                        title="{{ $lead->latest_remark->remark }}">
+                                                        {{ Str::limit($lead->latest_remark->remark, 50) }}
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        by {{ $lead->latest_remark->user->name ?? 'N/A' }}
+                                                        @if ($lead->latest_remark->created_at)
+                                                            - {{ $lead->latest_remark->created_at->format('d M, Y') }}
+                                                        @endif
+                                                    </small>
+                                                @else
+                                                    <span class="text-muted">No remarks yet</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="d-flex">
+                                                        <a href="{{ route('bookings.form', $lead) }}"
+                                                            class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover"
+                                                            data-bs-toggle="tooltip" data-placement="top"
+                                                            title="Booking File">
+                                                            <span class="icon">
+                                                                <span class="feather-icon">
+                                                                    <i data-feather="file-text"></i>
+                                                                </span>
+                                                            </span>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="10" class="text-center">No deliveries found</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                            <!-- Pagination -->
+                            @if ($leads->hasPages())
+                                <div class="d-flex justify-content-between align-items-center mt-4 mb-3 px-3">
+                                    <div class="text-muted small">
+                                        Showing {{ $leads->firstItem() ?? 0 }} to {{ $leads->lastItem() ?? 0 }} of
+                                        {{ $leads->total() }} entries
+                                    </div>
+                                    <div>
+                                        {{ $leads->links('pagination::bootstrap-5') }}
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        @include('layouts.footer')
+    </div>
+    @include('layouts.footer')
     </div>
 
     <!-- View Lead Modal - Same as bookings page -->
@@ -676,97 +728,34 @@
             $(document).ready(function() {
                 const leadsBaseUrl = '/leads';
 
-                // Update kanban card counts
-                function updateKanbanCounts() {
-                    const pendingCount = document.querySelectorAll('#pendingColumn .delivery-card').length;
-                    const inProcessCount = document.querySelectorAll('#inProcessColumn .delivery-card').length;
-                    const deliveredCount = document.querySelectorAll('#deliveredColumn .delivery-card').length;
-
-                    document.getElementById('pendingCount').textContent = pendingCount;
-                    document.getElementById('inProcessCount').textContent = inProcessCount;
-                    document.getElementById('deliveredCount').textContent = deliveredCount;
+                // Initialize DataTable without search, length menu, ordering, and pagination
+                // We use Laravel's server-side pagination instead
+                if ($('#deliveriesTable').length) {
+                    $('#deliveriesTable').DataTable({
+                        searching: false, // Disable search box
+                        lengthChange: false, // Disable entries per page selector
+                        ordering: false, // Disable column ordering
+                        info: false, // Disable DataTable info (we use Laravel pagination)
+                        paging: false, // Disable DataTable pagination (we use Laravel pagination)
+                        dom: 'rt' // Only show table (r), table (t) - no info or pagination
+                    });
                 }
 
-                // Initialize counts
-                updateKanbanCounts();
-
-                // Drag and Drop functionality
-                const deliveryCards = document.querySelectorAll('.delivery-card');
-                const columns = {
-                    'pendingColumn': 'Pending',
-                    'inProcessColumn': 'In_Process',
-                    'deliveredColumn': 'Delivered'
+                // Safe feather replace function
+                const safeFeatherReplace = (container) => {
+                    if (typeof feather !== 'undefined' && container) {
+                        try {
+                            feather.replace({}, container);
+                        } catch (e) {
+                            console.warn('Feather icon replacement failed:', e);
+                        }
+                    }
                 };
 
-                deliveryCards.forEach(card => {
-                    card.addEventListener('dragstart', function(e) {
-                        e.dataTransfer.setData('text/plain', this.dataset.deliveryId || this.dataset
-                            .leadId);
-                        this.classList.add('dragging');
-                    });
-
-                    card.addEventListener('dragend', function(e) {
-                        this.classList.remove('dragging');
-                    });
-                });
-
-                Object.keys(columns).forEach(columnId => {
-                    const column = document.getElementById(columnId);
-                    if (column) {
-                        column.addEventListener('dragover', function(e) {
-                            e.preventDefault();
-                            this.classList.add('drag-over');
-                        });
-
-                        column.addEventListener('dragleave', function(e) {
-                            this.classList.remove('drag-over');
-                        });
-
-                        column.addEventListener('drop', async function(e) {
-                            e.preventDefault();
-                            this.classList.remove('drag-over');
-
-                            const deliveryId = e.dataTransfer.getData('text/plain');
-                            const card = document.querySelector(
-                                `[data-delivery-id="${deliveryId}"], [data-lead-id="${deliveryId}"]`
-                                );
-
-                            if (card && card.dataset.status !== columns[columnId]) {
-                                const newStatus = columns[columnId];
-
-                                // Update status via API
-                                try {
-                                    const response = await fetch(
-                                        `/api/delivery/${deliveryId}/status`, {
-                                            method: 'PUT',
-                                            headers: {
-                                                'Content-Type': 'application/json',
-                                                'Accept': 'application/json',
-                                                'X-CSRF-TOKEN': document.querySelector(
-                                                    'meta[name="csrf-token"]')?.content
-                                            },
-                                            body: JSON.stringify({
-                                                delivery_status: newStatus
-                                            })
-                                        });
-
-                                    if (response.ok) {
-                                        // Move card to new column
-                                        card.remove();
-                                        this.appendChild(card);
-                                        card.dataset.status = newStatus;
-                                        updateKanbanCounts();
-                                    } else {
-                                        throw new Error('Failed to update status');
-                                    }
-                                } catch (error) {
-                                    console.error('Error updating delivery status:', error);
-                                    alert('Failed to update delivery status. Please try again.');
-                                }
-                            }
-                        });
-                    }
-                });
+                // Initialize feather icons
+                if (typeof feather !== 'undefined') {
+                    feather.replace();
+                }
 
                 // Safe feather replace function
                 const safeFeatherReplace = (container) => {
@@ -1126,7 +1115,7 @@
                                 editLeadAlert.classList.remove('d-none');
                                 editLeadAlert.classList.add('alert-success');
                                 editLeadAlert.textContent = payload?.message ||
-                                'Lead updated successfully!';
+                                    'Lead updated successfully!';
                             }
 
                             // Reload lead details and switch back to view mode
@@ -1277,7 +1266,7 @@
                                 viewLeadAlert.classList.remove('alert-danger');
                                 viewLeadAlert.classList.add('alert-success');
                                 viewLeadAlert.textContent = payload?.message ||
-                                'Remark added successfully!';
+                                    'Remark added successfully!';
                             }
 
                             remarkForm.reset();
@@ -1454,12 +1443,24 @@
                     if (btn) {
                         e.preventDefault();
                         const deliveryId = btn.dataset.deliveryId;
-                        const card = btn.closest('.delivery-card');
+                        const leadId = btn.dataset.leadId;
+                        const row = btn.closest('tr');
 
-                        if (card && deliveryId) {
-                            document.getElementById('updateStatusDeliveryId').value = deliveryId;
-                            document.getElementById('updateStatusDeliveryStatus').value = card.dataset.status ||
-                                'Pending';
+                        if (deliveryId || leadId) {
+                            document.getElementById('updateStatusDeliveryId').value = deliveryId || leadId;
+                            // Get current status from the row's status badge
+                            const statusBadge = row ? row.querySelector('.badge') : null;
+                            let currentStatus = 'Pending';
+                            if (statusBadge) {
+                                if (statusBadge.textContent.trim() === 'Pending') {
+                                    currentStatus = 'Pending';
+                                } else if (statusBadge.textContent.trim() === 'In Process') {
+                                    currentStatus = 'In_Process';
+                                } else if (statusBadge.textContent.trim() === 'Delivered') {
+                                    currentStatus = 'Delivered';
+                                }
+                            }
+                            document.getElementById('updateStatusDeliveryStatus').value = currentStatus;
                             if (updateStatusModal) updateStatusModal.show();
                         }
                     }

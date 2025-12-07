@@ -137,44 +137,66 @@
                                                 </td>
                                                 <td>{{ $lead->created_at->format('d M, Y') }}</td>
                                                 <td>
+                                                    @php
+                                                        $user = Auth::user();
+                                                        $role = $user->role ?? $user->getRoleNameAttribute();
+                                                        $nonSalesDepartments = ['Operation', 'Operation Manager', 'Delivery', 'Delivery Manager', 
+                                                                                'Post Sales', 'Post Sales Manager', 'Accounts', 'Accounts Manager'];
+                                                        $isNonSalesDept = $role && in_array($role, $nonSalesDepartments);
+                                                    @endphp
                                                     <div class="d-flex align-items-center">
                                                         <div class="d-flex">
-                                                            <a href="#"
-                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover view-lead-btn"
-                                                                data-lead-id="{{ $lead->id }}" data-bs-toggle="tooltip"
-                                                                data-placement="top" title="View Lead">
-                                                                <span class="icon">
-                                                                    <span class="feather-icon">
-                                                                        <i data-feather="eye"></i>
-                                                                    </span>
-                                                                </span>
-                                                            </a>
-
-                                                            @can('edit leads')
+                                                            @if(!$isNonSalesDept)
                                                                 <a href="#"
-                                                                    class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover edit-lead-btn"
+                                                                    class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover view-lead-btn"
                                                                     data-lead-id="{{ $lead->id }}" data-bs-toggle="tooltip"
-                                                                    data-placement="top" title="Edit Lead">
+                                                                    data-placement="top" title="View Lead">
                                                                     <span class="icon">
                                                                         <span class="feather-icon">
-                                                                            <i data-feather="edit"></i>
+                                                                            <i data-feather="eye"></i>
                                                                         </span>
                                                                     </span>
                                                                 </a>
-                                                                <a href="#"
-                                                                    class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover assign-user-btn"
-                                                                    data-lead-id="{{ $lead->id }}"
-                                                                    data-lead-name="{{ $lead->customer_name }}"
-                                                                    data-current-user="{{ $lead->assignedUser?->name ?? 'Unassigned' }}"
+
+                                                                @can('edit leads')
+                                                                    <a href="#"
+                                                                        class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover edit-lead-btn"
+                                                                        data-lead-id="{{ $lead->id }}" data-bs-toggle="tooltip"
+                                                                        data-placement="top" title="Edit Lead">
+                                                                        <span class="icon">
+                                                                            <span class="feather-icon">
+                                                                                <i data-feather="edit"></i>
+                                                                            </span>
+                                                                        </span>
+                                                                    </a>
+                                                                    <a href="#"
+                                                                        class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover assign-user-btn"
+                                                                        data-lead-id="{{ $lead->id }}"
+                                                                        data-lead-name="{{ $lead->customer_name }}"
+                                                                        data-current-user="{{ $lead->assignedUser?->name ?? 'Unassigned' }}"
+                                                                        data-bs-toggle="tooltip" data-placement="top"
+                                                                        title="Assign Agent">
+                                                                        <span class="icon">
+                                                                            <span class="feather-icon">
+                                                                                <i data-feather="user-plus"></i>
+                                                                            </span>
+                                                                        </span>
+                                                                    </a>
+                                                                @endcan
+                                                            @endif
+                                                            
+                                                            @if($lead->status == 'booked')
+                                                                <a href="{{ route('bookings.form', $lead) }}"
+                                                                    class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover"
                                                                     data-bs-toggle="tooltip" data-placement="top"
-                                                                    title="Assign Agent">
+                                                                    title="Booking File">
                                                                     <span class="icon">
                                                                         <span class="feather-icon">
-                                                                            <i data-feather="user-plus"></i>
+                                                                            <i data-feather="file-text"></i>
                                                                         </span>
                                                                     </span>
                                                                 </a>
-                                                            @endcan
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 </td>
@@ -220,17 +242,28 @@
                         <div class="mb-4 border rounded-3 p-3 bg-light">
                             <h6 class="text-uppercase text-muted small fw-semibold mb-3">Customer Information</h6>
                             <div class="row g-3">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
+                                    <label class="form-label">Salutation</label>
+                                    <select name="salutation" class="form-select form-select-sm">
+                                        <option value="">-- Select --</option>
+                                        <option value="Mr" {{ old('salutation') == 'Mr' ? 'selected' : '' }}>Mr</option>
+                                        <option value="Mrs" {{ old('salutation') == 'Mrs' ? 'selected' : '' }}>Mrs</option>
+                                        <option value="Ms" {{ old('salutation') == 'Ms' ? 'selected' : '' }}>Ms</option>
+                                        <option value="Dr" {{ old('salutation') == 'Dr' ? 'selected' : '' }}>Dr</option>
+                                        <option value="Prof" {{ old('salutation') == 'Prof' ? 'selected' : '' }}>Prof</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
                                     <label class="form-label">First Name <span class="text-danger">*</span></label>
                                     <input type="text" name="first_name" placeholder="e.g. Ramesh"
                                         class="form-control form-control-sm" value="{{ old('first_name') }}" required>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label">Middle Name</label>
                                     <input type="text" name="middle_name" placeholder="Optional"
                                         class="form-control form-control-sm" value="{{ old('middle_name') }}">
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label">Last Name</label>
                                     <input type="text" name="last_name" placeholder="e.g. Kumar"
                                         class="form-control form-control-sm" value="{{ old('last_name') }}">

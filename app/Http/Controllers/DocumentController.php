@@ -167,36 +167,95 @@ class DocumentController extends Controller
         $documentTypes = ['Aadhaar Card', 'Passport', 'Visa', 'Ticket', 'Voucher', 'Invoice', 'Insurance', 'Medical Certificate'];
         $selectedDocuments = $validated['documents'] ?? [];
 
+        // Get person counts from lead
+        $adults = $lead->adults ?? 0;
+        $children25 = $lead->children_2_5 ?? 0;
+        $children611 = $lead->children_6_11 ?? 0;
+        $totalPersons = $adults + $children25 + $children611;
+
+        // Process person-wise documents
         foreach ($documentTypes as $docType) {
-            $document = $lead->documents()->where('type', $docType)->first();
-            
-            if (in_array($docType, $selectedDocuments)) {
-                // Document should be marked as received
-                if ($document) {
-                    // Update existing document
-                    if (!in_array($document->status, ['received', 'verified'])) {
-                        $document->update([
+            // Check if person-wise documents are being used (format: "DocumentType|PersonNumber")
+            $personWiseSelected = array_filter($selectedDocuments, function($doc) use ($docType) {
+                return strpos($doc, $docType . '|') === 0;
+            });
+
+            if (!empty($personWiseSelected) && $totalPersons > 0) {
+                // Person-wise document handling
+                for ($personNum = 1; $personNum <= $totalPersons; $personNum++) {
+                    $docKey = $docType . '|' . $personNum;
+                    $document = $lead->documents()
+                        ->where('type', $docType)
+                        ->where('person_number', $personNum)
+                        ->first();
+                    
+                    if (in_array($docKey, $selectedDocuments)) {
+                        // Document should be marked as received
+                        if ($document) {
+                            // Update existing document
+                            if (!in_array($document->status, ['received', 'verified'])) {
+                                $document->update([
+                                    'status' => 'received',
+                                    'received_by' => Auth::id(),
+                                    'received_at' => now(),
+                                ]);
+                            }
+                        } else {
+                            // Create new document
+                            $lead->documents()->create([
+                                'uploaded_by' => Auth::id(),
+                                'type' => $docType,
+                                'person_number' => $personNum,
+                                'status' => 'received',
+                                'received_by' => Auth::id(),
+                                'received_at' => now(),
+                            ]);
+                        }
+                    } else {
+                        // Document should be marked as not received (only if it exists)
+                        if ($document && in_array($document->status, ['received', 'verified'])) {
+                            $document->update([
+                                'status' => 'not_received',
+                            ]);
+                        }
+                    }
+                }
+            } else {
+                // Fallback: General document handling (without person number) for backward compatibility
+                $document = $lead->documents()
+                    ->where('type', $docType)
+                    ->whereNull('person_number')
+                    ->first();
+                
+                if (in_array($docType, $selectedDocuments)) {
+                    // Document should be marked as received
+                    if ($document) {
+                        // Update existing document
+                        if (!in_array($document->status, ['received', 'verified'])) {
+                            $document->update([
+                                'status' => 'received',
+                                'received_by' => Auth::id(),
+                                'received_at' => now(),
+                            ]);
+                        }
+                    } else {
+                        // Create new document
+                        $lead->documents()->create([
+                            'uploaded_by' => Auth::id(),
+                            'type' => $docType,
+                            'person_number' => null,
                             'status' => 'received',
                             'received_by' => Auth::id(),
                             'received_at' => now(),
                         ]);
                     }
                 } else {
-                    // Create new document
-                    $lead->documents()->create([
-                        'uploaded_by' => Auth::id(),
-                        'type' => $docType,
-                        'status' => 'received',
-                        'received_by' => Auth::id(),
-                        'received_at' => now(),
-                    ]);
-                }
-            } else {
-                // Document should be marked as not received (only if it exists)
-                if ($document && in_array($document->status, ['received', 'verified'])) {
-                    $document->update([
-                        'status' => 'not_received',
-                    ]);
+                    // Document should be marked as not received (only if it exists)
+                    if ($document && in_array($document->status, ['received', 'verified'])) {
+                        $document->update([
+                            'status' => 'not_received',
+                        ]);
+                    }
                 }
             }
         }

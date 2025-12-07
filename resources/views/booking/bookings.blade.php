@@ -113,31 +113,40 @@
                                                 </td>
                                                 <td>{{ $lead->created_at->format('d M, Y') }}</td>
                                                 <td>
+                                                    @php
+                                                        $user = Auth::user();
+                                                        $role = $user->role ?? $user->getRoleNameAttribute();
+                                                        $nonSalesDepartments = ['Operation', 'Operation Manager', 'Delivery', 'Delivery Manager', 
+                                                                                'Post Sales', 'Post Sales Manager', 'Accounts', 'Accounts Manager'];
+                                                        $isNonSalesDept = $role && in_array($role, $nonSalesDepartments);
+                                                    @endphp
                                                     <div class="d-flex align-items-center">
                                                         <div class="d-flex">
-                                                            <a href="#"
-                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover view-lead-btn"
-                                                                data-lead-id="{{ $lead->id }}" data-bs-toggle="tooltip"
-                                                                data-placement="top" title="View Lead">
-                                                                <span class="icon">
-                                                                    <span class="feather-icon">
-                                                                        <i data-feather="eye"></i>
-                                                                    </span>
-                                                                </span>
-                                                            </a>
-
-                                                            @can('edit leads')
+                                                            @if(!$isNonSalesDept)
                                                                 <a href="#"
-                                                                    class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover edit-lead-btn"
+                                                                    class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover view-lead-btn"
                                                                     data-lead-id="{{ $lead->id }}" data-bs-toggle="tooltip"
-                                                                    data-placement="top" title="Edit Lead">
+                                                                    data-placement="top" title="View Lead">
                                                                     <span class="icon">
                                                                         <span class="feather-icon">
-                                                                            <i data-feather="edit"></i>
+                                                                            <i data-feather="eye"></i>
                                                                         </span>
                                                                     </span>
                                                                 </a>
-                                                            @endcan
+
+                                                                @can('edit leads')
+                                                                    <a href="#"
+                                                                        class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover edit-lead-btn"
+                                                                        data-lead-id="{{ $lead->id }}" data-bs-toggle="tooltip"
+                                                                        data-placement="top" title="Edit Lead">
+                                                                        <span class="icon">
+                                                                            <span class="feather-icon">
+                                                                                <i data-feather="edit"></i>
+                                                                            </span>
+                                                                        </span>
+                                                                    </a>
+                                                                @endcan
+                                                            @endif
 
                                                             <a href="{{ route('bookings.form', $lead) }}"
                                                                 class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover"

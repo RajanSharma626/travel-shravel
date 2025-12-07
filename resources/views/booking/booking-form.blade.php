@@ -9,7 +9,7 @@
                         <header class="contact-header">
                             <div class="w-100 align-items-center justify-content-between d-flex contactapp-title link-dark">
                                 <div class="d-flex align-items-center gap-3">
-                                    <a href="{{ route('bookings.index') }}" class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover">
+                                    <a href="{{ $backUrl ?? route('bookings.index') }}" class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover">
                                         <span class="icon">
                                             <span class="feather-icon">
                                                 <i data-feather="arrow-left"></i>
@@ -45,7 +45,13 @@
                                     </div>
                                 @endif
 
-                                <form id="bookingFileForm" method="POST" action="{{ route('leads.update', $lead) }}">
+                                @php
+                                    $isViewOnly = $isViewOnly ?? false;
+                                    $disabledAttr = $isViewOnly ? 'readonly disabled' : '';
+                                    $disabledStyle = $isViewOnly ? 'style="background-color: #f8f9fa; cursor: not-allowed;"' : '';
+                                @endphp
+
+                                <form id="bookingFileForm" method="POST" action="{{ route('leads.update', $lead) }}" @if($isViewOnly) onsubmit="return false;" @endif>
                                     @csrf
                                     @method('PUT')
                                     <input type="hidden" name="lead_id" value="{{ $lead->id }}">
@@ -59,70 +65,78 @@
                                         <div class="row g-3">
                                             <div class="col-md-3">
                                                 <label class="form-label">Ref No.</label>
-                                                <input type="text" value="{{ $lead->tsq }}" class="form-control form-control-sm" readonly>
+                                                <input type="text" value="{{ $lead->tsq }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Salutation</label>
+                                                <input type="text" value="{{ $lead->salutation ?? '' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">First Name</label>
-                                                <input type="text" value="{{ $lead->first_name }}" class="form-control form-control-sm" readonly>
+                                                <input type="text" value="{{ $lead->first_name }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Middle Name</label>
-                                                <input type="text" value="{{ $lead->middle_name ?? '' }}" class="form-control form-control-sm" readonly>
+                                                <input type="text" value="{{ $lead->middle_name ?? '' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Last Name</label>
-                                                <input type="text" value="{{ $lead->last_name ?? '' }}" class="form-control form-control-sm" readonly>
+                                                <input type="text" value="{{ $lead->last_name ?? '' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Contact 1</label>
-                                                <input type="text" value="{{ $lead->primary_phone ?? $lead->phone }}" class="form-control form-control-sm" readonly>
+                                                <input type="text" value="{{ $lead->primary_phone ?? $lead->phone }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Contact 2</label>
-                                                <input type="text" value="{{ $lead->secondary_phone ?? '' }}" class="form-control form-control-sm" readonly>
+                                                <input type="text" value="{{ $lead->secondary_phone ?? '' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Email ID</label>
-                                                <input type="email" value="{{ $lead->email }}" class="form-control form-control-sm" readonly>
+                                                <input type="email" value="{{ $lead->email }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">No. of Adult(s)</label>
-                                                <input type="number" value="{{ $lead->adults }}" class="form-control form-control-sm" readonly>
+                                                <input type="number" value="{{ $lead->adults }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Child (2-5 years)</label>
-                                                <input type="number" value="{{ $lead->children_2_5 ?? 0 }}" class="form-control form-control-sm" readonly>
+                                                <input type="number" value="{{ $lead->children_2_5 ?? 0 }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Child (6-11 years)</label>
-                                                <input type="number" value="{{ $lead->children_6_11 ?? 0 }}" class="form-control form-control-sm" readonly>
+                                                <input type="number" value="{{ $lead->children_6_11 ?? 0 }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Infant (>2 years)</label>
-                                                <input type="number" value="{{ $lead->infants ?? 0 }}" class="form-control form-control-sm" readonly>
+                                                <input type="number" value="{{ $lead->infants ?? 0 }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Booked By</label>
-                                                <input type="text" value="{{ $lead->bookedBy?->name ?? 'N/A' }}" class="form-control form-control-sm" readonly>
+                                                <input type="text" value="{{ $lead->bookedBy?->name ?? 'N/A' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Created By</label>
-                                                <input type="text" value="{{ $lead->createdBy?->name ?? 'N/A' }}" class="form-control form-control-sm" readonly>
+                                                <input type="text" value="{{ $lead->createdBy?->name ?? 'N/A' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Booked On</label>
-                                                <input type="text" value="{{ $lead->booked_on ? $lead->booked_on->format('d M, Y h:i A') : 'N/A' }}" class="form-control form-control-sm" readonly>
+                                                <input type="text" value="{{ $lead->booked_on ? $lead->booked_on->format('d M, Y h:i A') : 'N/A' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Re-assign To</label>
-                                                <select name="reassigned_to" class="form-select form-select-sm">
-                                                    <option value="">-- Select User --</option>
-                                                    @foreach($users as $user)
-                                                        <option value="{{ $user->id }}" {{ old('reassigned_to', $lead->reassigned_to) == $user->id ? 'selected' : '' }}>
-                                                            {{ $user->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+                                                @if($isViewOnly)
+                                                    <input type="text" value="{{ $lead->reassignedTo?->name ?? 'N/A' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                @else
+                                                    <select name="reassigned_to" class="form-select form-select-sm">
+                                                        <option value="">-- Select User --</option>
+                                                        @foreach($users as $user)
+                                                            <option value="{{ $user->id }}" {{ old('reassigned_to', $lead->reassigned_to) == $user->id ? 'selected' : '' }}>
+                                                                {{ $user->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -134,10 +148,12 @@
                                                 <i data-feather="map-pin" class="me-1" style="width: 14px; height: 14px;"></i>
                                                 Destination
                                             </h6>
-                                            <button type="button" class="btn btn-sm btn-primary" id="addDestinationRow">
-                                                <i data-feather="plus" class="me-1" style="width: 14px; height: 14px;"></i>
-                                                Add
-                                            </button>
+                                            @if(!$isViewOnly)
+                                                <button type="button" class="btn btn-sm btn-primary" id="addDestinationRow">
+                                                    <i data-feather="plus" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                    Add
+                                                </button>
+                                            @endif
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-bordered table-sm mb-0" id="destinationTable">
@@ -159,39 +175,58 @@
                                                         @foreach($lead->bookingDestinations as $index => $bd)
                                                             <tr data-row-index="{{ $index }}">
                                                                 <td>
-                                                                    <input type="text" name="booking_destinations[{{ $index }}][destination]" 
-                                                                        value="{{ $bd->destination }}" 
-                                                                        class="form-control form-control-sm" placeholder="Destination">
+                                                                    <select name="booking_destinations[{{ $index }}][destination]" 
+                                                                        class="form-select form-select-sm destination-select" 
+                                                                        data-row-index="{{ $index }}" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                                        <option value="">-- Select Destination --</option>
+                                                                        @foreach($destinations as $dest)
+                                                                            <option value="{{ $dest->name }}" 
+                                                                                {{ $bd->destination == $dest->name ? 'selected' : '' }}
+                                                                                data-destination-id="{{ $dest->id }}">
+                                                                                {{ $dest->name }}
+                                                                            </option>
+                                                                        @endforeach
+                                                                    </select>
                                                                 </td>
                                                                 <td>
-                                                                    <input type="text" name="booking_destinations[{{ $index }}][location]" 
-                                                                        value="{{ $bd->location }}" 
-                                                                        class="form-control form-control-sm" placeholder="Location">
+                                                                    <select name="booking_destinations[{{ $index }}][location]" 
+                                                                        class="form-select form-select-sm location-select" 
+                                                                        data-row-index="{{ $index }}" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                                        <option value="">-- Select Location --</option>
+                                                                        @php
+                                                                            $selectedDestination = $destinations->firstWhere('name', $bd->destination);
+                                                                            if ($selectedDestination && $selectedDestination->locations) {
+                                                                                foreach ($selectedDestination->locations->where('is_active', true)->sortBy('name') as $loc) {
+                                                                                    echo '<option value="' . htmlspecialchars($loc->name) . '" ' . ($bd->location == $loc->name ? 'selected' : '') . '>' . htmlspecialchars($loc->name) . '</option>';
+                                                                                }
+                                                                            }
+                                                                        @endphp
+                                                                    </select>
                                                                 </td>
                                                                 <td class="text-center">
                                                                     <input type="checkbox" name="booking_destinations[{{ $index }}][only_hotel]" 
                                                                         value="1" {{ $bd->only_hotel ? 'checked' : '' }} 
-                                                                        class="form-check-input service-type-checkbox">
+                                                                        class="form-check-input service-type-checkbox" {{ $disabledAttr }}>
                                                                 </td>
                                                                 <td class="text-center">
                                                                     <input type="checkbox" name="booking_destinations[{{ $index }}][only_tt]" 
                                                                         value="1" {{ $bd->only_tt ? 'checked' : '' }} 
-                                                                        class="form-check-input service-type-checkbox">
+                                                                        class="form-check-input service-type-checkbox" {{ $disabledAttr }}>
                                                                 </td>
                                                                 <td class="text-center">
                                                                     <input type="checkbox" name="booking_destinations[{{ $index }}][hotel_tt]" 
                                                                         value="1" {{ $bd->hotel_tt ? 'checked' : '' }} 
-                                                                        class="form-check-input service-type-checkbox">
+                                                                        class="form-check-input service-type-checkbox" {{ $disabledAttr }}>
                                                                 </td>
                                                                 <td>
                                                                     <input type="date" name="booking_destinations[{{ $index }}][from_date]" 
                                                                         value="{{ $bd->from_date ? $bd->from_date->format('Y-m-d') : '' }}" 
-                                                                        class="form-control form-control-sm destination-from-date">
+                                                                        class="form-control form-control-sm destination-from-date" {{ $disabledAttr }} {!! $disabledStyle !!}>
                                                                 </td>
                                                                 <td>
                                                                     <input type="date" name="booking_destinations[{{ $index }}][to_date]" 
                                                                         value="{{ $bd->to_date ? $bd->to_date->format('Y-m-d') : '' }}" 
-                                                                        class="form-control form-control-sm destination-to-date">
+                                                                        class="form-control form-control-sm destination-to-date" {{ $disabledAttr }} {!! $disabledStyle !!}>
                                                                 </td>
                                                                 <td>
                                                                     <input type="text" 
@@ -199,9 +234,11 @@
                                                                         class="form-control form-control-sm destination-duration" readonly>
                                                                 </td>
                                                                 <td class="text-center">
-                                                                    <button type="button" class="btn btn-sm btn-danger removeDestinationRow">
-                                                                        <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                                                                    </button>
+                                                                    @if(!$isViewOnly)
+                                                                        <button type="button" class="btn btn-sm btn-danger removeDestinationRow">
+                                                                            <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
+                                                                        </button>
+                                                                    @endif
                                                                 </td>
                                                             </tr>
                                                         @endforeach
@@ -217,250 +254,96 @@
                                         </div>
                                     </div>
 
-                                    <!-- By Air Arrival/Departure Details Section -->
+                                    <!-- Arrival/Departure Details Section -->
                                     <div class="mb-4 border rounded-3 p-3">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="text-uppercase text-muted small fw-semibold mb-0">
                                                 <i data-feather="navigation" class="me-1" style="width: 14px; height: 14px;"></i>
-                                                By Air Arrival/Departure Details
+                                                Arrival/Departure Details
                                             </h6>
-                                            <button type="button" class="btn btn-sm btn-primary" id="addFlightRow">
-                                                <i data-feather="plus" class="me-1" style="width: 14px; height: 14px;"></i>
-                                                Add
-                                            </button>
+                                            @if(!$isViewOnly)
+                                                <button type="button" class="btn btn-sm btn-primary" id="addArrivalDepartureRow">
+                                                    <i data-feather="plus" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                    Add
+                                                </button>
+                                            @endif
                                         </div>
                                         <div class="table-responsive">
-                                            <table class="table table-bordered table-sm mb-0" id="flightTable">
+                                            <table class="table table-bordered table-sm mb-0" id="arrivalDepartureTable">
                                                 <thead class="table-light">
                                                     <tr>
-                                                        <th style="width: 15%;">Airline</th>
+                                                        <th style="width: 12%;">Mode</th>
                                                         <th style="width: 15%;">Info</th>
                                                         <th style="width: 12%;">From City</th>
                                                         <th style="width: 12%;">To City</th>
                                                         <th style="width: 18%;">Dep Date & Time</th>
                                                         <th style="width: 18%;">Arrival Date & Time</th>
-                                                        <th style="width: 10%;" class="text-center">Action</th>
+                                                        <th style="width: 13%;" class="text-center">Action</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody id="flightTableBody">
-                                                    @if($lead->bookingFlights && $lead->bookingFlights->count() > 0)
-                                                        @foreach($lead->bookingFlights as $index => $bf)
-                                                            <tr data-row-index="{{ $index }}">
+                                                <tbody id="arrivalDepartureTableBody">
+                                                    @php
+                                                        $allTransports = $lead->bookingArrivalDepartures ?? collect();
+                                                    @endphp
+                                                    @if($allTransports && $allTransports->count() > 0)
+                                                        @foreach($allTransports as $index => $transport)
+                                                            <tr data-row-index="{{ $index }}" data-transport-id="{{ $transport->id }}">
                                                                 <td>
-                                                                    <input type="text" name="booking_flights[{{ $index }}][airline]" 
-                                                                        value="{{ $bf->airline }}" 
-                                                                        class="form-control form-control-sm" placeholder="Airline">
+                                                                    <select name="arrival_departure[{{ $index }}][mode]" class="form-select form-select-sm transport-mode-select">
+                                                                        <option value="By Air" {{ $transport->mode == 'By Air' ? 'selected' : '' }}>By Air</option>
+                                                                        <option value="By Surface" {{ $transport->mode == 'By Surface' ? 'selected' : '' }}>By Surface</option>
+                                                                        <option value="By Sea" {{ $transport->mode == 'By Sea' ? 'selected' : '' }}>By Sea</option>
+                                                                    </select>
+                                                                    <input type="hidden" name="arrival_departure[{{ $index }}][id]" value="{{ $transport->id }}">
                                                                 </td>
                                                                 <td>
-                                                                    <input type="text" name="booking_flights[{{ $index }}][info]" 
-                                                                        value="{{ $bf->info }}" 
+                                                                    <input type="text" name="arrival_departure[{{ $index }}][info]" 
+                                                                        value="{{ $transport->info }}" 
                                                                         class="form-control form-control-sm" placeholder="Info">
                                                                 </td>
                                                                 <td>
-                                                                    <input type="text" name="booking_flights[{{ $index }}][from_city]" 
-                                                                        value="{{ $bf->from_city }}" 
+                                                                    <input type="text" name="arrival_departure[{{ $index }}][from_city]" 
+                                                                        value="{{ $transport->from_city }}" 
                                                                         class="form-control form-control-sm" placeholder="From City">
                                                                 </td>
                                                                 <td>
-                                                                    <input type="text" name="booking_flights[{{ $index }}][to_city]" 
-                                                                        value="{{ $bf->to_city }}" 
+                                                                    <input type="text" name="arrival_departure[{{ $index }}][to_city]" 
+                                                                        value="{{ $transport->to_city ?? '' }}" 
                                                                         class="form-control form-control-sm" placeholder="To City">
                                                                 </td>
                                                                 <td>
                                                                     <div class="d-flex gap-1">
-                                                                        <input type="date" name="booking_flights[{{ $index }}][departure_date]" 
-                                                                            value="{{ $bf->departure_date ? $bf->departure_date->format('Y-m-d') : '' }}" 
+                                                                        <input type="date" name="arrival_departure[{{ $index }}][departure_date]" 
+                                                                            value="{{ $transport->departure_date ? ($transport->departure_date instanceof \DateTime ? $transport->departure_date->format('Y-m-d') : $transport->departure_date) : '' }}" 
                                                                             class="form-control form-control-sm" style="flex: 1;">
-                                                                        <input type="time" name="booking_flights[{{ $index }}][departure_time]" 
-                                                                            value="{{ $bf->departure_time ? substr($bf->departure_time, 0, 5) : '' }}" 
+                                                                        <input type="time" name="arrival_departure[{{ $index }}][departure_time]" 
+                                                                            value="{{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}" 
                                                                             class="form-control form-control-sm" style="flex: 1;">
                                                                     </div>
                                                                 </td>
                                                                 <td>
                                                                     <div class="d-flex gap-1">
-                                                                        <input type="date" name="booking_flights[{{ $index }}][arrival_date]" 
-                                                                            value="{{ $bf->arrival_date ? $bf->arrival_date->format('Y-m-d') : '' }}" 
+                                                                        <input type="date" name="arrival_departure[{{ $index }}][arrival_date]" 
+                                                                            value="{{ $transport->arrival_date ? ($transport->arrival_date instanceof \DateTime ? $transport->arrival_date->format('Y-m-d') : $transport->arrival_date) : '' }}" 
                                                                             class="form-control form-control-sm" style="flex: 1;">
-                                                                        <input type="time" name="booking_flights[{{ $index }}][arrival_time]" 
-                                                                            value="{{ $bf->arrival_time ? substr($bf->arrival_time, 0, 5) : '' }}" 
+                                                                        <input type="time" name="arrival_departure[{{ $index }}][arrival_time]" 
+                                                                            value="{{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}" 
                                                                             class="form-control form-control-sm" style="flex: 1;">
                                                                     </div>
                                                                 </td>
                                                                 <td class="text-center">
-                                                                    <button type="button" class="btn btn-sm btn-danger removeFlightRow">
-                                                                        <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                                                                    </button>
+                                                                    @if(!$isViewOnly)
+                                                                        <button type="button" class="btn btn-sm btn-danger removeArrivalDepartureRow">
+                                                                            <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
+                                                                        </button>
+                                                                    @endif
                                                                 </td>
                                                             </tr>
                                                         @endforeach
                                                     @else
                                                         <tr class="empty-row-message">
                                                             <td colspan="7" class="text-center text-muted py-3">
-                                                                No flights added. Click "Add" to add a flight.
-                                                            </td>
-                                                        </tr>
-                                                    @endif
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-
-                                    <!-- By Surface Arrival/Departure Details Section -->
-                                    <div class="mb-4 border rounded-3 p-3 bg-light">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                <i data-feather="truck" class="me-1" style="width: 14px; height: 14px;"></i>
-                                                By Surface Arrival/Departure Details
-                                            </h6>
-                                            <button type="button" class="btn btn-sm btn-primary" id="addSurfaceTransportRow">
-                                                <i data-feather="plus" class="me-1" style="width: 14px; height: 14px;"></i>
-                                                Add
-                                            </button>
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-sm mb-0" id="surfaceTransportTable">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th style="width: 15%;">Mode</th>
-                                                        <th style="width: 15%;">Info</th>
-                                                        <th style="width: 15%;">From City</th>
-                                                        <th style="width: 25%;">Dep. Date & Time</th>
-                                                        <th style="width: 25%;">Arrival Date & Time</th>
-                                                        <th style="width: 5%;" class="text-center">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="surfaceTransportTableBody">
-                                                    @if($lead->bookingSurfaceTransports && $lead->bookingSurfaceTransports->count() > 0)
-                                                        @foreach($lead->bookingSurfaceTransports as $index => $bst)
-                                                            <tr data-row-index="{{ $index }}">
-                                                                <td>
-                                                                    <input type="text" name="booking_surface_transports[{{ $index }}][mode]" 
-                                                                        value="{{ $bst->mode }}" 
-                                                                        class="form-control form-control-sm" placeholder="Mode">
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" name="booking_surface_transports[{{ $index }}][info]" 
-                                                                        value="{{ $bst->info }}" 
-                                                                        class="form-control form-control-sm" placeholder="Info">
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" name="booking_surface_transports[{{ $index }}][from_city]" 
-                                                                        value="{{ $bst->from_city }}" 
-                                                                        class="form-control form-control-sm" placeholder="From City">
-                                                                </td>
-                                                                <td>
-                                                                    <div class="d-flex gap-1">
-                                                                        <input type="date" name="booking_surface_transports[{{ $index }}][departure_date]" 
-                                                                            value="{{ $bst->departure_date ? $bst->departure_date->format('Y-m-d') : '' }}" 
-                                                                            class="form-control form-control-sm" style="flex: 1;">
-                                                                        <input type="time" name="booking_surface_transports[{{ $index }}][departure_time]" 
-                                                                            value="{{ $bst->departure_time ? substr($bst->departure_time, 0, 5) : '' }}" 
-                                                                            class="form-control form-control-sm" style="flex: 1;">
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <div class="d-flex gap-1">
-                                                                        <input type="date" name="booking_surface_transports[{{ $index }}][arrival_date]" 
-                                                                            value="{{ $bst->arrival_date ? $bst->arrival_date->format('Y-m-d') : '' }}" 
-                                                                            class="form-control form-control-sm" style="flex: 1;">
-                                                                        <input type="time" name="booking_surface_transports[{{ $index }}][arrival_time]" 
-                                                                            value="{{ $bst->arrival_time ? substr($bst->arrival_time, 0, 5) : '' }}" 
-                                                                            class="form-control form-control-sm" style="flex: 1;">
-                                                                    </div>
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    <button type="button" class="btn btn-sm btn-danger removeSurfaceTransportRow">
-                                                                        <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
-                                                        @endforeach
-                                                    @else
-                                                        <tr class="empty-row-message">
-                                                            <td colspan="6" class="text-center text-muted py-3">
-                                                                No surface transports added. Click "Add" to add a surface transport.
-                                                            </td>
-                                                        </tr>
-                                                    @endif
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-
-                                    <!-- By Sea Arrival/Departure Details Section -->
-                                    <div class="mb-4 border rounded-3 p-3">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                <i data-feather="anchor" class="me-1" style="width: 14px; height: 14px;"></i>
-                                                By Sea Arrival/Departure Details
-                                            </h6>
-                                            <button type="button" class="btn btn-sm btn-primary" id="addSeaTransportRow">
-                                                <i data-feather="plus" class="me-1" style="width: 14px; height: 14px;"></i>
-                                                Add
-                                            </button>
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-sm mb-0" id="seaTransportTable">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th style="width: 15%;">Cruise</th>
-                                                        <th style="width: 15%;">Info</th>
-                                                        <th style="width: 15%;">From City</th>
-                                                        <th style="width: 25%;">Dep. Date & Time</th>
-                                                        <th style="width: 25%;">Arrival Date & Time</th>
-                                                        <th style="width: 5%;" class="text-center">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="seaTransportTableBody">
-                                                    @if($lead->bookingSeaTransports && $lead->bookingSeaTransports->count() > 0)
-                                                        @foreach($lead->bookingSeaTransports as $index => $bst)
-                                                            <tr data-row-index="{{ $index }}">
-                                                                <td>
-                                                                    <input type="text" name="booking_sea_transports[{{ $index }}][cruise]" 
-                                                                        value="{{ $bst->cruise }}" 
-                                                                        class="form-control form-control-sm" placeholder="Cruise">
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" name="booking_sea_transports[{{ $index }}][info]" 
-                                                                        value="{{ $bst->info }}" 
-                                                                        class="form-control form-control-sm" placeholder="Info">
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" name="booking_sea_transports[{{ $index }}][from_city]" 
-                                                                        value="{{ $bst->from_city }}" 
-                                                                        class="form-control form-control-sm" placeholder="From City">
-                                                                </td>
-                                                                <td>
-                                                                    <div class="d-flex gap-1">
-                                                                        <input type="date" name="booking_sea_transports[{{ $index }}][departure_date]" 
-                                                                            value="{{ $bst->departure_date ? $bst->departure_date->format('Y-m-d') : '' }}" 
-                                                                            class="form-control form-control-sm" style="flex: 1;">
-                                                                        <input type="time" name="booking_sea_transports[{{ $index }}][departure_time]" 
-                                                                            value="{{ $bst->departure_time ? substr($bst->departure_time, 0, 5) : '' }}" 
-                                                                            class="form-control form-control-sm" style="flex: 1;">
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <div class="d-flex gap-1">
-                                                                        <input type="date" name="booking_sea_transports[{{ $index }}][arrival_date]" 
-                                                                            value="{{ $bst->arrival_date ? $bst->arrival_date->format('Y-m-d') : '' }}" 
-                                                                            class="form-control form-control-sm" style="flex: 1;">
-                                                                        <input type="time" name="booking_sea_transports[{{ $index }}][arrival_time]" 
-                                                                            value="{{ $bst->arrival_time ? substr($bst->arrival_time, 0, 5) : '' }}" 
-                                                                            class="form-control form-control-sm" style="flex: 1;">
-                                                                    </div>
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    <button type="button" class="btn btn-sm btn-danger removeSeaTransportRow">
-                                                                        <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
-                                                        @endforeach
-                                                    @else
-                                                        <tr class="empty-row-message">
-                                                            <td colspan="6" class="text-center text-muted py-3">
-                                                                No sea transports added. Click "Add" to add a sea transport.
+                                                                No arrival/departure details added. Click "Add" to add details.
                                                             </td>
                                                         </tr>
                                                     @endif
@@ -476,10 +359,12 @@
                                                 <i data-feather="home" class="me-1" style="width: 14px; height: 14px;"></i>
                                                 Accommodation Details
                                             </h6>
-                                            <button type="button" class="btn btn-sm btn-primary" id="addAccommodationRow">
-                                                <i data-feather="plus" class="me-1" style="width: 14px; height: 14px;"></i>
-                                                Add
-                                            </button>
+                                            @if(!$isViewOnly)
+                                                <button type="button" class="btn btn-sm btn-primary" id="addAccommodationRow">
+                                                    <i data-feather="plus" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                    Add
+                                                </button>
+                                            @endif
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-bordered table-sm mb-0" id="accommodationTable">
@@ -550,9 +435,11 @@
                                                                     </select>
                                                                 </td>
                                                                 <td class="text-center">
-                                                                    <button type="button" class="btn btn-sm btn-danger removeAccommodationRow">
-                                                                        <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                                                                    </button>
+                                                                    @if(!$isViewOnly)
+                                                                        <button type="button" class="btn btn-sm btn-danger removeAccommodationRow">
+                                                                            <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
+                                                                        </button>
+                                                                    @endif
                                                                 </td>
                                                             </tr>
                                                         @endforeach
@@ -569,16 +456,18 @@
                                     </div>
 
                                     <!-- Day-Wise Itinerary Section -->
-                                    <div class="mb-4 border rounded-3 p-3">
+                                    <div class="mb-4 border rounded-3 p-3" id="dayWiseItinerarySection" style="display: none;">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="text-uppercase text-muted small fw-semibold mb-0">
                                                 <i data-feather="calendar" class="me-1" style="width: 14px; height: 14px;"></i>
                                                 Day-Wise Itinerary
                                             </h6>
-                                            <button type="button" class="btn btn-sm btn-primary" id="addItineraryRow">
-                                                <i data-feather="plus" class="me-1" style="width: 14px; height: 14px;"></i>
-                                                Add
-                                            </button>
+                                            @if(!$isViewOnly)
+                                                <button type="button" class="btn btn-sm btn-primary" id="addItineraryRow">
+                                                    <i data-feather="plus" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                    Add
+                                                </button>
+                                            @endif
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-bordered table-sm mb-0" id="itineraryTable">
@@ -640,9 +529,11 @@
                                                                         class="form-control form-control-sm" rows="2" placeholder="Remarks">{{ $bi->remarks }}</textarea>
                                                                 </td>
                                                                 <td class="text-center">
-                                                                    <button type="button" class="btn btn-sm btn-danger removeItineraryRow">
-                                                                        <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                                                                    </button>
+                                                                    @if(!$isViewOnly)
+                                                                        <button type="button" class="btn btn-sm btn-danger removeItineraryRow">
+                                                                            <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
+                                                                        </button>
+                                                                    @endif
                                                                 </td>
                                                             </tr>
                                                         @endforeach
@@ -658,10 +549,16 @@
                                         </div>
                                     </div>
 
-                                    <div class="d-flex justify-content-end gap-2 mb-4">
-                                        <a href="{{ route('bookings.index') }}" class="btn btn-light border">Cancel</a>
-                                        <button type="submit" class="btn btn-primary">Save Booking File</button>
-                                    </div>
+                                    @if(!$isViewOnly)
+                                        <div class="d-flex justify-content-end gap-2 mb-4">
+                                            <a href="{{ $backUrl ?? route('bookings.index') }}" class="btn btn-light border">Cancel</a>
+                                            <button type="submit" class="btn btn-primary">Save Booking File</button>
+                                        </div>
+                                    @else
+                                        <div class="d-flex justify-content-end gap-2 mb-4">
+                                            <a href="{{ $backUrl ?? route('bookings.index') }}" class="btn btn-light border">Back</a>
+                                        </div>
+                                    @endif
                                 </form>
                             </div>
                         </div>
@@ -674,6 +571,16 @@
     @push('scripts')
         <script>
             $(document).ready(function() {
+                // Disable all form inputs if in view-only mode
+                @if($isViewOnly)
+                    $('#bookingFileForm').find('input, select, textarea').not('[readonly]').prop('disabled', true).css({
+                        'background-color': '#f8f9fa',
+                        'cursor': 'not-allowed'
+                    });
+                    // Also disable checkboxes
+                    $('#bookingFileForm').find('input[type="checkbox"]').prop('disabled', true);
+                @endif
+
                 // Initialize Feather icons
                 if (typeof feather !== 'undefined') {
                     feather.replace();
@@ -717,14 +624,27 @@
 
                     const newRow = document.createElement('tr');
                     newRow.setAttribute('data-row-index', destinationRowIndex);
+                    
+                    // Build destination options
+                    let destinationOptions = '<option value="">-- Select Destination --</option>';
+                    @foreach($destinations as $dest)
+                        destinationOptions += '<option value="{{ $dest->name }}" data-destination-id="{{ $dest->id }}">{{ $dest->name }}</option>';
+                    @endforeach
+                    
                     newRow.innerHTML = `
                         <td>
-                            <input type="text" name="booking_destinations[${destinationRowIndex}][destination]" 
-                                class="form-control form-control-sm" placeholder="Destination">
+                            <select name="booking_destinations[${destinationRowIndex}][destination]" 
+                                class="form-select form-select-sm destination-select" 
+                                data-row-index="${destinationRowIndex}">
+                                ${destinationOptions}
+                            </select>
                         </td>
                         <td>
-                            <input type="text" name="booking_destinations[${destinationRowIndex}][location]" 
-                                class="form-control form-control-sm" placeholder="Location">
+                            <select name="booking_destinations[${destinationRowIndex}][location]" 
+                                class="form-select form-select-sm location-select" 
+                                data-row-index="${destinationRowIndex}">
+                                <option value="">-- Select Location --</option>
+                            </select>
                         </td>
                                                         <td class="text-center">
                                                             <input type="checkbox" name="booking_destinations[${destinationRowIndex}][only_hotel]" 
@@ -769,7 +689,66 @@
                     // Attach mutual exclusivity handler for service type checkboxes
                     attachServiceTypeHandlers(newRow);
 
+                    // Attach destination change handler
+                    attachDestinationChangeHandler(newRow);
+
                     destinationRowIndex++;
+                }
+
+                // Function to load locations for a selected destination
+                function loadLocationsForDestination(destinationSelect) {
+                    const rowIndex = destinationSelect.getAttribute('data-row-index');
+                    const locationSelect = document.querySelector(`select.location-select[data-row-index="${rowIndex}"]`);
+                    const destinationId = destinationSelect.options[destinationSelect.selectedIndex]?.getAttribute('data-destination-id');
+                    
+                    // Clear existing options except the first one
+                    if (locationSelect) {
+                        locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
+                        
+                        if (destinationId) {
+                            // Show loading state
+                            locationSelect.disabled = true;
+                            locationSelect.innerHTML = '<option value="">Loading locations...</option>';
+                            
+                            // Fetch locations from API
+                            fetch(`/api/destinations/${destinationId}/locations`, {
+                                method: 'GET',
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json',
+                                },
+                                credentials: 'same-origin'
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
+                                data.forEach(location => {
+                                    const option = document.createElement('option');
+                                    option.value = location.name;
+                                    option.textContent = location.name;
+                                    locationSelect.appendChild(option);
+                                });
+                                locationSelect.disabled = false;
+                            })
+                            .catch(error => {
+                                console.error('Error loading locations:', error);
+                                locationSelect.innerHTML = '<option value="">Error loading locations</option>';
+                                locationSelect.disabled = false;
+                            });
+                        } else {
+                            locationSelect.disabled = false;
+                        }
+                    }
+                }
+
+                // Function to attach destination change handler
+                function attachDestinationChangeHandler(row) {
+                    const destinationSelect = row.querySelector('.destination-select');
+                    if (destinationSelect) {
+                        destinationSelect.addEventListener('change', function() {
+                            loadLocationsForDestination(this);
+                        });
+                    }
                 }
 
                 // Function to calculate duration based on service type
@@ -859,6 +838,7 @@
                     if (!row.classList.contains('empty-row-message')) {
                         attachServiceTypeHandlers(row);
                         attachDurationCalculation(row);
+                        attachDestinationChangeHandler(row);
                     }
                 });
 
@@ -871,72 +851,92 @@
                 // Remove row button click handler (using event delegation)
                 document.addEventListener('click', function(e) {
                     if (e.target.closest('.removeDestinationRow')) {
+                        if (!confirm('Are you sure you want to delete this destination row?')) {
+                            return;
+                        }
                         const row = e.target.closest('tr');
                         const tbody = document.getElementById('destinationTableBody');
                         row.remove();
                         
-                        // Show empty message if no rows left
-                        if (tbody.children.length === 0) {
-                            const emptyRow = document.createElement('tr');
-                            emptyRow.className = 'empty-row-message';
-                            emptyRow.innerHTML = `
-                                <td colspan="9" class="text-center text-muted py-3">
-                                    No destinations added. Click "Add" to add a destination.
-                                </td>
-                            `;
-                            tbody.appendChild(emptyRow);
+                        // Add default row if no rows left (instead of showing empty message)
+                        if (tbody.children.length === 0 || (tbody.children.length === 1 && tbody.querySelector('.empty-row-message'))) {
+                            const emptyRow = tbody.querySelector('.empty-row-message');
+                            if (emptyRow) {
+                                emptyRow.remove();
+                            }
+                            addDestinationRow();
                         }
+                        
+                        // Check itinerary visibility after removing destination row
+                        checkItineraryVisibility();
                     }
                 });
 
-                // Flight table management
-                let flightRowIndex = {{ $lead->bookingFlights ? $lead->bookingFlights->count() : 0 }};
+                // Add default row if destination table is empty
+                const destinationTbody = document.getElementById('destinationTableBody');
+                const hasDestinationEmptyMessage = destinationTbody.querySelector('.empty-row-message');
+                const hasDestinationExistingRows = destinationTbody.querySelectorAll('tr[data-row-index]').length > 0;
+                
+                if (hasDestinationEmptyMessage && !hasDestinationExistingRows) {
+                    // Remove empty message and add default row
+                    addDestinationRow();
+                }
 
-                // Function to add new flight row
-                function addFlightRow() {
-                    const tbody = document.getElementById('flightTableBody');
+                // Arrival/Departure unified table management
+                @php
+                    $totalTransports = $lead->bookingArrivalDepartures ? $lead->bookingArrivalDepartures->count() : 0;
+                @endphp
+                let arrivalDepartureRowIndex = {{ $totalTransports }};
+
+                // Function to add new arrival/departure row
+                function addArrivalDepartureRow() {
+                    const tbody = document.getElementById('arrivalDepartureTableBody');
                     const emptyRow = tbody.querySelector('.empty-row-message');
                     if (emptyRow) {
                         emptyRow.remove();
                     }
 
                     const newRow = document.createElement('tr');
-                    newRow.setAttribute('data-row-index', flightRowIndex);
+                    newRow.setAttribute('data-row-index', arrivalDepartureRowIndex);
                     newRow.innerHTML = `
                         <td>
-                            <input type="text" name="booking_flights[${flightRowIndex}][airline]" 
-                                class="form-control form-control-sm" placeholder="Airline">
+                            <select name="arrival_departure[${arrivalDepartureRowIndex}][mode]" class="form-select form-select-sm transport-mode-select">
+                                <option value="By Air">By Air</option>
+                                <option value="By Surface">By Surface</option>
+                                <option value="By Sea">By Sea</option>
+                            </select>
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][type]" value="new">
                         </td>
                         <td>
-                            <input type="text" name="booking_flights[${flightRowIndex}][info]" 
+                            <input type="text" name="arrival_departure[${arrivalDepartureRowIndex}][info]" 
                                 class="form-control form-control-sm" placeholder="Info">
                         </td>
                         <td>
-                            <input type="text" name="booking_flights[${flightRowIndex}][from_city]" 
+                            <input type="text" name="arrival_departure[${arrivalDepartureRowIndex}][from_city]" 
                                 class="form-control form-control-sm" placeholder="From City">
                         </td>
                         <td>
-                            <input type="text" name="booking_flights[${flightRowIndex}][to_city]" 
+                            <input type="text" name="arrival_departure[${arrivalDepartureRowIndex}][to_city]" 
                                 class="form-control form-control-sm" placeholder="To City">
                         </td>
                         <td>
                             <div class="d-flex gap-1">
-                                <input type="date" name="booking_flights[${flightRowIndex}][departure_date]" 
+                                <input type="date" name="arrival_departure[${arrivalDepartureRowIndex}][departure_date]" 
                                     class="form-control form-control-sm" style="flex: 1;">
-                                <input type="time" name="booking_flights[${flightRowIndex}][departure_time]" 
+                                <input type="time" name="arrival_departure[${arrivalDepartureRowIndex}][departure_time]" 
                                     class="form-control form-control-sm" style="flex: 1;">
                             </div>
                         </td>
                         <td>
                             <div class="d-flex gap-1">
-                                <input type="date" name="booking_flights[${flightRowIndex}][arrival_date]" 
+                                <input type="date" name="arrival_departure[${arrivalDepartureRowIndex}][arrival_date]" 
                                     class="form-control form-control-sm" style="flex: 1;">
-                                <input type="time" name="booking_flights[${flightRowIndex}][arrival_time]" 
+                                <input type="time" name="arrival_departure[${arrivalDepartureRowIndex}][arrival_time]" 
                                     class="form-control form-control-sm" style="flex: 1;">
                             </div>
                         </td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-danger removeFlightRow">
+                            <button type="button" class="btn btn-sm btn-danger removeArrivalDepartureRow">
                                 <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
                             </button>
                         </td>
@@ -948,205 +948,45 @@
                         feather.replace();
                     }
 
-                    flightRowIndex++;
+                    arrivalDepartureRowIndex++;
                 }
 
-                // Add flight row button click handler
-                const addFlightBtn = document.getElementById('addFlightRow');
-                if (addFlightBtn) {
-                    addFlightBtn.addEventListener('click', addFlightRow);
+                // Add arrival/departure row button click handler
+                const addArrivalDepartureBtn = document.getElementById('addArrivalDepartureRow');
+                if (addArrivalDepartureBtn) {
+                    addArrivalDepartureBtn.addEventListener('click', addArrivalDepartureRow);
                 }
 
-                // Remove flight row button click handler (using event delegation)
+                // Remove arrival/departure row button click handler (using event delegation)
                 document.addEventListener('click', function(e) {
-                    if (e.target.closest('.removeFlightRow')) {
+                    if (e.target.closest('.removeArrivalDepartureRow')) {
+                        if (!confirm('Are you sure you want to delete this arrival/departure row?')) {
+                            return;
+                        }
                         const row = e.target.closest('tr');
-                        const tbody = document.getElementById('flightTableBody');
+                        const tbody = document.getElementById('arrivalDepartureTableBody');
                         row.remove();
                         
-                        // Show empty message if no rows left
-                        if (tbody.children.length === 0) {
-                            const emptyRow = document.createElement('tr');
-                            emptyRow.className = 'empty-row-message';
-                            emptyRow.innerHTML = `
-                                <td colspan="7" class="text-center text-muted py-3">
-                                    No flights added. Click "Add" to add a flight.
-                                </td>
-                            `;
-                            tbody.appendChild(emptyRow);
+                        // Add default row if no rows left (instead of showing empty message)
+                        if (tbody.children.length === 0 || (tbody.children.length === 1 && tbody.querySelector('.empty-row-message'))) {
+                            const emptyRow = tbody.querySelector('.empty-row-message');
+                            if (emptyRow) {
+                                emptyRow.remove();
+                            }
+                            addArrivalDepartureRow();
                         }
                     }
                 });
 
-                // Surface Transport table management
-                let surfaceTransportRowIndex = {{ $lead->bookingSurfaceTransports ? $lead->bookingSurfaceTransports->count() : 0 }};
-
-                // Function to add new surface transport row
-                function addSurfaceTransportRow() {
-                    const tbody = document.getElementById('surfaceTransportTableBody');
-                    const emptyRow = tbody.querySelector('.empty-row-message');
-                    if (emptyRow) {
-                        emptyRow.remove();
-                    }
-
-                    const newRow = document.createElement('tr');
-                    newRow.setAttribute('data-row-index', surfaceTransportRowIndex);
-                    newRow.innerHTML = `
-                        <td>
-                            <input type="text" name="booking_surface_transports[${surfaceTransportRowIndex}][mode]" 
-                                class="form-control form-control-sm" placeholder="Mode">
-                        </td>
-                        <td>
-                            <input type="text" name="booking_surface_transports[${surfaceTransportRowIndex}][info]" 
-                                class="form-control form-control-sm" placeholder="Info">
-                        </td>
-                        <td>
-                            <input type="text" name="booking_surface_transports[${surfaceTransportRowIndex}][from_city]" 
-                                class="form-control form-control-sm" placeholder="From City">
-                        </td>
-                        <td>
-                            <div class="d-flex gap-1">
-                                <input type="date" name="booking_surface_transports[${surfaceTransportRowIndex}][departure_date]" 
-                                    class="form-control form-control-sm" style="flex: 1;">
-                                <input type="time" name="booking_surface_transports[${surfaceTransportRowIndex}][departure_time]" 
-                                    class="form-control form-control-sm" style="flex: 1;">
-                            </div>
-                        </td>
-                        <td>
-                            <div class="d-flex gap-1">
-                                <input type="date" name="booking_surface_transports[${surfaceTransportRowIndex}][arrival_date]" 
-                                    class="form-control form-control-sm" style="flex: 1;">
-                                <input type="time" name="booking_surface_transports[${surfaceTransportRowIndex}][arrival_time]" 
-                                    class="form-control form-control-sm" style="flex: 1;">
-                            </div>
-                        </td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-danger removeSurfaceTransportRow">
-                                <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(newRow);
-
-                    // Re-initialize Feather icons
-                    if (typeof feather !== 'undefined') {
-                        feather.replace();
-                    }
-
-                    surfaceTransportRowIndex++;
+                // Add default row if table is empty
+                const arrivalDepartureTbody = document.getElementById('arrivalDepartureTableBody');
+                const hasEmptyMessage = arrivalDepartureTbody.querySelector('.empty-row-message');
+                const hasExistingRows = arrivalDepartureTbody.querySelectorAll('tr[data-row-index]').length > 0;
+                
+                if (hasEmptyMessage && !hasExistingRows) {
+                    // Remove empty message and add default row
+                    addArrivalDepartureRow();
                 }
-
-                // Add surface transport row button click handler
-                const addSurfaceTransportBtn = document.getElementById('addSurfaceTransportRow');
-                if (addSurfaceTransportBtn) {
-                    addSurfaceTransportBtn.addEventListener('click', addSurfaceTransportRow);
-                }
-
-                // Remove surface transport row button click handler (using event delegation)
-                document.addEventListener('click', function(e) {
-                    if (e.target.closest('.removeSurfaceTransportRow')) {
-                        const row = e.target.closest('tr');
-                        const tbody = document.getElementById('surfaceTransportTableBody');
-                        row.remove();
-                        
-                        // Show empty message if no rows left
-                        if (tbody.children.length === 0) {
-                            const emptyRow = document.createElement('tr');
-                            emptyRow.className = 'empty-row-message';
-                            emptyRow.innerHTML = `
-                                <td colspan="6" class="text-center text-muted py-3">
-                                    No surface transports added. Click "Add" to add a surface transport.
-                                </td>
-                            `;
-                            tbody.appendChild(emptyRow);
-                        }
-                    }
-                });
-
-                // Sea Transport table management
-                let seaTransportRowIndex = {{ $lead->bookingSeaTransports ? $lead->bookingSeaTransports->count() : 0 }};
-
-                // Function to add new sea transport row
-                function addSeaTransportRow() {
-                    const tbody = document.getElementById('seaTransportTableBody');
-                    const emptyRow = tbody.querySelector('.empty-row-message');
-                    if (emptyRow) {
-                        emptyRow.remove();
-                    }
-
-                    const newRow = document.createElement('tr');
-                    newRow.setAttribute('data-row-index', seaTransportRowIndex);
-                    newRow.innerHTML = `
-                        <td>
-                            <input type="text" name="booking_sea_transports[${seaTransportRowIndex}][cruise]" 
-                                class="form-control form-control-sm" placeholder="Cruise">
-                        </td>
-                        <td>
-                            <input type="text" name="booking_sea_transports[${seaTransportRowIndex}][info]" 
-                                class="form-control form-control-sm" placeholder="Info">
-                        </td>
-                        <td>
-                            <input type="text" name="booking_sea_transports[${seaTransportRowIndex}][from_city]" 
-                                class="form-control form-control-sm" placeholder="From City">
-                        </td>
-                        <td>
-                            <div class="d-flex gap-1">
-                                <input type="date" name="booking_sea_transports[${seaTransportRowIndex}][departure_date]" 
-                                    class="form-control form-control-sm" style="flex: 1;">
-                                <input type="time" name="booking_sea_transports[${seaTransportRowIndex}][departure_time]" 
-                                    class="form-control form-control-sm" style="flex: 1;">
-                            </div>
-                        </td>
-                        <td>
-                            <div class="d-flex gap-1">
-                                <input type="date" name="booking_sea_transports[${seaTransportRowIndex}][arrival_date]" 
-                                    class="form-control form-control-sm" style="flex: 1;">
-                                <input type="time" name="booking_sea_transports[${seaTransportRowIndex}][arrival_time]" 
-                                    class="form-control form-control-sm" style="flex: 1;">
-                            </div>
-                        </td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-danger removeSeaTransportRow">
-                                <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(newRow);
-
-                    // Re-initialize Feather icons
-                    if (typeof feather !== 'undefined') {
-                        feather.replace();
-                    }
-
-                    seaTransportRowIndex++;
-                }
-
-                // Add sea transport row button click handler
-                const addSeaTransportBtn = document.getElementById('addSeaTransportRow');
-                if (addSeaTransportBtn) {
-                    addSeaTransportBtn.addEventListener('click', addSeaTransportRow);
-                }
-
-                // Remove sea transport row button click handler (using event delegation)
-                document.addEventListener('click', function(e) {
-                    if (e.target.closest('.removeSeaTransportRow')) {
-                        const row = e.target.closest('tr');
-                        const tbody = document.getElementById('seaTransportTableBody');
-                        row.remove();
-                        
-                        // Show empty message if no rows left
-                        if (tbody.children.length === 0) {
-                            const emptyRow = document.createElement('tr');
-                            emptyRow.className = 'empty-row-message';
-                            emptyRow.innerHTML = `
-                                <td colspan="6" class="text-center text-muted py-3">
-                                    No sea transports added. Click "Add" to add a sea transport.
-                                </td>
-                            `;
-                            tbody.appendChild(emptyRow);
-                        }
-                    }
-                });
 
                 // Accommodation table management
                 let accommodationRowIndex = {{ $lead->bookingAccommodations ? $lead->bookingAccommodations->count() : 0 }};
@@ -1231,23 +1071,33 @@
                 // Remove accommodation row button click handler (using event delegation)
                 document.addEventListener('click', function(e) {
                     if (e.target.closest('.removeAccommodationRow')) {
+                        if (!confirm('Are you sure you want to delete this accommodation row?')) {
+                            return;
+                        }
                         const row = e.target.closest('tr');
                         const tbody = document.getElementById('accommodationTableBody');
                         row.remove();
                         
-                        // Show empty message if no rows left
-                        if (tbody.children.length === 0) {
-                            const emptyRow = document.createElement('tr');
-                            emptyRow.className = 'empty-row-message';
-                            emptyRow.innerHTML = `
-                                <td colspan="9" class="text-center text-muted py-3">
-                                    No accommodations added. Click "Add" to add an accommodation.
-                                </td>
-                            `;
-                            tbody.appendChild(emptyRow);
+                        // Add default row if no rows left (instead of showing empty message)
+                        if (tbody.children.length === 0 || (tbody.children.length === 1 && tbody.querySelector('.empty-row-message'))) {
+                            const emptyRow = tbody.querySelector('.empty-row-message');
+                            if (emptyRow) {
+                                emptyRow.remove();
+                            }
+                            addAccommodationRow();
                         }
                     }
                 });
+
+                // Add default row if accommodation table is empty
+                const accommodationTbody = document.getElementById('accommodationTableBody');
+                const hasAccommodationEmptyMessage = accommodationTbody.querySelector('.empty-row-message');
+                const hasAccommodationExistingRows = accommodationTbody.querySelectorAll('tr[data-row-index]').length > 0;
+                
+                if (hasAccommodationEmptyMessage && !hasAccommodationExistingRows) {
+                    // Remove empty message and add default row
+                    addAccommodationRow();
+                }
 
                 // Itinerary table management
                 let itineraryRowIndex = {{ $lead->bookingItineraries ? $lead->bookingItineraries->count() : 0 }};
@@ -1323,23 +1173,91 @@
                 // Remove itinerary row button click handler (using event delegation)
                 document.addEventListener('click', function(e) {
                     if (e.target.closest('.removeItineraryRow')) {
+                        if (!confirm('Are you sure you want to delete this itinerary row?')) {
+                            return;
+                        }
                         const row = e.target.closest('tr');
                         const tbody = document.getElementById('itineraryTableBody');
                         row.remove();
                         
-                        // Show empty message if no rows left
-                        if (tbody.children.length === 0) {
-                            const emptyRow = document.createElement('tr');
-                            emptyRow.className = 'empty-row-message';
-                            emptyRow.innerHTML = `
-                                <td colspan="9" class="text-center text-muted py-3">
-                                    No itinerary items added. Click "Add" to add an itinerary item.
-                                </td>
-                            `;
-                            tbody.appendChild(emptyRow);
+                        // Add default row if no rows left (instead of showing empty message)
+                        if (tbody.children.length === 0 || (tbody.children.length === 1 && tbody.querySelector('.empty-row-message'))) {
+                            const emptyRow = tbody.querySelector('.empty-row-message');
+                            if (emptyRow) {
+                                emptyRow.remove();
+                            }
+                            addItineraryRow();
                         }
                     }
                 });
+
+                // Function to check if any destination has Only TT or Hotel + TT selected
+                function checkItineraryVisibility() {
+                    const destinationTableBody = document.getElementById('destinationTableBody');
+                    const itinerarySection = document.getElementById('dayWiseItinerarySection');
+                    
+                    if (!destinationTableBody || !itinerarySection) {
+                        return;
+                    }
+
+                    let shouldShow = false;
+                    const destinationRows = destinationTableBody.querySelectorAll('tr[data-row-index]');
+                    
+                    destinationRows.forEach(row => {
+                        const onlyTT = row.querySelector('input[name*="[only_tt]"]');
+                        const hotelTT = row.querySelector('input[name*="[hotel_tt]"]');
+                        
+                        if ((onlyTT && onlyTT.checked) || (hotelTT && hotelTT.checked)) {
+                            shouldShow = true;
+                        }
+                    });
+
+                    // Show/hide itinerary section
+                    if (shouldShow) {
+                        itinerarySection.style.display = '';
+                        
+                        // Add default row if table is empty
+                        const itineraryTbody = document.getElementById('itineraryTableBody');
+                        const hasItineraryEmptyMessage = itineraryTbody.querySelector('.empty-row-message');
+                        const hasItineraryExistingRows = itineraryTbody.querySelectorAll('tr[data-row-index]').length > 0;
+                        
+                        if (hasItineraryEmptyMessage && !hasItineraryExistingRows) {
+                            const emptyRow = itineraryTbody.querySelector('.empty-row-message');
+                            if (emptyRow) {
+                                emptyRow.remove();
+                            }
+                            addItineraryRow();
+                        }
+                    } else {
+                        itinerarySection.style.display = 'none';
+                    }
+                }
+
+                // Check itinerary visibility when service type checkboxes change
+                document.addEventListener('change', function(e) {
+                    if (e.target.classList.contains('service-type-checkbox')) {
+                        checkItineraryVisibility();
+                    }
+                });
+
+                // Check itinerary visibility on page load
+                checkItineraryVisibility();
+
+                // Add default row if itinerary table is empty and section is visible
+                const itineraryTbody = document.getElementById('itineraryTableBody');
+                const itinerarySection = document.getElementById('dayWiseItinerarySection');
+                if (itineraryTbody && itinerarySection && itinerarySection.style.display !== 'none') {
+                    const hasItineraryEmptyMessage = itineraryTbody.querySelector('.empty-row-message');
+                    const hasItineraryExistingRows = itineraryTbody.querySelectorAll('tr[data-row-index]').length > 0;
+                    
+                    if (hasItineraryEmptyMessage && !hasItineraryExistingRows) {
+                        const emptyRow = itineraryTbody.querySelector('.empty-row-message');
+                        if (emptyRow) {
+                            emptyRow.remove();
+                        }
+                        addItineraryRow();
+                    }
+                }
 
                 // Handle form submission
                 const bookingFileForm = document.getElementById('bookingFileForm');

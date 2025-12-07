@@ -15,6 +15,7 @@ class Document extends Model
         'received_by',
         'verified_by',
         'type',
+        'person_number',
         'status',
         'file_path',
         'file_name',

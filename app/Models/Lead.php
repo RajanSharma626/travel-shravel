@@ -15,6 +15,7 @@ class Lead extends Model
         'service_id',
         'destination_id',
         'customer_name',
+        'salutation',
         'first_name',
         'middle_name',
         'last_name',
@@ -144,6 +145,12 @@ class Lead extends Model
         return $this->hasMany(BookingDestination::class);
     }
 
+    public function bookingArrivalDepartures()
+    {
+        return $this->hasMany(BookingArrivalDeparture::class);
+    }
+
+    // Legacy relationships for backward compatibility (can be removed after migration)
     public function bookingFlights()
     {
         return $this->hasMany(BookingFlight::class);

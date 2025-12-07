@@ -72,9 +72,8 @@
                                                 <tr>
                                                     <td><strong>{{ $lead->tsq }}</strong></td>
                                                 <td>
-                                                    <a href="#"
-                                                        class="text-primary text-decoration-none fw-semibold view-lead-btn lead-name-link"
-                                                        data-lead-id="{{ $lead->id }}">
+                                                    <a href="{{ route('bookings.form', $lead) }}"
+                                                        class="text-primary text-decoration-none fw-semibold">
                                                         {{ $lead->customer_name }}
                                                     </a>
                                                     </td>
@@ -113,42 +112,30 @@
                                                 <td>
                                                     <div class="d-flex align-items-center">
                                                         <div class="d-flex">
-                                                            <a href="#"
-                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover view-lead-btn"
-                                                                data-lead-id="{{ $lead->id }}" data-bs-toggle="tooltip"
-                                                                data-placement="top" title="View Lead">
-                                                                <span class="icon">
-                                                                    <span class="feather-icon">
-                                                                        <i data-feather="eye"></i>
-                                                                    </span>
-                                                                </span>
-                                                            </a>
-
-                                                            {{-- @can('edit leads') --}}
-                                                                <a href="#"
-                                                                    class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover edit-lead-btn"
-                                                                    data-lead-id="{{ $lead->id }}" data-bs-toggle="tooltip"
-                                                                    data-placement="top" title="Edit Lead">
-                                                                    <span class="icon">
-                                                                        <span class="feather-icon">
-                                                                            <i data-feather="edit"></i>
-                                                                        </span>
-                                                                    </span>
-                                                                </a>
-                                                            {{-- @endcan --}}
-
-                                                                                            <button type="button" 
-                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover update-docs-btn"
-                                                                data-lead-id="{{ $lead->id }}"
-                                                                data-lead-tsq="{{ $lead->tsq }}"
-                                                                data-lead-name="{{ $lead->customer_name }}"
-                                                                title="Update Documents">
+                                                            <a href="{{ route('bookings.form', $lead) }}"
+                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover"
+                                                                data-bs-toggle="tooltip" data-placement="top"
+                                                                title="Booking File">
                                                                 <span class="icon">
                                                                     <span class="feather-icon">
                                                                         <i data-feather="file-text"></i>
                                                                     </span>
                                                                 </span>
-                                                                                            </button>
+                                                            </a>
+
+                                                            <button type="button" 
+                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover update-docs-btn"
+                                                                data-lead-id="{{ $lead->id }}"
+                                                                data-lead-tsq="{{ $lead->tsq }}"
+                                                                data-lead-name="{{ $lead->customer_name }}"
+                                                                data-bs-toggle="tooltip" data-placement="top"
+                                                                title="Update Documents">
+                                                                <span class="icon">
+                                                                    <span class="feather-icon">
+                                                                        <i data-feather="check-square"></i>
+                                                                    </span>
+                                                                </span>
+                                                            </button>
                                                         </div>
                                                     </div>
                                                                                     </td>
@@ -612,7 +599,7 @@
 
     <!-- Update Documents Modal (Single Modal for All Leads) -->
     <div class="modal fade" id="updateDocumentsModal" tabindex="-1" aria-labelledby="updateDocumentsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <form id="updateDocumentsForm" method="POST" action="">
                     @csrf
@@ -1077,100 +1064,7 @@
                 });
             }
 
-            // Edit button click handler - opens modal in edit mode
-            if (!window.editLeadClickHandler) {
-                window.editLeadClickHandler = function(event) {
-                    const button = event.target.closest('.edit-lead-btn');
-                    if (!button) {
-                        return;
-                    }
-
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
-
-                    if (!leadId) {
-                        console.error('No lead ID found on edit button', button);
-                        return;
-                    }
-
-                    currentEditLeadId = leadId;
-                    currentLeadId = leadId;
-
-                    // Get modal element
-                    const modalEl = document.getElementById('viewLeadModal');
-                    if (!modalEl) {
-                        console.error('View lead modal element not found');
-                        return;
-                    }
-
-                    // Get or create modal instance
-                    let modalInstance = window.viewLeadModalInstance || viewLeadModalInstance;
-                    if (!modalInstance && typeof bootstrap !== 'undefined') {
-                        modalInstance = new bootstrap.Modal(modalEl, {
-                            backdrop: 'static',
-                            keyboard: false
-                        });
-                        window.viewLeadModalInstance = modalInstance;
-                        viewLeadModalInstance = modalInstance;
-                    }
-
-                    if (modalInstance) {
-                        modalInstance.show();
-                        
-                        // Reset modal state
-                        resetViewLeadModal();
-                        if (viewLeadLoader) {
-                            viewLeadLoader.classList.remove('d-none');
-                        }
-                        
-                        // Load lead data for editing
-                        fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
-                            headers: {
-                                'Accept': 'application/json',
-                            },
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.lead) {
-                                window.currentLeadData = data.lead;
-                                
-                                // Hide loader
-                                if (viewLeadLoader) {
-                                    viewLeadLoader.classList.add('d-none');
-                                }
-                                
-                                // Populate edit form with current lead data
-                                populateEditForm(data.lead);
-                                
-                                // Switch to edit mode
-                                switchToEditMode();
-                                
-                                // Initialize Feather icons
-                                safeFeatherReplace(viewLeadModalEl);
-                            } else {
-                                throw new Error('Lead details not found.');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error loading lead for edit:', error);
-                            if (viewLeadLoader) {
-                                viewLeadLoader.classList.add('d-none');
-                            }
-                            if (editLeadAlert) {
-                                editLeadAlert.classList.remove('d-none');
-                                editLeadAlert.classList.add('alert-danger');
-                                editLeadAlert.textContent = 'Unable to load lead details for editing.';
-                            }
-                        });
-                    } else {
-                        console.error('Bootstrap modal not available');
-                    }
-                };
-
-                document.addEventListener('click', window.editLeadClickHandler, true);
-            }
+            // Edit button click handler removed - Post Sales department only sees Booking File
 
             // Remark form submission
             const remarkForm = document.getElementById('leadRemarkForm');
@@ -1235,54 +1129,7 @@
                 }
             }
 
-            // View Lead click handler
-            if (!window.viewLeadClickHandler) {
-                window.viewLeadClickHandler = function(event) {
-                    const button = event.target.closest('.view-lead-btn');
-                    if (!button) {
-                        return;
-                    }
-
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    const leadId = button.dataset.leadId || button.getAttribute('data-lead-id');
-
-                    if (!leadId) {
-                        console.error('No lead ID found on button', button);
-                        return;
-                    }
-
-                    const modalEl = document.getElementById('viewLeadModal');
-                    if (!modalEl) {
-                        console.error('View lead modal element not found');
-                        return;
-                    }
-
-                    let modalInstance = window.viewLeadModalInstance || viewLeadModalInstance;
-                    if (!modalInstance && typeof bootstrap !== 'undefined') {
-                        modalInstance = new bootstrap.Modal(modalEl, {
-                            backdrop: 'static',
-                            keyboard: false
-                        });
-                        window.viewLeadModalInstance = modalInstance;
-                        viewLeadModalInstance = modalInstance;
-                    }
-
-                    if (modalInstance) {
-                        modalInstance.show();
-                        if (typeof window.loadLeadDetails === 'function') {
-                            window.loadLeadDetails(leadId);
-                        } else {
-                            console.error('loadLeadDetails function not found on window');
-                        }
-                    } else {
-                        console.error('Bootstrap modal not available');
-                    }
-                };
-
-                document.addEventListener('click', window.viewLeadClickHandler, true);
-            }
+            // View Lead click handler removed - Post Sales department only sees Booking File
 
             if (viewLeadModalEl) {
                 viewLeadModalEl.addEventListener('shown.bs.modal', () => {
@@ -1347,79 +1194,150 @@
                     const documents = data.documents || (lead && lead.documents) || [];
                     if (Array.isArray(documents)) {
                         documents.forEach(doc => {
-                            existingDocs[doc.type] = doc;
+                            // Store by type and person_number for person-wise documents
+                            const docKey = doc.person_number ? `${doc.type}_${doc.person_number}` : doc.type;
+                            existingDocs[docKey] = doc;
+                            // Also store by type only for backward compatibility
+                            if (!existingDocs[doc.type]) {
+                                existingDocs[doc.type] = doc;
+                            }
                         });
                     }
 
-                    // Clear and populate checkboxes
+                    // Get person counts from lead data
+                    const adults = parseInt(lead.adults || '0');
+                    const children25 = parseInt(lead.children_2_5 || '0');
+                    const children611 = parseInt(lead.children_6_11 || '0');
+                    const infants = parseInt(lead.infants || '0');
+
+                    // Clear and populate person-wise checkboxes
                     const container = document.getElementById('documentCheckboxesContainer');
                     container.innerHTML = '';
 
+                    // Calculate total persons (adults + children 2-11 years, excluding infants as they typically don't need documents)
+                    // Note: Infants (>2 years) - this seems to be a typo, infants are typically <2 years
+                    // We'll include all children (2-5 and 6-11) and adults
+                    const totalPersons = adults + children25 + children611;
+                    
+                    // Create person labels array
+                    const personLabels = [];
+                    let childCounter = 1;
+                    
+                    // Add adults
+                    for (let i = 1; i <= adults; i++) {
+                        personLabels.push(`Adult ${i}`);
+                    }
+                    
+                    // Add children 2-5 years
+                    for (let i = 1; i <= children25; i++) {
+                        personLabels.push(`Child ${childCounter++} (2-5 yrs)`);
+                    }
+                    
+                    // Add children 6-11 years
+                    for (let i = 1; i <= children611; i++) {
+                        personLabels.push(`Child ${childCounter++} (6-11 yrs)`);
+                    }
+                    
+                    // Note: Infants are typically excluded from document requirements
+
+                    // If no persons, show message
+                    if (totalPersons === 0) {
+                        container.innerHTML = '<div class="alert alert-warning mb-0">No persons found for this booking. Please update the lead with correct person count.</div>';
+                        safeFeatherReplace(modalEl);
+                        return;
+                    }
+
+                    // Create document sections for each document type
                     documentTypes.forEach(docType => {
-                        const existingDoc = existingDocs[docType];
-                        const isChecked = existingDoc && ['received', 'verified'].includes(existingDoc.status);
-                        const docId = `doc_${leadId}_${docType.replace(/\s+/g, '_')}`;
-
-                        const colDiv = document.createElement('div');
-                        colDiv.className = 'col-md-6 mb-2';
-
-                        const checkDiv = document.createElement('div');
-                        checkDiv.className = 'form-check p-3 border rounded document-checkbox-item';
-                        checkDiv.style.cssText = 'transition: all 0.2s ease; cursor: pointer;';
-                        if (isChecked) {
-                            checkDiv.style.backgroundColor = '#e8f5e9';
-                            checkDiv.style.borderColor = '#4caf50';
+                        // Document type header
+                        const docHeaderDiv = document.createElement('div');
+                        docHeaderDiv.className = 'mb-3 mt-4';
+                        if (documentTypes.indexOf(docType) === 0) {
+                            docHeaderDiv.className = 'mb-3 mt-0';
                         }
+                        
+                        const docHeader = document.createElement('h6');
+                        docHeader.className = 'fw-semibold text-primary mb-2';
+                        docHeader.style.cssText = 'font-size: 0.95rem; border-bottom: 2px solid #e0e0e0; padding-bottom: 0.5rem;';
+                        docHeader.textContent = docType;
+                        docHeaderDiv.appendChild(docHeader);
+                        container.appendChild(docHeaderDiv);
 
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.className = 'form-check-input document-checkbox';
-                        checkbox.style.cssText = 'width: 1.25rem; height: 1.25rem; margin-top: 0.125rem; cursor: pointer;';
-                        checkbox.name = 'documents[]';
-                        checkbox.value = docType;
-                        checkbox.id = docId;
-                        if (isChecked) checkbox.checked = true;
+                        // Create person-wise checkboxes for this document type in 2-column layout
+                        const personsRowDiv = document.createElement('div');
+                        personsRowDiv.className = 'row g-3 mb-3';
+                        
+                        personLabels.forEach((personLabel, personIndex) => {
+                            const personNum = personIndex + 1;
+                            const docKey = `${docType}_${personNum}`;
+                            // Check for person-specific document first, then fallback to general
+                            const existingDoc = existingDocs[docKey] || (personNum === 1 ? existingDocs[docType] : null);
+                            const isChecked = existingDoc && ['received', 'verified'].includes(existingDoc.status);
+                            const docId = `doc_${leadId}_${docType.replace(/\s+/g, '_')}_${personNum}`;
 
-                        const label = document.createElement('label');
-                        label.className = 'form-check-label ms-3';
-                        label.htmlFor = docId;
-                        label.style.cssText = 'cursor: pointer; font-weight: 500; user-select: none; flex: 1;';
-                        label.textContent = docType;
+                            const colDiv = document.createElement('div');
+                            colDiv.className = 'col-md-6 col-sm-6 mb-2';
 
-                        // Add hover effect
-                        checkDiv.addEventListener('mouseenter', function() {
-                            if (!isChecked) {
-                                this.style.backgroundColor = '#f5f5f5';
-                            }
-                        });
-                        checkDiv.addEventListener('mouseleave', function() {
-                            if (!isChecked) {
-                                this.style.backgroundColor = '';
-                            }
-                        });
-
-                        // Toggle background on checkbox change
-                        checkbox.addEventListener('change', function() {
-                            if (this.checked) {
+                            const checkDiv = document.createElement('div');
+                            checkDiv.className = 'form-check p-2 border rounded document-checkbox-item';
+                            checkDiv.style.cssText = 'transition: all 0.2s ease; cursor: pointer;';
+                            if (isChecked) {
                                 checkDiv.style.backgroundColor = '#e8f5e9';
                                 checkDiv.style.borderColor = '#4caf50';
-                            } else {
-                                checkDiv.style.backgroundColor = '';
-                                checkDiv.style.borderColor = '';
                             }
-                        });
 
-                        // Make entire div clickable
-                        checkDiv.addEventListener('click', function(e) {
-                            if (e.target !== checkbox && e.target !== label) {
-                                checkbox.click();
-                            }
-                        });
+                            const checkbox = document.createElement('input');
+                            checkbox.type = 'checkbox';
+                            checkbox.className = 'form-check-input document-checkbox';
+                            checkbox.style.cssText = 'width: 1.25rem; height: 1.25rem; margin-top: 0.125rem; cursor: pointer;';
+                            checkbox.name = 'documents[]';
+                            checkbox.value = `${docType}|${personNum}`;
+                            checkbox.id = docId;
+                            if (isChecked) checkbox.checked = true;
 
-                        checkDiv.appendChild(checkbox);
-                        checkDiv.appendChild(label);
-                        colDiv.appendChild(checkDiv);
-                        container.appendChild(colDiv);
+                            const label = document.createElement('label');
+                            label.className = 'form-check-label ms-3';
+                            label.htmlFor = docId;
+                            label.style.cssText = 'cursor: pointer; font-weight: 500; user-select: none; flex: 1; font-size: 0.85rem;';
+                            label.textContent = personLabel;
+
+                            // Add hover effect
+                            checkDiv.addEventListener('mouseenter', function() {
+                                if (!checkbox.checked) {
+                                    this.style.backgroundColor = '#f5f5f5';
+                                }
+                            });
+                            checkDiv.addEventListener('mouseleave', function() {
+                                if (!checkbox.checked) {
+                                    this.style.backgroundColor = '';
+                                }
+                            });
+
+                            // Toggle background on checkbox change
+                            checkbox.addEventListener('change', function() {
+                                if (this.checked) {
+                                    checkDiv.style.backgroundColor = '#e8f5e9';
+                                    checkDiv.style.borderColor = '#4caf50';
+                                } else {
+                                    checkDiv.style.backgroundColor = '';
+                                    checkDiv.style.borderColor = '';
+                                }
+                            });
+
+                            // Make entire div clickable
+                            checkDiv.addEventListener('click', function(e) {
+                                if (e.target !== checkbox && e.target !== label) {
+                                    checkbox.click();
+                                }
+                            });
+
+                            checkDiv.appendChild(checkbox);
+                            checkDiv.appendChild(label);
+                            colDiv.appendChild(checkDiv);
+                            personsRowDiv.appendChild(colDiv);
+                        });
+                        
+                        container.appendChild(personsRowDiv);
                     });
 
                     // Reinitialize feather icons in modal
@@ -1428,66 +1346,9 @@
                 })
                 .catch(error => {
                     console.error('Error fetching lead documents:', error);
-                    // Still show modal with empty checkboxes
+                    // Show error message
                     const container = document.getElementById('documentCheckboxesContainer');
-                    container.innerHTML = '';
-
-                    documentTypes.forEach(docType => {
-                        const docId = `doc_${leadId}_${docType.replace(/\s+/g, '_')}`;
-                        const colDiv = document.createElement('div');
-                        colDiv.className = 'col-md-6 mb-2';
-
-                        const checkDiv = document.createElement('div');
-                        checkDiv.className = 'form-check p-3 border rounded document-checkbox-item';
-                        checkDiv.style.cssText = 'transition: all 0.2s ease; cursor: pointer;';
-
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.className = 'form-check-input document-checkbox';
-                        checkbox.style.cssText = 'width: 1.25rem; height: 1.25rem; margin-top: 0.125rem; cursor: pointer;';
-                        checkbox.name = 'documents[]';
-                        checkbox.value = docType;
-                        checkbox.id = docId;
-
-                        const label = document.createElement('label');
-                        label.className = 'form-check-label ms-3';
-                        label.htmlFor = docId;
-                        label.style.cssText = 'cursor: pointer; font-weight: 500; user-select: none; flex: 1;';
-                        label.textContent = docType;
-
-                        // Add hover effect
-                        checkDiv.addEventListener('mouseenter', function() {
-                            this.style.backgroundColor = '#f5f5f5';
-                        });
-                        checkDiv.addEventListener('mouseleave', function() {
-                            if (!checkbox.checked) {
-                                this.style.backgroundColor = '';
-                            }
-                        });
-
-                        // Toggle background on checkbox change
-                        checkbox.addEventListener('change', function() {
-                            if (this.checked) {
-                                checkDiv.style.backgroundColor = '#e8f5e9';
-                                checkDiv.style.borderColor = '#4caf50';
-                            } else {
-                                checkDiv.style.backgroundColor = '';
-                                checkDiv.style.borderColor = '';
-                            }
-                        });
-
-                        // Make entire div clickable
-                        checkDiv.addEventListener('click', function(e) {
-                            if (e.target !== checkbox && e.target !== label) {
-                                checkbox.click();
-                            }
-                        });
-
-                        checkDiv.appendChild(checkbox);
-                        checkDiv.appendChild(label);
-                        colDiv.appendChild(checkDiv);
-                        container.appendChild(colDiv);
-                    });
+                    container.innerHTML = '<div class="alert alert-danger mb-0">Error loading documents. Please try again.</div>';
 
                     // Reinitialize feather icons in modal
                     const modalEl = document.getElementById('updateDocumentsModal');

@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -33,20 +34,19 @@ return new class extends Migration
                 $table->dropColumn('delivery_notes');
             }
             
-            // Rename status column if it exists
-            if (Schema::hasColumn('deliveries', 'status')) {
-                $table->renameColumn('status', 'delivery_status');
-            }
-            
-            // Add new columns
+            // Add new columns first
             $table->foreignId('operation_id')->nullable()->after('lead_id')->constrained('operations')->nullOnDelete();
             $table->foreignId('assigned_to_delivery_user_id')->nullable()->after('operation_id')->constrained('users')->nullOnDelete();
             
-            // Update delivery_status enum if column exists, otherwise create it
-            if (Schema::hasColumn('deliveries', 'delivery_status')) {
-                // For MySQL, we need to drop and recreate the enum
-                $table->enum('delivery_status', ['Pending', 'In_Process', 'Delivered'])->default('Pending')->change();
+            // Handle status/delivery_status column using raw SQL for MySQL compatibility
+            if (Schema::hasColumn('deliveries', 'status') && !Schema::hasColumn('deliveries', 'delivery_status')) {
+                // Rename status to delivery_status and update enum values
+                DB::statement("ALTER TABLE `deliveries` CHANGE COLUMN `status` `delivery_status` ENUM('Pending', 'In_Process', 'Delivered') NOT NULL DEFAULT 'Pending'");
+            } elseif (Schema::hasColumn('deliveries', 'delivery_status')) {
+                // Update existing delivery_status enum
+                DB::statement("ALTER TABLE `deliveries` MODIFY COLUMN `delivery_status` ENUM('Pending', 'In_Process', 'Delivered') NOT NULL DEFAULT 'Pending'");
             } else {
+                // Create new delivery_status column
                 $table->enum('delivery_status', ['Pending', 'In_Process', 'Delivered'])->default('Pending');
             }
             

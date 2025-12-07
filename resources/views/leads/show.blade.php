@@ -53,7 +53,12 @@
                                                     <i data-feather="user" class="text-primary me-2" style="width: 16px; height: 16px;"></i>
                                                     <small class="text-muted text-uppercase fw-semibold">Customer Details</small>
                                                 </div>
-                                                <h6 class="mb-2 fw-semibold">{{ $lead->customer_name }}</h6>
+                                                <h6 class="mb-2 fw-semibold">
+                                                    @if($lead->salutation)
+                                                        {{ $lead->salutation }} 
+                                                    @endif
+                                                    {{ $lead->customer_name }}
+                                                </h6>
                                                 <div class="d-flex flex-column gap-2">
                                                     <div class="d-flex align-items-center">
                                                         <i data-feather="phone" class="text-muted me-2" style="width: 14px; height: 14px;"></i>
