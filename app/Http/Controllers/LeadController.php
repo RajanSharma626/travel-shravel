@@ -723,4 +723,44 @@ class LeadController extends Controller
 
         return redirect()->back()->with('success', 'Assigned user updated successfully!');
     }
+
+    public function bulkAssign(Request $request)
+    {
+        $validated = $request->validate([
+            'lead_ids' => 'required|array|min:1',
+            'lead_ids.*' => 'required|exists:leads,id',
+            'assigned_user_id' => 'required|exists:users,id',
+        ]);
+
+        $leadIds = $validated['lead_ids'];
+        $assignedUserId = $validated['assigned_user_id'];
+
+        // Get leads that exist and user has permission to edit
+        $leads = Lead::whereIn('id', $leadIds)->get();
+
+        if ($leads->isEmpty()) {
+            return response()->json([
+                'message' => 'No valid leads found to assign.',
+            ], 422);
+        }
+
+        $updatedCount = 0;
+        foreach ($leads as $lead) {
+            // Check permission for each lead (optional - you can remove if not needed)
+            // For now, we'll update all leads that were found
+            $lead->update(['assigned_user_id' => $assignedUserId]);
+            $updatedCount++;
+        }
+
+        $assignedUser = \App\Models\User::find($assignedUserId);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => "Successfully assigned {$updatedCount} lead(s) to {$assignedUser->name}.",
+                'updated_count' => $updatedCount,
+            ]);
+        }
+
+        return redirect()->back()->with('success', "Successfully assigned {$updatedCount} lead(s) to {$assignedUser->name}.");
+    }
 }

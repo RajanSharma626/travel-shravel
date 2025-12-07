@@ -109,6 +109,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     });
     Route::middleware('permission:edit leads')->group(function () {
         Route::post('/leads/{lead}/assign-user', [LeadController::class, 'updateAssignedUser'])->name('leads.updateAssignedUser');
+        Route::post('/leads/bulk-assign', [LeadController::class, 'bulkAssign'])->name('leads.bulkAssign');
     });
     Route::middleware('permission:delete leads')->group(function () {
         Route::delete('/leads/{lead}', [LeadController::class, 'destroy'])->name('leads.destroy');

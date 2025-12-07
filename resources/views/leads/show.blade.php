@@ -548,7 +548,7 @@
                                                     <tbody>
                                                         <tr>
                                                             <td>
-                                                                <span class="badge bg-primary">{{ ucfirst(str_replace('_', ' ', $lead->delivery->status)) }}</span>
+                                                                <span class="badge bg-primary">{{ ucfirst(str_replace('_', ' ', $lead->delivery->delivery_status ?? 'Pending')) }}</span>
                                                             </td>
                                                             <td>{{ $lead->delivery->assignedTo?->name ?? 'N/A' }}</td>
                                                             <td>{{ $lead->delivery->expected_delivery_date ? $lead->delivery->expected_delivery_date->format('d M, Y') : 'N/A' }}</td>
@@ -972,11 +972,10 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Status</label>
-                        <select name="status" class="form-select" required>
-                            <option value="pending" {{ $lead->delivery->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="in_process" {{ $lead->delivery->status == 'in_process' ? 'selected' : '' }}>In Process</option>
-                            <option value="delivered" {{ $lead->delivery->status == 'delivered' ? 'selected' : '' }}>Delivered</option>
-                            <option value="failed" {{ $lead->delivery->status == 'failed' ? 'selected' : '' }}>Failed</option>
+                        <select name="delivery_status" class="form-select" required>
+                            <option value="Pending" {{ ($lead->delivery->delivery_status ?? 'Pending') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="In_Process" {{ ($lead->delivery->delivery_status ?? 'Pending') == 'In_Process' ? 'selected' : '' }}>In Process</option>
+                            <option value="Delivered" {{ ($lead->delivery->delivery_status ?? 'Pending') == 'Delivered' ? 'selected' : '' }}>Delivered</option>
                         </select>
                     </div>
                     <div class="mb-3">

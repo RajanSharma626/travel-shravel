@@ -23,7 +23,7 @@ class ReportController extends Controller
             'closed_leads' => Lead::where('status', 'closed')->count(),
             'total_revenue' => Payment::where('status', 'paid')->sum('amount'),
             'total_cost' => CostComponent::sum('amount'),
-            'pending_deliveries' => Delivery::where('status', '!=', 'delivered')->count(),
+            'pending_deliveries' => Delivery::where('delivery_status', '!=', 'Delivered')->count(),
             'overdue_payments' => Payment::where('status', 'overdue')->count(),
         ];
 

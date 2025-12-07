@@ -78,9 +78,33 @@
                                     @endif
                                 </form>
 
+                                <!-- Bulk Actions Bar -->
+                                @can('edit leads')
+                                <div id="bulkActionsBar" class="alert alert-info mb-3 d-none" role="alert">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <strong><span id="selectedCount">0</span> lead(s) selected</strong>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <button type="button" class="btn btn-sm btn-primary" id="bulkAssignBtn" data-bs-toggle="modal" data-bs-target="#bulkAssignModal">
+                                                <i data-feather="user-plus" style="width: 14px; height: 14px;"></i> Assign User
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-secondary" id="clearSelectionBtn">
+                                                Clear Selection
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endcan
+
                                 <table class="table table-striped small table-bordered w-100 mb-5" id="leadsTable">
                                     <thead>
                                         <tr>
+                                            @can('edit leads')
+                                            <th width="40">
+                                                <input type="checkbox" id="selectAllLeads" class="form-check-input">
+                                            </th>
+                                            @endcan
                                             <th>Ref No.</th>
                                             <th>Customer Name</th>
                                             <th>Phone</th>
@@ -93,6 +117,11 @@
                                     <tbody>
                                         @forelse ($leads as $lead)
                                             <tr>
+                                                @can('edit leads')
+                                                <td>
+                                                    <input type="checkbox" class="form-check-input lead-checkbox" value="{{ $lead->id }}" data-lead-name="{{ $lead->customer_name }}">
+                                                </td>
+                                                @endcan
                                                 <td><strong>{{ $lead->tsq }}</strong></td>
                                                 <td>
                                                     <a href="#"
@@ -169,6 +198,7 @@
                                                                             </span>
                                                                         </span>
                                                                     </a>
+                                                                    @if(!$lead->assigned_user_id)
                                                                     <a href="#"
                                                                         class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover assign-user-btn"
                                                                         data-lead-id="{{ $lead->id }}"
@@ -182,6 +212,7 @@
                                                                             </span>
                                                                         </span>
                                                                     </a>
+                                                                    @endif
                                                                 @endcan
                                                             @endif
                                                             
@@ -203,7 +234,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="10" class="text-center">No leads found</td>
+                                                <td colspan="{{ Auth::user()->can('edit leads') ? '8' : '7' }}" class="text-center">No leads found</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -948,6 +979,48 @@
         </div>
     </div>
 
+    <!-- Bulk Assign Modal -->
+    @can('edit leads')
+    <div class="modal fade" id="bulkAssignModal" tabindex="-1" aria-labelledby="bulkAssignModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-light border-bottom">
+                    <h5 class="modal-title fw-bold" id="bulkAssignModalLabel">
+                        <i data-feather="user-plus" class="me-2" style="width: 20px; height: 20px;"></i>
+                        Bulk Assign Leads
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="bulkAssignAlert" class="alert d-none" role="alert"></div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Selected Leads</label>
+                        <div class="form-control" id="bulkAssignSelectedLeads" style="min-height: 60px; max-height: 150px; overflow-y: auto;" readonly>
+                            <small class="text-muted">No leads selected</small>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Assign To <span class="text-danger">*</span></label>
+                        <select class="form-select" id="bulkAssignUserSelect" required>
+                            <option value="">-- Select User --</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="bulkAssignSubmitBtn">
+                        <i data-feather="check" class="me-1" style="width: 16px; height: 16px;"></i>
+                        Assign Selected Leads
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endcan
 
     @push('styles')
         <style>
@@ -2051,6 +2124,195 @@
                 if (assignUserModalEl) {
                     assignUserModalEl.addEventListener('shown.bs.modal', () => {
                         safeFeatherReplace(assignUserModalEl);
+                    });
+                }
+
+                // ========== Bulk Assign Functionality ==========
+                const selectAllLeads = document.getElementById('selectAllLeads');
+                const leadCheckboxes = document.querySelectorAll('.lead-checkbox');
+                const bulkActionsBar = document.getElementById('bulkActionsBar');
+                const selectedCount = document.getElementById('selectedCount');
+                const clearSelectionBtn = document.getElementById('clearSelectionBtn');
+                const bulkAssignBtn = document.getElementById('bulkAssignBtn');
+                const bulkAssignModal = document.getElementById('bulkAssignModal');
+                const bulkAssignUserSelect = document.getElementById('bulkAssignUserSelect');
+                const bulkAssignSubmitBtn = document.getElementById('bulkAssignSubmitBtn');
+                const bulkAssignAlert = document.getElementById('bulkAssignAlert');
+                const bulkAssignSelectedLeads = document.getElementById('bulkAssignSelectedLeads');
+
+                // Function to update selected count and show/hide bulk actions bar
+                function updateBulkActions() {
+                    const checkedBoxes = document.querySelectorAll('.lead-checkbox:checked');
+                    const count = checkedBoxes.length;
+
+                    if (selectedCount) {
+                        selectedCount.textContent = count;
+                    }
+
+                    if (bulkActionsBar) {
+                        if (count > 0) {
+                            bulkActionsBar.classList.remove('d-none');
+                        } else {
+                            bulkActionsBar.classList.add('d-none');
+                        }
+                    }
+
+                    // Update select all checkbox state
+                    if (selectAllLeads && leadCheckboxes.length > 0) {
+                        selectAllLeads.checked = count === leadCheckboxes.length;
+                        selectAllLeads.indeterminate = count > 0 && count < leadCheckboxes.length;
+                    }
+
+                    // Update selected leads display in modal
+                    if (bulkAssignSelectedLeads) {
+                        if (count > 0) {
+                            const selectedNames = Array.from(checkedBoxes).map(cb => {
+                                return cb.getAttribute('data-lead-name') || 'Lead #' + cb.value;
+                            });
+                            bulkAssignSelectedLeads.innerHTML = selectedNames.map(name => 
+                                `<div class="badge bg-primary me-1 mb-1">${name}</div>`
+                            ).join('');
+                        } else {
+                            bulkAssignSelectedLeads.innerHTML = '<small class="text-muted">No leads selected</small>';
+                        }
+                    }
+                }
+
+                // Select all checkbox handler
+                if (selectAllLeads) {
+                    selectAllLeads.addEventListener('change', function() {
+                        leadCheckboxes.forEach(checkbox => {
+                            checkbox.checked = this.checked;
+                        });
+                        updateBulkActions();
+                    });
+                }
+
+                // Individual checkbox handlers
+                leadCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', updateBulkActions);
+                });
+
+                // Clear selection button
+                if (clearSelectionBtn) {
+                    clearSelectionBtn.addEventListener('click', function() {
+                        leadCheckboxes.forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
+                        if (selectAllLeads) {
+                            selectAllLeads.checked = false;
+                            selectAllLeads.indeterminate = false;
+                        }
+                        updateBulkActions();
+                    });
+                }
+
+                // Bulk assign form submission
+                if (bulkAssignSubmitBtn) {
+                    bulkAssignSubmitBtn.addEventListener('click', async function() {
+                        const checkedBoxes = document.querySelectorAll('.lead-checkbox:checked');
+                        const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
+
+                        if (selectedIds.length === 0) {
+                            if (bulkAssignAlert) {
+                                bulkAssignAlert.classList.remove('d-none', 'alert-success');
+                                bulkAssignAlert.classList.add('alert-danger');
+                                bulkAssignAlert.textContent = 'Please select at least one lead.';
+                            }
+                            return;
+                        }
+
+                        const userId = bulkAssignUserSelect?.value;
+                        if (!userId) {
+                            if (bulkAssignAlert) {
+                                bulkAssignAlert.classList.remove('d-none', 'alert-success');
+                                bulkAssignAlert.classList.add('alert-danger');
+                                bulkAssignAlert.textContent = 'Please select a user to assign.';
+                            }
+                            return;
+                        }
+
+                        if (bulkAssignAlert) {
+                            bulkAssignAlert.classList.add('d-none');
+                            bulkAssignAlert.classList.remove('alert-danger', 'alert-success');
+                        }
+
+                        // Disable button during request
+                        bulkAssignSubmitBtn.disabled = true;
+                        bulkAssignSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Assigning...';
+
+                        try {
+                            const response = await fetch('{{ route("leads.bulkAssign") }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                                },
+                                body: JSON.stringify({
+                                    lead_ids: selectedIds,
+                                    assigned_user_id: userId
+                                })
+                            });
+
+                            const payload = await response.json();
+
+                            if (!response.ok) {
+                                const message = payload?.message || Object.values(payload?.errors || {})[0]?.[0] || 'Failed to assign leads.';
+                                throw new Error(message);
+                            }
+
+                            if (bulkAssignAlert) {
+                                bulkAssignAlert.classList.remove('d-none');
+                                bulkAssignAlert.classList.add('alert-success');
+                                bulkAssignAlert.textContent = payload?.message || `Successfully assigned ${selectedIds.length} lead(s).`;
+                            }
+
+                            // Close modal after 1.5 seconds and reload page
+                            setTimeout(() => {
+                                if (bulkAssignModal) {
+                                    const modalInstance = bootstrap.Modal.getInstance(bulkAssignModal);
+                                    if (modalInstance) {
+                                        modalInstance.hide();
+                                    }
+                                }
+                                // Clear selection
+                                leadCheckboxes.forEach(checkbox => {
+                                    checkbox.checked = false;
+                                });
+                                if (selectAllLeads) {
+                                    selectAllLeads.checked = false;
+                                    selectAllLeads.indeterminate = false;
+                                }
+                                updateBulkActions();
+                                // Reload page to show updated assignments
+                                window.location.reload();
+                            }, 1500);
+
+                        } catch (error) {
+                            if (bulkAssignAlert) {
+                                bulkAssignAlert.classList.remove('d-none');
+                                bulkAssignAlert.classList.add('alert-danger');
+                                bulkAssignAlert.textContent = error.message || 'Unable to assign leads.';
+                            }
+                        } finally {
+                            // Re-enable button
+                            bulkAssignSubmitBtn.disabled = false;
+                            bulkAssignSubmitBtn.innerHTML = '<i data-feather="check" class="me-1" style="width: 16px; height: 16px;"></i>Assign Selected Leads';
+                            safeFeatherReplace(bulkAssignSubmitBtn);
+                        }
+                    });
+                }
+
+                // Initialize bulk actions on page load
+                updateBulkActions();
+
+                // Initialize Feather icons when bulk assign modal is shown
+                if (bulkAssignModal) {
+                    bulkAssignModal.addEventListener('shown.bs.modal', () => {
+                        safeFeatherReplace(bulkAssignModal);
+                        // Update selected leads display
+                        updateBulkActions();
                     });
                 }
 
