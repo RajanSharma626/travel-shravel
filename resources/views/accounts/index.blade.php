@@ -275,11 +275,6 @@
                                         readonly>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Middle Name</label>
-                                    <input type="text" id="viewMiddleName" class="form-control form-control-sm"
-                                        readonly>
-                                </div>
-                                <div class="col-md-4">
                                     <label class="form-label">Last Name</label>
                                     <input type="text" id="viewLastName" class="form-control form-control-sm"
                                         readonly>
@@ -302,7 +297,7 @@
                                         readonly>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Other Number</label>
+                                    <label class="form-label">Emergency No.</label>
                                     <input type="text" id="viewOtherPhone" class="form-control form-control-sm"
                                         readonly>
                                 </div>
@@ -790,7 +785,6 @@
                     const viewMiddleName = document.getElementById('viewMiddleName');
                     const viewLastName = document.getElementById('viewLastName');
                     if (viewFirstName) viewFirstName.value = lead.first_name || '';
-                    if (viewMiddleName) viewMiddleName.value = lead.middle_name || '';
                     if (viewLastName) viewLastName.value = lead.last_name || '';
 
                     // Populate Contact Information

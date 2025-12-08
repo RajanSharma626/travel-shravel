@@ -17,7 +17,6 @@ class Lead extends Model
         'customer_name',
         'salutation',
         'first_name',
-        'middle_name',
         'last_name',
         'phone',
         'primary_phone',
@@ -56,7 +55,6 @@ class Lead extends Model
         static::saving(function (Lead $lead) {
             $names = array_filter([
                 $lead->first_name,
-                $lead->middle_name,
                 $lead->last_name,
             ]);
 

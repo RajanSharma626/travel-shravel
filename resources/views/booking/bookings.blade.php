@@ -222,11 +222,6 @@
                                         readonly>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Middle Name</label>
-                                    <input type="text" id="viewMiddleName" class="form-control form-control-sm"
-                                        readonly>
-                                </div>
-                                <div class="col-md-4">
                                     <label class="form-label">Last Name</label>
                                     <input type="text" id="viewLastName" class="form-control form-control-sm"
                                         readonly>
@@ -249,7 +244,7 @@
                                         readonly>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Other Number</label>
+                                    <label class="form-label">Emergency No.</label>
                                     <input type="text" id="viewOtherPhone" class="form-control form-control-sm"
                                         readonly>
                                 </div>
@@ -373,11 +368,6 @@
                                             placeholder="e.g. Ramesh" class="form-control form-control-sm" required>
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label">Middle Name</label>
-                                        <input type="text" name="middle_name" id="editMiddleName"
-                                            placeholder="Optional" class="form-control form-control-sm">
-                                    </div>
-                                    <div class="col-md-4">
                                         <label class="form-label">Last Name</label>
                                         <input type="text" name="last_name" id="editLastName"
                                             placeholder="e.g. Kumar" class="form-control form-control-sm">
@@ -403,7 +393,7 @@
                                             maxlength="20">
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label">Other Number</label>
+                                        <label class="form-label">Emergency No.</label>
                                         <input type="text" name="other_phone" id="editOtherPhone"
                                             placeholder="Emergency contact" class="form-control form-control-sm"
                                             maxlength="20">
@@ -1229,7 +1219,6 @@
                         const viewMiddleName = document.getElementById('viewMiddleName');
                         const viewLastName = document.getElementById('viewLastName');
                         if (viewFirstName) viewFirstName.value = lead.first_name || '';
-                        if (viewMiddleName) viewMiddleName.value = lead.middle_name || '';
                         if (viewLastName) viewLastName.value = lead.last_name || '';
 
                         // Populate Contact Information
@@ -1332,7 +1321,6 @@
                     if (!lead) return;
 
                     document.getElementById('editFirstName').value = lead.first_name || '';
-                    document.getElementById('editMiddleName').value = lead.middle_name || '';
                     document.getElementById('editLastName').value = lead.last_name || '';
                     document.getElementById('editPrimaryPhone').value = lead.primary_phone || '';
                     document.getElementById('editSecondaryPhone').value = lead.secondary_phone || '';

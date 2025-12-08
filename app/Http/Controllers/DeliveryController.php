@@ -52,7 +52,6 @@ class DeliveryController extends Controller
             $leadsQuery->where(function ($query) use ($likeTerm) {
                 $query->where('customer_name', 'like', $likeTerm)
                     ->orWhere('first_name', 'like', $likeTerm)
-                    ->orWhere('middle_name', 'like', $likeTerm)
                     ->orWhere('last_name', 'like', $likeTerm)
                     ->orWhere('phone', 'like', $likeTerm)
                     ->orWhere('primary_phone', 'like', $likeTerm)

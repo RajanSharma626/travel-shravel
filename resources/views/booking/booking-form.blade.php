@@ -76,10 +76,6 @@
                                                 <input type="text" value="{{ $lead->first_name }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
-                                                <label class="form-label">Middle Name</label>
-                                                <input type="text" value="{{ $lead->middle_name ?? '' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
-                                            </div>
-                                            <div class="col-md-3">
                                                 <label class="form-label">Last Name</label>
                                                 <input type="text" value="{{ $lead->last_name ?? '' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
@@ -90,6 +86,10 @@
                                             <div class="col-md-3">
                                                 <label class="form-label">Contact 2</label>
                                                 <input type="text" value="{{ $lead->secondary_phone ?? '' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Emergency No.</label>
+                                                <input type="text" value="{{ $lead->other_phone ?? '' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Email ID</label>
@@ -110,14 +110,6 @@
                                             <div class="col-md-3">
                                                 <label class="form-label">Infant (>2 years)</label>
                                                 <input type="number" value="{{ $lead->infants ?? 0 }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label">Booked By</label>
-                                                <input type="text" value="{{ $lead->bookedBy?->name ?? 'N/A' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label">Created By</label>
-                                                <input type="text" value="{{ $lead->createdBy?->name ?? 'N/A' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Booked On</label>
@@ -148,12 +140,6 @@
                                                 <i data-feather="map-pin" class="me-1" style="width: 14px; height: 14px;"></i>
                                                 Destination
                                             </h6>
-                                            @if(!$isViewOnly)
-                                                <button type="button" class="btn btn-sm btn-primary" id="addDestinationRow">
-                                                    <i data-feather="plus" class="me-1" style="width: 14px; height: 14px;"></i>
-                                                    Add
-                                                </button>
-                                            @endif
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-bordered table-sm mb-0" id="destinationTable">
@@ -166,88 +152,86 @@
                                                         <th style="width: 12%;" class="text-center">Hotel + TT</th>
                                                         <th style="width: 10%;">From Date</th>
                                                         <th style="width: 10%;">To Date</th>
-                                                        <th style="width: 10%;">Duration</th>
                                                         <th style="width: 10%;" class="text-center">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="destinationTableBody">
+                                                    <!-- Always show input row for new entry first -->
+                                                    <tr class="destination-input-row" data-is-input-row="true">
+                                                        <td>
+                                                            <select class="form-select form-select-sm destination-select-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                                <option value="">-- Select Destination --</option>
+                                                                @foreach($destinations as $dest)
+                                                                    <option value="{{ $dest->name }}" data-destination-id="{{ $dest->id }}">{{ $dest->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-select form-select-sm location-select-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                                <option value="">-- Select Location --</option>
+                                                            </select>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <input type="checkbox" class="form-check-input only-hotel-input" {{ $disabledAttr }}>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <input type="checkbox" class="form-check-input only-tt-input" {{ $disabledAttr }}>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <input type="checkbox" class="form-check-input hotel-tt-input" {{ $disabledAttr }}>
+                                                        </td>
+                                                        <td>
+                                                            <input type="date" class="form-control form-control-sm from-date-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                        </td>
+                                                        <td>
+                                                            <input type="date" class="form-control form-control-sm to-date-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @if(!$isViewOnly)
+                                                                <button type="button" class="btn btn-sm btn-primary addDestinationFromInput">
+                                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                                    Add
+                                                                </button>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
                                                     @if($lead->bookingDestinations && $lead->bookingDestinations->count() > 0)
                                                         @foreach($lead->bookingDestinations as $index => $bd)
-                                                            <tr data-row-index="{{ $index }}">
-                                                                <td>
-                                                                    <select name="booking_destinations[{{ $index }}][destination]" 
-                                                                        class="form-select form-select-sm destination-select" 
-                                                                        data-row-index="{{ $index }}" {{ $disabledAttr }} {!! $disabledStyle !!}>
-                                                                        <option value="">-- Select Destination --</option>
-                                                                        @foreach($destinations as $dest)
-                                                                            <option value="{{ $dest->name }}" 
-                                                                                {{ $bd->destination == $dest->name ? 'selected' : '' }}
-                                                                                data-destination-id="{{ $dest->id }}">
-                                                                                {{ $dest->name }}
-                                                                            </option>
-                                                                        @endforeach
-                                                                    </select>
-                                                                </td>
-                                                                <td>
-                                                                    <select name="booking_destinations[{{ $index }}][location]" 
-                                                                        class="form-select form-select-sm location-select" 
-                                                                        data-row-index="{{ $index }}" {{ $disabledAttr }} {!! $disabledStyle !!}>
-                                                                        <option value="">-- Select Location --</option>
-                                                                        @php
-                                                                            $selectedDestination = $destinations->firstWhere('name', $bd->destination);
-                                                                            if ($selectedDestination && $selectedDestination->locations) {
-                                                                                foreach ($selectedDestination->locations->where('is_active', true)->sortBy('name') as $loc) {
-                                                                                    echo '<option value="' . htmlspecialchars($loc->name) . '" ' . ($bd->location == $loc->name ? 'selected' : '') . '>' . htmlspecialchars($loc->name) . '</option>';
-                                                                                }
-                                                                            }
-                                                                        @endphp
-                                                                    </select>
+                                                            <tr class="destination-data-row" data-destination-id="{{ $bd->id }}" data-row-index="{{ $index }}">
+                                                                <td>{{ $bd->destination }}</td>
+                                                                <td>{{ $bd->location }}</td>
+                                                                <td class="text-center">
+                                                                    @if($bd->only_hotel)
+                                                                        <i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>
+                                                                    @endif
                                                                 </td>
                                                                 <td class="text-center">
-                                                                    <input type="checkbox" name="booking_destinations[{{ $index }}][only_hotel]" 
-                                                                        value="1" {{ $bd->only_hotel ? 'checked' : '' }} 
-                                                                        class="form-check-input service-type-checkbox" {{ $disabledAttr }}>
+                                                                    @if($bd->only_tt)
+                                                                        <i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>
+                                                                    @endif
                                                                 </td>
                                                                 <td class="text-center">
-                                                                    <input type="checkbox" name="booking_destinations[{{ $index }}][only_tt]" 
-                                                                        value="1" {{ $bd->only_tt ? 'checked' : '' }} 
-                                                                        class="form-check-input service-type-checkbox" {{ $disabledAttr }}>
+                                                                    @if($bd->hotel_tt)
+                                                                        <i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>
+                                                                    @endif
                                                                 </td>
-                                                                <td class="text-center">
-                                                                    <input type="checkbox" name="booking_destinations[{{ $index }}][hotel_tt]" 
-                                                                        value="1" {{ $bd->hotel_tt ? 'checked' : '' }} 
-                                                                        class="form-check-input service-type-checkbox" {{ $disabledAttr }}>
-                                                                </td>
-                                                                <td>
-                                                                    <input type="date" name="booking_destinations[{{ $index }}][from_date]" 
-                                                                        value="{{ $bd->from_date ? $bd->from_date->format('Y-m-d') : '' }}" 
-                                                                        class="form-control form-control-sm destination-from-date" {{ $disabledAttr }} {!! $disabledStyle !!}>
-                                                                </td>
-                                                                <td>
-                                                                    <input type="date" name="booking_destinations[{{ $index }}][to_date]" 
-                                                                        value="{{ $bd->to_date ? $bd->to_date->format('Y-m-d') : '' }}" 
-                                                                        class="form-control form-control-sm destination-to-date" {{ $disabledAttr }} {!! $disabledStyle !!}>
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" 
-                                                                        value="{{ $bd->no_of_days ? $bd->no_of_days . ($bd->only_hotel ? ' Nights' : ' Days') : '' }}" 
-                                                                        class="form-control form-control-sm destination-duration" readonly>
-                                                                </td>
+                                                                <td>{{ $bd->from_date ? $bd->from_date->format('d/m/Y') : '' }}</td>
+                                                                <td>{{ $bd->to_date ? $bd->to_date->format('d/m/Y') : '' }}</td>
                                                                 <td class="text-center">
                                                                     @if(!$isViewOnly)
-                                                                        <button type="button" class="btn btn-sm btn-danger removeDestinationRow">
-                                                                            <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                                                                        </button>
+                                                                        <input type="hidden" name="booking_destinations[{{ $index }}][id]" value="{{ $bd->id }}">
+                                                                        <input type="hidden" name="booking_destinations[{{ $index }}][destination]" value="{{ $bd->destination }}">
+                                                                        <input type="hidden" name="booking_destinations[{{ $index }}][location]" value="{{ $bd->location }}">
+                                                                        <input type="hidden" name="booking_destinations[{{ $index }}][only_hotel]" value="{{ $bd->only_hotel ? '1' : '0' }}">
+                                                                        <input type="hidden" name="booking_destinations[{{ $index }}][only_tt]" value="{{ $bd->only_tt ? '1' : '0' }}">
+                                                                        <input type="hidden" name="booking_destinations[{{ $index }}][hotel_tt]" value="{{ $bd->hotel_tt ? '1' : '0' }}">
+                                                                        <input type="hidden" name="booking_destinations[{{ $index }}][from_date]" value="{{ $bd->from_date ? $bd->from_date->format('Y-m-d') : '' }}">
+                                                                        <input type="hidden" name="booking_destinations[{{ $index }}][to_date]" value="{{ $bd->to_date ? $bd->to_date->format('Y-m-d') : '' }}">
+                                                                        <i data-feather="trash-2" class="removeDestinationRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                                                                     @endif
                                                                 </td>
                                                             </tr>
                                                         @endforeach
-                                                    @else
-                                                        <tr class="empty-row-message">
-                                                            <td colspan="9" class="text-center text-muted py-3">
-                                                                No destinations added. Click "Add" to add a destination.
-                                                            </td>
-                                                        </tr>
                                                     @endif
                                                 </tbody>
                                             </table>
@@ -261,12 +245,6 @@
                                                 <i data-feather="navigation" class="me-1" style="width: 14px; height: 14px;"></i>
                                                 Arrival/Departure Details
                                             </h6>
-                                            @if(!$isViewOnly)
-                                                <button type="button" class="btn btn-sm btn-primary" id="addArrivalDepartureRow">
-                                                    <i data-feather="plus" class="me-1" style="width: 14px; height: 14px;"></i>
-                                                    Add
-                                                </button>
-                                            @endif
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-bordered table-sm mb-0" id="arrivalDepartureTable">
@@ -282,70 +260,79 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody id="arrivalDepartureTableBody">
+                                                    <!-- Always show input row for new entry first -->
+                                                    <tr class="arrival-departure-input-row" data-is-input-row="true">
+                                                        <td>
+                                                            <select class="form-select form-select-sm mode-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                                <option value="By Air">By Air</option>
+                                                                <option value="By Surface">By Surface</option>
+                                                                <option value="By Sea">By Sea</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-control form-control-sm info-input" placeholder="Info" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-control form-control-sm from-city-input" placeholder="From City" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-control form-control-sm to-city-input" placeholder="To City" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                        </td>
+                                                        <td>
+                                                            <div class="d-flex gap-1">
+                                                                <input type="date" class="form-control form-control-sm departure-date-input" style="flex: 1;" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                                <input type="time" class="form-control form-control-sm departure-time-input" style="flex: 1;" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="d-flex gap-1">
+                                                                <input type="date" class="form-control form-control-sm arrival-date-input" style="flex: 1;" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                                <input type="time" class="form-control form-control-sm arrival-time-input" style="flex: 1;" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            </div>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @if(!$isViewOnly)
+                                                                <button type="button" class="btn btn-sm btn-primary addArrivalDepartureFromInput">
+                                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                                    Add
+                                                                </button>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
                                                     @php
                                                         $allTransports = $lead->bookingArrivalDepartures ?? collect();
                                                     @endphp
                                                     @if($allTransports && $allTransports->count() > 0)
                                                         @foreach($allTransports as $index => $transport)
-                                                            <tr data-row-index="{{ $index }}" data-transport-id="{{ $transport->id }}">
+                                                            <tr class="arrival-departure-data-row" data-transport-id="{{ $transport->id }}" data-row-index="{{ $index }}">
+                                                                <td>{{ $transport->mode }}</td>
+                                                                <td>{{ $transport->info }}</td>
+                                                                <td>{{ $transport->from_city }}</td>
+                                                                <td>{{ $transport->to_city ?? '' }}</td>
                                                                 <td>
-                                                                    <select name="arrival_departure[{{ $index }}][mode]" class="form-select form-select-sm transport-mode-select">
-                                                                        <option value="By Air" {{ $transport->mode == 'By Air' ? 'selected' : '' }}>By Air</option>
-                                                                        <option value="By Surface" {{ $transport->mode == 'By Surface' ? 'selected' : '' }}>By Surface</option>
-                                                                        <option value="By Sea" {{ $transport->mode == 'By Sea' ? 'selected' : '' }}>By Sea</option>
-                                                                    </select>
-                                                                    <input type="hidden" name="arrival_departure[{{ $index }}][id]" value="{{ $transport->id }}">
+                                                                    {{ $transport->departure_date ? ($transport->departure_date instanceof \DateTime ? $transport->departure_date->format('d/m/Y') : date('d/m/Y', strtotime($transport->departure_date))) : '' }}
+                                                                    {{ $transport->departure_time ? ' ' . substr($transport->departure_time, 0, 5) : '' }}
                                                                 </td>
                                                                 <td>
-                                                                    <input type="text" name="arrival_departure[{{ $index }}][info]" 
-                                                                        value="{{ $transport->info }}" 
-                                                                        class="form-control form-control-sm" placeholder="Info">
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" name="arrival_departure[{{ $index }}][from_city]" 
-                                                                        value="{{ $transport->from_city }}" 
-                                                                        class="form-control form-control-sm" placeholder="From City">
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" name="arrival_departure[{{ $index }}][to_city]" 
-                                                                        value="{{ $transport->to_city ?? '' }}" 
-                                                                        class="form-control form-control-sm" placeholder="To City">
-                                                                </td>
-                                                                <td>
-                                                                    <div class="d-flex gap-1">
-                                                                        <input type="date" name="arrival_departure[{{ $index }}][departure_date]" 
-                                                                            value="{{ $transport->departure_date ? ($transport->departure_date instanceof \DateTime ? $transport->departure_date->format('Y-m-d') : $transport->departure_date) : '' }}" 
-                                                                            class="form-control form-control-sm" style="flex: 1;">
-                                                                        <input type="time" name="arrival_departure[{{ $index }}][departure_time]" 
-                                                                            value="{{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}" 
-                                                                            class="form-control form-control-sm" style="flex: 1;">
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <div class="d-flex gap-1">
-                                                                        <input type="date" name="arrival_departure[{{ $index }}][arrival_date]" 
-                                                                            value="{{ $transport->arrival_date ? ($transport->arrival_date instanceof \DateTime ? $transport->arrival_date->format('Y-m-d') : $transport->arrival_date) : '' }}" 
-                                                                            class="form-control form-control-sm" style="flex: 1;">
-                                                                        <input type="time" name="arrival_departure[{{ $index }}][arrival_time]" 
-                                                                            value="{{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}" 
-                                                                            class="form-control form-control-sm" style="flex: 1;">
-                                                                    </div>
+                                                                    {{ $transport->arrival_date ? ($transport->arrival_date instanceof \DateTime ? $transport->arrival_date->format('d/m/Y') : date('d/m/Y', strtotime($transport->arrival_date))) : '' }}
+                                                                    {{ $transport->arrival_time ? ' ' . substr($transport->arrival_time, 0, 5) : '' }}
                                                                 </td>
                                                                 <td class="text-center">
                                                                     @if(!$isViewOnly)
-                                                                        <button type="button" class="btn btn-sm btn-danger removeArrivalDepartureRow">
-                                                                            <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                                                                        </button>
+                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][id]" value="{{ $transport->id }}">
+                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][mode]" value="{{ $transport->mode }}">
+                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][info]" value="{{ $transport->info }}">
+                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][from_city]" value="{{ $transport->from_city }}">
+                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][to_city]" value="{{ $transport->to_city ?? '' }}">
+                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][departure_date]" value="{{ $transport->departure_date ? ($transport->departure_date instanceof \DateTime ? $transport->departure_date->format('Y-m-d') : $transport->departure_date) : '' }}">
+                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][departure_time]" value="{{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}">
+                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][arrival_date]" value="{{ $transport->arrival_date ? ($transport->arrival_date instanceof \DateTime ? $transport->arrival_date->format('Y-m-d') : $transport->arrival_date) : '' }}">
+                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][arrival_time]" value="{{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}">
+                                                                        <i data-feather="trash-2" class="removeArrivalDepartureRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                                                                     @endif
                                                                 </td>
                                                             </tr>
                                                         @endforeach
-                                                    @else
-                                                        <tr class="empty-row-message">
-                                                            <td colspan="7" class="text-center text-muted py-3">
-                                                                No arrival/departure details added. Click "Add" to add details.
-                                                            </td>
-                                                        </tr>
                                                     @endif
                                                 </tbody>
                                             </table>
@@ -359,12 +346,6 @@
                                                 <i data-feather="home" class="me-1" style="width: 14px; height: 14px;"></i>
                                                 Accommodation Details
                                             </h6>
-                                            @if(!$isViewOnly)
-                                                <button type="button" class="btn btn-sm btn-primary" id="addAccommodationRow">
-                                                    <i data-feather="plus" class="me-1" style="width: 14px; height: 14px;"></i>
-                                                    Add
-                                                </button>
-                                            @endif
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-bordered table-sm mb-0" id="accommodationTable">
@@ -377,78 +358,78 @@
                                                         <th style="width: 12%;">Check-out (Date)</th>
                                                         <th style="width: 12%;">Room Type</th>
                                                         <th style="width: 12%;">Meal Plan</th>
-                                                        <th style="width: 12%;">Booking Status</th>
                                                         <th style="width: 4%;" class="text-center">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="accommodationTableBody">
+                                                    <!-- Always show input row for new entry first -->
+                                                    <tr class="accommodation-input-row" data-is-input-row="true">
+                                                        <td>
+                                                            <input type="text" class="form-control form-control-sm destination-input" placeholder="Destination" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-control form-control-sm location-input" placeholder="Location" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-control form-control-sm stay-at-input" placeholder="Stay At" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                        </td>
+                                                        <td>
+                                                            <input type="date" class="form-control form-control-sm checkin-date-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                        </td>
+                                                        <td>
+                                                            <input type="date" class="form-control form-control-sm checkout-date-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-select form-select-sm room-type-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                                <option value="">-- Select --</option>
+                                                                <option value="Single">Single</option>
+                                                                <option value="Double">Double</option>
+                                                                <option value="Triple">Triple</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-select form-select-sm meal-plan-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                                <option value="">-- Select --</option>
+                                                                <option value="CP">CP</option>
+                                                                <option value="MAP">MAP</option>
+                                                                <option value="AP">AP</option>
+                                                                <option value="AI">AI</option>
+                                                            </select>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @if(!$isViewOnly)
+                                                                <button type="button" class="btn btn-sm btn-primary addAccommodationFromInput">
+                                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                                    Add
+                                                                </button>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
                                                     @if($lead->bookingAccommodations && $lead->bookingAccommodations->count() > 0)
                                                         @foreach($lead->bookingAccommodations as $index => $ba)
-                                                            <tr data-row-index="{{ $index }}">
-                                                                <td>
-                                                                    <input type="text" name="booking_accommodations[{{ $index }}][destination]" 
-                                                                        value="{{ $ba->destination }}" 
-                                                                        class="form-control form-control-sm" placeholder="Destination">
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" name="booking_accommodations[{{ $index }}][location]" 
-                                                                        value="{{ $ba->location }}" 
-                                                                        class="form-control form-control-sm" placeholder="Location">
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" name="booking_accommodations[{{ $index }}][stay_at]" 
-                                                                        value="{{ $ba->stay_at }}" 
-                                                                        class="form-control form-control-sm" placeholder="Stay At">
-                                                                </td>
-                                                                <td>
-                                                                    <input type="date" name="booking_accommodations[{{ $index }}][checkin_date]" 
-                                                                        value="{{ $ba->checkin_date ? $ba->checkin_date->format('Y-m-d') : '' }}" 
-                                                                        class="form-control form-control-sm">
-                                                                </td>
-                                                                <td>
-                                                                    <input type="date" name="booking_accommodations[{{ $index }}][checkout_date]" 
-                                                                        value="{{ $ba->checkout_date ? $ba->checkout_date->format('Y-m-d') : '' }}" 
-                                                                        class="form-control form-control-sm">
-                                                                </td>
-                                                                <td>
-                                                                    <select name="booking_accommodations[{{ $index }}][room_type]" class="form-select form-select-sm">
-                                                                        <option value="">-- Select --</option>
-                                                                        <option value="Single" {{ $ba->room_type == 'Single' ? 'selected' : '' }}>Single</option>
-                                                                        <option value="Double" {{ $ba->room_type == 'Double' ? 'selected' : '' }}>Double</option>
-                                                                        <option value="Triple" {{ $ba->room_type == 'Triple' ? 'selected' : '' }}>Triple</option>
-                                                                    </select>
-                                                                </td>
-                                                                <td>
-                                                                    <select name="booking_accommodations[{{ $index }}][meal_plan]" class="form-select form-select-sm">
-                                                                        <option value="">-- Select --</option>
-                                                                        <option value="CP" {{ $ba->meal_plan == 'CP' ? 'selected' : '' }}>CP</option>
-                                                                        <option value="MAP" {{ $ba->meal_plan == 'MAP' ? 'selected' : '' }}>MAP</option>
-                                                                        <option value="AP" {{ $ba->meal_plan == 'AP' ? 'selected' : '' }}>AP</option>
-                                                                        <option value="AI" {{ $ba->meal_plan == 'AI' ? 'selected' : '' }}>AI</option>
-                                                                    </select>
-                                                                </td>
-                                                                <td>
-                                                                    <select name="booking_accommodations[{{ $index }}][booking_status]" class="form-select form-select-sm">
-                                                                        <option value="Pending" {{ $ba->booking_status == 'Pending' ? 'selected' : '' }}>Pending</option>
-                                                                        <option value="In Progress" {{ $ba->booking_status == 'In Progress' ? 'selected' : '' }}>In Progress</option>
-                                                                        <option value="Complete" {{ $ba->booking_status == 'Complete' ? 'selected' : '' }}>Complete</option>
-                                                                    </select>
-                                                                </td>
+                                                            <tr class="accommodation-data-row" data-row-index="{{ $index }}">
+                                                                <td>{{ $ba->destination }}</td>
+                                                                <td>{{ $ba->location }}</td>
+                                                                <td>{{ $ba->stay_at }}</td>
+                                                                <td>{{ $ba->checkin_date ? $ba->checkin_date->format('d/m/Y') : '' }}</td>
+                                                                <td>{{ $ba->checkout_date ? $ba->checkout_date->format('d/m/Y') : '' }}</td>
+                                                                <td>{{ $ba->room_type }}</td>
+                                                                <td>{{ $ba->meal_plan }}</td>
                                                                 <td class="text-center">
                                                                     @if(!$isViewOnly)
-                                                                        <button type="button" class="btn btn-sm btn-danger removeAccommodationRow">
-                                                                            <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                                                                        </button>
+                                                                        <input type="hidden" name="booking_accommodations[{{ $index }}][id]" value="{{ $ba->id }}">
+                                                                        <input type="hidden" name="booking_accommodations[{{ $index }}][destination]" value="{{ $ba->destination }}">
+                                                                        <input type="hidden" name="booking_accommodations[{{ $index }}][location]" value="{{ $ba->location }}">
+                                                                        <input type="hidden" name="booking_accommodations[{{ $index }}][stay_at]" value="{{ $ba->stay_at }}">
+                                                                        <input type="hidden" name="booking_accommodations[{{ $index }}][checkin_date]" value="{{ $ba->checkin_date ? $ba->checkin_date->format('Y-m-d') : '' }}">
+                                                                        <input type="hidden" name="booking_accommodations[{{ $index }}][checkout_date]" value="{{ $ba->checkout_date ? $ba->checkout_date->format('Y-m-d') : '' }}">
+                                                                        <input type="hidden" name="booking_accommodations[{{ $index }}][room_type]" value="{{ $ba->room_type }}">
+                                                                        <input type="hidden" name="booking_accommodations[{{ $index }}][meal_plan]" value="{{ $ba->meal_plan }}">
+                                                                        <i data-feather="trash-2" class="removeAccommodationRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                                                                     @endif
                                                                 </td>
                                                             </tr>
                                                         @endforeach
-                                                    @else
-                                                        <tr class="empty-row-message">
-                                                            <td colspan="9" class="text-center text-muted py-3">
-                                                                No accommodations added. Click "Add" to add an accommodation.
-                                                            </td>
-                                                        </tr>
                                                     @endif
                                                 </tbody>
                                             </table>
@@ -462,12 +443,6 @@
                                                 <i data-feather="calendar" class="me-1" style="width: 14px; height: 14px;"></i>
                                                 Day-Wise Itinerary
                                             </h6>
-                                            @if(!$isViewOnly)
-                                                <button type="button" class="btn btn-sm btn-primary" id="addItineraryRow">
-                                                    <i data-feather="plus" class="me-1" style="width: 14px; height: 14px;"></i>
-                                                    Add
-                                                </button>
-                                            @endif
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-bordered table-sm mb-0" id="itineraryTable">
@@ -475,74 +450,66 @@
                                                     <tr>
                                                         <th style="width: 12%;">Day & Date</th>
                                                         <th style="width: 8%;">Time</th>
-                                                        <th style="width: 10%;">Service Type</th>
                                                         <th style="width: 10%;">Location</th>
                                                         <th style="width: 20%;">Activity/Tour Description</th>
                                                         <th style="width: 10%;">Stay at</th>
-                                                        <th style="width: 8%;" class="text-center">Sure? (Y/N)</th>
                                                         <th style="width: 15%;">Remarks</th>
                                                         <th style="width: 7%;" class="text-center">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="itineraryTableBody">
+                                                    <!-- Always show input row for new entry first -->
+                                                    <tr class="itinerary-input-row" data-is-input-row="true">
+                                                        <td>
+                                                            <input type="text" class="form-control form-control-sm day-date-input" placeholder="Day & Date" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                        </td>
+                                                        <td>
+                                                            <input type="time" class="form-control form-control-sm time-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-control form-control-sm location-input" placeholder="Location" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                        </td>
+                                                        <td>
+                                                            <textarea class="form-control form-control-sm activity-input" rows="2" placeholder="Activity/Tour Description" {{ $disabledAttr }} {!! $disabledStyle !!}></textarea>
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-control form-control-sm stay-at-input" placeholder="Stay at" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                        </td>
+                                                        <td>
+                                                            <textarea class="form-control form-control-sm remarks-input" rows="2" placeholder="Remarks" {{ $disabledAttr }} {!! $disabledStyle !!}></textarea>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @if(!$isViewOnly)
+                                                                <button type="button" class="btn btn-sm btn-primary addItineraryFromInput">
+                                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                                    Add
+                                                                </button>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
                                                     @if($lead->bookingItineraries && $lead->bookingItineraries->count() > 0)
                                                         @foreach($lead->bookingItineraries as $index => $bi)
-                                                            <tr data-row-index="{{ $index }}">
-                                                                <td>
-                                                                    <input type="text" name="booking_itineraries[{{ $index }}][day_and_date]" 
-                                                                        value="{{ $bi->day_and_date }}" 
-                                                                        class="form-control form-control-sm" placeholder="Day & Date">
-                                                                </td>
-                                                                <td>
-                                                                    <input type="time" name="booking_itineraries[{{ $index }}][time]" 
-                                                                        value="{{ $bi->time ? substr($bi->time, 0, 5) : '' }}" 
-                                                                        class="form-control form-control-sm">
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" name="booking_itineraries[{{ $index }}][service_type]" 
-                                                                        value="{{ $bi->service_type }}" 
-                                                                        class="form-control form-control-sm" placeholder="Service Type">
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" name="booking_itineraries[{{ $index }}][location]" 
-                                                                        value="{{ $bi->location }}" 
-                                                                        class="form-control form-control-sm" placeholder="Location">
-                                                                </td>
-                                                                <td>
-                                                                    <textarea name="booking_itineraries[{{ $index }}][activity_tour_description]" 
-                                                                        class="form-control form-control-sm" rows="2" placeholder="Activity/Tour Description">{{ $bi->activity_tour_description }}</textarea>
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" name="booking_itineraries[{{ $index }}][stay_at]" 
-                                                                        value="{{ $bi->stay_at }}" 
-                                                                        class="form-control form-control-sm" placeholder="Stay at">
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    <select name="booking_itineraries[{{ $index }}][sure]" class="form-select form-select-sm">
-                                                                        <option value="">-- Select --</option>
-                                                                        <option value="Y" {{ $bi->sure == 'Y' ? 'selected' : '' }}>Y</option>
-                                                                        <option value="N" {{ $bi->sure == 'N' ? 'selected' : '' }}>N</option>
-                                                                    </select>
-                                                                </td>
-                                                                <td>
-                                                                    <textarea name="booking_itineraries[{{ $index }}][remarks]" 
-                                                                        class="form-control form-control-sm" rows="2" placeholder="Remarks">{{ $bi->remarks }}</textarea>
-                                                                </td>
+                                                            <tr class="itinerary-data-row" data-row-index="{{ $index }}">
+                                                                <td>{{ $bi->day_and_date }}</td>
+                                                                <td>{{ $bi->time ? substr($bi->time, 0, 5) : '' }}</td>
+                                                                <td>{{ $bi->location }}</td>
+                                                                <td>{{ $bi->activity_tour_description }}</td>
+                                                                <td>{{ $bi->stay_at }}</td>
+                                                                <td>{{ $bi->remarks }}</td>
                                                                 <td class="text-center">
                                                                     @if(!$isViewOnly)
-                                                                        <button type="button" class="btn btn-sm btn-danger removeItineraryRow">
-                                                                            <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                                                                        </button>
+                                                                        <input type="hidden" name="booking_itineraries[{{ $index }}][id]" value="{{ $bi->id }}">
+                                                                        <input type="hidden" name="booking_itineraries[{{ $index }}][day_and_date]" value="{{ $bi->day_and_date }}">
+                                                                        <input type="hidden" name="booking_itineraries[{{ $index }}][time]" value="{{ $bi->time ? substr($bi->time, 0, 5) : '' }}">
+                                                                        <input type="hidden" name="booking_itineraries[{{ $index }}][location]" value="{{ $bi->location }}">
+                                                                        <input type="hidden" name="booking_itineraries[{{ $index }}][activity_tour_description]" value="{{ $bi->activity_tour_description }}">
+                                                                        <input type="hidden" name="booking_itineraries[{{ $index }}][stay_at]" value="{{ $bi->stay_at }}">
+                                                                        <input type="hidden" name="booking_itineraries[{{ $index }}][remarks]" value="{{ $bi->remarks }}">
+                                                                        <i data-feather="trash-2" class="removeItineraryRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                                                                     @endif
                                                                 </td>
                                                             </tr>
                                                         @endforeach
-                                                    @else
-                                                        <tr class="empty-row-message">
-                                                            <td colspan="9" class="text-center text-muted py-3">
-                                                                No itinerary items added. Click "Add" to add an itinerary item.
-                                                            </td>
-                                                        </tr>
                                                     @endif
                                                 </tbody>
                                             </table>
@@ -614,103 +581,18 @@
                 // Destination table management
                 let destinationRowIndex = {{ $lead->bookingDestinations ? $lead->bookingDestinations->count() : 0 }};
 
-                // Function to add new destination row
-                function addDestinationRow() {
-                    const tbody = document.getElementById('destinationTableBody');
-                    const emptyRow = tbody.querySelector('.empty-row-message');
-                    if (emptyRow) {
-                        emptyRow.remove();
-                    }
-
-                    const newRow = document.createElement('tr');
-                    newRow.setAttribute('data-row-index', destinationRowIndex);
-                    
-                    // Build destination options
-                    let destinationOptions = '<option value="">-- Select Destination --</option>';
-                    @foreach($destinations as $dest)
-                        destinationOptions += '<option value="{{ $dest->name }}" data-destination-id="{{ $dest->id }}">{{ $dest->name }}</option>';
-                    @endforeach
-                    
-                    newRow.innerHTML = `
-                        <td>
-                            <select name="booking_destinations[${destinationRowIndex}][destination]" 
-                                class="form-select form-select-sm destination-select" 
-                                data-row-index="${destinationRowIndex}">
-                                ${destinationOptions}
-                            </select>
-                        </td>
-                        <td>
-                            <select name="booking_destinations[${destinationRowIndex}][location]" 
-                                class="form-select form-select-sm location-select" 
-                                data-row-index="${destinationRowIndex}">
-                                <option value="">-- Select Location --</option>
-                            </select>
-                        </td>
-                                                        <td class="text-center">
-                                                            <input type="checkbox" name="booking_destinations[${destinationRowIndex}][only_hotel]" 
-                                                                value="1" class="form-check-input service-type-checkbox">
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input type="checkbox" name="booking_destinations[${destinationRowIndex}][only_tt]" 
-                                                                value="1" class="form-check-input service-type-checkbox">
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input type="checkbox" name="booking_destinations[${destinationRowIndex}][hotel_tt]" 
-                                                                value="1" class="form-check-input service-type-checkbox">
-                                                        </td>
-                        <td>
-                            <input type="date" name="booking_destinations[${destinationRowIndex}][from_date]" 
-                                class="form-control form-control-sm destination-from-date">
-                        </td>
-                        <td>
-                            <input type="date" name="booking_destinations[${destinationRowIndex}][to_date]" 
-                                class="form-control form-control-sm destination-to-date">
-                        </td>
-                        <td>
-                            <input type="text" 
-                                class="form-control form-control-sm destination-duration" readonly>
-                        </td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-danger removeDestinationRow">
-                                <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(newRow);
-
-                    // Re-initialize Feather icons
-                    if (typeof feather !== 'undefined') {
-                        feather.replace();
-                    }
-
-                    // Attach event listeners for date calculation
-                    attachDurationCalculation(newRow);
-
-                    // Attach mutual exclusivity handler for service type checkboxes
-                    attachServiceTypeHandlers(newRow);
-
-                    // Attach destination change handler
-                    attachDestinationChangeHandler(newRow);
-
-                    destinationRowIndex++;
-                }
-
-                // Function to load locations for a selected destination
-                function loadLocationsForDestination(destinationSelect) {
-                    const rowIndex = destinationSelect.getAttribute('data-row-index');
-                    const locationSelect = document.querySelector(`select.location-select[data-row-index="${rowIndex}"]`);
+                // Function to load locations for input row destination
+                function loadLocationsForInputRow(destinationSelect) {
+                    const locationSelect = document.querySelector('.location-select-input');
                     const destinationId = destinationSelect.options[destinationSelect.selectedIndex]?.getAttribute('data-destination-id');
                     
-                    // Clear existing options except the first one
                     if (locationSelect) {
                         locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
                         
                         if (destinationId) {
-                            // Show loading state
                             locationSelect.disabled = true;
                             locationSelect.innerHTML = '<option value="">Loading locations...</option>';
                             
-                            // Fetch locations from API
                             fetch(`/api/destinations/${destinationId}/locations`, {
                                 method: 'GET',
                                 headers: {
@@ -741,146 +623,139 @@
                     }
                 }
 
-                // Function to attach destination change handler
-                function attachDestinationChangeHandler(row) {
-                    const destinationSelect = row.querySelector('.destination-select');
-                    if (destinationSelect) {
-                        destinationSelect.addEventListener('change', function() {
-                            loadLocationsForDestination(this);
-                        });
-                    }
+                // Handle destination change in input row
+                const destinationSelectInput = document.querySelector('.destination-select-input');
+                if (destinationSelectInput) {
+                    destinationSelectInput.addEventListener('change', function() {
+                        loadLocationsForInputRow(this);
+                    });
                 }
 
-                // Function to calculate duration based on service type
-                function calculateDuration(row) {
-                    const fromDateInput = row.querySelector('.destination-from-date');
-                    const toDateInput = row.querySelector('.destination-to-date');
-                    const durationInput = row.querySelector('.destination-duration');
-                    const onlyHotelCheckbox = row.querySelector('input[name*="[only_hotel]"]');
-                    const onlyTTCheckbox = row.querySelector('input[name*="[only_tt]"]');
-                    const hotelTTCheckbox = row.querySelector('input[name*="[hotel_tt]"]');
+                // Handle service type checkboxes mutual exclusivity in input row
+                const serviceTypeCheckboxes = document.querySelectorAll('.only-hotel-input, .only-tt-input, .hotel-tt-input');
+                serviceTypeCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        if (this.checked) {
+                            serviceTypeCheckboxes.forEach(cb => {
+                                if (cb !== this) {
+                                    cb.checked = false;
+                                }
+                            });
+                        }
+                    });
+                });
 
-                    if (!fromDateInput || !toDateInput || !durationInput) {
+                // Function to add destination from input row
+                function addDestinationFromInput() {
+                    const inputRow = document.querySelector('.destination-input-row');
+                    const destination = inputRow.querySelector('.destination-select-input').value;
+                    const location = inputRow.querySelector('.location-select-input').value;
+                    const onlyHotel = inputRow.querySelector('.only-hotel-input').checked;
+                    const onlyTT = inputRow.querySelector('.only-tt-input').checked;
+                    const hotelTT = inputRow.querySelector('.hotel-tt-input').checked;
+                    const fromDate = inputRow.querySelector('.from-date-input').value;
+                    const toDate = inputRow.querySelector('.to-date-input').value;
+
+                    // Validation
+                    if (!destination || !location || !fromDate || !toDate) {
+                        alert('Please fill in all required fields (Destination, Location, From Date, To Date)');
                         return;
                     }
 
-                    if (fromDateInput.value && toDateInput.value) {
-                        const from = new Date(fromDateInput.value);
-                        const to = new Date(toDateInput.value);
-                        
-                        if (to >= from) {
-                            const diffTime = to - from;
-                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                            
-                            // Determine service type
-                            let serviceType = '';
-                            if (onlyHotelCheckbox && onlyHotelCheckbox.checked) {
-                                serviceType = 'nights';
-                                durationInput.value = diffDays + ' Nights';
-                            } else if ((onlyTTCheckbox && onlyTTCheckbox.checked) || 
-                                      (hotelTTCheckbox && hotelTTCheckbox.checked)) {
-                                serviceType = 'days';
-                                durationInput.value = diffDays + ' Days';
-                            } else {
-                                // No service type selected, show days as default
-                                durationInput.value = diffDays + ' Days';
-                            }
-                        } else {
-                            durationInput.value = '';
-                        }
+                    if (!onlyHotel && !onlyTT && !hotelTT) {
+                        alert('Please select at least one service type (Only Hotel, Only TT, or Hotel + TT)');
+                        return;
+                    }
+
+                    // Format dates for display
+                    const formatDate = (dateStr) => {
+                        if (!dateStr) return '';
+                        const date = new Date(dateStr);
+                        const day = String(date.getDate()).padStart(2, '0');
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const year = date.getFullYear();
+                        return `${day}/${month}/${year}`;
+                    };
+
+                    // Create new data row
+                    const tbody = document.getElementById('destinationTableBody');
+                    const newRow = document.createElement('tr');
+                    newRow.className = 'destination-data-row';
+                    newRow.setAttribute('data-row-index', destinationRowIndex);
+
+                    // Build service type checkmarks
+                    let onlyHotelMark = onlyHotel ? '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
+                    let onlyTTMark = onlyTT ? '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
+                    let hotelTTMark = hotelTT ? '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
+
+                    newRow.innerHTML = `
+                        <td>${destination}</td>
+                        <td>${location}</td>
+                        <td class="text-center">${onlyHotelMark}</td>
+                        <td class="text-center">${onlyTTMark}</td>
+                        <td class="text-center">${hotelTTMark}</td>
+                        <td>${formatDate(fromDate)}</td>
+                        <td>${formatDate(toDate)}</td>
+                        <td class="text-center">
+                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][destination]" value="${destination}">
+                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][location]" value="${location}">
+                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][only_hotel]" value="${onlyHotel ? '1' : '0'}">
+                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][only_tt]" value="${onlyTT ? '1' : '0'}">
+                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][hotel_tt]" value="${hotelTT ? '1' : '0'}">
+                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][from_date]" value="${fromDate}">
+                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][to_date]" value="${toDate}">
+                            <i data-feather="trash-2" class="removeDestinationRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                        </td>
+                    `;
+
+                    // Insert after the input row (so input row stays first)
+                    if (inputRow && inputRow.nextSibling) {
+                        tbody.insertBefore(newRow, inputRow.nextSibling);
                     } else {
-                        durationInput.value = '';
-                    }
-                }
-
-                // Function to attach duration calculation handlers
-                function attachDurationCalculation(row) {
-                    const fromDateInput = row.querySelector('.destination-from-date');
-                    const toDateInput = row.querySelector('.destination-to-date');
-                    const serviceTypeCheckboxes = row.querySelectorAll('.service-type-checkbox');
-
-                    // Calculate on date change
-                    if (fromDateInput && toDateInput) {
-                        fromDateInput.addEventListener('change', () => calculateDuration(row));
-                        toDateInput.addEventListener('change', () => calculateDuration(row));
+                        tbody.appendChild(newRow);
                     }
 
-                    // Calculate on service type change
-                    serviceTypeCheckboxes.forEach(checkbox => {
-                        checkbox.addEventListener('change', () => calculateDuration(row));
-                    });
+                    // Clear input row
+                    inputRow.querySelector('.destination-select-input').value = '';
+                    inputRow.querySelector('.location-select-input').innerHTML = '<option value="">-- Select Location --</option>';
+                    inputRow.querySelector('.only-hotel-input').checked = false;
+                    inputRow.querySelector('.only-tt-input').checked = false;
+                    inputRow.querySelector('.hotel-tt-input').checked = false;
+                    inputRow.querySelector('.from-date-input').value = '';
+                    inputRow.querySelector('.to-date-input').value = '';
 
-                    // Calculate initial duration if dates are already set
-                    calculateDuration(row);
+                    // Re-initialize Feather icons
+                    if (typeof feather !== 'undefined') {
+                        feather.replace();
+                    }
+
+                    destinationRowIndex++;
+
+                    // Check itinerary visibility
+                    checkItineraryVisibility();
                 }
 
-                // Function to handle mutual exclusivity for service type checkboxes
-                function attachServiceTypeHandlers(row) {
-                    const checkboxes = row.querySelectorAll('.service-type-checkbox');
-                    checkboxes.forEach(checkbox => {
-                        checkbox.addEventListener('change', function() {
-                            if (this.checked) {
-                                // Uncheck other checkboxes in the same row
-                                checkboxes.forEach(cb => {
-                                    if (cb !== this) {
-                                        cb.checked = false;
-                                    }
-                                });
-                            }
-                            // Recalculate duration when service type changes
-                            calculateDuration(row);
-                        });
-                    });
-                }
-
-                // Attach handlers to existing rows
-                document.querySelectorAll('#destinationTableBody tr').forEach(row => {
-                    if (!row.classList.contains('empty-row-message')) {
-                        attachServiceTypeHandlers(row);
-                        attachDurationCalculation(row);
-                        attachDestinationChangeHandler(row);
+                // Handle Add button click
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.addDestinationFromInput')) {
+                        e.preventDefault();
+                        addDestinationFromInput();
                     }
                 });
 
-                // Add row button click handler
-                const addDestinationBtn = document.getElementById('addDestinationRow');
-                if (addDestinationBtn) {
-                    addDestinationBtn.addEventListener('click', addDestinationRow);
-                }
-
-                // Remove row button click handler (using event delegation)
+                // Remove destination row handler (using event delegation)
                 document.addEventListener('click', function(e) {
                     if (e.target.closest('.removeDestinationRow')) {
                         if (!confirm('Are you sure you want to delete this destination row?')) {
                             return;
                         }
                         const row = e.target.closest('tr');
-                        const tbody = document.getElementById('destinationTableBody');
                         row.remove();
-                        
-                        // Add default row if no rows left (instead of showing empty message)
-                        if (tbody.children.length === 0 || (tbody.children.length === 1 && tbody.querySelector('.empty-row-message'))) {
-                            const emptyRow = tbody.querySelector('.empty-row-message');
-                            if (emptyRow) {
-                                emptyRow.remove();
-                            }
-                            addDestinationRow();
-                        }
                         
                         // Check itinerary visibility after removing destination row
                         checkItineraryVisibility();
                     }
                 });
-
-                // Add default row if destination table is empty
-                const destinationTbody = document.getElementById('destinationTableBody');
-                const hasDestinationEmptyMessage = destinationTbody.querySelector('.empty-row-message');
-                const hasDestinationExistingRows = destinationTbody.querySelectorAll('tr[data-row-index]').length > 0;
-                
-                if (hasDestinationEmptyMessage && !hasDestinationExistingRows) {
-                    // Remove empty message and add default row
-                    addDestinationRow();
-                }
 
                 // Arrival/Departure unified table management
                 @php
@@ -888,60 +763,81 @@
                 @endphp
                 let arrivalDepartureRowIndex = {{ $totalTransports }};
 
-                // Function to add new arrival/departure row
-                function addArrivalDepartureRow() {
-                    const tbody = document.getElementById('arrivalDepartureTableBody');
-                    const emptyRow = tbody.querySelector('.empty-row-message');
-                    if (emptyRow) {
-                        emptyRow.remove();
+                // Function to format date for display
+                function formatDateDisplay(dateStr) {
+                    if (!dateStr) return '';
+                    const date = new Date(dateStr);
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = date.getFullYear();
+                    return `${day}/${month}/${year}`;
+                }
+
+                // Function to add arrival/departure from input row
+                function addArrivalDepartureFromInput() {
+                    const inputRow = document.querySelector('.arrival-departure-input-row');
+                    const mode = inputRow.querySelector('.mode-input').value;
+                    const info = inputRow.querySelector('.info-input').value;
+                    const fromCity = inputRow.querySelector('.from-city-input').value;
+                    const toCity = inputRow.querySelector('.to-city-input').value;
+                    const departureDate = inputRow.querySelector('.departure-date-input').value;
+                    const departureTime = inputRow.querySelector('.departure-time-input').value;
+                    const arrivalDate = inputRow.querySelector('.arrival-date-input').value;
+                    const arrivalTime = inputRow.querySelector('.arrival-time-input').value;
+
+                    // Validation
+                    if (!mode || !fromCity || !toCity || !departureDate || !arrivalDate) {
+                        alert('Please fill in all required fields (Mode, From City, To City, Departure Date, Arrival Date)');
+                        return;
                     }
 
+                    // Create new data row
+                    const tbody = document.getElementById('arrivalDepartureTableBody');
                     const newRow = document.createElement('tr');
+                    newRow.className = 'arrival-departure-data-row';
                     newRow.setAttribute('data-row-index', arrivalDepartureRowIndex);
+
+                    const depDateDisplay = formatDateDisplay(departureDate);
+                    const arrDateDisplay = formatDateDisplay(arrivalDate);
+                    const depTimeDisplay = departureTime ? ' ' + departureTime : '';
+                    const arrTimeDisplay = arrivalTime ? ' ' + arrivalTime : '';
+
                     newRow.innerHTML = `
-                        <td>
-                            <select name="arrival_departure[${arrivalDepartureRowIndex}][mode]" class="form-select form-select-sm transport-mode-select">
-                                <option value="By Air">By Air</option>
-                                <option value="By Surface">By Surface</option>
-                                <option value="By Sea">By Sea</option>
-                            </select>
-                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][type]" value="new">
-                        </td>
-                        <td>
-                            <input type="text" name="arrival_departure[${arrivalDepartureRowIndex}][info]" 
-                                class="form-control form-control-sm" placeholder="Info">
-                        </td>
-                        <td>
-                            <input type="text" name="arrival_departure[${arrivalDepartureRowIndex}][from_city]" 
-                                class="form-control form-control-sm" placeholder="From City">
-                        </td>
-                        <td>
-                            <input type="text" name="arrival_departure[${arrivalDepartureRowIndex}][to_city]" 
-                                class="form-control form-control-sm" placeholder="To City">
-                        </td>
-                        <td>
-                            <div class="d-flex gap-1">
-                                <input type="date" name="arrival_departure[${arrivalDepartureRowIndex}][departure_date]" 
-                                    class="form-control form-control-sm" style="flex: 1;">
-                                <input type="time" name="arrival_departure[${arrivalDepartureRowIndex}][departure_time]" 
-                                    class="form-control form-control-sm" style="flex: 1;">
-                            </div>
-                        </td>
-                        <td>
-                            <div class="d-flex gap-1">
-                                <input type="date" name="arrival_departure[${arrivalDepartureRowIndex}][arrival_date]" 
-                                    class="form-control form-control-sm" style="flex: 1;">
-                                <input type="time" name="arrival_departure[${arrivalDepartureRowIndex}][arrival_time]" 
-                                    class="form-control form-control-sm" style="flex: 1;">
-                            </div>
-                        </td>
+                        <td>${mode}</td>
+                        <td>${info}</td>
+                        <td>${fromCity}</td>
+                        <td>${toCity}</td>
+                        <td>${depDateDisplay}${depTimeDisplay}</td>
+                        <td>${arrDateDisplay}${arrTimeDisplay}</td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-danger removeArrivalDepartureRow">
-                                <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                            </button>
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][mode]" value="${mode}">
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][info]" value="${info}">
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][from_city]" value="${fromCity}">
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][to_city]" value="${toCity}">
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][departure_date]" value="${departureDate}">
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][departure_time]" value="${departureTime}">
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][arrival_date]" value="${arrivalDate}">
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][arrival_time]" value="${arrivalTime}">
+                            <i data-feather="trash-2" class="removeArrivalDepartureRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                         </td>
                     `;
-                    tbody.appendChild(newRow);
+
+                    // Insert after the input row
+                    if (inputRow && inputRow.nextSibling) {
+                        tbody.insertBefore(newRow, inputRow.nextSibling);
+                    } else {
+                        tbody.appendChild(newRow);
+                    }
+
+                    // Clear input row
+                    inputRow.querySelector('.mode-input').value = 'By Air';
+                    inputRow.querySelector('.info-input').value = '';
+                    inputRow.querySelector('.from-city-input').value = '';
+                    inputRow.querySelector('.to-city-input').value = '';
+                    inputRow.querySelector('.departure-date-input').value = '';
+                    inputRow.querySelector('.departure-time-input').value = '';
+                    inputRow.querySelector('.arrival-date-input').value = '';
+                    inputRow.querySelector('.arrival-time-input').value = '';
 
                     // Re-initialize Feather icons
                     if (typeof feather !== 'undefined') {
@@ -951,108 +847,86 @@
                     arrivalDepartureRowIndex++;
                 }
 
-                // Add arrival/departure row button click handler
-                const addArrivalDepartureBtn = document.getElementById('addArrivalDepartureRow');
-                if (addArrivalDepartureBtn) {
-                    addArrivalDepartureBtn.addEventListener('click', addArrivalDepartureRow);
-                }
+                // Handle Add button click
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.addArrivalDepartureFromInput')) {
+                        e.preventDefault();
+                        addArrivalDepartureFromInput();
+                    }
+                });
 
-                // Remove arrival/departure row button click handler (using event delegation)
+                // Remove arrival/departure row handler
                 document.addEventListener('click', function(e) {
                     if (e.target.closest('.removeArrivalDepartureRow')) {
                         if (!confirm('Are you sure you want to delete this arrival/departure row?')) {
                             return;
                         }
                         const row = e.target.closest('tr');
-                        const tbody = document.getElementById('arrivalDepartureTableBody');
                         row.remove();
-                        
-                        // Add default row if no rows left (instead of showing empty message)
-                        if (tbody.children.length === 0 || (tbody.children.length === 1 && tbody.querySelector('.empty-row-message'))) {
-                            const emptyRow = tbody.querySelector('.empty-row-message');
-                            if (emptyRow) {
-                                emptyRow.remove();
-                            }
-                            addArrivalDepartureRow();
-                        }
                     }
                 });
-
-                // Add default row if table is empty
-                const arrivalDepartureTbody = document.getElementById('arrivalDepartureTableBody');
-                const hasEmptyMessage = arrivalDepartureTbody.querySelector('.empty-row-message');
-                const hasExistingRows = arrivalDepartureTbody.querySelectorAll('tr[data-row-index]').length > 0;
-                
-                if (hasEmptyMessage && !hasExistingRows) {
-                    // Remove empty message and add default row
-                    addArrivalDepartureRow();
-                }
 
                 // Accommodation table management
                 let accommodationRowIndex = {{ $lead->bookingAccommodations ? $lead->bookingAccommodations->count() : 0 }};
 
-                // Function to add new accommodation row
-                function addAccommodationRow() {
-                    const tbody = document.getElementById('accommodationTableBody');
-                    const emptyRow = tbody.querySelector('.empty-row-message');
-                    if (emptyRow) {
-                        emptyRow.remove();
+                // Function to add accommodation from input row
+                function addAccommodationFromInput() {
+                    const inputRow = document.querySelector('.accommodation-input-row');
+                    const destination = inputRow.querySelector('.destination-input').value;
+                    const location = inputRow.querySelector('.location-input').value;
+                    const stayAt = inputRow.querySelector('.stay-at-input').value;
+                    const checkinDate = inputRow.querySelector('.checkin-date-input').value;
+                    const checkoutDate = inputRow.querySelector('.checkout-date-input').value;
+                    const roomType = inputRow.querySelector('.room-type-input').value;
+                    const mealPlan = inputRow.querySelector('.meal-plan-input').value;
+
+                    // Validation
+                    if (!destination || !location || !stayAt || !checkinDate || !checkoutDate) {
+                        alert('Please fill in all required fields (Destination, Location, Stay At, Check-in Date, Check-out Date)');
+                        return;
                     }
 
+                    // Create new data row
+                    const tbody = document.getElementById('accommodationTableBody');
                     const newRow = document.createElement('tr');
+                    newRow.className = 'accommodation-data-row';
                     newRow.setAttribute('data-row-index', accommodationRowIndex);
+
                     newRow.innerHTML = `
-                        <td>
-                            <input type="text" name="booking_accommodations[${accommodationRowIndex}][destination]" 
-                                class="form-control form-control-sm" placeholder="Destination">
-                        </td>
-                        <td>
-                            <input type="text" name="booking_accommodations[${accommodationRowIndex}][location]" 
-                                class="form-control form-control-sm" placeholder="Location">
-                        </td>
-                        <td>
-                            <input type="text" name="booking_accommodations[${accommodationRowIndex}][stay_at]" 
-                                class="form-control form-control-sm" placeholder="Stay At">
-                        </td>
-                        <td>
-                            <input type="date" name="booking_accommodations[${accommodationRowIndex}][checkin_date]" 
-                                class="form-control form-control-sm">
-                        </td>
-                        <td>
-                            <input type="date" name="booking_accommodations[${accommodationRowIndex}][checkout_date]" 
-                                class="form-control form-control-sm">
-                        </td>
-                        <td>
-                            <select name="booking_accommodations[${accommodationRowIndex}][room_type]" class="form-select form-select-sm">
-                                <option value="">-- Select --</option>
-                                <option value="Single">Single</option>
-                                <option value="Double">Double</option>
-                                <option value="Triple">Triple</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select name="booking_accommodations[${accommodationRowIndex}][meal_plan]" class="form-select form-select-sm">
-                                <option value="">-- Select --</option>
-                                <option value="CP">CP</option>
-                                <option value="MAP">MAP</option>
-                                <option value="AP">AP</option>
-                                <option value="AI">AI</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select name="booking_accommodations[${accommodationRowIndex}][booking_status]" class="form-select form-select-sm">
-                                <option value="Pending">Pending</option>
-                                <option value="In Progress">In Progress</option>
-                                <option value="Complete">Complete</option>
-                            </select>
-                        </td>
+                        <td>${destination}</td>
+                        <td>${location}</td>
+                        <td>${stayAt}</td>
+                        <td>${formatDateDisplay(checkinDate)}</td>
+                        <td>${formatDateDisplay(checkoutDate)}</td>
+                        <td>${roomType}</td>
+                        <td>${mealPlan}</td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-danger removeAccommodationRow">
-                                <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                            </button>
+                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][destination]" value="${destination}">
+                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][location]" value="${location}">
+                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][stay_at]" value="${stayAt}">
+                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][checkin_date]" value="${checkinDate}">
+                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][checkout_date]" value="${checkoutDate}">
+                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][room_type]" value="${roomType}">
+                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][meal_plan]" value="${mealPlan}">
+                            <i data-feather="trash-2" class="removeAccommodationRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                         </td>
                     `;
-                    tbody.appendChild(newRow);
+
+                    // Insert after the input row
+                    if (inputRow && inputRow.nextSibling) {
+                        tbody.insertBefore(newRow, inputRow.nextSibling);
+                    } else {
+                        tbody.appendChild(newRow);
+                    }
+
+                    // Clear input row
+                    inputRow.querySelector('.destination-input').value = '';
+                    inputRow.querySelector('.location-input').value = '';
+                    inputRow.querySelector('.stay-at-input').value = '';
+                    inputRow.querySelector('.checkin-date-input').value = '';
+                    inputRow.querySelector('.checkout-date-input').value = '';
+                    inputRow.querySelector('.room-type-input').value = '';
+                    inputRow.querySelector('.meal-plan-input').value = '';
 
                     // Re-initialize Feather icons
                     if (typeof feather !== 'undefined') {
@@ -1062,99 +936,82 @@
                     accommodationRowIndex++;
                 }
 
-                // Add accommodation row button click handler
-                const addAccommodationBtn = document.getElementById('addAccommodationRow');
-                if (addAccommodationBtn) {
-                    addAccommodationBtn.addEventListener('click', addAccommodationRow);
-                }
+                // Handle Add button click
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.addAccommodationFromInput')) {
+                        e.preventDefault();
+                        addAccommodationFromInput();
+                    }
+                });
 
-                // Remove accommodation row button click handler (using event delegation)
+                // Remove accommodation row handler
                 document.addEventListener('click', function(e) {
                     if (e.target.closest('.removeAccommodationRow')) {
                         if (!confirm('Are you sure you want to delete this accommodation row?')) {
                             return;
                         }
                         const row = e.target.closest('tr');
-                        const tbody = document.getElementById('accommodationTableBody');
                         row.remove();
-                        
-                        // Add default row if no rows left (instead of showing empty message)
-                        if (tbody.children.length === 0 || (tbody.children.length === 1 && tbody.querySelector('.empty-row-message'))) {
-                            const emptyRow = tbody.querySelector('.empty-row-message');
-                            if (emptyRow) {
-                                emptyRow.remove();
-                            }
-                            addAccommodationRow();
-                        }
                     }
                 });
-
-                // Add default row if accommodation table is empty
-                const accommodationTbody = document.getElementById('accommodationTableBody');
-                const hasAccommodationEmptyMessage = accommodationTbody.querySelector('.empty-row-message');
-                const hasAccommodationExistingRows = accommodationTbody.querySelectorAll('tr[data-row-index]').length > 0;
-                
-                if (hasAccommodationEmptyMessage && !hasAccommodationExistingRows) {
-                    // Remove empty message and add default row
-                    addAccommodationRow();
-                }
 
                 // Itinerary table management
                 let itineraryRowIndex = {{ $lead->bookingItineraries ? $lead->bookingItineraries->count() : 0 }};
 
-                // Function to add new itinerary row
-                function addItineraryRow() {
-                    const tbody = document.getElementById('itineraryTableBody');
-                    const emptyRow = tbody.querySelector('.empty-row-message');
-                    if (emptyRow) {
-                        emptyRow.remove();
+                // Function to add itinerary from input row
+                function addItineraryFromInput() {
+                    const inputRow = document.querySelector('.itinerary-input-row');
+                    const dayDate = inputRow.querySelector('.day-date-input').value;
+                    const time = inputRow.querySelector('.time-input').value;
+                    const location = inputRow.querySelector('.location-input').value;
+                    const activity = inputRow.querySelector('.activity-input').value;
+                    const stayAt = inputRow.querySelector('.stay-at-input').value;
+                    const remarks = inputRow.querySelector('.remarks-input').value;
+
+                    // Validation
+                    if (!dayDate || !location || !activity) {
+                        alert('Please fill in all required fields (Day & Date, Location, Activity/Tour Description)');
+                        return;
                     }
 
+                    // Create new data row
+                    const tbody = document.getElementById('itineraryTableBody');
                     const newRow = document.createElement('tr');
+                    newRow.className = 'itinerary-data-row';
                     newRow.setAttribute('data-row-index', itineraryRowIndex);
+
                     newRow.innerHTML = `
-                        <td>
-                            <input type="text" name="booking_itineraries[${itineraryRowIndex}][day_and_date]" 
-                                class="form-control form-control-sm" placeholder="Day & Date">
-                        </td>
-                        <td>
-                            <input type="time" name="booking_itineraries[${itineraryRowIndex}][time]" 
-                                class="form-control form-control-sm">
-                        </td>
-                        <td>
-                            <input type="text" name="booking_itineraries[${itineraryRowIndex}][service_type]" 
-                                class="form-control form-control-sm" placeholder="Service Type">
-                        </td>
-                        <td>
-                            <input type="text" name="booking_itineraries[${itineraryRowIndex}][location]" 
-                                class="form-control form-control-sm" placeholder="Location">
-                        </td>
-                        <td>
-                            <textarea name="booking_itineraries[${itineraryRowIndex}][activity_tour_description]" 
-                                class="form-control form-control-sm" rows="2" placeholder="Activity/Tour Description"></textarea>
-                        </td>
-                        <td>
-                            <input type="text" name="booking_itineraries[${itineraryRowIndex}][stay_at]" 
-                                class="form-control form-control-sm" placeholder="Stay at">
-                        </td>
+                        <td>${dayDate}</td>
+                        <td>${time || ''}</td>
+                        <td>${location}</td>
+                        <td>${activity}</td>
+                        <td>${stayAt || ''}</td>
+                        <td>${remarks || ''}</td>
                         <td class="text-center">
-                            <select name="booking_itineraries[${itineraryRowIndex}][sure]" class="form-select form-select-sm">
-                                <option value="">-- Select --</option>
-                                <option value="Y">Y</option>
-                                <option value="N">N</option>
-                            </select>
-                        </td>
-                        <td>
-                            <textarea name="booking_itineraries[${itineraryRowIndex}][remarks]" 
-                                class="form-control form-control-sm" rows="2" placeholder="Remarks"></textarea>
-                        </td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-danger removeItineraryRow">
-                                <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                            </button>
+                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][day_and_date]" value="${dayDate}">
+                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][time]" value="${time}">
+                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][location]" value="${location}">
+                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][activity_tour_description]" value="${activity}">
+                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][stay_at]" value="${stayAt}">
+                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][remarks]" value="${remarks}">
+                            <i data-feather="trash-2" class="removeItineraryRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                         </td>
                     `;
-                    tbody.appendChild(newRow);
+
+                    // Insert after the input row
+                    if (inputRow && inputRow.nextSibling) {
+                        tbody.insertBefore(newRow, inputRow.nextSibling);
+                    } else {
+                        tbody.appendChild(newRow);
+                    }
+
+                    // Clear input row
+                    inputRow.querySelector('.day-date-input').value = '';
+                    inputRow.querySelector('.time-input').value = '';
+                    inputRow.querySelector('.location-input').value = '';
+                    inputRow.querySelector('.activity-input').value = '';
+                    inputRow.querySelector('.stay-at-input').value = '';
+                    inputRow.querySelector('.remarks-input').value = '';
 
                     // Re-initialize Feather icons
                     if (typeof feather !== 'undefined') {
@@ -1164,30 +1021,22 @@
                     itineraryRowIndex++;
                 }
 
-                // Add itinerary row button click handler
-                const addItineraryBtn = document.getElementById('addItineraryRow');
-                if (addItineraryBtn) {
-                    addItineraryBtn.addEventListener('click', addItineraryRow);
-                }
+                // Handle Add button click
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.addItineraryFromInput')) {
+                        e.preventDefault();
+                        addItineraryFromInput();
+                    }
+                });
 
-                // Remove itinerary row button click handler (using event delegation)
+                // Remove itinerary row handler
                 document.addEventListener('click', function(e) {
                     if (e.target.closest('.removeItineraryRow')) {
                         if (!confirm('Are you sure you want to delete this itinerary row?')) {
                             return;
                         }
                         const row = e.target.closest('tr');
-                        const tbody = document.getElementById('itineraryTableBody');
                         row.remove();
-                        
-                        // Add default row if no rows left (instead of showing empty message)
-                        if (tbody.children.length === 0 || (tbody.children.length === 1 && tbody.querySelector('.empty-row-message'))) {
-                            const emptyRow = tbody.querySelector('.empty-row-message');
-                            if (emptyRow) {
-                                emptyRow.remove();
-                            }
-                            addItineraryRow();
-                        }
                     }
                 });
 
@@ -1201,13 +1050,13 @@
                     }
 
                     let shouldShow = false;
-                    const destinationRows = destinationTableBody.querySelectorAll('tr[data-row-index]');
+                    const destinationRows = destinationTableBody.querySelectorAll('.destination-data-row');
                     
                     destinationRows.forEach(row => {
-                        const onlyTT = row.querySelector('input[name*="[only_tt]"]');
-                        const hotelTT = row.querySelector('input[name*="[hotel_tt]"]');
+                        const onlyTTInput = row.querySelector('input[name*="[only_tt]"]');
+                        const hotelTTInput = row.querySelector('input[name*="[hotel_tt]"]');
                         
-                        if ((onlyTT && onlyTT.checked) || (hotelTT && hotelTT.checked)) {
+                        if ((onlyTTInput && onlyTTInput.value === '1') || (hotelTTInput && hotelTTInput.value === '1')) {
                             shouldShow = true;
                         }
                     });
@@ -1216,28 +1065,19 @@
                     if (shouldShow) {
                         itinerarySection.style.display = '';
                         
-                        // Add default row if table is empty
-                        const itineraryTbody = document.getElementById('itineraryTableBody');
-                        const hasItineraryEmptyMessage = itineraryTbody.querySelector('.empty-row-message');
-                        const hasItineraryExistingRows = itineraryTbody.querySelectorAll('tr[data-row-index]').length > 0;
-                        
-                        if (hasItineraryEmptyMessage && !hasItineraryExistingRows) {
-                            const emptyRow = itineraryTbody.querySelector('.empty-row-message');
-                            if (emptyRow) {
-                                emptyRow.remove();
-                            }
-                            addItineraryRow();
-                        }
+                        // Input row is always present, no need to add default row
                     } else {
                         itinerarySection.style.display = 'none';
                     }
                 }
 
-                // Check itinerary visibility when service type checkboxes change
-                document.addEventListener('change', function(e) {
-                    if (e.target.classList.contains('service-type-checkbox')) {
-                        checkItineraryVisibility();
-                    }
+                // Check itinerary visibility when service type checkboxes change in input row
+                const inputServiceTypeCheckboxes = document.querySelectorAll('.only-hotel-input, .only-tt-input, .hotel-tt-input');
+                inputServiceTypeCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        // Check visibility after adding a destination, not on checkbox change
+                        // This is handled in addDestinationFromInput function
+                    });
                 });
 
                 // Check itinerary visibility on page load

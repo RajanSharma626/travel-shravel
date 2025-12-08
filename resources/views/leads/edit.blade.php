@@ -67,11 +67,6 @@
                                                             placeholder="e.g. Ramesh" value="{{ old('first_name', $lead->first_name) }}" required>
                                                     </div>
                                                     <div class="col-md-3">
-                                                        <label class="form-label fw-semibold">Middle Name</label>
-                                                        <input type="text" name="middle_name" class="form-control"
-                                                            placeholder="Optional" value="{{ old('middle_name', $lead->middle_name) }}">
-                                                    </div>
-                                                    <div class="col-md-3">
                                                         <label class="form-label fw-semibold">Last Name</label>
                                                         <input type="text" name="last_name" class="form-control"
                                                             placeholder="e.g. Kumar" value="{{ old('last_name', $lead->last_name) }}">
@@ -94,7 +89,7 @@
                                                             placeholder="Alternate contact" maxlength="20" value="{{ old('secondary_phone', $lead->secondary_phone) }}">
                                                     </div>
                                                     <div class="col-md-4">
-                                                        <label class="form-label fw-semibold">Other Number</label>
+                                                        <label class="form-label fw-semibold">Emergency No.</label>
                                                         <input type="text" name="other_phone" class="form-control"
                                                             placeholder="Emergency contact" maxlength="20" value="{{ old('other_phone', $lead->other_phone) }}">
                                                     </div>

@@ -84,7 +84,6 @@ class LeadController extends Controller
             $leadsQuery->where(function ($query) use ($likeTerm) {
                 $query->where('customer_name', 'like', $likeTerm)
                     ->orWhere('first_name', 'like', $likeTerm)
-                    ->orWhere('middle_name', 'like', $likeTerm)
                     ->orWhere('last_name', 'like', $likeTerm)
                     ->orWhere('phone', 'like', $likeTerm)
                     ->orWhere('primary_phone', 'like', $likeTerm)
@@ -143,7 +142,6 @@ class LeadController extends Controller
             $leadsQuery->where(function ($query) use ($likeTerm) {
                 $query->where('customer_name', 'like', $likeTerm)
                     ->orWhere('first_name', 'like', $likeTerm)
-                    ->orWhere('middle_name', 'like', $likeTerm)
                     ->orWhere('last_name', 'like', $likeTerm)
                     ->orWhere('phone', 'like', $likeTerm)
                     ->orWhere('primary_phone', 'like', $likeTerm)
@@ -249,7 +247,6 @@ class LeadController extends Controller
         $validated = $request->validate([
             'salutation' => 'nullable|string|max:10',
             'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
             'last_name' => 'nullable|string|max:255',
             'primary_phone' => 'required|string|max:20',
             'secondary_phone' => 'nullable|string|max:20',
@@ -356,7 +353,6 @@ class LeadController extends Controller
                     'tsq' => $lead->tsq,
                     'customer_name' => $lead->customer_name,
                     'first_name' => $lead->first_name,
-                    'middle_name' => $lead->middle_name,
                     'last_name' => $lead->last_name,
                     'primary_phone' => $lead->primary_phone ?? $lead->phone,
                     'secondary_phone' => $lead->secondary_phone,
@@ -454,7 +450,6 @@ class LeadController extends Controller
             $validated = $request->validate([
                 'salutation' => 'nullable|string|max:10',
                 'first_name' => 'required|string|max:255',
-                'middle_name' => 'nullable|string|max:255',
                 'last_name' => 'nullable|string|max:255',
                 'primary_phone' => 'required|string|max:20',
                 'secondary_phone' => 'nullable|string|max:20',

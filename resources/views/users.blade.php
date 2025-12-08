@@ -201,11 +201,6 @@
                                         class="form-control form-control-sm" value="{{ old('first_name') }}">
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Middle Name</label>
-                                    <input type="text" name="middle_name" placeholder="Optional"
-                                        class="form-control form-control-sm" value="{{ old('middle_name') }}">
-                                </div>
-                                <div class="col-md-3">
                                     <label class="form-label">Last Name</label>
                                     <input type="text" name="last_name" placeholder="e.g. Doe"
                                         class="form-control form-control-sm" value="{{ old('last_name') }}">
@@ -392,7 +387,6 @@
                     if (addUserForm.elements['status']) addUserForm.elements['status'].value = user.status || 'Active';
                     if (addUserForm.elements['salutation']) addUserForm.elements['salutation'].value = user.salutation || '';
                     if (addUserForm.elements['first_name']) addUserForm.elements['first_name'].value = user.first_name || '';
-                    if (addUserForm.elements['middle_name']) addUserForm.elements['middle_name'].value = user.middle_name || '';
                     if (addUserForm.elements['last_name']) addUserForm.elements['last_name'].value = user.last_name || '';
                     if (addUserForm.elements['dob']) {
                         const dobInput = addUserForm.elements['dob'];
