@@ -10,7 +10,8 @@ class Destination extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name'
+        'name',
+        'country'
     ];
 
     public function leads()

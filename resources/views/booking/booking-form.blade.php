@@ -9,7 +9,8 @@
                         <header class="contact-header">
                             <div class="w-100 align-items-center justify-content-between d-flex contactapp-title link-dark">
                                 <div class="d-flex align-items-center gap-3">
-                                    <a href="{{ $backUrl ?? route('bookings.index') }}" class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover">
+                                    <a href="{{ $backUrl ?? route('bookings.index') }}"
+                                        class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover">
                                         <span class="icon">
                                             <span class="feather-icon">
                                                 <i data-feather="arrow-left"></i>
@@ -29,7 +30,8 @@
                                 @if (session('success'))
                                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                                         {{ session('success') }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
                                     </div>
                                 @endif
 
@@ -41,17 +43,21 @@
                                                 <li>{{ $error }}</li>
                                             @endforeach
                                         </ul>
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
                                     </div>
                                 @endif
 
                                 @php
                                     $isViewOnly = $isViewOnly ?? false;
                                     $disabledAttr = $isViewOnly ? 'readonly disabled' : '';
-                                    $disabledStyle = $isViewOnly ? 'style="background-color: #f8f9fa; cursor: not-allowed;"' : '';
+                                    $disabledStyle = $isViewOnly
+                                        ? 'style="background-color: #f8f9fa; cursor: not-allowed;"'
+                                        : '';
                                 @endphp
 
-                                <form id="bookingFileForm" method="POST" action="{{ route('leads.update', $lead) }}" @if($isViewOnly) onsubmit="return false;" @endif>
+                                <form id="bookingFileForm" method="POST" action="{{ route('leads.update', $lead) }}"
+                                    @if ($isViewOnly) onsubmit="return false;" @endif>
                                     @csrf
                                     @method('PUT')
                                     <input type="hidden" name="lead_id" value="{{ $lead->id }}">
@@ -65,65 +71,96 @@
                                         <div class="row g-3">
                                             <div class="col-md-3">
                                                 <label class="form-label">Ref No.</label>
-                                                <input type="text" value="{{ $lead->tsq }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                <input type="text" value="{{ $lead->tsq }}"
+                                                    class="form-control form-control-sm" readonly disabled
+                                                    style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Salutation</label>
-                                                <input type="text" value="{{ $lead->salutation ?? '' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                <input type="text" value="{{ $lead->salutation ?? '' }}"
+                                                    class="form-control form-control-sm" readonly disabled
+                                                    style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">First Name</label>
-                                                <input type="text" value="{{ $lead->first_name }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                <input type="text" value="{{ $lead->first_name }}"
+                                                    class="form-control form-control-sm" readonly disabled
+                                                    style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Last Name</label>
-                                                <input type="text" value="{{ $lead->last_name ?? '' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                <input type="text" value="{{ $lead->last_name ?? '' }}"
+                                                    class="form-control form-control-sm" readonly disabled
+                                                    style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Contact 1</label>
-                                                <input type="text" value="{{ $lead->primary_phone ?? $lead->phone }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                <input type="text" value="{{ $lead->primary_phone ?? $lead->phone }}"
+                                                    class="form-control form-control-sm" readonly disabled
+                                                    style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Contact 2</label>
-                                                <input type="text" value="{{ $lead->secondary_phone ?? '' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                <input type="text" value="{{ $lead->secondary_phone ?? '' }}"
+                                                    class="form-control form-control-sm" readonly disabled
+                                                    style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Emergency No.</label>
-                                                <input type="text" value="{{ $lead->other_phone ?? '' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                <input type="text" value="{{ $lead->other_phone ?? '' }}"
+                                                    class="form-control form-control-sm" readonly disabled
+                                                    style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Email ID</label>
-                                                <input type="email" value="{{ $lead->email }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                <input type="email" value="{{ $lead->email }}"
+                                                    class="form-control form-control-sm" readonly disabled
+                                                    style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">No. of Adult(s)</label>
-                                                <input type="number" value="{{ $lead->adults }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                <input type="number" value="{{ $lead->adults }}"
+                                                    class="form-control form-control-sm" readonly disabled
+                                                    style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Child (2-5 years)</label>
-                                                <input type="number" value="{{ $lead->children_2_5 ?? 0 }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                <input type="number" value="{{ $lead->children_2_5 ?? 0 }}"
+                                                    class="form-control form-control-sm" readonly disabled
+                                                    style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Child (6-11 years)</label>
-                                                <input type="number" value="{{ $lead->children_6_11 ?? 0 }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                <input type="number" value="{{ $lead->children_6_11 ?? 0 }}"
+                                                    class="form-control form-control-sm" readonly disabled
+                                                    style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Infant (>2 years)</label>
-                                                <input type="number" value="{{ $lead->infants ?? 0 }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                <input type="number" value="{{ $lead->infants ?? 0 }}"
+                                                    class="form-control form-control-sm" readonly disabled
+                                                    style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Booked On</label>
-                                                <input type="text" value="{{ $lead->booked_on ? $lead->booked_on->format('d M, Y h:i A') : 'N/A' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                <input type="text"
+                                                    value="{{ $lead->booked_on ? $lead->booked_on->format('d M, Y h:i A') : 'N/A' }}"
+                                                    class="form-control form-control-sm" readonly disabled
+                                                    style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Re-assign To</label>
-                                                @if($isViewOnly)
-                                                    <input type="text" value="{{ $lead->reassignedTo?->name ?? 'N/A' }}" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                @if ($isViewOnly)
+                                                    <input type="text"
+                                                        value="{{ $lead->reassignedTo?->name ?? 'N/A' }}"
+                                                        class="form-control form-control-sm" readonly disabled
+                                                        style="background-color: #f8f9fa; cursor: not-allowed;">
                                                 @else
                                                     <select name="reassigned_to" class="form-select form-select-sm">
                                                         <option value="">-- Select User --</option>
-                                                        @foreach($users as $user)
-                                                            <option value="{{ $user->id }}" {{ old('reassigned_to', $lead->reassigned_to) == $user->id ? 'selected' : '' }}>
+                                                        @foreach ($users as $user)
+                                                            <option value="{{ $user->id }}"
+                                                                {{ old('reassigned_to', $lead->reassigned_to) == $user->id ? 'selected' : '' }}>
                                                                 {{ $user->name }}
                                                             </option>
                                                         @endforeach
@@ -137,7 +174,8 @@
                                     <div class="mb-4 border rounded-3 p-3 bg-light">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                <i data-feather="map-pin" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                <i data-feather="map-pin" class="me-1"
+                                                    style="width: 14px; height: 14px;"></i>
                                                 Destination
                                             </h6>
                                         </div>
@@ -159,75 +197,116 @@
                                                     <!-- Always show input row for new entry first -->
                                                     <tr class="destination-input-row" data-is-input-row="true">
                                                         <td>
-                                                            <select class="form-select form-select-sm destination-select-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <select
+                                                                class="form-select form-select-sm destination-select-input"
+                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
                                                                 <option value="">-- Select Destination --</option>
-                                                                @foreach($destinations as $dest)
-                                                                    <option value="{{ $dest->name }}" data-destination-id="{{ $dest->id }}">{{ $dest->name }}</option>
+                                                                @foreach ($destinations as $dest)
+                                                                    <option value="{{ $dest->name }}"
+                                                                        data-destination-id="{{ $dest->id }}">
+                                                                        {{ $dest->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </td>
                                                         <td>
-                                                            <select class="form-select form-select-sm location-select-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <select
+                                                                class="form-select form-select-sm location-select-input"
+                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
                                                                 <option value="">-- Select Location --</option>
                                                             </select>
                                                         </td>
                                                         <td class="text-center">
-                                                            <input type="checkbox" class="form-check-input only-hotel-input" {{ $disabledAttr }}>
+                                                            <input type="checkbox"
+                                                                class="form-check-input only-hotel-input"
+                                                                {{ $disabledAttr }}>
                                                         </td>
                                                         <td class="text-center">
-                                                            <input type="checkbox" class="form-check-input only-tt-input" {{ $disabledAttr }}>
+                                                            <input type="checkbox" class="form-check-input only-tt-input"
+                                                                {{ $disabledAttr }}>
                                                         </td>
                                                         <td class="text-center">
-                                                            <input type="checkbox" class="form-check-input hotel-tt-input" {{ $disabledAttr }}>
+                                                            <input type="checkbox" class="form-check-input hotel-tt-input"
+                                                                {{ $disabledAttr }}>
                                                         </td>
                                                         <td>
-                                                            <input type="date" class="form-control form-control-sm from-date-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <input type="date"
+                                                                class="form-control form-control-sm from-date-input"
+                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
                                                         </td>
                                                         <td>
-                                                            <input type="date" class="form-control form-control-sm to-date-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <input type="date"
+                                                                class="form-control form-control-sm to-date-input"
+                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
                                                         </td>
                                                         <td class="text-center">
-                                                            @if(!$isViewOnly)
-                                                                <button type="button" class="btn btn-sm btn-primary addDestinationFromInput">
-                                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                            @if (!$isViewOnly)
+                                                                <button type="button"
+                                                                    class="btn btn-sm btn-primary addDestinationFromInput">
+                                                                    <i data-feather="plus"
+                                                                        style="width: 14px; height: 14px;"></i>
                                                                     Add
                                                                 </button>
                                                             @endif
                                                         </td>
                                                     </tr>
-                                                    @if($lead->bookingDestinations && $lead->bookingDestinations->count() > 0)
-                                                        @foreach($lead->bookingDestinations as $index => $bd)
-                                                            <tr class="destination-data-row" data-destination-id="{{ $bd->id }}" data-row-index="{{ $index }}">
+                                                    @if ($lead->bookingDestinations && $lead->bookingDestinations->count() > 0)
+                                                        @foreach ($lead->bookingDestinations as $index => $bd)
+                                                            <tr class="destination-data-row"
+                                                                data-destination-id="{{ $bd->id }}"
+                                                                data-row-index="{{ $index }}">
                                                                 <td>{{ $bd->destination }}</td>
                                                                 <td>{{ $bd->location }}</td>
                                                                 <td class="text-center">
-                                                                    @if($bd->only_hotel)
-                                                                        <i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>
+                                                                    @if ($bd->only_hotel)
+                                                                        <i data-feather="check"
+                                                                            style="width: 16px; height: 16px; color: #28a745;"></i>
                                                                     @endif
                                                                 </td>
                                                                 <td class="text-center">
-                                                                    @if($bd->only_tt)
-                                                                        <i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>
+                                                                    @if ($bd->only_tt)
+                                                                        <i data-feather="check"
+                                                                            style="width: 16px; height: 16px; color: #28a745;"></i>
                                                                     @endif
                                                                 </td>
                                                                 <td class="text-center">
-                                                                    @if($bd->hotel_tt)
-                                                                        <i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>
+                                                                    @if ($bd->hotel_tt)
+                                                                        <i data-feather="check"
+                                                                            style="width: 16px; height: 16px; color: #28a745;"></i>
                                                                     @endif
                                                                 </td>
-                                                                <td>{{ $bd->from_date ? $bd->from_date->format('d/m/Y') : '' }}</td>
-                                                                <td>{{ $bd->to_date ? $bd->to_date->format('d/m/Y') : '' }}</td>
+                                                                <td>{{ $bd->from_date ? $bd->from_date->format('d/m/Y') : '' }}
+                                                                </td>
+                                                                <td>{{ $bd->to_date ? $bd->to_date->format('d/m/Y') : '' }}
+                                                                </td>
                                                                 <td class="text-center">
-                                                                    @if(!$isViewOnly)
-                                                                        <input type="hidden" name="booking_destinations[{{ $index }}][id]" value="{{ $bd->id }}">
-                                                                        <input type="hidden" name="booking_destinations[{{ $index }}][destination]" value="{{ $bd->destination }}">
-                                                                        <input type="hidden" name="booking_destinations[{{ $index }}][location]" value="{{ $bd->location }}">
-                                                                        <input type="hidden" name="booking_destinations[{{ $index }}][only_hotel]" value="{{ $bd->only_hotel ? '1' : '0' }}">
-                                                                        <input type="hidden" name="booking_destinations[{{ $index }}][only_tt]" value="{{ $bd->only_tt ? '1' : '0' }}">
-                                                                        <input type="hidden" name="booking_destinations[{{ $index }}][hotel_tt]" value="{{ $bd->hotel_tt ? '1' : '0' }}">
-                                                                        <input type="hidden" name="booking_destinations[{{ $index }}][from_date]" value="{{ $bd->from_date ? $bd->from_date->format('Y-m-d') : '' }}">
-                                                                        <input type="hidden" name="booking_destinations[{{ $index }}][to_date]" value="{{ $bd->to_date ? $bd->to_date->format('Y-m-d') : '' }}">
-                                                                        <i data-feather="trash-2" class="removeDestinationRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                                                                    @if (!$isViewOnly)
+                                                                        <input type="hidden"
+                                                                            name="booking_destinations[{{ $index }}][id]"
+                                                                            value="{{ $bd->id }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_destinations[{{ $index }}][destination]"
+                                                                            value="{{ $bd->destination }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_destinations[{{ $index }}][location]"
+                                                                            value="{{ $bd->location }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_destinations[{{ $index }}][only_hotel]"
+                                                                            value="{{ $bd->only_hotel ? '1' : '0' }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_destinations[{{ $index }}][only_tt]"
+                                                                            value="{{ $bd->only_tt ? '1' : '0' }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_destinations[{{ $index }}][hotel_tt]"
+                                                                            value="{{ $bd->hotel_tt ? '1' : '0' }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_destinations[{{ $index }}][from_date]"
+                                                                            value="{{ $bd->from_date ? $bd->from_date->format('Y-m-d') : '' }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_destinations[{{ $index }}][to_date]"
+                                                                            value="{{ $bd->to_date ? $bd->to_date->format('Y-m-d') : '' }}">
+                                                                        <i data-feather="trash-2"
+                                                                            class="removeDestinationRow"
+                                                                            style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                                                                     @endif
                                                                 </td>
                                                             </tr>
@@ -242,7 +321,8 @@
                                     <div class="mb-4 border rounded-3 p-3">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                <i data-feather="navigation" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                <i data-feather="navigation" class="me-1"
+                                                    style="width: 14px; height: 14px;"></i>
                                                 Arrival/Departure Details
                                             </h6>
                                         </div>
@@ -263,37 +343,61 @@
                                                     <!-- Always show input row for new entry first -->
                                                     <tr class="arrival-departure-input-row" data-is-input-row="true">
                                                         <td>
-                                                            <select class="form-select form-select-sm mode-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <select class="form-select form-select-sm mode-input"
+                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
                                                                 <option value="By Air">By Air</option>
                                                                 <option value="By Surface">By Surface</option>
                                                                 <option value="By Sea">By Sea</option>
                                                             </select>
                                                         </td>
                                                         <td>
-                                                            <input type="text" class="form-control form-control-sm info-input" placeholder="Info" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <input type="text"
+                                                                class="form-control form-control-sm info-input"
+                                                                placeholder="Info" {{ $disabledAttr }}
+                                                                {!! $disabledStyle !!}>
                                                         </td>
                                                         <td>
-                                                            <input type="text" class="form-control form-control-sm from-city-input" placeholder="From City" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <input type="text"
+                                                                class="form-control form-control-sm from-city-input"
+                                                                placeholder="From City" {{ $disabledAttr }}
+                                                                {!! $disabledStyle !!}>
                                                         </td>
                                                         <td>
-                                                            <input type="text" class="form-control form-control-sm to-city-input" placeholder="To City" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <input type="text"
+                                                                class="form-control form-control-sm to-city-input"
+                                                                placeholder="To City" {{ $disabledAttr }}
+                                                                {!! $disabledStyle !!}>
                                                         </td>
                                                         <td>
                                                             <div class="d-flex gap-1">
-                                                                <input type="date" class="form-control form-control-sm departure-date-input" style="flex: 1;" {{ $disabledAttr }} {!! $disabledStyle !!}>
-                                                                <input type="time" class="form-control form-control-sm departure-time-input" style="flex: 1;" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                                <input type="date"
+                                                                    class="form-control form-control-sm departure-date-input"
+                                                                    style="flex: 1;" {{ $disabledAttr }}
+                                                                    {!! $disabledStyle !!}>
+                                                                <input type="time"
+                                                                    class="form-control form-control-sm departure-time-input"
+                                                                    style="flex: 1;" {{ $disabledAttr }}
+                                                                    {!! $disabledStyle !!}>
                                                             </div>
                                                         </td>
                                                         <td>
                                                             <div class="d-flex gap-1">
-                                                                <input type="date" class="form-control form-control-sm arrival-date-input" style="flex: 1;" {{ $disabledAttr }} {!! $disabledStyle !!}>
-                                                                <input type="time" class="form-control form-control-sm arrival-time-input" style="flex: 1;" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                                <input type="date"
+                                                                    class="form-control form-control-sm arrival-date-input"
+                                                                    style="flex: 1;" {{ $disabledAttr }}
+                                                                    {!! $disabledStyle !!}>
+                                                                <input type="time"
+                                                                    class="form-control form-control-sm arrival-time-input"
+                                                                    style="flex: 1;" {{ $disabledAttr }}
+                                                                    {!! $disabledStyle !!}>
                                                             </div>
                                                         </td>
                                                         <td class="text-center">
-                                                            @if(!$isViewOnly)
-                                                                <button type="button" class="btn btn-sm btn-primary addArrivalDepartureFromInput">
-                                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                            @if (!$isViewOnly)
+                                                                <button type="button"
+                                                                    class="btn btn-sm btn-primary addArrivalDepartureFromInput">
+                                                                    <i data-feather="plus"
+                                                                        style="width: 14px; height: 14px;"></i>
                                                                     Add
                                                                 </button>
                                                             @endif
@@ -302,9 +406,11 @@
                                                     @php
                                                         $allTransports = $lead->bookingArrivalDepartures ?? collect();
                                                     @endphp
-                                                    @if($allTransports && $allTransports->count() > 0)
-                                                        @foreach($allTransports as $index => $transport)
-                                                            <tr class="arrival-departure-data-row" data-transport-id="{{ $transport->id }}" data-row-index="{{ $index }}">
+                                                    @if ($allTransports && $allTransports->count() > 0)
+                                                        @foreach ($allTransports as $index => $transport)
+                                                            <tr class="arrival-departure-data-row"
+                                                                data-transport-id="{{ $transport->id }}"
+                                                                data-row-index="{{ $index }}">
                                                                 <td>{{ $transport->mode }}</td>
                                                                 <td>{{ $transport->info }}</td>
                                                                 <td>{{ $transport->from_city }}</td>
@@ -318,17 +424,37 @@
                                                                     {{ $transport->arrival_time ? ' ' . substr($transport->arrival_time, 0, 5) : '' }}
                                                                 </td>
                                                                 <td class="text-center">
-                                                                    @if(!$isViewOnly)
-                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][id]" value="{{ $transport->id }}">
-                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][mode]" value="{{ $transport->mode }}">
-                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][info]" value="{{ $transport->info }}">
-                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][from_city]" value="{{ $transport->from_city }}">
-                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][to_city]" value="{{ $transport->to_city ?? '' }}">
-                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][departure_date]" value="{{ $transport->departure_date ? ($transport->departure_date instanceof \DateTime ? $transport->departure_date->format('Y-m-d') : $transport->departure_date) : '' }}">
-                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][departure_time]" value="{{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}">
-                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][arrival_date]" value="{{ $transport->arrival_date ? ($transport->arrival_date instanceof \DateTime ? $transport->arrival_date->format('Y-m-d') : $transport->arrival_date) : '' }}">
-                                                                        <input type="hidden" name="arrival_departure[{{ $index }}][arrival_time]" value="{{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}">
-                                                                        <i data-feather="trash-2" class="removeArrivalDepartureRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                                                                    @if (!$isViewOnly)
+                                                                        <input type="hidden"
+                                                                            name="arrival_departure[{{ $index }}][id]"
+                                                                            value="{{ $transport->id }}">
+                                                                        <input type="hidden"
+                                                                            name="arrival_departure[{{ $index }}][mode]"
+                                                                            value="{{ $transport->mode }}">
+                                                                        <input type="hidden"
+                                                                            name="arrival_departure[{{ $index }}][info]"
+                                                                            value="{{ $transport->info }}">
+                                                                        <input type="hidden"
+                                                                            name="arrival_departure[{{ $index }}][from_city]"
+                                                                            value="{{ $transport->from_city }}">
+                                                                        <input type="hidden"
+                                                                            name="arrival_departure[{{ $index }}][to_city]"
+                                                                            value="{{ $transport->to_city ?? '' }}">
+                                                                        <input type="hidden"
+                                                                            name="arrival_departure[{{ $index }}][departure_date]"
+                                                                            value="{{ $transport->departure_date ? ($transport->departure_date instanceof \DateTime ? $transport->departure_date->format('Y-m-d') : $transport->departure_date) : '' }}">
+                                                                        <input type="hidden"
+                                                                            name="arrival_departure[{{ $index }}][departure_time]"
+                                                                            value="{{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}">
+                                                                        <input type="hidden"
+                                                                            name="arrival_departure[{{ $index }}][arrival_date]"
+                                                                            value="{{ $transport->arrival_date ? ($transport->arrival_date instanceof \DateTime ? $transport->arrival_date->format('Y-m-d') : $transport->arrival_date) : '' }}">
+                                                                        <input type="hidden"
+                                                                            name="arrival_departure[{{ $index }}][arrival_time]"
+                                                                            value="{{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}">
+                                                                        <i data-feather="trash-2"
+                                                                            class="removeArrivalDepartureRow"
+                                                                            style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                                                                     @endif
                                                                 </td>
                                                             </tr>
@@ -343,7 +469,8 @@
                                     <div class="mb-4 border rounded-3 p-3 bg-light">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                <i data-feather="home" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                <i data-feather="home" class="me-1"
+                                                    style="width: 14px; height: 14px;"></i>
                                                 Accommodation Details
                                             </h6>
                                         </div>
@@ -365,22 +492,36 @@
                                                     <!-- Always show input row for new entry first -->
                                                     <tr class="accommodation-input-row" data-is-input-row="true">
                                                         <td>
-                                                            <input type="text" class="form-control form-control-sm destination-input" placeholder="Destination" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <input type="text"
+                                                                class="form-control form-control-sm destination-input"
+                                                                placeholder="Destination" {{ $disabledAttr }}
+                                                                {!! $disabledStyle !!}>
                                                         </td>
                                                         <td>
-                                                            <input type="text" class="form-control form-control-sm location-input" placeholder="Location" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <input type="text"
+                                                                class="form-control form-control-sm location-input"
+                                                                placeholder="Location" {{ $disabledAttr }}
+                                                                {!! $disabledStyle !!}>
                                                         </td>
                                                         <td>
-                                                            <input type="text" class="form-control form-control-sm stay-at-input" placeholder="Stay At" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <input type="text"
+                                                                class="form-control form-control-sm stay-at-input"
+                                                                placeholder="Stay At" {{ $disabledAttr }}
+                                                                {!! $disabledStyle !!}>
                                                         </td>
                                                         <td>
-                                                            <input type="date" class="form-control form-control-sm checkin-date-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <input type="date"
+                                                                class="form-control form-control-sm checkin-date-input"
+                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
                                                         </td>
                                                         <td>
-                                                            <input type="date" class="form-control form-control-sm checkout-date-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <input type="date"
+                                                                class="form-control form-control-sm checkout-date-input"
+                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
                                                         </td>
                                                         <td>
-                                                            <select class="form-select form-select-sm room-type-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <select class="form-select form-select-sm room-type-input"
+                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
                                                                 <option value="">-- Select --</option>
                                                                 <option value="Single">Single</option>
                                                                 <option value="Double">Double</option>
@@ -388,7 +529,8 @@
                                                             </select>
                                                         </td>
                                                         <td>
-                                                            <select class="form-select form-select-sm meal-plan-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <select class="form-select form-select-sm meal-plan-input"
+                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
                                                                 <option value="">-- Select --</option>
                                                                 <option value="CP">CP</option>
                                                                 <option value="MAP">MAP</option>
@@ -397,35 +539,58 @@
                                                             </select>
                                                         </td>
                                                         <td class="text-center">
-                                                            @if(!$isViewOnly)
-                                                                <button type="button" class="btn btn-sm btn-primary addAccommodationFromInput">
-                                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                            @if (!$isViewOnly)
+                                                                <button type="button"
+                                                                    class="btn btn-sm btn-primary addAccommodationFromInput">
+                                                                    <i data-feather="plus"
+                                                                        style="width: 14px; height: 14px;"></i>
                                                                     Add
                                                                 </button>
                                                             @endif
                                                         </td>
                                                     </tr>
-                                                    @if($lead->bookingAccommodations && $lead->bookingAccommodations->count() > 0)
-                                                        @foreach($lead->bookingAccommodations as $index => $ba)
-                                                            <tr class="accommodation-data-row" data-row-index="{{ $index }}">
+                                                    @if ($lead->bookingAccommodations && $lead->bookingAccommodations->count() > 0)
+                                                        @foreach ($lead->bookingAccommodations as $index => $ba)
+                                                            <tr class="accommodation-data-row"
+                                                                data-row-index="{{ $index }}">
                                                                 <td>{{ $ba->destination }}</td>
                                                                 <td>{{ $ba->location }}</td>
                                                                 <td>{{ $ba->stay_at }}</td>
-                                                                <td>{{ $ba->checkin_date ? $ba->checkin_date->format('d/m/Y') : '' }}</td>
-                                                                <td>{{ $ba->checkout_date ? $ba->checkout_date->format('d/m/Y') : '' }}</td>
+                                                                <td>{{ $ba->checkin_date ? $ba->checkin_date->format('d/m/Y') : '' }}
+                                                                </td>
+                                                                <td>{{ $ba->checkout_date ? $ba->checkout_date->format('d/m/Y') : '' }}
+                                                                </td>
                                                                 <td>{{ $ba->room_type }}</td>
                                                                 <td>{{ $ba->meal_plan }}</td>
                                                                 <td class="text-center">
-                                                                    @if(!$isViewOnly)
-                                                                        <input type="hidden" name="booking_accommodations[{{ $index }}][id]" value="{{ $ba->id }}">
-                                                                        <input type="hidden" name="booking_accommodations[{{ $index }}][destination]" value="{{ $ba->destination }}">
-                                                                        <input type="hidden" name="booking_accommodations[{{ $index }}][location]" value="{{ $ba->location }}">
-                                                                        <input type="hidden" name="booking_accommodations[{{ $index }}][stay_at]" value="{{ $ba->stay_at }}">
-                                                                        <input type="hidden" name="booking_accommodations[{{ $index }}][checkin_date]" value="{{ $ba->checkin_date ? $ba->checkin_date->format('Y-m-d') : '' }}">
-                                                                        <input type="hidden" name="booking_accommodations[{{ $index }}][checkout_date]" value="{{ $ba->checkout_date ? $ba->checkout_date->format('Y-m-d') : '' }}">
-                                                                        <input type="hidden" name="booking_accommodations[{{ $index }}][room_type]" value="{{ $ba->room_type }}">
-                                                                        <input type="hidden" name="booking_accommodations[{{ $index }}][meal_plan]" value="{{ $ba->meal_plan }}">
-                                                                        <i data-feather="trash-2" class="removeAccommodationRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                                                                    @if (!$isViewOnly)
+                                                                        <input type="hidden"
+                                                                            name="booking_accommodations[{{ $index }}][id]"
+                                                                            value="{{ $ba->id }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_accommodations[{{ $index }}][destination]"
+                                                                            value="{{ $ba->destination }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_accommodations[{{ $index }}][location]"
+                                                                            value="{{ $ba->location }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_accommodations[{{ $index }}][stay_at]"
+                                                                            value="{{ $ba->stay_at }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_accommodations[{{ $index }}][checkin_date]"
+                                                                            value="{{ $ba->checkin_date ? $ba->checkin_date->format('Y-m-d') : '' }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_accommodations[{{ $index }}][checkout_date]"
+                                                                            value="{{ $ba->checkout_date ? $ba->checkout_date->format('Y-m-d') : '' }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_accommodations[{{ $index }}][room_type]"
+                                                                            value="{{ $ba->room_type }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_accommodations[{{ $index }}][meal_plan]"
+                                                                            value="{{ $ba->meal_plan }}">
+                                                                        <i data-feather="trash-2"
+                                                                            class="removeAccommodationRow"
+                                                                            style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                                                                     @endif
                                                                 </td>
                                                             </tr>
@@ -437,10 +602,12 @@
                                     </div>
 
                                     <!-- Day-Wise Itinerary Section -->
-                                    <div class="mb-4 border rounded-3 p-3" id="dayWiseItinerarySection" style="display: none;">
+                                    <div class="mb-4 border rounded-3 p-3" id="dayWiseItinerarySection"
+                                        style="display: none;">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                <i data-feather="calendar" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                <i data-feather="calendar" class="me-1"
+                                                    style="width: 14px; height: 14px;"></i>
                                                 Day-Wise Itinerary
                                             </h6>
                                         </div>
@@ -461,35 +628,51 @@
                                                     <!-- Always show input row for new entry first -->
                                                     <tr class="itinerary-input-row" data-is-input-row="true">
                                                         <td>
-                                                            <input type="text" class="form-control form-control-sm day-date-input" placeholder="Day & Date" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <input type="text"
+                                                                class="form-control form-control-sm day-date-input"
+                                                                placeholder="Day & Date" {{ $disabledAttr }}
+                                                                {!! $disabledStyle !!}>
                                                         </td>
                                                         <td>
-                                                            <input type="time" class="form-control form-control-sm time-input" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <input type="time"
+                                                                class="form-control form-control-sm time-input"
+                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
                                                         </td>
                                                         <td>
-                                                            <input type="text" class="form-control form-control-sm location-input" placeholder="Location" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <input type="text"
+                                                                class="form-control form-control-sm location-input"
+                                                                placeholder="Location" {{ $disabledAttr }}
+                                                                {!! $disabledStyle !!}>
                                                         </td>
                                                         <td>
-                                                            <textarea class="form-control form-control-sm activity-input" rows="2" placeholder="Activity/Tour Description" {{ $disabledAttr }} {!! $disabledStyle !!}></textarea>
+                                                            <textarea class="form-control form-control-sm activity-input" rows="2" placeholder="Activity/Tour Description"
+                                                                {{ $disabledAttr }} {!! $disabledStyle !!}></textarea>
                                                         </td>
                                                         <td>
-                                                            <input type="text" class="form-control form-control-sm stay-at-input" placeholder="Stay at" {{ $disabledAttr }} {!! $disabledStyle !!}>
+                                                            <input type="text"
+                                                                class="form-control form-control-sm stay-at-input"
+                                                                placeholder="Stay at" {{ $disabledAttr }}
+                                                                {!! $disabledStyle !!}>
                                                         </td>
                                                         <td>
-                                                            <textarea class="form-control form-control-sm remarks-input" rows="2" placeholder="Remarks" {{ $disabledAttr }} {!! $disabledStyle !!}></textarea>
+                                                            <textarea class="form-control form-control-sm remarks-input" rows="2" placeholder="Remarks"
+                                                                {{ $disabledAttr }} {!! $disabledStyle !!}></textarea>
                                                         </td>
                                                         <td class="text-center">
-                                                            @if(!$isViewOnly)
-                                                                <button type="button" class="btn btn-sm btn-primary addItineraryFromInput">
-                                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                            @if (!$isViewOnly)
+                                                                <button type="button"
+                                                                    class="btn btn-sm btn-primary addItineraryFromInput">
+                                                                    <i data-feather="plus"
+                                                                        style="width: 14px; height: 14px;"></i>
                                                                     Add
                                                                 </button>
                                                             @endif
                                                         </td>
                                                     </tr>
-                                                    @if($lead->bookingItineraries && $lead->bookingItineraries->count() > 0)
-                                                        @foreach($lead->bookingItineraries as $index => $bi)
-                                                            <tr class="itinerary-data-row" data-row-index="{{ $index }}">
+                                                    @if ($lead->bookingItineraries && $lead->bookingItineraries->count() > 0)
+                                                        @foreach ($lead->bookingItineraries as $index => $bi)
+                                                            <tr class="itinerary-data-row"
+                                                                data-row-index="{{ $index }}">
                                                                 <td>{{ $bi->day_and_date }}</td>
                                                                 <td>{{ $bi->time ? substr($bi->time, 0, 5) : '' }}</td>
                                                                 <td>{{ $bi->location }}</td>
@@ -497,15 +680,31 @@
                                                                 <td>{{ $bi->stay_at }}</td>
                                                                 <td>{{ $bi->remarks }}</td>
                                                                 <td class="text-center">
-                                                                    @if(!$isViewOnly)
-                                                                        <input type="hidden" name="booking_itineraries[{{ $index }}][id]" value="{{ $bi->id }}">
-                                                                        <input type="hidden" name="booking_itineraries[{{ $index }}][day_and_date]" value="{{ $bi->day_and_date }}">
-                                                                        <input type="hidden" name="booking_itineraries[{{ $index }}][time]" value="{{ $bi->time ? substr($bi->time, 0, 5) : '' }}">
-                                                                        <input type="hidden" name="booking_itineraries[{{ $index }}][location]" value="{{ $bi->location }}">
-                                                                        <input type="hidden" name="booking_itineraries[{{ $index }}][activity_tour_description]" value="{{ $bi->activity_tour_description }}">
-                                                                        <input type="hidden" name="booking_itineraries[{{ $index }}][stay_at]" value="{{ $bi->stay_at }}">
-                                                                        <input type="hidden" name="booking_itineraries[{{ $index }}][remarks]" value="{{ $bi->remarks }}">
-                                                                        <i data-feather="trash-2" class="removeItineraryRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                                                                    @if (!$isViewOnly)
+                                                                        <input type="hidden"
+                                                                            name="booking_itineraries[{{ $index }}][id]"
+                                                                            value="{{ $bi->id }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_itineraries[{{ $index }}][day_and_date]"
+                                                                            value="{{ $bi->day_and_date }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_itineraries[{{ $index }}][time]"
+                                                                            value="{{ $bi->time ? substr($bi->time, 0, 5) : '' }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_itineraries[{{ $index }}][location]"
+                                                                            value="{{ $bi->location }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_itineraries[{{ $index }}][activity_tour_description]"
+                                                                            value="{{ $bi->activity_tour_description }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_itineraries[{{ $index }}][stay_at]"
+                                                                            value="{{ $bi->stay_at }}">
+                                                                        <input type="hidden"
+                                                                            name="booking_itineraries[{{ $index }}][remarks]"
+                                                                            value="{{ $bi->remarks }}">
+                                                                        <i data-feather="trash-2"
+                                                                            class="removeItineraryRow"
+                                                                            style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                                                                     @endif
                                                                 </td>
                                                             </tr>
@@ -516,14 +715,16 @@
                                         </div>
                                     </div>
 
-                                    @if(!$isViewOnly)
+                                    @if (!$isViewOnly)
                                         <div class="d-flex justify-content-end gap-2 mb-4">
-                                            <a href="{{ $backUrl ?? route('bookings.index') }}" class="btn btn-light border">Cancel</a>
+                                            <a href="{{ $backUrl ?? route('bookings.index') }}"
+                                                class="btn btn-light border">Cancel</a>
                                             <button type="submit" class="btn btn-primary">Save Booking File</button>
                                         </div>
                                     @else
                                         <div class="d-flex justify-content-end gap-2 mb-4">
-                                            <a href="{{ $backUrl ?? route('bookings.index') }}" class="btn btn-light border">Back</a>
+                                            <a href="{{ $backUrl ?? route('bookings.index') }}"
+                                                class="btn btn-light border">Back</a>
                                         </div>
                                     @endif
                                 </form>
@@ -539,7 +740,7 @@
         <script>
             $(document).ready(function() {
                 // Disable all form inputs if in view-only mode
-                @if($isViewOnly)
+                @if ($isViewOnly)
                     $('#bookingFileForm').find('input, select, textarea').not('[readonly]').prop('disabled', true).css({
                         'background-color': '#f8f9fa',
                         'cursor': 'not-allowed'
@@ -584,39 +785,40 @@
                 // Function to load locations for input row destination
                 function loadLocationsForInputRow(destinationSelect) {
                     const locationSelect = document.querySelector('.location-select-input');
-                    const destinationId = destinationSelect.options[destinationSelect.selectedIndex]?.getAttribute('data-destination-id');
-                    
+                    const destinationId = destinationSelect.options[destinationSelect.selectedIndex]?.getAttribute(
+                        'data-destination-id');
+
                     if (locationSelect) {
                         locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
-                        
+
                         if (destinationId) {
                             locationSelect.disabled = true;
                             locationSelect.innerHTML = '<option value="">Loading locations...</option>';
-                            
+
                             fetch(`/api/destinations/${destinationId}/locations`, {
-                                method: 'GET',
-                                headers: {
-                                    'X-Requested-With': 'XMLHttpRequest',
-                                    'Accept': 'application/json',
-                                },
-                                credentials: 'same-origin'
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
-                                data.forEach(location => {
-                                    const option = document.createElement('option');
-                                    option.value = location.name;
-                                    option.textContent = location.name;
-                                    locationSelect.appendChild(option);
+                                    method: 'GET',
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                        'Accept': 'application/json',
+                                    },
+                                    credentials: 'same-origin'
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
+                                    data.forEach(location => {
+                                        const option = document.createElement('option');
+                                        option.value = location.name;
+                                        option.textContent = location.name;
+                                        locationSelect.appendChild(option);
+                                    });
+                                    locationSelect.disabled = false;
+                                })
+                                .catch(error => {
+                                    console.error('Error loading locations:', error);
+                                    locationSelect.innerHTML = '<option value="">Error loading locations</option>';
+                                    locationSelect.disabled = false;
                                 });
-                                locationSelect.disabled = false;
-                            })
-                            .catch(error => {
-                                console.error('Error loading locations:', error);
-                                locationSelect.innerHTML = '<option value="">Error loading locations</option>';
-                                locationSelect.disabled = false;
-                            });
                         } else {
                             locationSelect.disabled = false;
                         }
@@ -632,7 +834,8 @@
                 }
 
                 // Handle service type checkboxes mutual exclusivity in input row
-                const serviceTypeCheckboxes = document.querySelectorAll('.only-hotel-input, .only-tt-input, .hotel-tt-input');
+                const serviceTypeCheckboxes = document.querySelectorAll(
+                    '.only-hotel-input, .only-tt-input, .hotel-tt-input');
                 serviceTypeCheckboxes.forEach(checkbox => {
                     checkbox.addEventListener('change', function() {
                         if (this.checked) {
@@ -684,9 +887,12 @@
                     newRow.setAttribute('data-row-index', destinationRowIndex);
 
                     // Build service type checkmarks
-                    let onlyHotelMark = onlyHotel ? '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
-                    let onlyTTMark = onlyTT ? '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
-                    let hotelTTMark = hotelTT ? '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
+                    let onlyHotelMark = onlyHotel ?
+                        '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
+                    let onlyTTMark = onlyTT ?
+                        '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
+                    let hotelTTMark = hotelTT ?
+                        '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
 
                     newRow.innerHTML = `
                         <td>${destination}</td>
@@ -717,7 +923,8 @@
 
                     // Clear input row
                     inputRow.querySelector('.destination-select-input').value = '';
-                    inputRow.querySelector('.location-select-input').innerHTML = '<option value="">-- Select Location --</option>';
+                    inputRow.querySelector('.location-select-input').innerHTML =
+                        '<option value="">-- Select Location --</option>';
                     inputRow.querySelector('.only-hotel-input').checked = false;
                     inputRow.querySelector('.only-tt-input').checked = false;
                     inputRow.querySelector('.hotel-tt-input').checked = false;
@@ -751,7 +958,7 @@
                         }
                         const row = e.target.closest('tr');
                         row.remove();
-                        
+
                         // Check itinerary visibility after removing destination row
                         checkItineraryVisibility();
                     }
@@ -787,7 +994,8 @@
 
                     // Validation
                     if (!mode || !fromCity || !toCity || !departureDate || !arrivalDate) {
-                        alert('Please fill in all required fields (Mode, From City, To City, Departure Date, Arrival Date)');
+                        alert(
+                            'Please fill in all required fields (Mode, From City, To City, Departure Date, Arrival Date)');
                         return;
                     }
 
@@ -867,7 +1075,8 @@
                 });
 
                 // Accommodation table management
-                let accommodationRowIndex = {{ $lead->bookingAccommodations ? $lead->bookingAccommodations->count() : 0 }};
+                let accommodationRowIndex =
+                    {{ $lead->bookingAccommodations ? $lead->bookingAccommodations->count() : 0 }};
 
                 // Function to add accommodation from input row
                 function addAccommodationFromInput() {
@@ -882,7 +1091,8 @@
 
                     // Validation
                     if (!destination || !location || !stayAt || !checkinDate || !checkoutDate) {
-                        alert('Please fill in all required fields (Destination, Location, Stay At, Check-in Date, Check-out Date)');
+                        alert(
+                            'Please fill in all required fields (Destination, Location, Stay At, Check-in Date, Check-out Date)');
                         return;
                     }
 
@@ -1044,19 +1254,20 @@
                 function checkItineraryVisibility() {
                     const destinationTableBody = document.getElementById('destinationTableBody');
                     const itinerarySection = document.getElementById('dayWiseItinerarySection');
-                    
+
                     if (!destinationTableBody || !itinerarySection) {
                         return;
                     }
 
                     let shouldShow = false;
                     const destinationRows = destinationTableBody.querySelectorAll('.destination-data-row');
-                    
+
                     destinationRows.forEach(row => {
                         const onlyTTInput = row.querySelector('input[name*="[only_tt]"]');
                         const hotelTTInput = row.querySelector('input[name*="[hotel_tt]"]');
-                        
-                        if ((onlyTTInput && onlyTTInput.value === '1') || (hotelTTInput && hotelTTInput.value === '1')) {
+
+                        if ((onlyTTInput && onlyTTInput.value === '1') || (hotelTTInput && hotelTTInput
+                                .value === '1')) {
                             shouldShow = true;
                         }
                     });
@@ -1064,7 +1275,7 @@
                     // Show/hide itinerary section
                     if (shouldShow) {
                         itinerarySection.style.display = '';
-                        
+
                         // Input row is always present, no need to add default row
                     } else {
                         itinerarySection.style.display = 'none';
@@ -1072,7 +1283,8 @@
                 }
 
                 // Check itinerary visibility when service type checkboxes change in input row
-                const inputServiceTypeCheckboxes = document.querySelectorAll('.only-hotel-input, .only-tt-input, .hotel-tt-input');
+                const inputServiceTypeCheckboxes = document.querySelectorAll(
+                    '.only-hotel-input, .only-tt-input, .hotel-tt-input');
                 inputServiceTypeCheckboxes.forEach(checkbox => {
                     checkbox.addEventListener('change', function() {
                         // Check visibility after adding a destination, not on checkbox change
@@ -1089,7 +1301,7 @@
                 if (itineraryTbody && itinerarySection && itinerarySection.style.display !== 'none') {
                     const hasItineraryEmptyMessage = itineraryTbody.querySelector('.empty-row-message');
                     const hasItineraryExistingRows = itineraryTbody.querySelectorAll('tr[data-row-index]').length > 0;
-                    
+
                     if (hasItineraryEmptyMessage && !hasItineraryExistingRows) {
                         const emptyRow = itineraryTbody.querySelector('.empty-row-message');
                         if (emptyRow) {
@@ -1140,7 +1352,7 @@
                                 data[key] = value;
                             }
                         }
-                        
+
                         // Convert nested objects to arrays for Laravel
                         if (data.booking_destinations) {
                             data.booking_destinations = Object.values(data.booking_destinations);
@@ -1164,7 +1376,8 @@
                         fetch(bookingFileForm.action, {
                                 method: 'PUT',
                                 headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || formData.get('_token'),
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                        ?.content || formData.get('_token'),
                                     'Accept': 'application/json',
                                     'Content-Type': 'application/json',
                                 },
@@ -1190,7 +1403,10 @@
                                 bookingFileForm.insertBefore(alertDiv, bookingFileForm.firstChild);
 
                                 // Scroll to top
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                window.scrollTo({
+                                    top: 0,
+                                    behavior: 'smooth'
+                                });
 
                                 // Auto-hide alert after 3 seconds
                                 setTimeout(() => {
@@ -1199,7 +1415,7 @@
                             })
                             .catch(error => {
                                 console.error('Error saving booking file:', error);
-                                
+
                                 // Show error message
                                 const alertDiv = document.createElement('div');
                                 alertDiv.className = 'alert alert-danger alert-dismissible fade show';
@@ -1211,7 +1427,10 @@
                                 bookingFileForm.insertBefore(alertDiv, bookingFileForm.firstChild);
 
                                 // Scroll to top
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                window.scrollTo({
+                                    top: 0,
+                                    behavior: 'smooth'
+                                });
                             })
                             .finally(() => {
                                 // Re-enable submit button
@@ -1224,4 +1443,3 @@
         </script>
     @endpush
 @endsection
-

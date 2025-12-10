@@ -35,6 +35,46 @@
 
                                         <div class="row gx-3">
                                             <div class="col-12 mb-3">
+                                                <label class="form-label">Country</label>
+                                                <select name="country" class="form-select">
+                                                    <option value="">-- Select Country --</option>
+                                                    <option value="India" {{ old('country', $destination->country) == 'India' ? 'selected' : '' }}>India</option>
+                                                    <option value="Afghanistan" {{ old('country', $destination->country) == 'Afghanistan' ? 'selected' : '' }}>Afghanistan</option>
+                                                    <option value="Australia" {{ old('country', $destination->country) == 'Australia' ? 'selected' : '' }}>Australia</option>
+                                                    <option value="Bangladesh" {{ old('country', $destination->country) == 'Bangladesh' ? 'selected' : '' }}>Bangladesh</option>
+                                                    <option value="Bhutan" {{ old('country', $destination->country) == 'Bhutan' ? 'selected' : '' }}>Bhutan</option>
+                                                    <option value="Brazil" {{ old('country', $destination->country) == 'Brazil' ? 'selected' : '' }}>Brazil</option>
+                                                    <option value="Canada" {{ old('country', $destination->country) == 'Canada' ? 'selected' : '' }}>Canada</option>
+                                                    <option value="China" {{ old('country', $destination->country) == 'China' ? 'selected' : '' }}>China</option>
+                                                    <option value="France" {{ old('country', $destination->country) == 'France' ? 'selected' : '' }}>France</option>
+                                                    <option value="Germany" {{ old('country', $destination->country) == 'Germany' ? 'selected' : '' }}>Germany</option>
+                                                    <option value="Indonesia" {{ old('country', $destination->country) == 'Indonesia' ? 'selected' : '' }}>Indonesia</option>
+                                                    <option value="Italy" {{ old('country', $destination->country) == 'Italy' ? 'selected' : '' }}>Italy</option>
+                                                    <option value="Japan" {{ old('country', $destination->country) == 'Japan' ? 'selected' : '' }}>Japan</option>
+                                                    <option value="Malaysia" {{ old('country', $destination->country) == 'Malaysia' ? 'selected' : '' }}>Malaysia</option>
+                                                    <option value="Maldives" {{ old('country', $destination->country) == 'Maldives' ? 'selected' : '' }}>Maldives</option>
+                                                    <option value="Mauritius" {{ old('country', $destination->country) == 'Mauritius' ? 'selected' : '' }}>Mauritius</option>
+                                                    <option value="Myanmar" {{ old('country', $destination->country) == 'Myanmar' ? 'selected' : '' }}>Myanmar</option>
+                                                    <option value="Nepal" {{ old('country', $destination->country) == 'Nepal' ? 'selected' : '' }}>Nepal</option>
+                                                    <option value="New Zealand" {{ old('country', $destination->country) == 'New Zealand' ? 'selected' : '' }}>New Zealand</option>
+                                                    <option value="Pakistan" {{ old('country', $destination->country) == 'Pakistan' ? 'selected' : '' }}>Pakistan</option>
+                                                    <option value="Philippines" {{ old('country', $destination->country) == 'Philippines' ? 'selected' : '' }}>Philippines</option>
+                                                    <option value="Russia" {{ old('country', $destination->country) == 'Russia' ? 'selected' : '' }}>Russia</option>
+                                                    <option value="Singapore" {{ old('country', $destination->country) == 'Singapore' ? 'selected' : '' }}>Singapore</option>
+                                                    <option value="South Africa" {{ old('country', $destination->country) == 'South Africa' ? 'selected' : '' }}>South Africa</option>
+                                                    <option value="South Korea" {{ old('country', $destination->country) == 'South Korea' ? 'selected' : '' }}>South Korea</option>
+                                                    <option value="Sri Lanka" {{ old('country', $destination->country) == 'Sri Lanka' ? 'selected' : '' }}>Sri Lanka</option>
+                                                    <option value="Switzerland" {{ old('country', $destination->country) == 'Switzerland' ? 'selected' : '' }}>Switzerland</option>
+                                                    <option value="Thailand" {{ old('country', $destination->country) == 'Thailand' ? 'selected' : '' }}>Thailand</option>
+                                                    <option value="Turkey" {{ old('country', $destination->country) == 'Turkey' ? 'selected' : '' }}>Turkey</option>
+                                                    <option value="United Arab Emirates" {{ old('country', $destination->country) == 'United Arab Emirates' ? 'selected' : '' }}>United Arab Emirates</option>
+                                                    <option value="United Kingdom" {{ old('country', $destination->country) == 'United Kingdom' ? 'selected' : '' }}>United Kingdom</option>
+                                                    <option value="United States" {{ old('country', $destination->country) == 'United States' ? 'selected' : '' }}>United States</option>
+                                                    <option value="Vietnam" {{ old('country', $destination->country) == 'Vietnam' ? 'selected' : '' }}>Vietnam</option>
+                                                    <option value="Other" {{ old('country', $destination->country) == 'Other' ? 'selected' : '' }}>Other</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-12 mb-3">
                                                 <label class="form-label">Destination Name*</label>
                                                 <input type="text" name="name" class="form-control"
                                                     placeholder="Enter destination name" value="{{ old('name', $destination->name) }}" required>

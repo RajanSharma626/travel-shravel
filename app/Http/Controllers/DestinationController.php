@@ -31,11 +31,15 @@ class DestinationController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:destinations,name',
+            'country' => 'nullable|string|max:255',
             'locations' => 'nullable|array',
             'locations.*' => 'nullable|string|max:255',
         ]);
 
-        $destination = Destination::create(['name' => $validated['name']]);
+        $destination = Destination::create([
+            'name' => $validated['name'],
+            'country' => $validated['country'] ?? null,
+        ]);
 
         // Save locations
         if (!empty($validated['locations'])) {
@@ -77,13 +81,17 @@ class DestinationController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:destinations,name,' . $destination->id,
+            'country' => 'nullable|string|max:255',
             'locations' => 'nullable|array',
             'locations.*' => 'nullable|string|max:255',
             'location_ids' => 'nullable|array',
             'location_ids.*' => 'nullable|integer|exists:locations,id',
         ]);
 
-        $destination->update(['name' => $validated['name']]);
+        $destination->update([
+            'name' => $validated['name'],
+            'country' => $validated['country'] ?? null,
+        ]);
 
         // Handle locations update
         if (isset($validated['locations'])) {

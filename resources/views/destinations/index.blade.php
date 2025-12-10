@@ -39,6 +39,7 @@
                                         <thead>
                                             <tr>
                                                 <th>#</th>
+                                                <th>Country</th>
                                                 <th>Destination Name</th>
                                                 <th>Locations</th>
                                                 <th>Actions</th>
@@ -48,6 +49,7 @@
                                             @forelse ($destinations as $index => $destination)
                                                 <tr>
                                                     <td>{{ ($destinations->currentPage() - 1) * $destinations->perPage() + $loop->iteration }}</td>
+                                                    <td>{{ $destination->country ?? '-' }}</td>
                                                     <td>{{ $destination->name }}</td>
                                                     <td>
                                                         @if($destination->locations && $destination->locations->count() > 0)
@@ -76,7 +78,7 @@
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="4" class="text-center text-muted">
+                                                    <td colspan="5" class="text-center text-muted">
                                                         No destinations found.
                                                     </td>
                                                 </tr>
