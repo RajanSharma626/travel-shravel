@@ -174,6 +174,16 @@ class Lead extends Model
         return $this->hasMany(BookingItinerary::class);
     }
 
+    public function accountSummaries()
+    {
+        return $this->hasMany(AccountSummary::class);
+    }
+
+    public function vendorPayments()
+    {
+        return $this->hasMany(VendorPayment::class);
+    }
+
     // Helper methods
     public function getTotalPaidAttribute()
     {

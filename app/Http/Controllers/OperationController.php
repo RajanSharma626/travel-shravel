@@ -139,4 +139,41 @@ class OperationController extends Controller
 
         return redirect()->back()->with('success', 'Operation rejected!');
     }
+
+    public function bookingFile(Lead $lead)
+    {
+        $lead->load([
+            'service',
+            'destination',
+            'assignedUser',
+            'createdBy',
+            'bookedBy',
+            'reassignedTo',
+            'costComponents',
+            'bookingDestinations',
+            'bookingArrivalDepartures',
+            'bookingAccommodations',
+            'bookingItineraries',
+            'vendorPayments'
+        ]);
+
+        $users = \App\Models\User::orderBy('name')->get();
+        $destinations = \App\Models\Destination::with('locations')->orderBy('name')->get();
+        
+        // Ops booking file is view-only except Vendor Payments (blue columns editable)
+        $isViewOnly = true;
+        $isOpsDept = true; // This is Ops booking file
+        $backUrl = route('operations.index');
+        $vendorPayments = $lead->vendorPayments;
+
+        return view('booking.booking-form', [
+            'lead' => $lead,
+            'users' => $users,
+            'destinations' => $destinations,
+            'isViewOnly' => $isViewOnly,
+            'backUrl' => $backUrl,
+            'vendorPayments' => $vendorPayments,
+            'isOpsDept' => $isOpsDept,
+        ]);
+    }
 }

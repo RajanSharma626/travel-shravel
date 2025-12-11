@@ -8,6 +8,7 @@ use App\Models\Service;
 use App\Models\User;
 use App\Models\LeadHistory;
 use App\Models\LeadRemark;
+use App\Models\VendorPayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -187,7 +188,8 @@ class LeadController extends Controller
             'bookingDestinations',
             'bookingArrivalDepartures',
             'bookingAccommodations',
-            'bookingItineraries'
+            'bookingItineraries',
+            'vendorPayments'
         ]);
 
         $users = \App\Models\User::orderBy('name')->get();
@@ -225,12 +227,21 @@ class LeadController extends Controller
             }
         }
 
+        $vendorPayments = $lead->vendorPayments;
+        
+        // Check if user is from Ops department
+        $user = Auth::user();
+        $role = $user->role ?? $user->getRoleNameAttribute();
+        $isOpsDept = $role && in_array($role, ['Operation', 'Operation Manager']);
+
         return view('booking.booking-form', [
             'lead' => $lead,
             'users' => $users,
             'destinations' => $destinations,
             'isViewOnly' => $isViewOnly,
             'backUrl' => $backUrl,
+            'vendorPayments' => $vendorPayments,
+            'isOpsDept' => $isOpsDept,
         ]);
     }
 
@@ -436,14 +447,22 @@ class LeadController extends Controller
             $request->has('booking_itineraries');
 
         if ($isBookingForm) {
-            // For booking form, only validate and update reassigned_to and booking-related fields
+            // For booking form, validate and update reassigned_to, selling_price and booking-related fields
             $validated = $request->validate([
                 'reassigned_to' => 'nullable|exists:users,id',
+                'selling_price' => 'nullable|numeric|min:0',
             ]);
 
-            // Update only reassigned_to if provided
+            // Update reassigned_to and selling_price if provided
+            $updateData = [];
             if (isset($validated['reassigned_to'])) {
-                $lead->update(['reassigned_to' => $validated['reassigned_to']]);
+                $updateData['reassigned_to'] = $validated['reassigned_to'];
+            }
+            if (isset($validated['selling_price'])) {
+                $updateData['selling_price'] = $validated['selling_price'];
+            }
+            if (!empty($updateData)) {
+                $lead->update($updateData);
             }
         } else {
             // Regular lead update with full validation
@@ -757,5 +776,90 @@ class LeadController extends Controller
         }
 
         return redirect()->back()->with('success', "Successfully assigned {$updatedCount} lead(s) to {$assignedUser->name}.");
+    }
+
+    // Vendor Payment CRUD (Ops only)
+    public function storeVendorPayment(Request $request, Lead $lead)
+    {
+        $validated = $request->validate([
+            'vendor_code' => 'required|string|max:255',
+            'booking_type' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'purchase_cost' => 'required|numeric|min:0',
+            'due_date' => 'required|date',
+            'status' => 'nullable|string|in:Pending,Paid,Cancelled',
+        ]);
+
+        $vendorPayment = VendorPayment::create([
+            'lead_id' => $lead->id,
+            'vendor_code' => $validated['vendor_code'],
+            'booking_type' => $validated['booking_type'],
+            'location' => $validated['location'],
+            'purchase_cost' => $validated['purchase_cost'],
+            'due_date' => $validated['due_date'],
+            'status' => $validated['status'] ?? 'Pending',
+            'paid_amount' => 0,
+            'pending_amount' => $validated['purchase_cost'],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Vendor payment added successfully',
+            'vendor_payment' => $vendorPayment,
+        ]);
+    }
+
+    public function updateVendorPayment(Request $request, Lead $lead, VendorPayment $vendorPayment)
+    {
+        // Verify vendor payment belongs to lead
+        if ($vendorPayment->lead_id !== $lead->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vendor payment not found',
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'vendor_code' => 'required|string|max:255',
+            'booking_type' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'purchase_cost' => 'required|numeric|min:0',
+            'due_date' => 'required|date',
+            'status' => 'nullable|string|in:Pending,Paid,Cancelled',
+        ]);
+
+        $vendorPayment->update([
+            'vendor_code' => $validated['vendor_code'],
+            'booking_type' => $validated['booking_type'],
+            'location' => $validated['location'],
+            'purchase_cost' => $validated['purchase_cost'],
+            'due_date' => $validated['due_date'],
+            'status' => $validated['status'] ?? 'Pending',
+            'pending_amount' => $validated['purchase_cost'] - ($vendorPayment->paid_amount ?? 0),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Vendor payment updated successfully',
+            'vendor_payment' => $vendorPayment->fresh(),
+        ]);
+    }
+
+    public function destroyVendorPayment(Request $request, Lead $lead, VendorPayment $vendorPayment)
+    {
+        // Verify vendor payment belongs to lead
+        if ($vendorPayment->lead_id !== $lead->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vendor payment not found',
+            ], 404);
+        }
+
+        $vendorPayment->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Vendor payment deleted successfully',
+        ]);
     }
 }

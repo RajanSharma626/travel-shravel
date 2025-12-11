@@ -216,12 +216,21 @@
                         <div class="mb-4 border rounded-3 p-3 bg-light">
                             <h6 class="text-uppercase text-muted small fw-semibold mb-3">Customer Information</h6>
                             <div class="row g-3">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
+                                    <label class="form-label">Ref. No.</label>
+                                    <input type="text" id="viewRefNo" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Salutation</label>
+                                    <input type="text" id="viewSalutation" class="form-control form-control-sm"
+                                        readonly>
+                                </div>
+                                <div class="col-md-3">
                                     <label class="form-label">First Name</label>
                                     <input type="text" id="viewFirstName" class="form-control form-control-sm"
                                         readonly>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label">Last Name</label>
                                     <input type="text" id="viewLastName" class="form-control form-control-sm"
                                         readonly>
@@ -362,12 +371,27 @@
                             <div class="mb-4 border rounded-3 p-3 bg-light">
                                 <h6 class="text-uppercase text-muted small fw-semibold mb-3">Customer Information</h6>
                                 <div class="row g-3">
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Ref. No.</label>
+                                        <input type="text" id="editRefNo" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Salutation</label>
+                                        <select name="salutation" id="editSalutation" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            <option value="Mr">Mr</option>
+                                            <option value="Mrs">Mrs</option>
+                                            <option value="Ms">Ms</option>
+                                            <option value="Dr">Dr</option>
+                                            <option value="Prof">Prof</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
                                         <label class="form-label">First Name <span class="text-danger">*</span></label>
                                         <input type="text" name="first_name" id="editFirstName"
                                             placeholder="e.g. Ramesh" class="form-control form-control-sm" required>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label">Last Name</label>
                                         <input type="text" name="last_name" id="editLastName"
                                             placeholder="e.g. Kumar" class="form-control form-control-sm">
@@ -379,26 +403,26 @@
                             <div class="mb-4 border rounded-3 p-3">
                                 <h6 class="text-uppercase text-muted small fw-semibold mb-3">Contact Information</h6>
                                 <div class="row g-3">
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label">Primary Number <span
                                                 class="text-danger">*</span></label>
                                         <input type="text" name="primary_phone" id="editPrimaryPhone"
                                             placeholder="+91 98765 43210" class="form-control form-control-sm"
                                             maxlength="20" required>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label">Secondary Number</label>
                                         <input type="text" name="secondary_phone" id="editSecondaryPhone"
                                             placeholder="Alternate contact" class="form-control form-control-sm"
                                             maxlength="20">
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label">Emergency No.</label>
                                         <input type="text" name="other_phone" id="editOtherPhone"
                                             placeholder="Emergency contact" class="form-control form-control-sm"
                                             maxlength="20">
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
                                         <label class="form-label">Email <span class="text-danger">*</span></label>
                                         <input type="email" name="email" id="editEmail"
                                             placeholder="customer@email.com" class="form-control form-control-sm"
@@ -1215,9 +1239,12 @@
                         }
 
                         // Populate Customer Information
+                        const viewRefNo = document.getElementById('viewRefNo');
+                        const viewSalutation = document.getElementById('viewSalutation');
                         const viewFirstName = document.getElementById('viewFirstName');
-                        const viewMiddleName = document.getElementById('viewMiddleName');
                         const viewLastName = document.getElementById('viewLastName');
+                        if (viewRefNo) viewRefNo.value = lead.tsq || 'N/A';
+                        if (viewSalutation) viewSalutation.value = lead.salutation || '';
                         if (viewFirstName) viewFirstName.value = lead.first_name || '';
                         if (viewLastName) viewLastName.value = lead.last_name || '';
 
@@ -1320,6 +1347,16 @@
                 const populateEditForm = (lead) => {
                     if (!lead) return;
 
+                    const editRefNoEl = document.getElementById('editRefNo');
+                    if (editRefNoEl) {
+                        editRefNoEl.value = lead.tsq || 'N/A';
+                    }
+
+                    const editSalutationEl = document.getElementById('editSalutation');
+                    if (editSalutationEl) {
+                        editSalutationEl.value = lead.salutation || '';
+                    }
+
                     document.getElementById('editFirstName').value = lead.first_name || '';
                     document.getElementById('editLastName').value = lead.last_name || '';
                     document.getElementById('editPrimaryPhone').value = lead.primary_phone || '';
@@ -1350,6 +1387,12 @@
                     if (viewLeadContent) viewLeadContent.classList.add('d-none');
                     if (editLeadContent) editLeadContent.classList.remove('d-none');
                     if (viewLeadTitle) viewLeadTitle.textContent = 'Edit Lead';
+                    
+                    // Populate edit form with current lead data
+                    if (window.currentLeadData) {
+                        populateEditForm(window.currentLeadData);
+                    }
+                    
                     safeFeatherReplace(viewLeadModalEl);
                 };
 

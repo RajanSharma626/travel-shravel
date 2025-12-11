@@ -268,4 +268,43 @@ class DocumentController extends Controller
         
         return redirect()->back()->with('success', 'Documents updated successfully!');
     }
+
+    public function bookingFile(Lead $lead)
+    {
+        $lead->load([
+            'service',
+            'destination',
+            'assignedUser',
+            'createdBy',
+            'bookedBy',
+            'reassignedTo',
+            'costComponents',
+            'bookingDestinations',
+            'bookingArrivalDepartures',
+            'bookingAccommodations',
+            'bookingItineraries',
+            'vendorPayments'
+        ]);
+
+        $users = \App\Models\User::orderBy('name')->get();
+        $destinations = \App\Models\Destination::with('locations')->orderBy('name')->get();
+        
+        // Post Sales booking file is completely view-only
+        $isViewOnly = true;
+        $isOpsDept = false; // Post Sales cannot edit Vendor Payments
+        $isPostSales = true; // Identify Post Sales booking file
+        $backUrl = route('post-sales.index');
+        $vendorPayments = $lead->vendorPayments;
+
+        return view('booking.booking-form', [
+            'lead' => $lead,
+            'users' => $users,
+            'destinations' => $destinations,
+            'isViewOnly' => $isViewOnly,
+            'backUrl' => $backUrl,
+            'vendorPayments' => $vendorPayments,
+            'isOpsDept' => $isOpsDept,
+            'isPostSales' => $isPostSales,
+        ]);
+    }
 }

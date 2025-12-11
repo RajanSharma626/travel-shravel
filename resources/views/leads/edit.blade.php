@@ -51,6 +51,10 @@
                                                 <h6 class="text-uppercase text-muted small fw-semibold mb-3">Customer Information</h6>
                                                 <div class="row g-3">
                                                     <div class="col-md-3">
+                                                        <label class="form-label fw-semibold">Ref. No.</label>
+                                                        <input type="text" value="{{ $lead->tsq ?? 'N/A' }}" class="form-control" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                    </div>
+                                                    <div class="col-md-3">
                                                         <label class="form-label fw-semibold">Salutation</label>
                                                         <select name="salutation" class="form-select">
                                                             <option value="">-- Select --</option>

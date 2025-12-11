@@ -6,6 +6,8 @@ use App\Models\Lead;
 use App\Models\Payment;
 use App\Models\CostComponent;
 use App\Models\ProfitLog;
+use App\Models\AccountSummary;
+use App\Models\VendorPayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
@@ -22,7 +24,7 @@ class PaymentController extends Controller
         ];
 
         // Show all leads with payment and cost information for Accounts team
-        $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'payments', 'costComponents', 'operation', 'remarks' => function ($q) {
+        $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'payments', 'costComponents', 'operation', 'bookingDestinations', 'remarks' => function ($q) {
             $q->orderBy('created_at', 'desc')->limit(1);
         }])
             ->orderBy('created_at', 'desc');
@@ -71,6 +73,29 @@ class PaymentController extends Controller
         $users = \App\Models\User::orderBy('name')->get();
 
         return view('accounts.index', compact('leads', 'filters', 'totalRevenue', 'totalCost', 'netProfit', 'services', 'destinations', 'users'));
+    }
+
+    public function bookingFile(Lead $lead)
+    {
+        $lead->load([
+            'service',
+            'destination',
+            'assignedUser',
+            'createdBy',
+            'bookedBy',
+            'reassignedTo',
+            'accountSummaries',
+            'vendorPayments'
+        ]);
+
+        $users = \App\Models\User::orderBy('name')->get();
+        $accountSummaries = $lead->accountSummaries;
+        $vendorPayments = $lead->vendorPayments;
+        
+        // Accounts department only sees customer section in read-only mode
+        $isViewOnly = true;
+
+        return view('accounts.booking-file', compact('lead', 'users', 'isViewOnly', 'accountSummaries', 'vendorPayments'));
     }
 
     public function show(Lead $lead)
@@ -301,5 +326,125 @@ class PaymentController extends Controller
         }
         
         return redirect()->back()->with('success', 'Payment deleted successfully!');
+    }
+
+    /**
+     * Store account summary
+     */
+    public function storeAccountSummary(Request $request, Lead $lead)
+    {
+        $validated = $request->validate([
+            'ref_no' => 'nullable|string|max:255',
+            'vendor_code' => 'nullable|string|max:255',
+            'vendor_cost' => 'nullable|numeric|min:0',
+            'paid_amount' => 'nullable|numeric|min:0',
+            'vendor_payment_status' => 'nullable|in:Done,Pending',
+            'referred_by' => 'nullable|string|max:255',
+            'sales_cost' => 'nullable|numeric|min:0',
+            'received_amount' => 'nullable|numeric|min:0',
+            'customer_payment_status' => 'nullable|in:Received,Pending',
+        ]);
+
+        $validated['lead_id'] = $lead->id;
+        if (empty($validated['ref_no'])) {
+            $validated['ref_no'] = $lead->tsq;
+        }
+
+        AccountSummary::create($validated);
+
+        if ($request->expectsJson() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Account summary added successfully!'
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Account summary added successfully!');
+    }
+
+    /**
+     * Update account summary
+     */
+    public function updateAccountSummary(Request $request, Lead $lead, AccountSummary $accountSummary)
+    {
+        $validated = $request->validate([
+            'ref_no' => 'nullable|string|max:255',
+            'vendor_code' => 'nullable|string|max:255',
+            'vendor_cost' => 'nullable|numeric|min:0',
+            'paid_amount' => 'nullable|numeric|min:0',
+            'vendor_payment_status' => 'nullable|in:Done,Pending',
+            'referred_by' => 'nullable|string|max:255',
+            'sales_cost' => 'nullable|numeric|min:0',
+            'received_amount' => 'nullable|numeric|min:0',
+            'customer_payment_status' => 'nullable|in:Received,Pending',
+        ]);
+
+        $accountSummary->update($validated);
+
+        if ($request->expectsJson() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Account summary updated successfully!'
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Account summary updated successfully!');
+    }
+
+    /**
+     * Delete account summary
+     */
+    public function destroyAccountSummary(Request $request, Lead $lead, AccountSummary $accountSummary)
+    {
+        $accountSummary->delete();
+
+        if ($request->expectsJson() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Account summary deleted successfully!'
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Account summary deleted successfully!');
+    }
+
+    /**
+     * Update vendor payment (Accounts - Yellow part only)
+     */
+    public function updateVendorPaymentAccounts(Request $request, Lead $lead, VendorPayment $vendorPayment)
+    {
+        // Verify vendor payment belongs to lead
+        if ($vendorPayment->lead_id !== $lead->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vendor payment not found',
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'paid_amount' => 'nullable|numeric|min:0',
+            'pending_amount' => 'nullable|numeric|min:0',
+            'payment_mode' => 'nullable|string|max:255',
+            'ref_no' => 'nullable|string|max:255',
+            'remarks' => 'nullable|string',
+            'status' => 'required|string|in:Pending,Paid,Cancelled',
+        ]);
+
+        // Calculate pending amount if not provided
+        if (!isset($validated['pending_amount']) && isset($validated['paid_amount'])) {
+            $validated['pending_amount'] = max(0, $vendorPayment->purchase_cost - $validated['paid_amount']);
+        }
+
+        $vendorPayment->update($validated);
+
+        if ($request->expectsJson() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Vendor payment updated successfully',
+                'vendor_payment' => $vendorPayment->fresh(),
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Vendor payment updated successfully!');
     }
 }

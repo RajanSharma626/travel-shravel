@@ -149,6 +149,20 @@
                                                     style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
+                                                <label class="form-label">Sales Cost</label>
+                                                @if ($isViewOnly)
+                                                    <input type="text"
+                                                        value="{{ $lead->selling_price ? number_format($lead->selling_price, 2) : '0.00' }}"
+                                                        class="form-control form-control-sm" readonly disabled
+                                                        style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                @else
+                                                    <input type="number" name="selling_price" 
+                                                        value="{{ old('selling_price', $lead->selling_price ?? 0) }}"
+                                                        class="form-control form-control-sm" step="0.01" min="0"
+                                                        placeholder="0.00">
+                                                @endif
+                                            </div>
+                                            <div class="col-md-3">
                                                 <label class="form-label">Re-assign To</label>
                                                 @if ($isViewOnly)
                                                     <input type="text"
@@ -171,6 +185,7 @@
                                     </div>
 
                                     <!-- Destination Section -->
+                                    @if (!($isPostSales ?? false))
                                     <div class="mb-4 border rounded-3 p-3 bg-light">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="text-uppercase text-muted small fw-semibold mb-0">
@@ -178,6 +193,12 @@
                                                     style="width: 14px; height: 14px;"></i>
                                                 Destination
                                             </h6>
+                                            @if (!$isViewOnly)
+                                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addDestinationModal">
+                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                    Add
+                                                </button>
+                                            @endif
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-bordered table-sm mb-0" id="destinationTable">
@@ -190,65 +211,12 @@
                                                         <th style="width: 12%;" class="text-center">Hotel + TT</th>
                                                         <th style="width: 10%;">From Date</th>
                                                         <th style="width: 10%;">To Date</th>
-                                                        <th style="width: 10%;" class="text-center">Action</th>
+                                                        @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                            <th style="width: 10%;" class="text-center">Action</th>
+                                                        @endif
                                                     </tr>
                                                 </thead>
                                                 <tbody id="destinationTableBody">
-                                                    <!-- Always show input row for new entry first -->
-                                                    <tr class="destination-input-row" data-is-input-row="true">
-                                                        <td>
-                                                            <select
-                                                                class="form-select form-select-sm destination-select-input"
-                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
-                                                                <option value="">-- Select Destination --</option>
-                                                                @foreach ($destinations as $dest)
-                                                                    <option value="{{ $dest->name }}"
-                                                                        data-destination-id="{{ $dest->id }}">
-                                                                        {{ $dest->name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </td>
-                                                        <td>
-                                                            <select
-                                                                class="form-select form-select-sm location-select-input"
-                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
-                                                                <option value="">-- Select Location --</option>
-                                                            </select>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input type="checkbox"
-                                                                class="form-check-input only-hotel-input"
-                                                                {{ $disabledAttr }}>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input type="checkbox" class="form-check-input only-tt-input"
-                                                                {{ $disabledAttr }}>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input type="checkbox" class="form-check-input hotel-tt-input"
-                                                                {{ $disabledAttr }}>
-                                                        </td>
-                                                        <td>
-                                                            <input type="date"
-                                                                class="form-control form-control-sm from-date-input"
-                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
-                                                        </td>
-                                                        <td>
-                                                            <input type="date"
-                                                                class="form-control form-control-sm to-date-input"
-                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            @if (!$isViewOnly)
-                                                                <button type="button"
-                                                                    class="btn btn-sm btn-primary addDestinationFromInput">
-                                                                    <i data-feather="plus"
-                                                                        style="width: 14px; height: 14px;"></i>
-                                                                    Add
-                                                                </button>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
                                                     @if ($lead->bookingDestinations && $lead->bookingDestinations->count() > 0)
                                                         @foreach ($lead->bookingDestinations as $index => $bd)
                                                             <tr class="destination-data-row"
@@ -278,37 +246,39 @@
                                                                 </td>
                                                                 <td>{{ $bd->to_date ? $bd->to_date->format('d/m/Y') : '' }}
                                                                 </td>
-                                                                <td class="text-center">
-                                                                    @if (!$isViewOnly)
-                                                                        <input type="hidden"
-                                                                            name="booking_destinations[{{ $index }}][id]"
-                                                                            value="{{ $bd->id }}">
-                                                                        <input type="hidden"
-                                                                            name="booking_destinations[{{ $index }}][destination]"
-                                                                            value="{{ $bd->destination }}">
-                                                                        <input type="hidden"
-                                                                            name="booking_destinations[{{ $index }}][location]"
-                                                                            value="{{ $bd->location }}">
-                                                                        <input type="hidden"
-                                                                            name="booking_destinations[{{ $index }}][only_hotel]"
-                                                                            value="{{ $bd->only_hotel ? '1' : '0' }}">
-                                                                        <input type="hidden"
-                                                                            name="booking_destinations[{{ $index }}][only_tt]"
-                                                                            value="{{ $bd->only_tt ? '1' : '0' }}">
-                                                                        <input type="hidden"
-                                                                            name="booking_destinations[{{ $index }}][hotel_tt]"
-                                                                            value="{{ $bd->hotel_tt ? '1' : '0' }}">
-                                                                        <input type="hidden"
-                                                                            name="booking_destinations[{{ $index }}][from_date]"
-                                                                            value="{{ $bd->from_date ? $bd->from_date->format('Y-m-d') : '' }}">
-                                                                        <input type="hidden"
-                                                                            name="booking_destinations[{{ $index }}][to_date]"
-                                                                            value="{{ $bd->to_date ? $bd->to_date->format('Y-m-d') : '' }}">
-                                                                        <i data-feather="trash-2"
-                                                                            class="removeDestinationRow"
-                                                                            style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
-                                                                    @endif
-                                                                </td>
+                                                                @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                    <td class="text-center">
+                                                                        @if (!$isViewOnly)
+                                                                            <input type="hidden"
+                                                                                name="booking_destinations[{{ $index }}][id]"
+                                                                                value="{{ $bd->id }}">
+                                                                            <input type="hidden"
+                                                                                name="booking_destinations[{{ $index }}][destination]"
+                                                                                value="{{ $bd->destination }}">
+                                                                            <input type="hidden"
+                                                                                name="booking_destinations[{{ $index }}][location]"
+                                                                                value="{{ $bd->location }}">
+                                                                            <input type="hidden"
+                                                                                name="booking_destinations[{{ $index }}][only_hotel]"
+                                                                                value="{{ $bd->only_hotel ? '1' : '0' }}">
+                                                                            <input type="hidden"
+                                                                                name="booking_destinations[{{ $index }}][only_tt]"
+                                                                                value="{{ $bd->only_tt ? '1' : '0' }}">
+                                                                            <input type="hidden"
+                                                                                name="booking_destinations[{{ $index }}][hotel_tt]"
+                                                                                value="{{ $bd->hotel_tt ? '1' : '0' }}">
+                                                                            <input type="hidden"
+                                                                                name="booking_destinations[{{ $index }}][from_date]"
+                                                                                value="{{ $bd->from_date ? $bd->from_date->format('Y-m-d') : '' }}">
+                                                                            <input type="hidden"
+                                                                                name="booking_destinations[{{ $index }}][to_date]"
+                                                                                value="{{ $bd->to_date ? $bd->to_date->format('Y-m-d') : '' }}">
+                                                                            <i data-feather="trash-2"
+                                                                                class="removeDestinationRow"
+                                                                                style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                                                                        @endif
+                                                                    </td>
+                                                                @endif
                                                             </tr>
                                                         @endforeach
                                                     @endif
@@ -316,8 +286,10 @@
                                             </table>
                                         </div>
                                     </div>
+                                    @endif
 
                                     <!-- Arrival/Departure Details Section -->
+                                    @if (!($isPostSales ?? false))
                                     <div class="mb-4 border rounded-3 p-3">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="text-uppercase text-muted small fw-semibold mb-0">
@@ -325,6 +297,12 @@
                                                     style="width: 14px; height: 14px;"></i>
                                                 Arrival/Departure Details
                                             </h6>
+                                            @if (!$isViewOnly)
+                                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addArrivalDepartureModal">
+                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                    Add
+                                                </button>
+                                            @endif
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-bordered table-sm mb-0" id="arrivalDepartureTable">
@@ -336,73 +314,12 @@
                                                         <th style="width: 12%;">To City</th>
                                                         <th style="width: 18%;">Dep Date & Time</th>
                                                         <th style="width: 18%;">Arrival Date & Time</th>
-                                                        <th style="width: 13%;" class="text-center">Action</th>
+                                                        @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                            <th style="width: 13%;" class="text-center">Action</th>
+                                                        @endif
                                                     </tr>
                                                 </thead>
                                                 <tbody id="arrivalDepartureTableBody">
-                                                    <!-- Always show input row for new entry first -->
-                                                    <tr class="arrival-departure-input-row" data-is-input-row="true">
-                                                        <td>
-                                                            <select class="form-select form-select-sm mode-input"
-                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
-                                                                <option value="By Air">By Air</option>
-                                                                <option value="By Surface">By Surface</option>
-                                                                <option value="By Sea">By Sea</option>
-                                                            </select>
-                                                        </td>
-                                                        <td>
-                                                            <input type="text"
-                                                                class="form-control form-control-sm info-input"
-                                                                placeholder="Info" {{ $disabledAttr }}
-                                                                {!! $disabledStyle !!}>
-                                                        </td>
-                                                        <td>
-                                                            <input type="text"
-                                                                class="form-control form-control-sm from-city-input"
-                                                                placeholder="From City" {{ $disabledAttr }}
-                                                                {!! $disabledStyle !!}>
-                                                        </td>
-                                                        <td>
-                                                            <input type="text"
-                                                                class="form-control form-control-sm to-city-input"
-                                                                placeholder="To City" {{ $disabledAttr }}
-                                                                {!! $disabledStyle !!}>
-                                                        </td>
-                                                        <td>
-                                                            <div class="d-flex gap-1">
-                                                                <input type="date"
-                                                                    class="form-control form-control-sm departure-date-input"
-                                                                    style="flex: 1;" {{ $disabledAttr }}
-                                                                    {!! $disabledStyle !!}>
-                                                                <input type="time"
-                                                                    class="form-control form-control-sm departure-time-input"
-                                                                    style="flex: 1;" {{ $disabledAttr }}
-                                                                    {!! $disabledStyle !!}>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div class="d-flex gap-1">
-                                                                <input type="date"
-                                                                    class="form-control form-control-sm arrival-date-input"
-                                                                    style="flex: 1;" {{ $disabledAttr }}
-                                                                    {!! $disabledStyle !!}>
-                                                                <input type="time"
-                                                                    class="form-control form-control-sm arrival-time-input"
-                                                                    style="flex: 1;" {{ $disabledAttr }}
-                                                                    {!! $disabledStyle !!}>
-                                                            </div>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            @if (!$isViewOnly)
-                                                                <button type="button"
-                                                                    class="btn btn-sm btn-primary addArrivalDepartureFromInput">
-                                                                    <i data-feather="plus"
-                                                                        style="width: 14px; height: 14px;"></i>
-                                                                    Add
-                                                                </button>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
                                                     @php
                                                         $allTransports = $lead->bookingArrivalDepartures ?? collect();
                                                     @endphp
@@ -423,40 +340,42 @@
                                                                     {{ $transport->arrival_date ? ($transport->arrival_date instanceof \DateTime ? $transport->arrival_date->format('d/m/Y') : date('d/m/Y', strtotime($transport->arrival_date))) : '' }}
                                                                     {{ $transport->arrival_time ? ' ' . substr($transport->arrival_time, 0, 5) : '' }}
                                                                 </td>
-                                                                <td class="text-center">
-                                                                    @if (!$isViewOnly)
-                                                                        <input type="hidden"
-                                                                            name="arrival_departure[{{ $index }}][id]"
-                                                                            value="{{ $transport->id }}">
-                                                                        <input type="hidden"
-                                                                            name="arrival_departure[{{ $index }}][mode]"
-                                                                            value="{{ $transport->mode }}">
-                                                                        <input type="hidden"
-                                                                            name="arrival_departure[{{ $index }}][info]"
-                                                                            value="{{ $transport->info }}">
-                                                                        <input type="hidden"
-                                                                            name="arrival_departure[{{ $index }}][from_city]"
-                                                                            value="{{ $transport->from_city }}">
-                                                                        <input type="hidden"
-                                                                            name="arrival_departure[{{ $index }}][to_city]"
-                                                                            value="{{ $transport->to_city ?? '' }}">
-                                                                        <input type="hidden"
-                                                                            name="arrival_departure[{{ $index }}][departure_date]"
-                                                                            value="{{ $transport->departure_date ? ($transport->departure_date instanceof \DateTime ? $transport->departure_date->format('Y-m-d') : $transport->departure_date) : '' }}">
-                                                                        <input type="hidden"
-                                                                            name="arrival_departure[{{ $index }}][departure_time]"
-                                                                            value="{{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}">
-                                                                        <input type="hidden"
-                                                                            name="arrival_departure[{{ $index }}][arrival_date]"
-                                                                            value="{{ $transport->arrival_date ? ($transport->arrival_date instanceof \DateTime ? $transport->arrival_date->format('Y-m-d') : $transport->arrival_date) : '' }}">
-                                                                        <input type="hidden"
-                                                                            name="arrival_departure[{{ $index }}][arrival_time]"
-                                                                            value="{{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}">
-                                                                        <i data-feather="trash-2"
-                                                                            class="removeArrivalDepartureRow"
-                                                                            style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
-                                                                    @endif
-                                                                </td>
+                                                                @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                    <td class="text-center">
+                                                                        @if (!$isViewOnly)
+                                                                            <input type="hidden"
+                                                                                name="arrival_departure[{{ $index }}][id]"
+                                                                                value="{{ $transport->id }}">
+                                                                            <input type="hidden"
+                                                                                name="arrival_departure[{{ $index }}][mode]"
+                                                                                value="{{ $transport->mode }}">
+                                                                            <input type="hidden"
+                                                                                name="arrival_departure[{{ $index }}][info]"
+                                                                                value="{{ $transport->info }}">
+                                                                            <input type="hidden"
+                                                                                name="arrival_departure[{{ $index }}][from_city]"
+                                                                                value="{{ $transport->from_city }}">
+                                                                            <input type="hidden"
+                                                                                name="arrival_departure[{{ $index }}][to_city]"
+                                                                                value="{{ $transport->to_city ?? '' }}">
+                                                                            <input type="hidden"
+                                                                                name="arrival_departure[{{ $index }}][departure_date]"
+                                                                                value="{{ $transport->departure_date ? ($transport->departure_date instanceof \DateTime ? $transport->departure_date->format('Y-m-d') : $transport->departure_date) : '' }}">
+                                                                            <input type="hidden"
+                                                                                name="arrival_departure[{{ $index }}][departure_time]"
+                                                                                value="{{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}">
+                                                                            <input type="hidden"
+                                                                                name="arrival_departure[{{ $index }}][arrival_date]"
+                                                                                value="{{ $transport->arrival_date ? ($transport->arrival_date instanceof \DateTime ? $transport->arrival_date->format('Y-m-d') : $transport->arrival_date) : '' }}">
+                                                                            <input type="hidden"
+                                                                                name="arrival_departure[{{ $index }}][arrival_time]"
+                                                                                value="{{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}">
+                                                                            <i data-feather="trash-2"
+                                                                                class="removeArrivalDepartureRow"
+                                                                                style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                                                                        @endif
+                                                                    </td>
+                                                                @endif
                                                             </tr>
                                                         @endforeach
                                                     @endif
@@ -464,8 +383,10 @@
                                             </table>
                                         </div>
                                     </div>
+                                    @endif
 
                                     <!-- Accommodation Details Section -->
+                                    @if (!($isPostSales ?? false))
                                     <div class="mb-4 border rounded-3 p-3 bg-light">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="text-uppercase text-muted small fw-semibold mb-0">
@@ -473,6 +394,12 @@
                                                     style="width: 14px; height: 14px;"></i>
                                                 Accommodation Details
                                             </h6>
+                                            @if (!$isViewOnly)
+                                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addAccommodationModal">
+                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                    Add
+                                                </button>
+                                            @endif
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-bordered table-sm mb-0" id="accommodationTable">
@@ -485,70 +412,12 @@
                                                         <th style="width: 12%;">Check-out (Date)</th>
                                                         <th style="width: 12%;">Room Type</th>
                                                         <th style="width: 12%;">Meal Plan</th>
-                                                        <th style="width: 4%;" class="text-center">Action</th>
+                                                        @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                            <th style="width: 4%;" class="text-center">Action</th>
+                                                        @endif
                                                     </tr>
                                                 </thead>
                                                 <tbody id="accommodationTableBody">
-                                                    <!-- Always show input row for new entry first -->
-                                                    <tr class="accommodation-input-row" data-is-input-row="true">
-                                                        <td>
-                                                            <input type="text"
-                                                                class="form-control form-control-sm destination-input"
-                                                                placeholder="Destination" {{ $disabledAttr }}
-                                                                {!! $disabledStyle !!}>
-                                                        </td>
-                                                        <td>
-                                                            <input type="text"
-                                                                class="form-control form-control-sm location-input"
-                                                                placeholder="Location" {{ $disabledAttr }}
-                                                                {!! $disabledStyle !!}>
-                                                        </td>
-                                                        <td>
-                                                            <input type="text"
-                                                                class="form-control form-control-sm stay-at-input"
-                                                                placeholder="Stay At" {{ $disabledAttr }}
-                                                                {!! $disabledStyle !!}>
-                                                        </td>
-                                                        <td>
-                                                            <input type="date"
-                                                                class="form-control form-control-sm checkin-date-input"
-                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
-                                                        </td>
-                                                        <td>
-                                                            <input type="date"
-                                                                class="form-control form-control-sm checkout-date-input"
-                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
-                                                        </td>
-                                                        <td>
-                                                            <select class="form-select form-select-sm room-type-input"
-                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
-                                                                <option value="">-- Select --</option>
-                                                                <option value="Single">Single</option>
-                                                                <option value="Double">Double</option>
-                                                                <option value="Triple">Triple</option>
-                                                            </select>
-                                                        </td>
-                                                        <td>
-                                                            <select class="form-select form-select-sm meal-plan-input"
-                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
-                                                                <option value="">-- Select --</option>
-                                                                <option value="CP">CP</option>
-                                                                <option value="MAP">MAP</option>
-                                                                <option value="AP">AP</option>
-                                                                <option value="AI">AI</option>
-                                                            </select>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            @if (!$isViewOnly)
-                                                                <button type="button"
-                                                                    class="btn btn-sm btn-primary addAccommodationFromInput">
-                                                                    <i data-feather="plus"
-                                                                        style="width: 14px; height: 14px;"></i>
-                                                                    Add
-                                                                </button>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
                                                     @if ($lead->bookingAccommodations && $lead->bookingAccommodations->count() > 0)
                                                         @foreach ($lead->bookingAccommodations as $index => $ba)
                                                             <tr class="accommodation-data-row"
@@ -562,37 +431,39 @@
                                                                 </td>
                                                                 <td>{{ $ba->room_type }}</td>
                                                                 <td>{{ $ba->meal_plan }}</td>
-                                                                <td class="text-center">
-                                                                    @if (!$isViewOnly)
-                                                                        <input type="hidden"
-                                                                            name="booking_accommodations[{{ $index }}][id]"
-                                                                            value="{{ $ba->id }}">
-                                                                        <input type="hidden"
-                                                                            name="booking_accommodations[{{ $index }}][destination]"
-                                                                            value="{{ $ba->destination }}">
-                                                                        <input type="hidden"
-                                                                            name="booking_accommodations[{{ $index }}][location]"
-                                                                            value="{{ $ba->location }}">
-                                                                        <input type="hidden"
-                                                                            name="booking_accommodations[{{ $index }}][stay_at]"
-                                                                            value="{{ $ba->stay_at }}">
-                                                                        <input type="hidden"
-                                                                            name="booking_accommodations[{{ $index }}][checkin_date]"
-                                                                            value="{{ $ba->checkin_date ? $ba->checkin_date->format('Y-m-d') : '' }}">
-                                                                        <input type="hidden"
-                                                                            name="booking_accommodations[{{ $index }}][checkout_date]"
-                                                                            value="{{ $ba->checkout_date ? $ba->checkout_date->format('Y-m-d') : '' }}">
-                                                                        <input type="hidden"
-                                                                            name="booking_accommodations[{{ $index }}][room_type]"
-                                                                            value="{{ $ba->room_type }}">
-                                                                        <input type="hidden"
-                                                                            name="booking_accommodations[{{ $index }}][meal_plan]"
-                                                                            value="{{ $ba->meal_plan }}">
-                                                                        <i data-feather="trash-2"
-                                                                            class="removeAccommodationRow"
-                                                                            style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
-                                                                    @endif
-                                                                </td>
+                                                                @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                    <td class="text-center">
+                                                                        @if (!$isViewOnly)
+                                                                            <input type="hidden"
+                                                                                name="booking_accommodations[{{ $index }}][id]"
+                                                                                value="{{ $ba->id }}">
+                                                                            <input type="hidden"
+                                                                                name="booking_accommodations[{{ $index }}][destination]"
+                                                                                value="{{ $ba->destination }}">
+                                                                            <input type="hidden"
+                                                                                name="booking_accommodations[{{ $index }}][location]"
+                                                                                value="{{ $ba->location }}">
+                                                                            <input type="hidden"
+                                                                                name="booking_accommodations[{{ $index }}][stay_at]"
+                                                                                value="{{ $ba->stay_at }}">
+                                                                            <input type="hidden"
+                                                                                name="booking_accommodations[{{ $index }}][checkin_date]"
+                                                                                value="{{ $ba->checkin_date ? $ba->checkin_date->format('Y-m-d') : '' }}">
+                                                                            <input type="hidden"
+                                                                                name="booking_accommodations[{{ $index }}][checkout_date]"
+                                                                                value="{{ $ba->checkout_date ? $ba->checkout_date->format('Y-m-d') : '' }}">
+                                                                            <input type="hidden"
+                                                                                name="booking_accommodations[{{ $index }}][room_type]"
+                                                                                value="{{ $ba->room_type }}">
+                                                                            <input type="hidden"
+                                                                                name="booking_accommodations[{{ $index }}][meal_plan]"
+                                                                                value="{{ $ba->meal_plan }}">
+                                                                            <i data-feather="trash-2"
+                                                                                class="removeAccommodationRow"
+                                                                                style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                                                                        @endif
+                                                                    </td>
+                                                                @endif
                                                             </tr>
                                                         @endforeach
                                                     @endif
@@ -600,8 +471,10 @@
                                             </table>
                                         </div>
                                     </div>
+                                    @endif
 
                                     <!-- Day-Wise Itinerary Section -->
+                                    @if (!($isPostSales ?? false))
                                     <div class="mb-4 border rounded-3 p-3" id="dayWiseItinerarySection"
                                         style="display: none;">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -610,6 +483,12 @@
                                                     style="width: 14px; height: 14px;"></i>
                                                 Day-Wise Itinerary
                                             </h6>
+                                            @if (!$isViewOnly)
+                                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addItineraryModal">
+                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                    Add
+                                                </button>
+                                            @endif
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-bordered table-sm mb-0" id="itineraryTable">
@@ -621,54 +500,12 @@
                                                         <th style="width: 20%;">Activity/Tour Description</th>
                                                         <th style="width: 10%;">Stay at</th>
                                                         <th style="width: 15%;">Remarks</th>
-                                                        <th style="width: 7%;" class="text-center">Action</th>
+                                                        @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                            <th style="width: 7%;" class="text-center">Action</th>
+                                                        @endif
                                                     </tr>
                                                 </thead>
                                                 <tbody id="itineraryTableBody">
-                                                    <!-- Always show input row for new entry first -->
-                                                    <tr class="itinerary-input-row" data-is-input-row="true">
-                                                        <td>
-                                                            <input type="text"
-                                                                class="form-control form-control-sm day-date-input"
-                                                                placeholder="Day & Date" {{ $disabledAttr }}
-                                                                {!! $disabledStyle !!}>
-                                                        </td>
-                                                        <td>
-                                                            <input type="time"
-                                                                class="form-control form-control-sm time-input"
-                                                                {{ $disabledAttr }} {!! $disabledStyle !!}>
-                                                        </td>
-                                                        <td>
-                                                            <input type="text"
-                                                                class="form-control form-control-sm location-input"
-                                                                placeholder="Location" {{ $disabledAttr }}
-                                                                {!! $disabledStyle !!}>
-                                                        </td>
-                                                        <td>
-                                                            <textarea class="form-control form-control-sm activity-input" rows="2" placeholder="Activity/Tour Description"
-                                                                {{ $disabledAttr }} {!! $disabledStyle !!}></textarea>
-                                                        </td>
-                                                        <td>
-                                                            <input type="text"
-                                                                class="form-control form-control-sm stay-at-input"
-                                                                placeholder="Stay at" {{ $disabledAttr }}
-                                                                {!! $disabledStyle !!}>
-                                                        </td>
-                                                        <td>
-                                                            <textarea class="form-control form-control-sm remarks-input" rows="2" placeholder="Remarks"
-                                                                {{ $disabledAttr }} {!! $disabledStyle !!}></textarea>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            @if (!$isViewOnly)
-                                                                <button type="button"
-                                                                    class="btn btn-sm btn-primary addItineraryFromInput">
-                                                                    <i data-feather="plus"
-                                                                        style="width: 14px; height: 14px;"></i>
-                                                                    Add
-                                                                </button>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
                                                     @if ($lead->bookingItineraries && $lead->bookingItineraries->count() > 0)
                                                         @foreach ($lead->bookingItineraries as $index => $bi)
                                                             <tr class="itinerary-data-row"
@@ -679,8 +516,9 @@
                                                                 <td>{{ $bi->activity_tour_description }}</td>
                                                                 <td>{{ $bi->stay_at }}</td>
                                                                 <td>{{ $bi->remarks }}</td>
-                                                                <td class="text-center">
-                                                                    @if (!$isViewOnly)
+                                                                @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                    <td class="text-center">
+                                                                        @if (!$isViewOnly)
                                                                         <input type="hidden"
                                                                             name="booking_itineraries[{{ $index }}][id]"
                                                                             value="{{ $bi->id }}">
@@ -705,8 +543,9 @@
                                                                         <i data-feather="trash-2"
                                                                             class="removeItineraryRow"
                                                                             style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
-                                                                    @endif
-                                                                </td>
+                                                                        @endif
+                                                                    </td>
+                                                                @endif
                                                             </tr>
                                                         @endforeach
                                                     @endif
@@ -714,6 +553,205 @@
                                             </table>
                                         </div>
                                     </div>
+                                    @endif
+
+                                    <!-- Document Checklist Summary Section (Post Sales Only) -->
+                                    @if($isPostSales ?? false)
+                                    <div class="mb-4 border rounded-3 p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                <i data-feather="file-text" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                Document Checklist Summary (Across Entire Booking)
+                                            </h6>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-sm mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Document Type</th>
+                                                        <th class="text-center">Total Required</th>
+                                                        <th class="text-center">Received</th>
+                                                        <th class="text-center">Pending</th>
+                                                        <th class="text-center">Issues Found</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Passports</td>
+                                                        <td class="text-center">4</td>
+                                                        <td class="text-center">3</td>
+                                                        <td class="text-center">1</td>
+                                                        <td class="text-center">0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Visa</td>
+                                                        <td class="text-center">4</td>
+                                                        <td class="text-center">3</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">1 incorrect</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Pan Card</td>
+                                                        <td class="text-center">4</td>
+                                                        <td class="text-center">4</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Voter ID</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Driving License</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Govt. ID</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>School ID</td>
+                                                        <td class="text-center">1</td>
+                                                        <td class="text-center">1</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Birth Certificate</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Marriage Certificate</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Aadhar</td>
+                                                        <td class="text-center">4</td>
+                                                        <td class="text-center">4</td>
+                                                        <td class="text-center">0</td>
+                                                        <td class="text-center">0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Photos</td>
+                                                        <td class="text-center">4</td>
+                                                        <td class="text-center">3</td>
+                                                        <td class="text-center">1</td>
+                                                        <td class="text-center">0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Insurance</td>
+                                                        <td class="text-center">4</td>
+                                                        <td class="text-center">2</td>
+                                                        <td class="text-center">2</td>
+                                                        <td class="text-center">0</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    @endif
+
+                                    <!-- Vendor Payments Section (Ops Only) -->
+                                    @if($isOpsDept ?? false)
+                                        <div class="mb-4 border rounded-3 p-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <div>
+                                                    <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                        <i data-feather="dollar-sign" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                        Vendor Payments (Ops → Accounts)
+                                                    </h6>
+                                                </div>
+                                                {{-- Ops can always edit Vendor Payments, even in view-only mode --}}
+                                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addVendorPaymentModal">
+                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                    Add
+                                                </button>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-sm mb-0" id="vendorPaymentsTable">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>Vendor Code</th>
+                                                            <th>Booking Type</th>
+                                                            <th>Location</th>
+                                                            <th>Purchase Cost</th>
+                                                            <th>Due Date</th>
+                                                            @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                <th style="background-color: #fff3cd;">Paid</th>
+                                                                <th style="background-color: #fff3cd;">Pending</th>
+                                                                <th style="background-color: #fff3cd;">Payment Mode</th>
+                                                                <th style="background-color: #fff3cd;">Ref. No.</th>
+                                                                <th style="background-color: #fff3cd;">Remarks</th>
+                                                            @else
+                                                                <th>Status</th>
+                                                            @endif
+                                                            <th class="text-center">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="vendorPaymentsTableBody">
+                                                        @if(isset($vendorPayments) && $vendorPayments->count() > 0)
+                                                            @foreach($vendorPayments as $vp)
+                                                                <tr data-vendor-payment-id="{{ $vp->id }}" 
+                                                                    data-vendor-code="{{ $vp->vendor_code ?? '' }}"
+                                                                    data-booking-type="{{ $vp->booking_type ?? '' }}"
+                                                                    data-location="{{ $vp->location ?? '' }}"
+                                                                    data-purchase-cost="{{ $vp->purchase_cost ?? 0 }}"
+                                                                    data-due-date="{{ $vp->due_date ? $vp->due_date->format('Y-m-d') : '' }}"
+                                                                    data-status="{{ $vp->status ?? 'Pending' }}">
+                                                                    <td>{{ $vp->vendor_code ?? '-' }}</td>
+                                                                    <td>{{ $vp->booking_type ?? '-' }}</td>
+                                                                    <td>{{ $vp->location ?? '-' }}</td>
+                                                                    <td>{{ $vp->purchase_cost ? number_format($vp->purchase_cost, 2) : '-' }}</td>
+                                                                    <td>{{ $vp->due_date ? $vp->due_date->format('d/m/Y') : '-' }}</td>
+                                                                    @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                        <td style="background-color: #fff3cd;">{{ $vp->paid_amount ? number_format($vp->paid_amount, 2) : '-' }}</td>
+                                                                        <td style="background-color: #fff3cd;">{{ $vp->pending_amount ? number_format($vp->pending_amount, 2) : '-' }}</td>
+                                                                        <td style="background-color: #fff3cd;">{{ $vp->payment_mode ?? '-' }}</td>
+                                                                        <td style="background-color: #fff3cd;">{{ $vp->ref_no ?? '-' }}</td>
+                                                                        <td style="background-color: #fff3cd;">{{ $vp->remarks ?? '-' }}</td>
+                                                                    @else
+                                                                        <td>
+                                                                            <span class="badge bg-{{ $vp->status == 'Paid' ? 'success' : ($vp->status == 'Pending' ? 'warning' : 'secondary') }}">
+                                                                                {{ $vp->status ?? 'Pending' }}
+                                                                            </span>
+                                                                        </td>
+                                                                    @endif
+                                                                    <td class="text-center">
+                                                                        {{-- Ops can always edit/delete Vendor Payments, even in view-only mode --}}
+                                                                        <button type="button" class="btn btn-sm btn-outline-primary edit-vendor-payment-btn" data-vendor-payment-id="{{ $vp->id }}" data-bs-toggle="modal" data-bs-target="#addVendorPaymentModal">
+                                                                            <i data-feather="edit" style="width: 14px; height: 14px;"></i>
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-sm btn-outline-danger delete-vendor-payment-btn" data-vendor-payment-id="{{ $vp->id }}">
+                                                                            <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        @else
+                                                            <tr>
+                                                                <td colspan="{{ ($isViewOnly && $isOpsDept) ? '7' : '11' }}" class="text-center text-muted py-4">No vendor payments found</td>
+                                                            </tr>
+                                                        @endif
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    @endif
 
                                     @if (!$isViewOnly)
                                         <div class="d-flex justify-content-end gap-2 mb-4">
@@ -735,6 +773,289 @@
             </div>
         </div>
     </div>
+
+    <!-- Add Destination Modal -->
+    <div class="modal fade" id="addDestinationModal" tabindex="-1" aria-labelledby="addDestinationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addDestinationModalLabel">Add Destination</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addDestinationForm">
+                        <div class="mb-3">
+                            <label class="form-label">Destination <span class="text-danger">*</span></label>
+                            <select class="form-select form-select-sm" id="modalDestinationSelect" required>
+                                <option value="">-- Select Destination --</option>
+                                @foreach ($destinations as $dest)
+                                    <option value="{{ $dest->name }}" data-destination-id="{{ $dest->id }}">
+                                        {{ $dest->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Location <span class="text-danger">*</span></label>
+                            <select class="form-select form-select-sm" id="modalLocationSelect" required>
+                                <option value="">-- Select Location --</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Service Type <span class="text-danger">*</span></label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="modalOnlyHotel">
+                                <label class="form-check-label" for="modalOnlyHotel">Only Hotel</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="modalOnlyTT">
+                                <label class="form-check-label" for="modalOnlyTT">Only TT</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="modalHotelTT">
+                                <label class="form-check-label" for="modalHotelTT">Hotel + TT</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">From Date <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control form-control-sm" id="modalFromDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">To Date <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control form-control-sm" id="modalToDate" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitDestinationModal">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Arrival/Departure Modal -->
+    <div class="modal fade" id="addArrivalDepartureModal" tabindex="-1" aria-labelledby="addArrivalDepartureModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addArrivalDepartureModalLabel">Add Arrival/Departure</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addArrivalDepartureForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Mode <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="modalMode" required>
+                                    <option value="By Air">By Air</option>
+                                    <option value="By Surface">By Surface</option>
+                                    <option value="By Sea">By Sea</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Info</label>
+                                <input type="text" class="form-control form-control-sm" id="modalInfo" placeholder="Info">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">From City</label>
+                                <input type="text" class="form-control form-control-sm" id="modalFromCity" placeholder="From City">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">To City</label>
+                                <input type="text" class="form-control form-control-sm" id="modalToCity" placeholder="To City">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Departure Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control form-control-sm" id="modalDepartureDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Departure Time</label>
+                                <input type="time" class="form-control form-control-sm" id="modalDepartureTime">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Arrival Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control form-control-sm" id="modalArrivalDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Arrival Time</label>
+                                <input type="time" class="form-control form-control-sm" id="modalArrivalTime">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitArrivalDepartureModal">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Accommodation Modal -->
+    <div class="modal fade" id="addAccommodationModal" tabindex="-1" aria-labelledby="addAccommodationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAccommodationModalLabel">Add Accommodation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addAccommodationForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Destination</label>
+                                <input type="text" class="form-control form-control-sm" id="modalAccDestination" placeholder="Destination">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Location</label>
+                                <input type="text" class="form-control form-control-sm" id="modalAccLocation" placeholder="Location">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Stay At</label>
+                                <input type="text" class="form-control form-control-sm" id="modalStayAt" placeholder="Stay At">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Check-in Date</label>
+                                <input type="date" class="form-control form-control-sm" id="modalCheckinDate">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Check-out Date</label>
+                                <input type="date" class="form-control form-control-sm" id="modalCheckoutDate">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Room Type</label>
+                                <select class="form-select form-select-sm" id="modalRoomType">
+                                    <option value="">-- Select --</option>
+                                    <option value="Single">Single</option>
+                                    <option value="Double">Double</option>
+                                    <option value="Triple">Triple</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Meal Plan</label>
+                                <select class="form-select form-select-sm" id="modalMealPlan">
+                                    <option value="">-- Select --</option>
+                                    <option value="CP">CP</option>
+                                    <option value="MAP">MAP</option>
+                                    <option value="AP">AP</option>
+                                    <option value="AI">AI</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitAccommodationModal">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Itinerary Modal -->
+    <div class="modal fade" id="addItineraryModal" tabindex="-1" aria-labelledby="addItineraryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addItineraryModalLabel">Add Day-Wise Itinerary</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addItineraryForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Day & Date</label>
+                                <input type="text" class="form-control form-control-sm" id="modalDayDate" placeholder="Day & Date">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Time</label>
+                                <input type="time" class="form-control form-control-sm" id="modalItineraryTime">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Location</label>
+                                <input type="text" class="form-control form-control-sm" id="modalItineraryLocation" placeholder="Location">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Stay At</label>
+                                <input type="text" class="form-control form-control-sm" id="modalItineraryStayAt" placeholder="Stay at">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Activity/Tour Description</label>
+                                <textarea class="form-control form-control-sm" id="modalActivity" rows="3" placeholder="Activity/Tour Description"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Remarks</label>
+                                <textarea class="form-control form-control-sm" id="modalRemarks" rows="3" placeholder="Remarks"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitItineraryModal">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Vendor Payment Modal (Ops Only) -->
+    @if($isOpsDept ?? false)
+    <div class="modal fade" id="addVendorPaymentModal" tabindex="-1" aria-labelledby="addVendorPaymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addVendorPaymentModalLabel">Add Vendor Payment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addVendorPaymentForm">
+                        @csrf
+                        <input type="hidden" id="vendorPaymentId" name="vendor_payment_id" value="">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Vendor Code <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="modalVendorCode" name="vendor_code" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Booking Type <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="modalBookingType" name="booking_type" required>
+                                    <option value="">-- Select --</option>
+                                    <option value="Hotel">Hotel</option>
+                                    <option value="TT">TT</option>
+                                    <option value="Hotel + TT">Hotel + TT</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Location <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="modalLocation" name="location" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Purchase Cost <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control form-control-sm" id="modalPurchaseCost" name="purchase_cost" step="0.01" min="0" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Due Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control form-control-sm" id="modalDueDate" name="due_date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Status <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-sm" id="modalStatus" name="status" required>
+                                    <option value="Pending" selected>Pending</option>
+                                    <option value="Paid">Paid</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitVendorPaymentModal">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 
     @push('scripts')
         <script>
@@ -825,49 +1146,26 @@
                     }
                 }
 
-                // Handle destination change in input row
-                const destinationSelectInput = document.querySelector('.destination-select-input');
-                if (destinationSelectInput) {
-                    destinationSelectInput.addEventListener('change', function() {
-                        loadLocationsForInputRow(this);
-                    });
-                }
 
-                // Handle service type checkboxes mutual exclusivity in input row
-                const serviceTypeCheckboxes = document.querySelectorAll(
-                    '.only-hotel-input, .only-tt-input, .hotel-tt-input');
-                serviceTypeCheckboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', function() {
-                        if (this.checked) {
-                            serviceTypeCheckboxes.forEach(cb => {
-                                if (cb !== this) {
-                                    cb.checked = false;
-                                }
-                            });
-                        }
-                    });
-                });
-
-                // Function to add destination from input row
-                function addDestinationFromInput() {
-                    const inputRow = document.querySelector('.destination-input-row');
-                    const destination = inputRow.querySelector('.destination-select-input').value;
-                    const location = inputRow.querySelector('.location-select-input').value;
-                    const onlyHotel = inputRow.querySelector('.only-hotel-input').checked;
-                    const onlyTT = inputRow.querySelector('.only-tt-input').checked;
-                    const hotelTT = inputRow.querySelector('.hotel-tt-input').checked;
-                    const fromDate = inputRow.querySelector('.from-date-input').value;
-                    const toDate = inputRow.querySelector('.to-date-input').value;
+                // Function to add destination from modal form
+                function addDestinationFromModal() {
+                    const destination = document.getElementById('modalDestinationSelect').value;
+                    const location = document.getElementById('modalLocationSelect').value;
+                    const onlyHotel = document.getElementById('modalOnlyHotel').checked;
+                    const onlyTT = document.getElementById('modalOnlyTT').checked;
+                    const hotelTT = document.getElementById('modalHotelTT').checked;
+                    const fromDate = document.getElementById('modalFromDate').value;
+                    const toDate = document.getElementById('modalToDate').value;
 
                     // Validation
                     if (!destination || !location || !fromDate || !toDate) {
                         alert('Please fill in all required fields (Destination, Location, From Date, To Date)');
-                        return;
+                        return false;
                     }
 
                     if (!onlyHotel && !onlyTT && !hotelTT) {
                         alert('Please select at least one service type (Only Hotel, Only TT, or Hotel + TT)');
-                        return;
+                        return false;
                     }
 
                     // Format dates for display
@@ -914,22 +1212,7 @@
                         </td>
                     `;
 
-                    // Insert after the input row (so input row stays first)
-                    if (inputRow && inputRow.nextSibling) {
-                        tbody.insertBefore(newRow, inputRow.nextSibling);
-                    } else {
-                        tbody.appendChild(newRow);
-                    }
-
-                    // Clear input row
-                    inputRow.querySelector('.destination-select-input').value = '';
-                    inputRow.querySelector('.location-select-input').innerHTML =
-                        '<option value="">-- Select Location --</option>';
-                    inputRow.querySelector('.only-hotel-input').checked = false;
-                    inputRow.querySelector('.only-tt-input').checked = false;
-                    inputRow.querySelector('.hotel-tt-input').checked = false;
-                    inputRow.querySelector('.from-date-input').value = '';
-                    inputRow.querySelector('.to-date-input').value = '';
+                    tbody.appendChild(newRow);
 
                     // Re-initialize Feather icons
                     if (typeof feather !== 'undefined') {
@@ -940,14 +1223,79 @@
 
                     // Check itinerary visibility
                     checkItineraryVisibility();
+                    
+                    return true;
                 }
 
-                // Handle Add button click
-                document.addEventListener('click', function(e) {
-                    if (e.target.closest('.addDestinationFromInput')) {
-                        e.preventDefault();
-                        addDestinationFromInput();
+                // Handle modal form submission
+                document.getElementById('submitDestinationModal')?.addEventListener('click', function() {
+                    if (addDestinationFromModal()) {
+                        // Close modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addDestinationModal'));
+                        if (modal) {
+                            modal.hide();
+                        }
+                        
+                        // Clear modal form
+                        document.getElementById('addDestinationForm').reset();
+                        document.getElementById('modalLocationSelect').innerHTML = '<option value="">-- Select Location --</option>';
                     }
+                });
+
+                // Handle destination select change in modal to load locations
+                document.getElementById('modalDestinationSelect')?.addEventListener('change', function() {
+                    const destinationId = this.options[this.selectedIndex].dataset.destinationId;
+                    const locationSelect = document.getElementById('modalLocationSelect');
+                    
+                    if (locationSelect) {
+                        locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
+                        
+                        if (destinationId) {
+                            locationSelect.disabled = true;
+                            locationSelect.innerHTML = '<option value="">Loading locations...</option>';
+                            
+                            fetch(`/api/destinations/${destinationId}/locations`, {
+                                    method: 'GET',
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                        'Accept': 'application/json',
+                                    },
+                                    credentials: 'same-origin'
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
+                                    data.forEach(location => {
+                                        const option = document.createElement('option');
+                                        option.value = location.name;
+                                        option.textContent = location.name;
+                                        locationSelect.appendChild(option);
+                                    });
+                                    locationSelect.disabled = false;
+                                })
+                                .catch(error => {
+                                    console.error('Error loading locations:', error);
+                                    locationSelect.innerHTML = '<option value="">Error loading locations</option>';
+                                    locationSelect.disabled = false;
+                                });
+                        } else {
+                            locationSelect.disabled = false;
+                        }
+                    }
+                });
+
+                // Handle service type checkboxes mutual exclusivity in modal
+                const modalServiceTypeCheckboxes = ['modalOnlyHotel', 'modalOnlyTT', 'modalHotelTT'];
+                modalServiceTypeCheckboxes.forEach(id => {
+                    document.getElementById(id)?.addEventListener('change', function() {
+                        if (this.checked) {
+                            modalServiceTypeCheckboxes.forEach(otherId => {
+                                if (otherId !== id) {
+                                    document.getElementById(otherId).checked = false;
+                                }
+                            });
+                        }
+                    });
                 });
 
                 // Remove destination row handler (using event delegation)
@@ -980,23 +1328,21 @@
                     return `${day}/${month}/${year}`;
                 }
 
-                // Function to add arrival/departure from input row
-                function addArrivalDepartureFromInput() {
-                    const inputRow = document.querySelector('.arrival-departure-input-row');
-                    const mode = inputRow.querySelector('.mode-input').value;
-                    const info = inputRow.querySelector('.info-input').value;
-                    const fromCity = inputRow.querySelector('.from-city-input').value;
-                    const toCity = inputRow.querySelector('.to-city-input').value;
-                    const departureDate = inputRow.querySelector('.departure-date-input').value;
-                    const departureTime = inputRow.querySelector('.departure-time-input').value;
-                    const arrivalDate = inputRow.querySelector('.arrival-date-input').value;
-                    const arrivalTime = inputRow.querySelector('.arrival-time-input').value;
+                // Function to add arrival/departure from modal
+                function addArrivalDepartureFromModal() {
+                    const mode = document.getElementById('modalMode').value;
+                    const info = document.getElementById('modalInfo').value;
+                    const fromCity = document.getElementById('modalFromCity').value;
+                    const toCity = document.getElementById('modalToCity').value;
+                    const departureDate = document.getElementById('modalDepartureDate').value;
+                    const departureTime = document.getElementById('modalDepartureTime').value;
+                    const arrivalDate = document.getElementById('modalArrivalDate').value;
+                    const arrivalTime = document.getElementById('modalArrivalTime').value;
 
                     // Validation
                     if (!mode || !fromCity || !toCity || !departureDate || !arrivalDate) {
-                        alert(
-                            'Please fill in all required fields (Mode, From City, To City, Departure Date, Arrival Date)');
-                        return;
+                        alert('Please fill in all required fields (Mode, From City, To City, Departure Date, Arrival Date)');
+                        return false;
                     }
 
                     // Create new data row
@@ -1030,22 +1376,7 @@
                         </td>
                     `;
 
-                    // Insert after the input row
-                    if (inputRow && inputRow.nextSibling) {
-                        tbody.insertBefore(newRow, inputRow.nextSibling);
-                    } else {
-                        tbody.appendChild(newRow);
-                    }
-
-                    // Clear input row
-                    inputRow.querySelector('.mode-input').value = 'By Air';
-                    inputRow.querySelector('.info-input').value = '';
-                    inputRow.querySelector('.from-city-input').value = '';
-                    inputRow.querySelector('.to-city-input').value = '';
-                    inputRow.querySelector('.departure-date-input').value = '';
-                    inputRow.querySelector('.departure-time-input').value = '';
-                    inputRow.querySelector('.arrival-date-input').value = '';
-                    inputRow.querySelector('.arrival-time-input').value = '';
+                    tbody.appendChild(newRow);
 
                     // Re-initialize Feather icons
                     if (typeof feather !== 'undefined') {
@@ -1053,13 +1384,17 @@
                     }
 
                     arrivalDepartureRowIndex++;
+                    return true;
                 }
 
-                // Handle Add button click
-                document.addEventListener('click', function(e) {
-                    if (e.target.closest('.addArrivalDepartureFromInput')) {
-                        e.preventDefault();
-                        addArrivalDepartureFromInput();
+                // Handle modal form submission
+                document.getElementById('submitArrivalDepartureModal')?.addEventListener('click', function() {
+                    if (addArrivalDepartureFromModal()) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addArrivalDepartureModal'));
+                        if (modal) {
+                            modal.hide();
+                        }
+                        document.getElementById('addArrivalDepartureForm').reset();
                     }
                 });
 
@@ -1078,22 +1413,20 @@
                 let accommodationRowIndex =
                     {{ $lead->bookingAccommodations ? $lead->bookingAccommodations->count() : 0 }};
 
-                // Function to add accommodation from input row
-                function addAccommodationFromInput() {
-                    const inputRow = document.querySelector('.accommodation-input-row');
-                    const destination = inputRow.querySelector('.destination-input').value;
-                    const location = inputRow.querySelector('.location-input').value;
-                    const stayAt = inputRow.querySelector('.stay-at-input').value;
-                    const checkinDate = inputRow.querySelector('.checkin-date-input').value;
-                    const checkoutDate = inputRow.querySelector('.checkout-date-input').value;
-                    const roomType = inputRow.querySelector('.room-type-input').value;
-                    const mealPlan = inputRow.querySelector('.meal-plan-input').value;
+                // Function to add accommodation from modal
+                function addAccommodationFromModal() {
+                    const destination = document.getElementById('modalAccDestination').value;
+                    const location = document.getElementById('modalAccLocation').value;
+                    const stayAt = document.getElementById('modalStayAt').value;
+                    const checkinDate = document.getElementById('modalCheckinDate').value;
+                    const checkoutDate = document.getElementById('modalCheckoutDate').value;
+                    const roomType = document.getElementById('modalRoomType').value;
+                    const mealPlan = document.getElementById('modalMealPlan').value;
 
                     // Validation
                     if (!destination || !location || !stayAt || !checkinDate || !checkoutDate) {
-                        alert(
-                            'Please fill in all required fields (Destination, Location, Stay At, Check-in Date, Check-out Date)');
-                        return;
+                        alert('Please fill in all required fields (Destination, Location, Stay At, Check-in Date, Check-out Date)');
+                        return false;
                     }
 
                     // Create new data row
@@ -1122,21 +1455,7 @@
                         </td>
                     `;
 
-                    // Insert after the input row
-                    if (inputRow && inputRow.nextSibling) {
-                        tbody.insertBefore(newRow, inputRow.nextSibling);
-                    } else {
-                        tbody.appendChild(newRow);
-                    }
-
-                    // Clear input row
-                    inputRow.querySelector('.destination-input').value = '';
-                    inputRow.querySelector('.location-input').value = '';
-                    inputRow.querySelector('.stay-at-input').value = '';
-                    inputRow.querySelector('.checkin-date-input').value = '';
-                    inputRow.querySelector('.checkout-date-input').value = '';
-                    inputRow.querySelector('.room-type-input').value = '';
-                    inputRow.querySelector('.meal-plan-input').value = '';
+                    tbody.appendChild(newRow);
 
                     // Re-initialize Feather icons
                     if (typeof feather !== 'undefined') {
@@ -1144,13 +1463,17 @@
                     }
 
                     accommodationRowIndex++;
+                    return true;
                 }
 
-                // Handle Add button click
-                document.addEventListener('click', function(e) {
-                    if (e.target.closest('.addAccommodationFromInput')) {
-                        e.preventDefault();
-                        addAccommodationFromInput();
+                // Handle modal form submission
+                document.getElementById('submitAccommodationModal')?.addEventListener('click', function() {
+                    if (addAccommodationFromModal()) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addAccommodationModal'));
+                        if (modal) {
+                            modal.hide();
+                        }
+                        document.getElementById('addAccommodationForm').reset();
                     }
                 });
 
@@ -1168,20 +1491,19 @@
                 // Itinerary table management
                 let itineraryRowIndex = {{ $lead->bookingItineraries ? $lead->bookingItineraries->count() : 0 }};
 
-                // Function to add itinerary from input row
-                function addItineraryFromInput() {
-                    const inputRow = document.querySelector('.itinerary-input-row');
-                    const dayDate = inputRow.querySelector('.day-date-input').value;
-                    const time = inputRow.querySelector('.time-input').value;
-                    const location = inputRow.querySelector('.location-input').value;
-                    const activity = inputRow.querySelector('.activity-input').value;
-                    const stayAt = inputRow.querySelector('.stay-at-input').value;
-                    const remarks = inputRow.querySelector('.remarks-input').value;
+                // Function to add itinerary from modal
+                function addItineraryFromModal() {
+                    const dayDate = document.getElementById('modalDayDate').value;
+                    const time = document.getElementById('modalItineraryTime').value;
+                    const location = document.getElementById('modalItineraryLocation').value;
+                    const activity = document.getElementById('modalActivity').value;
+                    const stayAt = document.getElementById('modalItineraryStayAt').value;
+                    const remarks = document.getElementById('modalRemarks').value;
 
                     // Validation
                     if (!dayDate || !location || !activity) {
                         alert('Please fill in all required fields (Day & Date, Location, Activity/Tour Description)');
-                        return;
+                        return false;
                     }
 
                     // Create new data row
@@ -1208,20 +1530,7 @@
                         </td>
                     `;
 
-                    // Insert after the input row
-                    if (inputRow && inputRow.nextSibling) {
-                        tbody.insertBefore(newRow, inputRow.nextSibling);
-                    } else {
-                        tbody.appendChild(newRow);
-                    }
-
-                    // Clear input row
-                    inputRow.querySelector('.day-date-input').value = '';
-                    inputRow.querySelector('.time-input').value = '';
-                    inputRow.querySelector('.location-input').value = '';
-                    inputRow.querySelector('.activity-input').value = '';
-                    inputRow.querySelector('.stay-at-input').value = '';
-                    inputRow.querySelector('.remarks-input').value = '';
+                    tbody.appendChild(newRow);
 
                     // Re-initialize Feather icons
                     if (typeof feather !== 'undefined') {
@@ -1229,13 +1538,17 @@
                     }
 
                     itineraryRowIndex++;
+                    return true;
                 }
 
-                // Handle Add button click
-                document.addEventListener('click', function(e) {
-                    if (e.target.closest('.addItineraryFromInput')) {
-                        e.preventDefault();
-                        addItineraryFromInput();
+                // Handle modal form submission
+                document.getElementById('submitItineraryModal')?.addEventListener('click', function() {
+                    if (addItineraryFromModal()) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addItineraryModal'));
+                        if (modal) {
+                            modal.hide();
+                        }
+                        document.getElementById('addItineraryForm').reset();
                     }
                 });
 
@@ -1440,6 +1753,133 @@
                     });
                 }
             });
+
+            // Vendor Payment handlers (Ops only)
+            @if($isOpsDept ?? false)
+            let currentEditVendorPaymentId = null;
+
+            // Reset vendor payment modal
+            function resetVendorPaymentModal() {
+                document.getElementById('addVendorPaymentForm').reset();
+                document.getElementById('vendorPaymentId').value = '';
+                document.getElementById('addVendorPaymentModalLabel').textContent = 'Add Vendor Payment';
+                currentEditVendorPaymentId = null;
+            }
+
+            // Handle modal show event
+            const addVendorPaymentModal = document.getElementById('addVendorPaymentModal');
+            if (addVendorPaymentModal) {
+                addVendorPaymentModal.addEventListener('show.bs.modal', function() {
+                    resetVendorPaymentModal();
+                });
+            }
+
+            // Handle edit vendor payment button click
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.edit-vendor-payment-btn')) {
+                    const btn = e.target.closest('.edit-vendor-payment-btn');
+                    const vendorPaymentId = btn.dataset.vendorPaymentId;
+                    const row = btn.closest('tr');
+                    
+                    currentEditVendorPaymentId = vendorPaymentId;
+                    document.getElementById('vendorPaymentId').value = vendorPaymentId;
+                    document.getElementById('addVendorPaymentModalLabel').textContent = 'Edit Vendor Payment';
+                    
+                    // Populate form from data attributes
+                    document.getElementById('modalVendorCode').value = row.dataset.vendorCode || '';
+                    document.getElementById('modalBookingType').value = row.dataset.bookingType || '';
+                    document.getElementById('modalLocation').value = row.dataset.location || '';
+                    document.getElementById('modalPurchaseCost').value = row.dataset.purchaseCost || '';
+                    document.getElementById('modalDueDate').value = row.dataset.dueDate || '';
+                    document.getElementById('modalStatus').value = row.dataset.status || 'Pending';
+                }
+            });
+
+            // Handle delete vendor payment button click
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.delete-vendor-payment-btn')) {
+                    if (!confirm('Are you sure you want to delete this vendor payment?')) {
+                        return;
+                    }
+                    const btn = e.target.closest('.delete-vendor-payment-btn');
+                    const vendorPaymentId = btn.dataset.vendorPaymentId;
+                    const leadId = {{ $lead->id }};
+
+                    fetch(`/bookings/${leadId}/vendor-payment/${vendorPaymentId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const row = btn.closest('tr');
+                            row.remove();
+                            // Check if table is empty
+                            const tbody = document.getElementById('vendorPaymentsTableBody');
+                            if (tbody && tbody.querySelectorAll('tr').length === 0) {
+                                tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted py-4">No vendor payments found</td></tr>';
+                            }
+                        } else {
+                            alert(data.message || 'Failed to delete vendor payment');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while deleting vendor payment');
+                    });
+                }
+            });
+
+            // Handle vendor payment form submission
+            const submitVendorPaymentBtn = document.getElementById('submitVendorPaymentModal');
+            if (submitVendorPaymentBtn) {
+                submitVendorPaymentBtn.addEventListener('click', function() {
+                    const form = document.getElementById('addVendorPaymentForm');
+                    const formData = new FormData(form);
+                    const vendorPaymentId = document.getElementById('vendorPaymentId').value;
+                    const leadId = {{ $lead->id }};
+
+                    let url = `/bookings/${leadId}/vendor-payment`;
+                    let method = 'POST';
+                    
+                    if (vendorPaymentId) {
+                        url = `/bookings/${leadId}/vendor-payment/${vendorPaymentId}`;
+                        method = 'PUT';
+                        formData.append('_method', 'PUT');
+                    }
+
+                    fetch(url, {
+                        method: method,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json',
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Close modal
+                            const modal = bootstrap.Modal.getInstance(addVendorPaymentModal);
+                            if (modal) {
+                                modal.hide();
+                            }
+                            // Reload page to show updated data
+                            window.location.reload();
+                        } else {
+                            alert(data.message || 'Failed to save vendor payment');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while saving vendor payment');
+                    });
+                });
+            }
+            @endif
         </script>
     @endpush
 @endsection

@@ -72,7 +72,7 @@
                                                 <tr>
                                                     <td><strong>{{ $lead->tsq }}</strong></td>
                                                 <td>
-                                                    <a href="{{ route('bookings.form', $lead) }}"
+                                                    <a href="{{ route('post-sales.booking-file', $lead) }}"
                                                         class="text-primary text-decoration-none fw-semibold">
                                                         {{ $lead->customer_name }}
                                                     </a>
@@ -112,7 +112,7 @@
                                                 <td>
                                                     <div class="d-flex align-items-center">
                                                         <div class="d-flex">
-                                                            <a href="{{ route('bookings.form', $lead) }}"
+                                                            <a href="{{ route('post-sales.booking-file', $lead) }}"
                                                                 class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover"
                                                                 data-bs-toggle="tooltip" data-placement="top"
                                                                 title="Booking File">

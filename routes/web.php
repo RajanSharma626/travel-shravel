@@ -100,6 +100,13 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/leads/{lead}/edit', [LeadController::class, 'edit'])->name('leads.edit');
         Route::put('/leads/{lead}', [LeadController::class, 'update'])->name('leads.update');
         Route::get('/bookings/{lead}/form', [LeadController::class, 'bookingForm'])->name('bookings.form');
+        
+        // Vendor Payment routes (Ops only)
+        Route::middleware('permission:edit bookings')->group(function () {
+            Route::post('/bookings/{lead}/vendor-payment', [LeadController::class, 'storeVendorPayment'])->name('bookings.vendor-payment.store');
+            Route::put('/bookings/{lead}/vendor-payment/{vendorPayment}', [LeadController::class, 'updateVendorPayment'])->name('bookings.vendor-payment.update');
+            Route::delete('/bookings/{lead}/vendor-payment/{vendorPayment}', [LeadController::class, 'destroyVendorPayment'])->name('bookings.vendor-payment.destroy');
+        });
     });
     Route::middleware('permission:view leads')->group(function () {
         Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show');
@@ -132,9 +139,19 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     // Accounts & Payments
     Route::middleware('permission:view payments')->group(function () {
         Route::get('/accounts', [PaymentController::class, 'index'])->name('accounts.index');
+        Route::get('/accounts/{lead}/booking-file', [PaymentController::class, 'bookingFile'])->name('accounts.booking-file');
         Route::get('/api/accounts/dashboard', [PaymentController::class, 'dashboard'])->name('api.accounts.dashboard');
         Route::get('/api/accounts/leads', [PaymentController::class, 'leads'])->name('api.accounts.leads');
         Route::get('/api/accounts/export', [PaymentController::class, 'export'])->name('api.accounts.export');
+    });
+    Route::middleware('permission:create payments')->group(function () {
+        Route::post('/accounts/{lead}/account-summary', [PaymentController::class, 'storeAccountSummary'])->name('accounts.account-summary.store');
+    });
+    Route::middleware('permission:edit payments')->group(function () {
+        Route::put('/accounts/{lead}/account-summary/{accountSummary}', [PaymentController::class, 'updateAccountSummary'])->name('accounts.account-summary.update');
+    });
+    Route::middleware('permission:delete payments')->group(function () {
+        Route::delete('/accounts/{lead}/account-summary/{accountSummary}', [PaymentController::class, 'destroyAccountSummary'])->name('accounts.account-summary.destroy');
     });
     Route::middleware('permission:view payments')->group(function () {
         Route::get('/leads/{lead}/payments', [PaymentController::class, 'show'])->name('leads.payments.index');
@@ -142,12 +159,16 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     Route::middleware('permission:create payments')->group(function () {
         Route::post('/leads/{lead}/payments', [PaymentController::class, 'store'])->name('leads.payments.store');
         Route::post('/api/accounts/{lead}/add-payment', [PaymentController::class, 'addPayment'])->name('api.accounts.add-payment');
+        Route::post('/accounts/{lead}/account-summary', [PaymentController::class, 'storeAccountSummary'])->name('accounts.account-summary.store');
     });
     Route::middleware('permission:edit payments')->group(function () {
         Route::put('/leads/{lead}/payments/{payment}', [PaymentController::class, 'update'])->name('leads.payments.update');
+        Route::put('/accounts/{lead}/account-summary/{accountSummary}', [PaymentController::class, 'updateAccountSummary'])->name('accounts.account-summary.update');
+        Route::put('/accounts/{lead}/vendor-payment/{vendorPayment}', [PaymentController::class, 'updateVendorPaymentAccounts'])->name('accounts.vendor-payment.update');
     });
     Route::middleware('permission:delete payments')->group(function () {
         Route::delete('/leads/{lead}/payments/{payment}', [PaymentController::class, 'destroy'])->name('leads.payments.destroy');
+        Route::delete('/accounts/{lead}/account-summary/{accountSummary}', [PaymentController::class, 'destroyAccountSummary'])->name('accounts.account-summary.destroy');
     });
 
     // Cost Components
@@ -168,6 +189,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     // Operations
     Route::middleware('permission:view operations')->group(function () {
         Route::get('/operations', [OperationController::class, 'index'])->name('operations.index');
+        Route::get('/operations/{lead}/booking-file', [OperationController::class, 'bookingFile'])->name('operations.booking-file');
     });
     Route::middleware('permission:create operations')->group(function () {
         Route::post('/leads/{lead}/operations', [OperationController::class, 'store'])->name('leads.operations.store');
@@ -183,6 +205,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     // Post Sales & Documents
     Route::middleware('permission:view documents')->group(function () {
         Route::get('/post-sales', [DocumentController::class, 'index'])->name('post-sales.index');
+        Route::get('/post-sales/{lead}/booking-file', [DocumentController::class, 'bookingFile'])->name('post-sales.booking-file');
         Route::get('/leads/{lead}/documents', [DocumentController::class, 'show'])->name('leads.documents.index');
         Route::get('/leads/{lead}/documents/{document}/download', [DocumentController::class, 'download'])->name('leads.documents.download');
     });
