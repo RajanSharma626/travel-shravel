@@ -23,7 +23,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
 
-    <link href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css" rel="stylesheet" type="text/css" />
 
     <!-- CSS -->
     <link href="{{ asset('dist/css/style.css') }}" rel="stylesheet" type="text/css">
@@ -239,17 +238,21 @@
                                 </li>
                             @endif
 
-                            <!-- HR -->
-                            {{-- <li class="nav-item mb-2 {{ request()->is('hr*') ? 'active' : '' }}">
-                                <a class="nav-link" href="#">
-                                    <span class="nav-icon-wrap">
-                                        <span class="svg-icon">
-                                            <i data-feather="users" class="small"></i>
+                            <!-- HR Tab - Visible to Admin and HR only -->
+                            @if (Auth::user()->hasRole('Admin') ||
+                                    Auth::user()->hasRole('Developer') ||
+                                    Auth::user()->hasRole('HR'))
+                                <li class="nav-item mb-2 {{ request()->is('hr*') ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('hr.employees.index') }}">
+                                        <span class="nav-icon-wrap">
+                                            <span class="svg-icon">
+                                                <i data-feather="users" class="small"></i>
+                                            </span>
                                         </span>
-                                    </span>
-                                    <span class="nav-link-text">HR</span>
-                                </a>
-                            </li> --}}
+                                        <span class="nav-link-text">HR</span>
+                                    </a>
+                                </li>
+                            @endif
 
                             <!-- Services -->
                             <li class="nav-item mb-2 {{ request()->is('services*') ? 'active' : '' }}">
@@ -430,27 +433,6 @@
 
     <!-- Data Table JS -->
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script> --}}
-    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"></script>
-
-    <script>
-        $('#EmpTable').DataTable({
-            scrollX: true,
-            autoWidth: false,
-            language: {
-                search: "",
-                searchPlaceholder: "Search",
-                sLengthMenu: "_MENU_items",
-                paginate: {
-                    next: '', // or '→'
-                    previous: '' // or '←'
-                }
-            },
-            "drawCallback": function() {
-                $('.dataTables_paginate > .pagination').addClass('custom-pagination pagination-simple');
-            }
-        });
-    </script>
 
     <!-- Daterangepicker JS -->
     <script src="{{ asset('vendors/moment/min/moment.min.js') }}"></script>

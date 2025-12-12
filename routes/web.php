@@ -14,6 +14,7 @@ use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\IncentiveRuleController;
 use App\Http\Controllers\IncentiveController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\HRController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -287,4 +288,13 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     Route::middleware('permission:export reports')->group(function () {
         Route::get('/reports/export/leads', [ReportController::class, 'exportLeads'])->name('reports.export.leads');
     });
+
+    // HR -      (Admin and HR only)
+    Route::get('/hr/employees', [HRController::class, 'index'])->name('hr.employees.index');
+    Route::get('/hr/employees/create', [HRController::class, 'create'])->name('hr.employees.create');
+    Route::post('/hr/employees', [HRController::class, 'store'])->name('hr.employees.store');
+    Route::get('/hr/employees/{employee}', [HRController::class, 'show'])->name('hr.employees.show');
+    Route::get('/hr/employees/{employee}/edit', [HRController::class, 'edit'])->name('hr.employees.edit');
+    Route::put('/hr/employees/{employee}', [HRController::class, 'update'])->name('hr.employees.update');
+    Route::delete('/hr/employees/{employee}', [HRController::class, 'destroy'])->name('hr.employees.destroy');
 });

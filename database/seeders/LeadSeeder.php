@@ -77,24 +77,70 @@ class LeadSeeder extends Seeder
                 }
             }
 
+            // Ensure first_name is set (required for customer_name generation)
+            if (empty($firstName)) {
+                $firstName = $customer['name'];
+            }
+
+            // Generate customer_name from first_name and last_name
+            $customerName = trim(implode(' ', array_filter([$firstName, $lastName])));
+            if (empty($customerName)) {
+                $customerName = $firstName;
+            }
+
+            // Address details
+            $addresses = [
+                ['city' => 'Mumbai', 'state' => 'Maharashtra', 'country' => 'India', 'pin_code' => '400001'],
+                ['city' => 'Delhi', 'state' => 'Delhi', 'country' => 'India', 'pin_code' => '110001'],
+                ['city' => 'Bangalore', 'state' => 'Karnataka', 'country' => 'India', 'pin_code' => '560001'],
+                ['city' => 'Pune', 'state' => 'Maharashtra', 'country' => 'India', 'pin_code' => '411001'],
+            ];
+            $selectedAddress = $addresses[array_rand($addresses)];
+
+            // Children age buckets
+            $totalChildren = rand(0, 2);
+            $children2_5 = $totalChildren > 0 ? rand(0, $totalChildren) : 0;
+            $children6_11 = $totalChildren - $children2_5;
+
+            // Salutations
+            $salutations = ['Mr', 'Mrs', 'Ms', 'Dr', null];
+
             $lead = Lead::create([
                 'service_id' => $service->id,
                 'destination_id' => $destination->id,
+                'salutation' => $salutations[array_rand($salutations)],
+                'customer_name' => $customerName, // Explicitly set to ensure it's populated
                 'first_name' => $firstName,
                 'middle_name' => $middleName,
                 'last_name' => $lastName,
                 'primary_phone' => $customer['phone'],
+                'phone' => $customer['phone'], // Set phone explicitly
                 'email' => $customer['email'],
-                'address' => rand(0, 1) ? 'Mumbai, Maharashtra' : 'Delhi, India',
+                'address' => $selectedAddress['city'] . ', ' . $selectedAddress['state'],
+                'address_line' => 'Street ' . rand(1, 100) . ', Area Name',
+                'city' => $selectedAddress['city'],
+                'state' => $selectedAddress['state'],
+                'country' => $selectedAddress['country'],
+                'pin_code' => $selectedAddress['pin_code'],
                 'travel_date' => Carbon::now()->addDays(rand(30, 180))->format('Y-m-d'),
                 'adults' => rand(1, 4),
-                'children' => rand(0, 2),
+                'children' => $totalChildren,
+                'children_2_5' => $children2_5,
+                'children_6_11' => $children6_11,
                 'infants' => rand(0, 1),
                 'assigned_user_id' => $salesUser->id,
+                'created_by' => $salesUser->id, // Set created_by field
                 'selling_price' => $sellingPrice,
                 'booked_value' => $bookedValue,
                 'status' => $status,
             ]);
+
+            // Set booked_by and booked_on if status is booked
+            if ($status === 'booked') {
+                $lead->booked_by = $salesUser->id;
+                $lead->booked_on = Carbon::now()->subDays(rand(1, 30));
+                $lead->save();
+            }
 
             // Create lead remarks
             if (rand(0, 1)) {
@@ -107,152 +153,18 @@ class LeadSeeder extends Seeder
                 ]);
             }
 
-            // Create payments for booked leads
-            if ($status === 'booked' && rand(0, 1)) {
-                $paymentMethods = ['cash', 'bank_transfer', 'cheque', 'card', 'online'];
-                $paymentStatuses = ['pending', 'partial', 'paid', 'overdue'];
+            
 
-                $totalPaid = 0;
-                $numPayments = rand(1, 3);
-                $amountPerPayment = $bookedValue / $numPayments;
+           
 
-                for ($j = 0; $j < $numPayments; $j++) {
-                    $paymentStatus = $j === $numPayments - 1 ? 'paid' : $paymentStatuses[array_rand($paymentStatuses)];
-                    
-                    Payment::create([
-                        'lead_id' => $lead->id,
-                        'amount' => $amountPerPayment,
-                        'method' => $paymentMethods[array_rand($paymentMethods)],
-                        'paid_on' => Carbon::now()->subDays(rand(0, 30)),
-                        'due_date' => $paymentStatus === 'pending' ? Carbon::now()->addDays(rand(1, 30)) : null,
-                        'status' => $paymentStatus,
-                        'notes' => 'Payment installment ' . ($j + 1) . ' of ' . $numPayments,
-                    ]);
+           
 
-                    if ($paymentStatus === 'paid') {
-                        $totalPaid += $amountPerPayment;
-                    }
-                }
-            }
 
-            // Create cost components for booked leads
-            if ($status === 'booked' && rand(0, 1)) {
-                $costTypes = ['hotel', 'transport', 'visa', 'insurance', 'meal', 'guide', 'other'];
-                $numCosts = rand(2, 5);
-                $costPerItem = ($sellingPrice * 0.6) / $numCosts; // Assume 60% of selling price is cost
+           
 
-                for ($j = 0; $j < $numCosts; $j++) {
-                    $operationUser = $operationUsers->random();
-                    CostComponent::create([
-                        'lead_id' => $lead->id,
-                        'type' => $costTypes[array_rand($costTypes)],
-                        'description' => ucfirst($costTypes[array_rand($costTypes)]) . ' cost for ' . $destination->name,
-                        'amount' => $costPerItem + rand(-5000, 5000),
-                        'entered_by' => $operationUser->id,
-                    ]);
-                }
-            }
+           
 
-            // Create operation record for booked leads
-            if ($status === 'booked' && rand(0, 1)) {
-                $lead->refresh(); // Refresh to get cost components
-                $totalCost = $lead->costComponents->sum('amount');
-                $nettCost = $totalCost > 0 ? $totalCost : $sellingPrice * 0.65;
-                $profit = $sellingPrice - $nettCost;
-                $needsApproval = $profit < 0;
-
-                Operation::create([
-                    'lead_id' => $lead->id,
-                    'operation_status' => rand(0, 1) ? 'in_progress' : 'completed',
-                    'nett_cost' => $nettCost,
-                    'admin_approval_required' => $needsApproval,
-                    'approval_reason' => $needsApproval ? 'Nett cost exceeds selling price. Profit: ' . number_format($profit, 2) : null,
-                    'approval_requested_by' => $needsApproval ? $operationUsers->random()->id : null,
-                    'approval_requested_at' => $needsApproval ? Carbon::now()->subDays(rand(1, 5)) : null,
-                    'internal_notes' => 'Operation notes for ' . $destination->name . ' package.',
-                ]);
-            }
-
-            // Create documents for booked leads
-            if ($status === 'booked' && rand(0, 1)) {
-                $documentTypes = ['Passport', 'Visa', 'Ticket', 'Voucher', 'Invoice', 'Insurance'];
-                $documentStatuses = ['not_received', 'received', 'verified', 'rejected'];
-
-                $numDocs = rand(2, 4);
-                for ($j = 0; $j < $numDocs; $j++) {
-                    $type = $documentTypes[array_rand($documentTypes)];
-                    $statusValue = $documentStatuses[array_rand($documentStatuses)];
-                    $receivedBy = null;
-                    $receivedAt = null;
-                    $verifiedBy = null;
-                    $verifiedAt = null;
-
-                    if (in_array($statusValue, ['received', 'verified'], true)) {
-                        $receivedBy = $salesUser->id;
-                        $receivedAt = Carbon::now()->subDays(rand(1, 5));
-                    }
-
-                    if ($statusValue === 'verified') {
-                        $verifiedBy = $accountsUsers->isNotEmpty() ? $accountsUsers->random()->id : null;
-                        $verifiedAt = Carbon::now()->subDays(rand(0, 2));
-                    }
-
-                    Document::create([
-                        'lead_id' => $lead->id,
-                        'uploaded_by' => $salesUser->id,
-                        'type' => $type,
-                        'status' => $statusValue,
-                        'notes' => 'Checklist item for ' . strtolower($type),
-                        'received_by' => $receivedBy,
-                        'received_at' => $receivedAt,
-                        'verified_by' => $verifiedBy,
-                        'verified_at' => $verifiedAt,
-                    ]);
-                }
-            }
-
-            // Create delivery for booked leads
-            if ($status === 'booked' && rand(0, 1)) {
-                $deliveryStatuses = ['pending', 'in_process', 'delivered', 'failed'];
-                Delivery::create([
-                    'lead_id' => $lead->id,
-                    'assigned_to' => $deliveryUsers->random()->id,
-                    'status' => $deliveryStatuses[array_rand($deliveryStatuses)],
-                    'courier_id' => rand(0, 1) ? 'COURIER' . rand(1000, 9999) : null,
-                    'tracking_info' => rand(0, 1) ? 'Package dispatched and in transit' : null,
-                    'expected_delivery_date' => Carbon::now()->addDays(rand(1, 14)),
-                    'actual_delivery_date' => rand(0, 1) ? Carbon::now()->subDays(rand(1, 5)) : null,
-                    'delivery_notes' => 'Delivery scheduled for ' . $destination->name,
-                ]);
-            }
-
-            // Create incentives for booked leads with profit
-            if ($status === 'booked' && rand(0, 1)) {
-                $lead->refresh(); // Refresh to get operation
-                $operation = $lead->operation;
-                $profit = $operation ? ($sellingPrice - $operation->nett_cost) : ($sellingPrice * 0.3);
-
-                if ($profit > 1000) {
-                    $rule = \App\Models\IncentiveRule::where('active', true)->first();
-                    if ($rule) {
-                        $incentiveAmount = $rule->calculateIncentive($profit);
-                        
-                        if ($incentiveAmount > 0) {
-                            Incentive::create([
-                                'lead_id' => $lead->id,
-                                'salesperson_id' => $salesUser->id,
-                                'profit_amount' => $profit,
-                                'incentive_amount' => $incentiveAmount,
-                                'incentive_rule_id' => $rule->id,
-                                'status' => rand(0, 1) ? 'pending' : 'approved',
-                                'approved_by' => rand(0, 1) ? User::where('role', 'Admin')->first()->id : null,
-                                'approved_at' => rand(0, 1) ? Carbon::now()->subDays(rand(1, 10)) : null,
-                                'notes' => 'Incentive calculated automatically',
-                            ]);
-                        }
-                    }
-                }
-            }
+            
         }
 
         $this->command->info('Leads and related data created successfully!');

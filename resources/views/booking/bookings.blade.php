@@ -1030,18 +1030,7 @@
             $(document).ready(function() {
                 const leadsBaseUrl = '/leads';
 
-                // Initialize DataTable without search, length menu, ordering, and pagination
-                // We use Laravel's server-side pagination instead
-                if ($('#bookingsTable').length) {
-                    $('#bookingsTable').DataTable({
-                        searching: false, // Disable search box
-                        lengthChange: false, // Disable entries per page selector
-                        ordering: false, // Disable column ordering
-                        info: false, // Disable DataTable info (we use Laravel pagination)
-                        paging: false, // Disable DataTable pagination (we use Laravel pagination)
-                        dom: 'rt' // Only show table (r), table (t) - no info or pagination
-                    });
-                }
+                // DataTable removed - using standard HTML table with Laravel pagination
 
                 // Safe feather replace function
                 const safeFeatherReplace = (container) => {

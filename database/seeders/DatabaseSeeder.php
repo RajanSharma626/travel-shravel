@@ -27,6 +27,9 @@ class DatabaseSeeder extends Seeder
         // Seed users (will assign roles)
         $this->call(UserSeeder::class);
         
+        // Seed employees
+        $this->call(EmployeeSeeder::class);
+        
         // Seed incentive rules
         $this->call(IncentiveRuleSeeder::class);
         

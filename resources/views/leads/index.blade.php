@@ -234,7 +234,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="{{ Auth::user()->can('edit leads') ? '8' : '7' }}" class="text-center">No leads found</td>
+                                                <td colspan="{{ Auth::user()->can('edit leads') ? 8 : 7 }}" class="text-center">No leads found</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -1099,32 +1099,6 @@
             }
 
             $(document).ready(function() {
-                const leadsTable = $('#leadsTable').DataTable({
-                    scrollX: true,
-                    autoWidth: false,
-                    searching: false,
-                    lengthChange: false,
-                    info: false,
-                    paging: false,
-                    ordering: false,
-                    drawCallback: function() {
-                        // Initialize Feather icons after each table draw
-                        safeFeatherReplace();
-                        // Initialize Bootstrap tooltips after each table draw
-                        if (typeof bootstrap !== 'undefined') {
-                            const tooltipTriggerList = [].slice.call(document.querySelectorAll(
-                                '[data-bs-toggle="tooltip"]'));
-                            tooltipTriggerList.map(function(tooltipTriggerEl) {
-                                try {
-                                    return new bootstrap.Tooltip(tooltipTriggerEl);
-                                } catch (e) {
-                                    return null;
-                                }
-                            });
-                        }
-                    }
-                });
-
                 // Initialize Feather icons on page load
                 safeFeatherReplace();
 
