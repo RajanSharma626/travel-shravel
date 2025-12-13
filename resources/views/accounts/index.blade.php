@@ -6,20 +6,6 @@
             <div class="contactapp-wrap">
                 <div class="contactapp-content">
                     <div class="contactapp-detail-wrap">
-                        <header class="contact-header">
-                            <div class="w-100 align-items-center justify-content-between d-flex contactapp-title link-dark">
-                                <h1>Accounts</h1>
-                                @can('export reports')
-                                <div>
-                                    <a href="{{ route('api.accounts.export') }}" class="btn btn-primary btn-sm">
-                                        <i data-feather="download" class="me-1" style="width: 16px; height: 16px;"></i>
-                                        Export
-                                    </a>
-                                </div>
-                                @endcan
-                            </div>
-                        </header>
-
                         <div class="contact-body">
                             <div data-simplebar class="nicescroll-bar">
                                 @if (session('success'))
@@ -50,6 +36,14 @@
                                                     class="ri-search-line me-1"></i> Filter</button>
                                         </div>
                                     </div>
+                                    @can('export reports')
+                                    <div class="col-md-4 col-lg-3 align-self-end">
+                                        <a href="{{ route('api.accounts.export') }}" class="btn btn-primary btn-sm">
+                                            <i data-feather="download" class="me-1" style="width: 16px; height: 16px;"></i>
+                                            Export
+                                        </a>
+                                    </div>
+                                    @endcan
                                     @if (!empty($filters['search']) || !empty($filters['payment_status']))
                                         <div class="col-md-3 col-lg-2 align-self-end ms-auto">
                                             <a href="{{ route('accounts.index') }}"
@@ -58,6 +52,12 @@
                                         </div>
                                     @endif
                                 </form>
+
+                                @if(isset($leads) && $leads->count() > 0)
+                                <div class="text-muted small mb-2 px-3">
+                                    Showing {{ $leads->firstItem() ?? 0 }} out of {{ $leads->total() }}
+                                </div>
+                                @endif
 
                                 <table class="table table-striped small table-bordered w-100 mb-5" id="accountsTable">
                                     <thead>
@@ -96,7 +96,7 @@
                                             <tr data-lead-id="{{ $lead->id }}">
                                                 <td><strong>{{ $lead->tsq }}</strong></td>
                                                 <td>
-                                                    <a href="{{ route('bookings.form', $lead) }}"
+                                                    <a href="{{ route('accounts.booking-file', $lead) }}"
                                                         class="text-primary text-decoration-none fw-semibold">
                                                         {{ $lead->customer_name }}
                                                     </a>
@@ -109,7 +109,7 @@
                                                 <td>{{ $bookingType }}</td>
                                                 <td>
                                                     <a href="{{ route('accounts.booking-file', $lead) }}"
-                                                        class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover"
+                                                        class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover text-primary"
                                                         data-bs-toggle="tooltip" data-placement="top"
                                                         title="Booking File">
                                                         <span class="icon">
@@ -129,13 +129,8 @@
                                 </table>
                                 <!-- Pagination -->
                                 @if($leads->hasPages())
-                                <div class="d-flex justify-content-between align-items-center mt-4 mb-3 px-3">
-                                    <div class="text-muted small">
-                                        Showing {{ $leads->firstItem() ?? 0 }} to {{ $leads->lastItem() ?? 0 }} of {{ $leads->total() }} entries
-                                    </div>
-                                    <div>
-                                        {{ $leads->links('pagination::bootstrap-5') }}
-                                    </div>
+                                <div class="d-flex justify-content-center mt-4 mb-3 px-3">
+                                    {{ $leads->links('pagination::bootstrap-5') }}
                                 </div>
                                 @endif
                             </div>

@@ -21,12 +21,6 @@
             <div class="contactapp-wrap">
                 <div class="contactapp-content">
                     <div class="contactapp-detail-wrap">
-                        <header class="contact-header">
-                            <div class="w-100 align-items-center justify-content-between d-flex contactapp-title link-dark">
-                                <h1>Bookings</h1>
-                            </div>
-                        </header>
-
                         <div class="contact-body">
                             <div data-simplebar class="nicescroll-bar">
                                 @if (session('success'))
@@ -83,9 +77,8 @@
                                             <tr>
                                                 <td><strong>{{ $lead->tsq }}</strong></td>
                                                 <td>
-                                                    <a href="#"
-                                                        class="text-primary text-decoration-none fw-semibold view-lead-btn lead-name-link"
-                                                        data-lead-id="{{ $lead->id }}">
+                                                    <a href="{{ route('bookings.form', $lead) }}"
+                                                        class="text-primary text-decoration-none fw-semibold">
                                                         {{ $lead->customer_name }}
                                                     </a>
                                                 </td>
@@ -149,7 +142,7 @@
                                                             @endif
 
                                                             <a href="{{ route('bookings.form', $lead) }}"
-                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover"
+                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover text-primary"
                                                                 data-bs-toggle="tooltip" data-placement="top"
                                                                 title="Booking File"> <span class="icon"> <span
                                                                         class="feather-icon"> <i
@@ -621,10 +614,6 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-light border-bottom">
-                    <h5 class="modal-title fw-bold" id="bookingFileModalLabel">
-                        <i data-feather="file-text" class="me-2" style="width: 20px; height: 20px;"></i>
-                        Booking File
-                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">

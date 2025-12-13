@@ -15,7 +15,7 @@ class IncentiveController extends Controller
     {
         $incentives = Incentive::with(['lead', 'salesperson', 'incentiveRule'])
             ->latest()
-            ->paginate(20);
+            ->paginate(25);
         return view('incentives.index', compact('incentives'));
     }
 

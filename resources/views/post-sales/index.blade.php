@@ -6,12 +6,6 @@
             <div class="contactapp-wrap">
                 <div class="contactapp-content">
                     <div class="contactapp-detail-wrap">
-                        <header class="contact-header">
-                            <div class="w-100 align-items-center justify-content-between d-flex contactapp-title link-dark">
-                                <h1>Post Sales</h1>
-                            </div>
-                        </header>
-
                         <div class="contact-body">
                             <div data-simplebar class="nicescroll-bar">
                                 @if (session('success'))
@@ -50,6 +44,12 @@
                                         </div>
                                     @endif
                                 </form>
+
+                                @if(isset($leads) && $leads->count() > 0)
+                                <div class="text-muted small mb-2 px-3">
+                                    Showing {{ $leads->firstItem() ?? 0 }} out of {{ $leads->total() }}
+                                </div>
+                                @endif
 
                                 <table class="table table-striped small table-bordered w-100 mb-5" id="postSalesTable">
                                         <thead>
@@ -113,7 +113,7 @@
                                                     <div class="d-flex align-items-center">
                                                         <div class="d-flex">
                                                             <a href="{{ route('post-sales.booking-file', $lead) }}"
-                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover"
+                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover text-primary"
                                                                 data-bs-toggle="tooltip" data-placement="top"
                                                                 title="Booking File">
                                                                 <span class="icon">

@@ -54,7 +54,7 @@ class HRController extends Controller
             }
         }
 
-        $employees = $query->orderBy('created_at', 'desc')->paginate(20);
+        $employees = $query->orderBy('created_at', 'desc')->paginate(25);
 
         $departments = Employee::distinct()->pluck('department')->filter();
 

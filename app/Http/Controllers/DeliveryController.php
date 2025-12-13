@@ -69,7 +69,7 @@ class DeliveryController extends Controller
             });
         }
 
-        $leads = $leadsQuery->paginate(20);
+        $leads = $leadsQuery->paginate(25);
         $leads->appends($request->query());
 
         // Add latest remark to each lead

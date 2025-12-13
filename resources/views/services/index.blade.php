@@ -32,6 +32,12 @@
                                     </div>
                                 @endif
 
+                                @if(isset($services) && $services->count() > 0)
+                                <div class="text-muted small mb-2 px-3">
+                                    Showing {{ $services->firstItem() ?? 0 }} out of {{ $services->total() }}
+                                </div>
+                                @endif
+
                                 <!-- Table -->
                                 <div class="table-responsive">
                                     <table id="ServiceTable"

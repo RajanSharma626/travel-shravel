@@ -9,7 +9,7 @@ class IncentiveRuleController extends Controller
 {
     public function index()
     {
-        $rules = IncentiveRule::latest()->paginate(20);
+        $rules = IncentiveRule::latest()->paginate(25);
         return view('incentive-rules.index', compact('rules'));
     }
 

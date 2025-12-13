@@ -54,7 +54,7 @@ class PaymentController extends Controller
             });
         }
 
-        $leads = $leadsQuery->paginate(20);
+        $leads = $leadsQuery->paginate(25);
         $leads->appends($request->query());
 
         // Add latest remark to each lead
@@ -167,7 +167,7 @@ class PaymentController extends Controller
             });
         }
         
-        $leads = $leadsQuery->paginate(20);
+        $leads = $leadsQuery->paginate(25);
         
         // Transform leads with calculated values
         $leads->getCollection()->transform(function ($lead) {

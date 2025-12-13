@@ -94,13 +94,13 @@
                                                     style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
-                                                <label class="form-label">Contact 1</label>
+                                                <label class="form-label">Primary No.</label>
                                                 <input type="text" value="{{ $lead->primary_phone ?? $lead->phone }}"
                                                     class="form-control form-control-sm" readonly disabled
                                                     style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
                                             <div class="col-md-3">
-                                                <label class="form-label">Contact 2</label>
+                                                <label class="form-label">Secondary No.</label>
                                                 <input type="text" value="{{ $lead->secondary_phone ?? '' }}"
                                                     class="form-control form-control-sm" readonly disabled
                                                     style="background-color: #f8f9fa; cursor: not-allowed;">
@@ -138,6 +138,20 @@
                                             <div class="col-md-3">
                                                 <label class="form-label">Infant (>2 years)</label>
                                                 <input type="number" value="{{ $lead->infants ?? 0 }}"
+                                                    class="form-control form-control-sm" readonly disabled
+                                                    style="background-color: #f8f9fa; cursor: not-allowed;">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Travel Date</label>
+                                                <input type="text"
+                                                    value="{{ $lead->travel_date ? $lead->travel_date->format('d M, Y') : 'N/A' }}"
+                                                    class="form-control form-control-sm" readonly disabled
+                                                    style="background-color: #f8f9fa; cursor: not-allowed;">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Return Date</label>
+                                                <input type="text"
+                                                    value="{{ $lead->return_date ? $lead->return_date->format('d M, Y') : 'N/A' }}"
                                                     class="form-control form-control-sm" readonly disabled
                                                     style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
@@ -273,6 +287,12 @@
                                                                             <input type="hidden"
                                                                                 name="booking_destinations[{{ $index }}][to_date]"
                                                                                 value="{{ $bd->to_date ? $bd->to_date->format('Y-m-d') : '' }}">
+                                                                            <i data-feather="edit"
+                                                                                class="editDestinationRow"
+                                                                                data-destination-id="{{ $bd->id }}"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#addDestinationModal"
+                                                                                style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
                                                                             <i data-feather="trash-2"
                                                                                 class="removeDestinationRow"
                                                                                 style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
@@ -370,6 +390,12 @@
                                                                             <input type="hidden"
                                                                                 name="arrival_departure[{{ $index }}][arrival_time]"
                                                                                 value="{{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}">
+                                                                            <i data-feather="edit"
+                                                                                class="editArrivalDepartureRow"
+                                                                                data-transport-id="{{ $transport->id }}"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#addArrivalDepartureModal"
+                                                                                style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
                                                                             <i data-feather="trash-2"
                                                                                 class="removeArrivalDepartureRow"
                                                                                 style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
@@ -458,6 +484,12 @@
                                                                             <input type="hidden"
                                                                                 name="booking_accommodations[{{ $index }}][meal_plan]"
                                                                                 value="{{ $ba->meal_plan }}">
+                                                                            <i data-feather="edit"
+                                                                                class="editAccommodationRow"
+                                                                                data-accommodation-id="{{ $ba->id }}"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#addAccommodationModal"
+                                                                                style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
                                                                             <i data-feather="trash-2"
                                                                                 class="removeAccommodationRow"
                                                                                 style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
@@ -540,6 +572,12 @@
                                                                         <input type="hidden"
                                                                             name="booking_itineraries[{{ $index }}][remarks]"
                                                                             value="{{ $bi->remarks }}">
+                                                                        <i data-feather="edit"
+                                                                            class="editItineraryRow"
+                                                                            data-itinerary-id="{{ $bi->id }}"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#addItineraryModal"
+                                                                            style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
                                                                         <i data-feather="trash-2"
                                                                             class="removeItineraryRow"
                                                                             style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
@@ -1208,6 +1246,7 @@
                             <input type="hidden" name="booking_destinations[${destinationRowIndex}][hotel_tt]" value="${hotelTT ? '1' : '0'}">
                             <input type="hidden" name="booking_destinations[${destinationRowIndex}][from_date]" value="${fromDate}">
                             <input type="hidden" name="booking_destinations[${destinationRowIndex}][to_date]" value="${toDate}">
+                            <i data-feather="edit" class="editDestinationRow" data-bs-toggle="modal" data-bs-target="#addDestinationModal" style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
                             <i data-feather="trash-2" class="removeDestinationRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                         </td>
                     `;
@@ -1298,6 +1337,116 @@
                     });
                 });
 
+                // Edit destination row handler
+                let editingDestinationRow = null;
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.editDestinationRow')) {
+                        const row = e.target.closest('tr');
+                        editingDestinationRow = row;
+                        
+                        // Get row data
+                        const destination = row.querySelector('td:nth-child(1)').textContent.trim();
+                        const location = row.querySelector('td:nth-child(2)').textContent.trim();
+                        const onlyHotel = row.querySelector('td:nth-child(3)').querySelector('i') !== null;
+                        const onlyTT = row.querySelector('td:nth-child(4)').querySelector('i') !== null;
+                        const hotelTT = row.querySelector('td:nth-child(5)').querySelector('i') !== null;
+                        const fromDate = row.querySelector('input[name*="[from_date]"]')?.value || '';
+                        const toDate = row.querySelector('input[name*="[to_date]"]')?.value || '';
+                        
+                        // Populate modal
+                        document.getElementById('modalDestinationSelect').value = destination;
+                        document.getElementById('modalLocation').value = location;
+                        document.getElementById('modalOnlyHotel').checked = onlyHotel;
+                        document.getElementById('modalOnlyTT').checked = onlyTT;
+                        document.getElementById('modalHotelTT').checked = hotelTT;
+                        document.getElementById('modalFromDate').value = fromDate;
+                        document.getElementById('modalToDate').value = toDate;
+                        
+                        // Change modal title
+                        document.getElementById('addDestinationModalLabel').textContent = 'Edit Destination';
+                        
+                        // Trigger location change if destination exists
+                        const destinationSelect = document.getElementById('modalDestinationSelect');
+                        if (destinationSelect.value) {
+                            destinationSelect.dispatchEvent(new Event('change'));
+                        }
+                    }
+                });
+                
+                // Update submit handler to handle edit
+                const originalSubmitDestination = document.getElementById('submitDestinationModal');
+                if (originalSubmitDestination) {
+                    originalSubmitDestination.addEventListener('click', function() {
+                        if (editingDestinationRow) {
+                            // Update existing row
+                            const row = editingDestinationRow;
+                            const destination = document.getElementById('modalDestinationSelect').value;
+                            const location = document.getElementById('modalLocation').value;
+                            const onlyHotel = document.getElementById('modalOnlyHotel').checked;
+                            const onlyTT = document.getElementById('modalOnlyTT').checked;
+                            const hotelTT = document.getElementById('modalHotelTT').checked;
+                            const fromDate = document.getElementById('modalFromDate').value;
+                            const toDate = document.getElementById('modalToDate').value;
+                            
+                            if (!destination || !location || !fromDate || !toDate) {
+                                alert('Please fill in all required fields');
+                                return;
+                            }
+                            
+                            const formatDate = (dateStr) => {
+                                if (!dateStr) return '';
+                                const date = new Date(dateStr);
+                                const day = String(date.getDate()).padStart(2, '0');
+                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                const year = date.getFullYear();
+                                return `${day}/${month}/${year}`;
+                            };
+                            
+                            // Update row content
+                            row.querySelector('td:nth-child(1)').textContent = destination;
+                            row.querySelector('td:nth-child(2)').textContent = location;
+                            row.querySelector('td:nth-child(3)').innerHTML = onlyHotel ? '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
+                            row.querySelector('td:nth-child(4)').innerHTML = onlyTT ? '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
+                            row.querySelector('td:nth-child(5)').innerHTML = hotelTT ? '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
+                            row.querySelector('td:nth-child(6)').textContent = formatDate(fromDate);
+                            row.querySelector('td:nth-child(7)').textContent = formatDate(toDate);
+                            
+                            // Update hidden inputs
+                            row.querySelector('input[name*="[destination]"]').value = destination;
+                            row.querySelector('input[name*="[location]"]').value = location;
+                            row.querySelector('input[name*="[only_hotel]"]').value = onlyHotel ? '1' : '0';
+                            row.querySelector('input[name*="[only_tt]"]').value = onlyTT ? '1' : '0';
+                            row.querySelector('input[name*="[hotel_tt]"]').value = hotelTT ? '1' : '0';
+                            row.querySelector('input[name*="[from_date]"]').value = fromDate;
+                            row.querySelector('input[name*="[to_date]"]').value = toDate;
+                            
+                            // Re-initialize Feather icons
+                            if (typeof feather !== 'undefined') {
+                                feather.replace();
+                            }
+                            
+                            editingDestinationRow = null;
+                            document.getElementById('addDestinationModalLabel').textContent = 'Add Destination';
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('addDestinationModal'));
+                            if (modal) modal.hide();
+                            document.getElementById('addDestinationForm').reset();
+                        } else {
+                            // Original add functionality
+                            if (addDestinationFromModal()) {
+                                const modal = bootstrap.Modal.getInstance(document.getElementById('addDestinationModal'));
+                                if (modal) modal.hide();
+                                document.getElementById('addDestinationForm').reset();
+                            }
+                        }
+                    });
+                }
+                
+                // Reset editing state when modal is closed
+                document.getElementById('addDestinationModal')?.addEventListener('hidden.bs.modal', function() {
+                    editingDestinationRow = null;
+                    document.getElementById('addDestinationModalLabel').textContent = 'Add Destination';
+                });
+
                 // Remove destination row handler (using event delegation)
                 document.addEventListener('click', function(e) {
                     if (e.target.closest('.removeDestinationRow')) {
@@ -1372,6 +1521,7 @@
                             <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][departure_time]" value="${departureTime}">
                             <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][arrival_date]" value="${arrivalDate}">
                             <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][arrival_time]" value="${arrivalTime}">
+                            <i data-feather="edit" class="editArrivalDepartureRow" data-bs-toggle="modal" data-bs-target="#addArrivalDepartureModal" style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
                             <i data-feather="trash-2" class="removeArrivalDepartureRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                         </td>
                     `;
@@ -1451,6 +1601,7 @@
                             <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][checkout_date]" value="${checkoutDate}">
                             <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][room_type]" value="${roomType}">
                             <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][meal_plan]" value="${mealPlan}">
+                            <i data-feather="edit" class="editAccommodationRow" data-bs-toggle="modal" data-bs-target="#addAccommodationModal" style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
                             <i data-feather="trash-2" class="removeAccommodationRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                         </td>
                     `;
@@ -1526,6 +1677,7 @@
                             <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][activity_tour_description]" value="${activity}">
                             <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][stay_at]" value="${stayAt}">
                             <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][remarks]" value="${remarks}">
+                            <i data-feather="edit" class="editItineraryRow" data-bs-toggle="modal" data-bs-target="#addItineraryModal" style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
                             <i data-feather="trash-2" class="removeItineraryRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                         </td>
                     `;
@@ -1541,15 +1693,88 @@
                     return true;
                 }
 
+                // Edit itinerary row handler
+                let editingItineraryRow = null;
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.editItineraryRow')) {
+                        const row = e.target.closest('tr');
+                        editingItineraryRow = row;
+                        
+                        // Get row data
+                        const dayDate = row.querySelector('td:nth-child(1)').textContent.trim();
+                        const time = row.querySelector('td:nth-child(2)').textContent.trim();
+                        const location = row.querySelector('td:nth-child(3)').textContent.trim();
+                        const activity = row.querySelector('td:nth-child(4)').textContent.trim();
+                        const stayAt = row.querySelector('td:nth-child(5)').textContent.trim();
+                        const remarks = row.querySelector('td:nth-child(6)').textContent.trim();
+                        
+                        // Populate modal
+                        document.getElementById('modalDayDate').value = dayDate;
+                        document.getElementById('modalItineraryTime').value = time;
+                        document.getElementById('modalItineraryLocation').value = location;
+                        document.getElementById('modalActivity').value = activity;
+                        document.getElementById('modalItineraryStayAt').value = stayAt;
+                        document.getElementById('modalRemarks').value = remarks;
+                        
+                        // Change modal title
+                        document.getElementById('addItineraryModalLabel').textContent = 'Edit Day-Wise Itinerary';
+                    }
+                });
+                
                 // Handle modal form submission
                 document.getElementById('submitItineraryModal')?.addEventListener('click', function() {
-                    if (addItineraryFromModal()) {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('addItineraryModal'));
-                        if (modal) {
-                            modal.hide();
+                    if (editingItineraryRow) {
+                        // Update existing row
+                        const row = editingItineraryRow;
+                        const dayDate = document.getElementById('modalDayDate').value;
+                        const time = document.getElementById('modalItineraryTime').value;
+                        const location = document.getElementById('modalItineraryLocation').value;
+                        const activity = document.getElementById('modalActivity').value;
+                        const stayAt = document.getElementById('modalItineraryStayAt').value;
+                        const remarks = document.getElementById('modalRemarks').value;
+                        
+                        if (!dayDate || !location || !activity) {
+                            alert('Please fill in all required fields (Day & Date, Location, Activity/Tour Description)');
+                            return;
                         }
+                        
+                        // Update row content
+                        row.querySelector('td:nth-child(1)').textContent = dayDate;
+                        row.querySelector('td:nth-child(2)').textContent = time || '';
+                        row.querySelector('td:nth-child(3)').textContent = location;
+                        row.querySelector('td:nth-child(4)').textContent = activity;
+                        row.querySelector('td:nth-child(5)').textContent = stayAt || '';
+                        row.querySelector('td:nth-child(6)').textContent = remarks || '';
+                        
+                        // Update hidden inputs
+                        row.querySelector('input[name*="[day_and_date]"]').value = dayDate;
+                        row.querySelector('input[name*="[time]"]').value = time || '';
+                        row.querySelector('input[name*="[location]"]').value = location;
+                        row.querySelector('input[name*="[activity_tour_description]"]').value = activity;
+                        row.querySelector('input[name*="[stay_at]"]').value = stayAt || '';
+                        row.querySelector('input[name*="[remarks]"]').value = remarks || '';
+                        
+                        editingItineraryRow = null;
+                        document.getElementById('addItineraryModalLabel').textContent = 'Add Day-Wise Itinerary';
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addItineraryModal'));
+                        if (modal) modal.hide();
                         document.getElementById('addItineraryForm').reset();
+                    } else {
+                        // Original add functionality
+                        if (addItineraryFromModal()) {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('addItineraryModal'));
+                            if (modal) {
+                                modal.hide();
+                            }
+                            document.getElementById('addItineraryForm').reset();
+                        }
                     }
+                });
+                
+                // Reset editing state when modal is closed
+                document.getElementById('addItineraryModal')?.addEventListener('hidden.bs.modal', function() {
+                    editingItineraryRow = null;
+                    document.getElementById('addItineraryModalLabel').textContent = 'Add Day-Wise Itinerary';
                 });
 
                 // Remove itinerary row handler

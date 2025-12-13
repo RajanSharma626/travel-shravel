@@ -58,6 +58,8 @@ class LeadController extends Controller
             'priority' => 'Priority',
             'booked' => 'Booked',
             'closed' => 'Closed',
+            'cancelled' => 'Cancelled',
+            'refunded' => 'Refunded',
         ];
 
         $filters = [
@@ -95,7 +97,7 @@ class LeadController extends Controller
             });
         }
 
-        $leads = $leadsQuery->paginate(20);
+        $leads = $leadsQuery->paginate(25);
         $leads->appends($request->query());
 
         // Add latest remark to each lead
@@ -153,7 +155,7 @@ class LeadController extends Controller
             });
         }
 
-        $leads = $leadsQuery->paginate(20);
+        $leads = $leadsQuery->paginate(25);
         $leads->appends($request->query());
 
         // Add latest remark to each lead
@@ -272,13 +274,14 @@ class LeadController extends Controller
             'country' => 'nullable|string|max:255',
             'pin_code' => 'nullable|string|max:20',
             'travel_date' => 'nullable|date',
+            'return_date' => 'nullable|date',
             'adults' => 'required|integer|min:1',
             'children' => 'nullable|integer|min:0',
             'children_2_5' => 'nullable|integer|min:0',
             'children_6_11' => 'nullable|integer|min:0',
             'infants' => 'nullable|integer|min:0',
             'assigned_user_id' => 'nullable|exists:users,id',
-            'status' => 'required|in:new,contacted,follow_up,priority,booked,closed',
+            'status' => 'required|in:new,contacted,follow_up,priority,booked,closed,cancelled,refunded',
         ]);
 
         $data = $validated;
@@ -381,6 +384,8 @@ class LeadController extends Controller
                     'destination_id' => $lead->destination_id,
                     'travel_date' => $lead->travel_date ? $lead->travel_date->format('d M, Y') : null,
                     'travel_date_raw' => $lead->travel_date ? $lead->travel_date->format('Y-m-d') : null,
+                    'return_date' => $lead->return_date ? $lead->return_date->format('d M, Y') : null,
+                    'return_date_raw' => $lead->return_date ? $lead->return_date->format('Y-m-d') : null,
                     'adults' => $lead->adults,
                     'children' => $lead->children,
                     'children_2_5' => $lead->children_2_5 ?? 0,
@@ -483,13 +488,14 @@ class LeadController extends Controller
                 'country' => 'nullable|string|max:255',
                 'pin_code' => 'nullable|string|max:20',
                 'travel_date' => 'nullable|date',
+                'return_date' => 'nullable|date',
                 'adults' => 'required|integer|min:1',
                 'children' => 'nullable|integer|min:0',
                 'children_2_5' => 'nullable|integer|min:0',
                 'children_6_11' => 'nullable|integer|min:0',
                 'infants' => 'nullable|integer|min:0',
                 'assigned_user_id' => 'nullable|exists:users,id',
-                'status' => 'required|in:new,contacted,follow_up,priority,booked,closed',
+                'status' => 'required|in:new,contacted,follow_up,priority,booked,closed,cancelled,refunded',
                 'reassigned_to' => 'nullable|exists:users,id',
             ]);
 
@@ -695,7 +701,7 @@ class LeadController extends Controller
     public function updateStatus(Request $request, Lead $lead)
     {
         $validated = $request->validate([
-            'status' => 'required|in:new,contacted,follow_up,priority,booked,closed',
+            'status' => 'required|in:new,contacted,follow_up,priority,booked,closed,cancelled,refunded',
             'note' => 'nullable|string',
         ]);
 

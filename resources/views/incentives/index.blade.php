@@ -18,6 +18,12 @@
                                 <div class="alert alert-success">{{ session('success') }}</div>
                             @endif
 
+                            @if(isset($incentives) && $incentives->count() > 0)
+                            <div class="text-muted small mb-2 px-3">
+                                Showing {{ $incentives->firstItem() ?? 0 }} out of {{ $incentives->total() }}
+                            </div>
+                            @endif
+
                             <table class="table table-striped table-bordered w-100 mb-5" id="incentivesTable">
                                 <thead>
                                     <tr>

@@ -195,6 +195,8 @@
                                                             <option value="priority" {{ old('status') == 'priority' ? 'selected' : '' }}>Priority</option>
                                                             <option value="booked" {{ old('status') == 'booked' ? 'selected' : '' }}>Booked</option>
                                                             <option value="closed" {{ old('status') == 'closed' ? 'selected' : '' }}>Closed</option>
+                                                            <option value="cancelled" {{ old('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                                            <option value="refunded" {{ old('status') == 'refunded' ? 'selected' : '' }}>Refunded</option>
                                                         </select>
                                                     </div>
                                                 </div>

@@ -141,6 +141,10 @@
                                                         <input type="date" name="travel_date" class="form-control" value="{{ old('travel_date', $lead->travel_date ? $lead->travel_date->format('Y-m-d') : '') }}">
                                                     </div>
                                                     <div class="col-md-4">
+                                                        <label class="form-label fw-semibold">Return Date</label>
+                                                        <input type="date" name="return_date" class="form-control" value="{{ old('return_date', $lead->return_date ? $lead->return_date->format('Y-m-d') : '') }}">
+                                                    </div>
+                                                    <div class="col-md-4">
                                                         <label class="form-label fw-semibold">Adults <span class="text-danger">*</span></label>
                                                         <input type="number" name="adults" value="{{ old('adults', $lead->adults ?? 1) }}" min="1"
                                                             class="form-control" required>
@@ -188,6 +192,8 @@
                                                             <option value="priority" {{ old('status', $lead->status) == 'priority' ? 'selected' : '' }}>Priority</option>
                                                             <option value="booked" {{ old('status', $lead->status) == 'booked' ? 'selected' : '' }}>Booked</option>
                                                             <option value="closed" {{ old('status', $lead->status) == 'closed' ? 'selected' : '' }}>Closed</option>
+                                                            <option value="cancelled" {{ old('status', $lead->status) == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                                            <option value="refunded" {{ old('status', $lead->status) == 'refunded' ? 'selected' : '' }}>Refunded</option>
                                                         </select>
                                                     </div>
                                                 </div>

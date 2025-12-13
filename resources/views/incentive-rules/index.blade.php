@@ -19,6 +19,12 @@
                                 <div class="alert alert-success">{{ session('success') }}</div>
                             @endif
 
+                            @if(isset($rules) && $rules->count() > 0)
+                            <div class="text-muted small mb-2 px-3">
+                                Showing {{ $rules->firstItem() ?? 0 }} out of {{ $rules->total() }}
+                            </div>
+                            @endif
+
                             <table class="table table-striped table-bordered w-100 mb-5">
                                 <thead>
                                     <tr>

@@ -32,6 +32,12 @@
                                     </div>
                                 @endif
 
+                                @if(isset($destinations) && $destinations->count() > 0)
+                                <div class="text-muted small mb-2 px-3">
+                                    Showing {{ $destinations->firstItem() ?? 0 }} out of {{ $destinations->total() }}
+                                </div>
+                                @endif
+
                                 <!-- Table -->
                                 <div class="table-responsive">
                                     <table id="DestinationsTable"

@@ -21,14 +21,6 @@
             <div class="contactapp-wrap">
                 <div class="contactapp-content">
                     <div class="contactapp-detail-wrap">
-                        <header class="contact-header">
-                            <div class="w-100 align-items-center justify-content-between d-flex contactapp-title link-dark">
-                                <h1>Leads List</h1>
-                                <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="modal"
-                                    data-bs-target="#addLeadModal">+ Add Lead</button>
-                            </div>
-                        </header>
-
                         <div class="contact-body">
                             <div data-simplebar class="nicescroll-bar">
                                 @if (session('success'))
@@ -69,6 +61,10 @@
                                                     class="ri-search-line me-1"></i> Filter</button>
                                         </div>
                                     </div>
+                                    <div class="col-md-4 col-lg-3 align-self-end">
+                                        <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="modal"
+                                            data-bs-target="#addLeadModal">+ Add Lead</button>
+                                    </div>
                                     @if ($filters['status'] || $filters['search'])
                                         <div class="col-md-3 col-lg-2 align-self-end ms-auto">
                                             <a href="{{ route('leads.index') }}"
@@ -96,6 +92,12 @@
                                     </div>
                                 </div>
                                 @endcan
+
+                                @if(isset($leads) && $leads->count() > 0)
+                                <div class="text-muted small mb-2 px-3">
+                                    Showing {{ $leads->firstItem() ?? 0 }} out of {{ $leads->total() }}
+                                </div>
+                                @endif
 
                                 <table class="table table-striped small table-bordered w-100 mb-5" id="leadsTable">
                                     <thead>
@@ -214,11 +216,28 @@
                                                                     </a>
                                                                     @endif
                                                                 @endcan
+                                                                @can('delete leads')
+                                                                    <form action="{{ route('leads.destroy', $lead) }}" method="POST" class="d-inline delete-lead-form"
+                                                                        onsubmit="return confirm('Are you sure you want to delete lead {{ $lead->tsq }}? This action cannot be undone.');">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                        <button type="submit"
+                                                                            class="btn btn-icon btn-flush-danger btn-rounded flush-soft-hover text-danger"
+                                                                            data-bs-toggle="tooltip" data-placement="top"
+                                                                            title="Delete Lead" style="color: #dc3545 !important;">
+                                                                            <span class="icon">
+                                                                                <span class="feather-icon">
+                                                                                    <i data-feather="trash-2"></i>
+                                                                                </span>
+                                                                            </span>
+                                                                        </button>
+                                                                    </form>
+                                                                @endcan
                                                             @endif
                                                             
                                                             @if($lead->status == 'booked')
                                                                 <a href="{{ route('bookings.form', $lead) }}"
-                                                                    class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover"
+                                                                    class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover text-primary"
                                                                     data-bs-toggle="tooltip" data-placement="top"
                                                                     title="Booking File">
                                                                     <span class="icon">
@@ -427,7 +446,7 @@
                         <div class="mb-4 border rounded-3 p-3 bg-light">
                             <h6 class="text-uppercase text-muted small fw-semibold mb-3">Travel Preferences</h6>
                             <div class="row g-3">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label">Service <span class="text-danger">*</span></label>
                                     <select name="service_id" class="form-select form-select-sm" required>
                                         <option value="">-- Select Service --</option>
@@ -439,7 +458,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label">Destination <span class="text-danger">*</span></label>
                                     <select name="destination_id" class="form-select form-select-sm" required>
                                         <option value="">-- Select Destination --</option>
@@ -451,10 +470,15 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label">Travel Date</label>
                                     <input type="date" name="travel_date" class="form-control form-control-sm"
                                         value="{{ old('travel_date') }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Return Date</label>
+                                    <input type="date" name="return_date" class="form-control form-control-sm"
+                                        value="{{ old('return_date') }}">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Adults <span class="text-danger">*</span></label>
@@ -620,18 +644,23 @@
                         <div class="mb-4 border rounded-3 p-3 bg-light">
                             <h6 class="text-uppercase text-muted small fw-semibold mb-3">Travel Preferences</h6>
                             <div class="row g-3">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label">Service</label>
                                     <input type="text" id="viewService" class="form-control form-control-sm" readonly>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label">Destination</label>
                                     <input type="text" id="viewDestination" class="form-control form-control-sm"
                                         readonly>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label">Travel Date</label>
                                     <input type="text" id="viewTravelDate" class="form-control form-control-sm"
+                                        readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Return Date</label>
+                                    <input type="text" id="viewReturnDate" class="form-control form-control-sm"
                                         readonly>
                                 </div>
                                 <div class="col-md-3">
@@ -827,7 +856,7 @@
                             <div class="mb-4 border rounded-3 p-3 bg-light">
                                 <h6 class="text-uppercase text-muted small fw-semibold mb-3">Travel Preferences</h6>
                                 <div class="row g-3">
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label">Service <span class="text-danger">*</span></label>
                                         <select name="service_id" id="editServiceId" class="form-select form-select-sm"
                                             required>
@@ -837,7 +866,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label">Destination <span class="text-danger">*</span></label>
                                         <select name="destination_id" id="editDestinationId"
                                             class="form-select form-select-sm" required>
@@ -847,9 +876,14 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label">Travel Date</label>
                                         <input type="date" name="travel_date" id="editTravelDate"
+                                            class="form-control form-control-sm">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Return Date</label>
+                                        <input type="date" name="return_date" id="editReturnDate"
                                             class="form-control form-control-sm">
                                     </div>
                                     <div class="col-md-3">
@@ -1500,6 +1534,10 @@
                         if (viewLeadTravelDate) {
                             viewLeadTravelDate.value = lead.travel_date ?? 'N/A';
                         }
+                        const viewReturnDate = document.getElementById('viewReturnDate');
+                        if (viewReturnDate) {
+                            viewReturnDate.value = lead.return_date ?? 'N/A';
+                        }
                         const viewAdults = document.getElementById('viewAdults');
                         const viewChildren25 = document.getElementById('viewChildren25');
                         const viewChildren611 = document.getElementById('viewChildren611');
@@ -1753,6 +1791,7 @@
                     document.getElementById('editServiceId').value = lead.service_id || '';
                     document.getElementById('editDestinationId').value = lead.destination_id || '';
                     document.getElementById('editTravelDate').value = lead.travel_date_raw || '';
+                    document.getElementById('editReturnDate').value = lead.return_date_raw || '';
                     document.getElementById('editAdults').value = lead.adults || 0;
                     document.getElementById('editChildren25').value = lead.children_2_5 || 0;
                     document.getElementById('editChildren611').value = lead.children_6_11 || 0;
@@ -1835,6 +1874,10 @@
                     if (addLeadForm.elements['travel_date']) {
                         const travelDateInput = addLeadForm.elements['travel_date'];
                         travelDateInput.value = lead.travel_date_raw || '';
+                    }
+                    if (addLeadForm.elements['return_date']) {
+                        const returnDateInput = addLeadForm.elements['return_date'];
+                        returnDateInput.value = lead.return_date_raw || '';
                     }
                     if (addLeadForm.elements['adults']) addLeadForm.elements['adults'].value = lead.adults || 0;
                     if (addLeadForm.elements['children_2_5']) addLeadForm.elements['children_2_5'].value = lead

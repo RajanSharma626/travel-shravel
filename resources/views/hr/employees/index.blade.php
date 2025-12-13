@@ -8,13 +8,6 @@
             <div class="contactapp-wrap">
                 <div class="contactapp-content">
                     <div class="contactapp-detail-wrap">
-                        <header class="contact-header">
-                            <div class="w-100 align-items-center justify-content-between d-flex contactapp-title link-dark">
-                                <h1>Employees List</h1>
-                                <a href="{{ route('hr.employees.create') }}" class="btn btn-primary btn-sm">+ Add Employee</a>
-                            </div>
-                        </header>
-
                         <div class="contact-body">
                             <div data-simplebar class="nicescroll-bar">
                                 @if (session('success'))
@@ -60,6 +53,9 @@
                                             <i class="ri-search-line me-1"></i> Filter
                                         </button>
                                     </div>
+                                    <div class="col-md-2 col-lg-2 align-self-end">
+                                        <a href="{{ route('hr.employees.create') }}" class="btn btn-primary btn-sm w-100">+ Add Employee</a>
+                                    </div>
                                     @if (request('search') || request('department') || request('status'))
                                         <div class="col-md-2 col-lg-2 align-self-end">
                                             <a href="{{ route('hr.employees.index') }}" class="btn btn-outline-danger btn-sm w-100">
@@ -68,6 +64,12 @@
                                         </div>
                                     @endif
                                 </form>
+
+                                @if(isset($employees) && $employees->count() > 0)
+                                <div class="text-muted small mb-2 px-3">
+                                    Showing {{ $employees->firstItem() ?? 0 }} out of {{ $employees->total() }}
+                                </div>
+                                @endif
 
                                 <table class="table table-striped small table-bordered w-100 mb-5">
                                     <thead>

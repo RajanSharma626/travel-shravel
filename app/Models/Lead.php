@@ -30,6 +30,7 @@ class Lead extends Model
         'country',
         'pin_code',
         'travel_date',
+        'return_date',
         'adults',
         'children',
         'children_2_5',
@@ -47,6 +48,7 @@ class Lead extends Model
 
     protected $casts = [
         'travel_date' => 'date',
+        'return_date' => 'date',
         'booked_on' => 'datetime',
     ];
 

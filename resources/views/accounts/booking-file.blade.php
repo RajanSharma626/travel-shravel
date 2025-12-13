@@ -84,13 +84,13 @@
                                                 style="background-color: #f8f9fa; cursor: not-allowed;">
                                         </div>
                                         <div class="col-md-3">
-                                            <label class="form-label">Contact 1</label>
+                                            <label class="form-label">Primary No.</label>
                                             <input type="text" value="{{ $lead->primary_phone ?? $lead->phone }}"
                                                 class="form-control form-control-sm" readonly disabled
                                                 style="background-color: #f8f9fa; cursor: not-allowed;">
                                         </div>
                                         <div class="col-md-3">
-                                            <label class="form-label">Contact 2</label>
+                                            <label class="form-label">Secondary No.</label>
                                             <input type="text" value="{{ $lead->secondary_phone ?? '' }}"
                                                 class="form-control form-control-sm" readonly disabled
                                                 style="background-color: #f8f9fa; cursor: not-allowed;">
@@ -128,6 +128,20 @@
                                         <div class="col-md-3">
                                             <label class="form-label">Infant (>2 years)</label>
                                             <input type="number" value="{{ $lead->infants ?? 0 }}"
+                                                class="form-control form-control-sm" readonly disabled
+                                                style="background-color: #f8f9fa; cursor: not-allowed;">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Travel Date</label>
+                                            <input type="text"
+                                                value="{{ $lead->travel_date ? $lead->travel_date->format('d M, Y') : 'N/A' }}"
+                                                class="form-control form-control-sm" readonly disabled
+                                                style="background-color: #f8f9fa; cursor: not-allowed;">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Return Date</label>
+                                            <input type="text"
+                                                value="{{ $lead->return_date ? $lead->return_date->format('d M, Y') : 'N/A' }}"
                                                 class="form-control form-control-sm" readonly disabled
                                                 style="background-color: #f8f9fa; cursor: not-allowed;">
                                         </div>

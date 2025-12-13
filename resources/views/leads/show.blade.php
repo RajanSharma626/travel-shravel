@@ -201,6 +201,8 @@
                                                                 <option value="priority" {{ $lead->status == 'priority' ? 'selected' : '' }}>Priority</option>
                                                                 <option value="booked" {{ $lead->status == 'booked' ? 'selected' : '' }}>Booked</option>
                                                                 <option value="closed" {{ $lead->status == 'closed' ? 'selected' : '' }}>Closed</option>
+                                                                <option value="cancelled" {{ $lead->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                                                <option value="refunded" {{ $lead->status == 'refunded' ? 'selected' : '' }}>Refunded</option>
                                                             </select>
                                                         </div>
                                                         <div class="col-md-5">
