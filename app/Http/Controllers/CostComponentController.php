@@ -18,7 +18,7 @@ class CostComponentController extends Controller
             'amount' => 'required|numeric|min:0',
         ]);
 
-        $validated['entered_by_user_id'] = Auth::id();
+        $validated['entered_by_user_id'] = $this->getCurrentUserId();
         $costComponent = $lead->costComponents()->create($validated);
         
         // Calculate and log profit
@@ -73,7 +73,7 @@ class CostComponentController extends Controller
             'amount' => 'required|numeric|min:0',
         ]);
         
-        $validated['entered_by_user_id'] = Auth::id();
+        $validated['entered_by_user_id'] = $this->getCurrentUserId();
         $costComponent = $lead->costComponents()->create($validated);
         
         // Calculate and log profit

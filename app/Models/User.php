@@ -72,9 +72,16 @@ class User extends Authenticatable
     
     /**
      * Check if user has a specific role (backward compatibility)
+     * This method checks both Spatie roles and the role field
      */
     public function hasRoleName($role): bool
     {
-        return $this->roles()->where('name', $role)->exists() || $this->attributes['role'] === $role;
+        // Check Spatie roles first
+        if ($this->roles()->where('name', $role)->exists()) {
+            return true;
+        }
+        
+        // Also check the role field for backward compatibility
+        return $this->attributes['role'] === $role;
     }
 }

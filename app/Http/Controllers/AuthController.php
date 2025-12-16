@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -18,42 +19,76 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|exists:users,email',
+            'user_id' => 'required|exists:employees,user_id',
             'password' => 'required|min:6',
         ]);
 
-        $user = \App\Models\User::where('email', $request->email)->first();
+        // Find employee by user_id
+        $employee = \App\Models\Employee::where('user_id', $request->user_id)->first();
 
-        if ($user->status != 'Active') {
-            return back()->with('error', 'Your account is Deactive. Please contact admin.');
+        if (!$employee) {
+            return back()->with('error', 'Invalid User ID or Password');
         }
 
-        $credentials = [
-            'email' => $request->email,
-            'password' => $request->password
-        ];
+        // Check if employee has a password set
+        if (!$employee->password) {
+            return back()->with('error', 'Password not set. Please contact admin.');
+        }
 
-        $remember = $request->has('remember');
+        // Verify password
+        if (!Hash::check($request->password, $employee->password)) {
+            return back()->with('error', 'Invalid User ID or Password');
+        }
 
-        if (Auth::attempt($credentials, $remember)) {
-            // Redirect based on user role
-            $role = Auth::user()->role;
+        // Check employment status (allow null/empty as active for backward compatibility)
+        if ($employee->employment_status && $employee->employment_status !== 'Active') {
+            return back()->with('error', 'Your account is inactive. Please contact admin.');
+        }
 
-            switch ($role) {
-                case 'Admin':
-                    return redirect('/');
-                case 'Manager':
-                    return redirect('/leads');
-                case 'Agent':
-                    return redirect('/leads');
-                case 'Underwriter':
-                    return redirect('/underwriting');
-                default:
-                    return redirect('/home');
+        // Sync Spatie role from employee role
+        if ($employee->role) {
+            try {
+                // Remove all existing roles
+                $employee->syncRoles([]);
+                // Assign the role from employee
+                $employee->assignRole($employee->role);
+            } catch (\Exception $e) {
+                // Role might not exist in Spatie, that's okay - we'll use the role field
             }
         }
 
-        return back()->with('error', 'Invalid users ID or Password');
+        // Log in the employee directly
+        $remember = $request->has('remember');
+        Auth::login($employee, $remember);
+
+        // Redirect based on employee role
+        $employee = Auth::user();
+        $role = $employee->role ?? $employee->getRoleNameAttribute();
+
+            switch ($role) {
+                case 'Admin':
+            case 'Developer':
+                    return redirect('/');
+            case 'Sales Manager':
+            case 'Sales':
+                    return redirect('/leads');
+            case 'Operation Manager':
+            case 'Operation':
+                return redirect('/operations');
+            case 'Accounts Manager':
+            case 'Accounts':
+                return redirect('/accounts');
+            case 'Post Sales Manager':
+            case 'Post Sales':
+                return redirect('/post-sales');
+            case 'Delivery Manager':
+            case 'Delivery':
+                return redirect('/deliveries');
+            case 'HR':
+                return redirect('/hr/employees');
+            default:
+                    return redirect('/leads');
+        }
     }
 
     public function logout()

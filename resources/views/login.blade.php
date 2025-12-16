@@ -51,12 +51,12 @@
                                                     <div class="row gx-3">
                                                         <div class="form-group col-lg-12">
                                                             <div class="form-label-group">
-                                                                <label>Email</label>
+                                                                <label>User ID</label>
                                                             </div>
-                                                            <input class="form-control" placeholder="Email ID"
-                                                                name="email" type="text"
-                                                                value="{{ old('email') }}">
-                                                            @error('email')
+                                                            <input class="form-control" placeholder="User ID"
+                                                                name="user_id" type="text"
+                                                                value="{{ old('user_id') }}">
+                                                            @error('user_id')
                                                                 <small class="text-danger">{{ $message }}</small>
                                                             @enderror
                                                         </div>

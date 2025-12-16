@@ -57,7 +57,7 @@
                                             <th>Ref No.</th>
                                                 <th>Customer Name</th>
                                             <th>Phone</th>
-                                            <th>Document Status</th>
+                                            <th>Status</th>
                                             <th>Last Remark</th>
                                             <th>Created On</th>
                                                 <th>Actions</th>
@@ -65,10 +65,6 @@
                                         </thead>
                                         <tbody>
                                             @forelse ($leads as $lead)
-                                                @php
-                                                $documentTypes = ['Aadhaar Card', 'Passport', 'Visa', 'Ticket', 'Voucher', 'Invoice', 'Insurance', 'Medical Certificate'];
-                                                $existingDocuments = $lead->documents->keyBy('type');
-                                                @endphp
                                                 <tr>
                                                     <td><strong>{{ $lead->tsq }}</strong></td>
                                                 <td>
@@ -79,19 +75,10 @@
                                                     </td>
                                                 <td>{{ $lead->primary_phone ?? $lead->phone }}</td>
                                                 <td>
-                                                    <div class="d-flex flex-wrap gap-1" style="max-width: 300px;">
-                                                        @foreach($documentTypes as $docType)
-                                                            @php
-                                                                $document = $existingDocuments->get($docType);
-                                                                $isReceived = $document && in_array($document->status, ['received', 'verified']);
-                                                        @endphp
-                                                            <span class="badge {{ $isReceived ? 'bg-success' : 'bg-secondary' }} text-white rounded-pill px-2 py-1" 
-                                                                  style="font-size: 0.75rem;">
-                                                                {{ $docType }}
-                                                        </span>
-                                                        @endforeach
-                                                        </div>
-                                                    </td>
+                                                    <span class="badge bg-success text-white">
+                                                        Booked
+                                                    </span>
+                                                </td>
                                                 <td>
                                                     @if ($lead->latest_remark)
                                                         <div class="text-truncate" style="max-width: 200px;"
@@ -99,15 +86,15 @@
                                                             {{ Str::limit($lead->latest_remark->remark, 50) }}
                                                         </div>
                                                         <small class="text-muted">
-                                                            by {{ $lead->latest_remark->user->name ?? 'N/A' }}
+                                                            by {{ $lead->latest_remark->employee?->name ?? $lead->latest_remark->user?->name ?? 'N/A' }}
                                                             @if ($lead->latest_remark->created_at)
                                                                 - {{ $lead->latest_remark->created_at->format('d M, Y') }}
-                                                                                        @endif
+                                                            @endif
                                                         </small>
-                                                                                        @else
+                                                    @else
                                                         <span class="text-muted">No remarks yet</span>
-                                                                                        @endif
-                                                                                    </td>
+                                                    @endif
+                                                </td>
                                                 <td>{{ $lead->created_at->format('d M, Y') }}</td>
                                                 <td>
                                                     <div class="d-flex align-items-center">
@@ -122,20 +109,6 @@
                                                                     </span>
                                                                 </span>
                                                             </a>
-
-                                                            <button type="button" 
-                                                                class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover update-docs-btn"
-                                                                data-lead-id="{{ $lead->id }}"
-                                                                data-lead-tsq="{{ $lead->tsq }}"
-                                                                data-lead-name="{{ $lead->customer_name }}"
-                                                                data-bs-toggle="tooltip" data-placement="top"
-                                                                title="Update Documents">
-                                                                <span class="icon">
-                                                                    <span class="feather-icon">
-                                                                        <i data-feather="check-square"></i>
-                                                                    </span>
-                                                                </span>
-                                                            </button>
                                                         </div>
                                                     </div>
                                                                                     </td>
@@ -507,14 +480,20 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label">Assign To</label>
-                                        <select name="assigned_user_id" id="editAssignedUserId"
+                                        <select name="assigned_employee_id" id="editAssignedEmployeeId"
                                             class="form-select form-select-sm">
-                                            <option value="">-- Select User --</option>
-                                            @foreach ($users as $user)
-                                                <option value="{{ $user->id }}">{{ $user->name }}
-                                                    ({{ $user->email }})
+                                            <option value="">-- Select Employee --</option>
+                                            @foreach ($employees as $employee)
+                                                @php
+                                                    $matchingUser = \App\Models\User::where('email', $employee->login_work_email)
+                                                        ->orWhere('email', $employee->user_id)
+                                                        ->first();
+                                                @endphp
+                                                <option value="{{ $employee->id }}" 
+                                                    data-user-id="{{ $matchingUser->id ?? '' }}">
+                                                    {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }})@endif
                                                 </option>
-                                                @endforeach
+                                            @endforeach
                                         </select>
                                     </div>
                                     <div class="col-md-6">
@@ -586,60 +565,6 @@
         }
     </style>
     @endpush
-
-    <!-- Update Documents Modal (Single Modal for All Leads) -->
-    <div class="modal fade" id="updateDocumentsModal" tabindex="-1" aria-labelledby="updateDocumentsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <form id="updateDocumentsForm" method="POST" action="">
-                    @csrf
-                    @method('PUT')
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title text-white" id="updateDocumentsModalLabel">
-                            <i data-feather="file-text" class="me-2" style="width: 18px; height: 18px;"></i>
-                            Update Documents
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3 p-3 bg-light rounded">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-grow-1">
-                                    <div class="small text-muted mb-1">Reference Number</div>
-                                    <strong id="modalRefNumber">-</strong>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="small text-muted mb-1">Customer Name</div>
-                                    <strong id="modalCustomerName">-</strong>
-                                </div>
-                            </div>
-                        </div>
-                        <h6 class="mb-3 fw-semibold">
-                            <i data-feather="check-square" class="me-2" style="width: 16px; height: 16px;"></i>
-                            Document Status
-                        </h6>
-                        <div class="row g-2" id="documentCheckboxesContainer">
-                            <!-- Checkboxes will be populated dynamically -->
-                        </div>
-                        <div class="alert alert-info mt-3 mb-0 small">
-                            <i data-feather="info" class="me-2" style="width: 14px; height: 14px;"></i>
-                            Check the documents that have been received. Unchecked documents will be marked as not received.
-                        </div>
-                    </div>
-                    <div class="modal-footer border-top">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i data-feather="x" class="me-1" style="width: 14px; height: 14px;"></i>
-                            Cancel
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            <i data-feather="save" class="me-1" style="width: 14px; height: 14px;"></i>
-                            Update Documents
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 
     @push('scripts')
     <script>
@@ -951,7 +876,23 @@
                 document.getElementById('editChildren25').value = lead.children_2_5 || 0;
                 document.getElementById('editChildren611').value = lead.children_6_11 || 0;
                 document.getElementById('editInfants').value = lead.infants || 0;
-                document.getElementById('editAssignedUserId').value = lead.assigned_user_id || '';
+                // Map assigned_user_id to employee_id for the dropdown
+                let assignedEmployeeId = '';
+                if (lead.assigned_user_id) {
+                    const employeeSelect = document.getElementById('editAssignedEmployeeId');
+                    if (employeeSelect) {
+                        const options = employeeSelect.querySelectorAll('option');
+                        options.forEach(option => {
+                            if (option.getAttribute('data-user-id') == lead.assigned_user_id) {
+                                assignedEmployeeId = option.value;
+                            }
+                        });
+                    }
+                }
+                const editAssignedEmployeeId = document.getElementById('editAssignedEmployeeId');
+                if (editAssignedEmployeeId) {
+                    editAssignedEmployeeId.value = assignedEmployeeId || '';
+                }
                 document.getElementById('editStatus').value = lead.status || 'booked';
 
                 // Update children total
@@ -1134,225 +1075,6 @@
 
             // Initialize feather icons safely
             safeFeatherReplace();
-
-            // Document types array
-            const documentTypes = ['Aadhaar Card', 'Passport', 'Visa', 'Ticket', 'Voucher', 'Invoice', 'Insurance', 'Medical Certificate'];
-
-            // Handle update documents button clicks
-            document.addEventListener('click', function(e) {
-                const updateBtn = e.target.closest('.update-docs-btn');
-                if (!updateBtn) return;
-
-                e.preventDefault();
-                e.stopPropagation();
-
-                const leadId = updateBtn.getAttribute('data-lead-id');
-                const leadTsq = updateBtn.getAttribute('data-lead-tsq');
-                const leadName = updateBtn.getAttribute('data-lead-name');
-
-                if (!leadId) return;
-
-                // Update modal content immediately with available data
-                document.getElementById('modalRefNumber').textContent = leadTsq || '-';
-                document.getElementById('modalCustomerName').textContent = leadName || '-';
-
-                // Update form action
-                const form = document.getElementById('updateDocumentsForm');
-                form.action = `/leads/${leadId}/documents/bulk-update`;
-
-                // Show modal first
-                const modalEl = document.getElementById('updateDocumentsModal');
-                if (modalEl && typeof bootstrap !== 'undefined') {
-                    const modalInstance = new bootstrap.Modal(modalEl);
-                    modalInstance.show();
-                }
-
-                // Fetch lead documents and populate checkboxes
-                fetch(`/leads/${leadId}?modal=1`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const lead = data.lead || data;
-                    const existingDocs = {};
-                    // Check for documents in data.documents (from LeadController) or lead.documents
-                    const documents = data.documents || (lead && lead.documents) || [];
-                    if (Array.isArray(documents)) {
-                        documents.forEach(doc => {
-                            // Store by type and person_number for person-wise documents
-                            const docKey = doc.person_number ? `${doc.type}_${doc.person_number}` : doc.type;
-                            existingDocs[docKey] = doc;
-                            // Also store by type only for backward compatibility
-                            if (!existingDocs[doc.type]) {
-                                existingDocs[doc.type] = doc;
-                            }
-                        });
-                    }
-
-                    // Get person counts from lead data
-                    const adults = parseInt(lead.adults || '0');
-                    const children25 = parseInt(lead.children_2_5 || '0');
-                    const children611 = parseInt(lead.children_6_11 || '0');
-                    const infants = parseInt(lead.infants || '0');
-
-                    // Clear and populate person-wise checkboxes
-                    const container = document.getElementById('documentCheckboxesContainer');
-                    container.innerHTML = '';
-
-                    // Calculate total persons (adults + children 2-11 years, excluding infants as they typically don't need documents)
-                    // Note: Infants (>2 years) - this seems to be a typo, infants are typically <2 years
-                    // We'll include all children (2-5 and 6-11) and adults
-                    const totalPersons = adults + children25 + children611;
-                    
-                    // Create person labels array
-                    const personLabels = [];
-                    let childCounter = 1;
-                    
-                    // Add adults
-                    for (let i = 1; i <= adults; i++) {
-                        personLabels.push(`Adult ${i}`);
-                    }
-                    
-                    // Add children 2-5 years
-                    for (let i = 1; i <= children25; i++) {
-                        personLabels.push(`Child ${childCounter++} (2-5 yrs)`);
-                    }
-                    
-                    // Add children 6-11 years
-                    for (let i = 1; i <= children611; i++) {
-                        personLabels.push(`Child ${childCounter++} (6-11 yrs)`);
-                    }
-                    
-                    // Note: Infants are typically excluded from document requirements
-
-                    // If no persons, show message
-                    if (totalPersons === 0) {
-                        container.innerHTML = '<div class="alert alert-warning mb-0">No persons found for this booking. Please update the lead with correct person count.</div>';
-                        safeFeatherReplace(modalEl);
-                        return;
-                    }
-
-                    // Create document sections for each document type
-                    documentTypes.forEach(docType => {
-                        // Document type header
-                        const docHeaderDiv = document.createElement('div');
-                        docHeaderDiv.className = 'mb-3 mt-4';
-                        if (documentTypes.indexOf(docType) === 0) {
-                            docHeaderDiv.className = 'mb-3 mt-0';
-                        }
-                        
-                        const docHeader = document.createElement('h6');
-                        docHeader.className = 'fw-semibold text-primary mb-2';
-                        docHeader.style.cssText = 'font-size: 0.95rem; border-bottom: 2px solid #e0e0e0; padding-bottom: 0.5rem;';
-                        docHeader.textContent = docType;
-                        docHeaderDiv.appendChild(docHeader);
-                        container.appendChild(docHeaderDiv);
-
-                        // Create person-wise checkboxes for this document type in 2-column layout
-                        const personsRowDiv = document.createElement('div');
-                        personsRowDiv.className = 'row g-3 mb-3';
-                        
-                        personLabels.forEach((personLabel, personIndex) => {
-                            const personNum = personIndex + 1;
-                            const docKey = `${docType}_${personNum}`;
-                            // Check for person-specific document first, then fallback to general
-                            const existingDoc = existingDocs[docKey] || (personNum === 1 ? existingDocs[docType] : null);
-                            const isChecked = existingDoc && ['received', 'verified'].includes(existingDoc.status);
-                            const docId = `doc_${leadId}_${docType.replace(/\s+/g, '_')}_${personNum}`;
-
-                            const colDiv = document.createElement('div');
-                            colDiv.className = 'col-md-6 col-sm-6 mb-2';
-
-                            const checkDiv = document.createElement('div');
-                            checkDiv.className = 'form-check p-2 border rounded document-checkbox-item';
-                            checkDiv.style.cssText = 'transition: all 0.2s ease; cursor: pointer;';
-                            if (isChecked) {
-                                checkDiv.style.backgroundColor = '#e8f5e9';
-                                checkDiv.style.borderColor = '#4caf50';
-                            }
-
-                            const checkbox = document.createElement('input');
-                            checkbox.type = 'checkbox';
-                            checkbox.className = 'form-check-input document-checkbox';
-                            checkbox.style.cssText = 'width: 1.25rem; height: 1.25rem; margin-top: 0.125rem; cursor: pointer;';
-                            checkbox.name = 'documents[]';
-                            checkbox.value = `${docType}|${personNum}`;
-                            checkbox.id = docId;
-                            if (isChecked) checkbox.checked = true;
-
-                            const label = document.createElement('label');
-                            label.className = 'form-check-label ms-3';
-                            label.htmlFor = docId;
-                            label.style.cssText = 'cursor: pointer; font-weight: 500; user-select: none; flex: 1; font-size: 0.85rem;';
-                            label.textContent = personLabel;
-
-                            // Add hover effect
-                            checkDiv.addEventListener('mouseenter', function() {
-                                if (!checkbox.checked) {
-                                    this.style.backgroundColor = '#f5f5f5';
-                                }
-                            });
-                            checkDiv.addEventListener('mouseleave', function() {
-                                if (!checkbox.checked) {
-                                    this.style.backgroundColor = '';
-                                }
-                            });
-
-                            // Toggle background on checkbox change
-                            checkbox.addEventListener('change', function() {
-                                if (this.checked) {
-                                    checkDiv.style.backgroundColor = '#e8f5e9';
-                                    checkDiv.style.borderColor = '#4caf50';
-                                } else {
-                                    checkDiv.style.backgroundColor = '';
-                                    checkDiv.style.borderColor = '';
-                                }
-                            });
-
-                            // Make entire div clickable
-                            checkDiv.addEventListener('click', function(e) {
-                                if (e.target !== checkbox && e.target !== label) {
-                                    checkbox.click();
-                                }
-                            });
-
-                            checkDiv.appendChild(checkbox);
-                            checkDiv.appendChild(label);
-                            colDiv.appendChild(checkDiv);
-                            personsRowDiv.appendChild(colDiv);
-                        });
-                        
-                        container.appendChild(personsRowDiv);
-                    });
-
-                    // Reinitialize feather icons in modal
-                    const modalEl = document.getElementById('updateDocumentsModal');
-                    safeFeatherReplace(modalEl);
-                })
-                .catch(error => {
-                    console.error('Error fetching lead documents:', error);
-                    // Show error message
-                    const container = document.getElementById('documentCheckboxesContainer');
-                    container.innerHTML = '<div class="alert alert-danger mb-0">Error loading documents. Please try again.</div>';
-
-                    // Reinitialize feather icons in modal
-                    const modalEl = document.getElementById('updateDocumentsModal');
-                    if (modalEl) {
-                        safeFeatherReplace(modalEl);
-                    }
-                });
-            });
-
-            // Reinitialize feather icons when update documents modal is shown
-            const updateDocumentsModal = document.getElementById('updateDocumentsModal');
-            if (updateDocumentsModal) {
-                updateDocumentsModal.addEventListener('shown.bs.modal', () => {
-                    safeFeatherReplace(updateDocumentsModal);
-                });
-            }
 
         });
     </script>

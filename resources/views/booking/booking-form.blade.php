@@ -8,7 +8,7 @@
                     <div class="contactapp-detail-wrap">
                         <header class="contact-header">
                             <div class="w-100 align-items-center justify-content-between d-flex contactapp-title link-dark">
-                                <div class="d-flex align-items-center gap-3">
+                                <div class="d-flex align-items-center gap-3 flex-grow-1">
                                     <a href="{{ $backUrl ?? route('bookings.index') }}"
                                         class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover">
                                         <span class="icon">
@@ -22,6 +22,15 @@
                                         <p class="text-muted mb-0 small">TSQ: {{ $lead->tsq }}</p>
                                     </div>
                                 </div>
+                                @can('edit leads')
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary ms-2"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#reassignLeadModal">
+                                        <i data-feather="user-check" class="me-1" style="width: 14px; height: 14px;"></i>
+                                        Re-assign
+                                    </button>
+                                @endcan
                             </div>
                         </header>
 
@@ -162,37 +171,52 @@
                                                     class="form-control form-control-sm" readonly disabled
                                                     style="background-color: #f8f9fa; cursor: not-allowed;">
                                             </div>
+                                            @php
+                                                $paymentState = $customerPaymentState ?? 'none';
+                                                $salesBgColor = '#f8f9fa';
+                                                $salesBorderColor = '#ced4da';
+                                                $paymentIcon = null;
+                                                $paymentIconColor = '#6c757d';
+
+                                                if ($isViewOnly) {
+                                                    if ($paymentState === 'full') {
+                                                        $salesBgColor = '#d4edda'; // green
+                                                        $salesBorderColor = '#28a745';
+                                                        $paymentIcon = 'check-circle';
+                                                        $paymentIconColor = '#28a745';
+                                                    } elseif ($paymentState === 'partial') {
+                                                        $salesBgColor = '#fff3cd'; // yellow
+                                                        $salesBorderColor = '#ffc107';
+                                                        $paymentIcon = 'clock';
+                                                        $paymentIconColor = '#ffc107';
+                                                    } else {
+                                                        $salesBgColor = '#f8d7da'; // red
+                                                        $salesBorderColor = '#dc3545';
+                                                        $paymentIcon = 'alert-circle';
+                                                        $paymentIconColor = '#dc3545';
+                                                    }
+                                                }
+                                            @endphp
                                             <div class="col-md-3">
                                                 <label class="form-label">Sales Cost</label>
                                                 @if ($isViewOnly)
-                                                    <input type="text"
-                                                        value="{{ $lead->selling_price ? number_format($lead->selling_price, 2) : '0.00' }}"
-                                                        class="form-control form-control-sm" readonly disabled
-                                                        style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="text"
+                                                            value="{{ $lead->selling_price ? number_format($lead->selling_price, 2) : '0.00' }}"
+                                                            class="form-control form-control-sm"
+                                                            readonly disabled
+                                                            style="background-color: {{ $salesBgColor }}; cursor: not-allowed; border-color: {{ $salesBorderColor }};">
+                                                        @if($paymentIcon)
+                                                            <span class="input-group-text" style="background-color: {{ $salesBgColor }}; border-color: {{ $salesBorderColor }};">
+                                                                <i data-feather="{{ $paymentIcon }}" style="width: 14px; height: 14px; color: {{ $paymentIconColor }};"></i>
+                                                            </span>
+                                                        @endif
+                                                    </div>
                                                 @else
                                                     <input type="number" name="selling_price" 
                                                         value="{{ old('selling_price', $lead->selling_price ?? 0) }}"
                                                         class="form-control form-control-sm" step="0.01" min="0"
                                                         placeholder="0.00">
-                                                @endif
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label">Re-assign To</label>
-                                                @if ($isViewOnly)
-                                                    <input type="text"
-                                                        value="{{ $lead->reassignedTo?->name ?? 'N/A' }}"
-                                                        class="form-control form-control-sm" readonly disabled
-                                                        style="background-color: #f8f9fa; cursor: not-allowed;">
-                                                @else
-                                                    <select name="reassigned_to" class="form-select form-select-sm">
-                                                        <option value="">-- Select User --</option>
-                                                        @foreach ($users as $user)
-                                                            <option value="{{ $user->id }}"
-                                                                {{ old('reassigned_to', $lead->reassigned_to) == $user->id ? 'selected' : '' }}>
-                                                                {{ $user->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
                                                 @endif
                                             </div>
                                         </div>
@@ -308,6 +332,81 @@
                                     </div>
                                     @endif
 
+                                    {{-- Customer Payments (Post Sales editable, others view-only via accounts booking file) --}}
+                                    @if($isPostSales ?? false)
+                                    <div class="mb-4 border rounded-3 p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                <i data-feather="credit-card" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                Customer Payments (Post Sales → Accounts)
+                                            </h6>
+                                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#postSalesAddPaymentModal">
+                                                <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                Add Payment
+                                            </button>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-sm mb-0" id="customerPaymentsTable">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Amount</th>
+                                                        <th>Method</th>
+                                                        <th>Paid On</th>
+                                                        <th>Due Date</th>
+                                                        <th>Transaction ID</th>
+                                                        <th>Status</th>
+                                                        <th class="text-center">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @php
+                                                        $payments = $lead->payments ?? collect();
+                                                    @endphp
+                                                    @if($payments->count() > 0)
+                                                        @foreach($payments as $payment)
+                                                            <tr>
+                                                                <td>₹{{ number_format($payment->amount, 2) }}</td>
+                                                                <td>{{ ucfirst(str_replace('_', ' ', $payment->method)) }}</td>
+                                                                <td>{{ $payment->payment_date ? $payment->payment_date->format('d/m/Y') : '-' }}</td>
+                                                                <td>{{ $payment->due_date ? $payment->due_date->format('d/m/Y') : '-' }}</td>
+                                                                <td>{{ $payment->reference ?? '-' }}</td>
+                                                                <td>
+                                                                    @php
+                                                                        $statusColor = $payment->status === 'received' ? 'success' : ($payment->status === 'refunded' ? 'secondary' : 'warning');
+                                                                    @endphp
+                                                                    <span class="badge bg-{{ $statusColor }}">
+                                                                        {{ ucfirst($payment->status) }}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <i data-feather="edit"
+                                                                       class="post-sales-edit-payment-btn"
+                                                                       data-payment-id="{{ $payment->id }}"
+                                                                       data-amount="{{ $payment->amount }}"
+                                                                       data-method="{{ $payment->method }}"
+                                                                       data-payment-date="{{ $payment->payment_date ? $payment->payment_date->format('Y-m-d') : '' }}"
+                                                                       data-due-date="{{ $payment->due_date ? $payment->due_date->format('Y-m-d') : '' }}"
+                                                                       data-reference="{{ $payment->reference }}"
+                                                                       data-status="{{ $payment->status }}"
+                                                                       data-bs-toggle="modal"
+                                                                       data-bs-target="#postSalesAddPaymentModal"
+                                                                       style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
+                                                                    <button type="button" class="border-0 bg-transparent p-0 m-0 delete-customer-payment-btn" data-payment-id="{{ $payment->id }}" title="Delete Payment">
+                                                                        <i data-feather="trash-2" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer; pointer-events: none;"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    @else
+                                                        <tr>
+                                                            <td colspan="7" class="text-center text-muted py-3">No customer payments recorded</td>
+                                                        </tr>
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    @endif
                                     <!-- Arrival/Departure Details Section -->
                                     @if (!($isPostSales ?? false))
                                     <div class="mb-4 border rounded-3 p-3">
@@ -593,8 +692,177 @@
                                     </div>
                                     @endif
 
-                                    <!-- Document Checklist Summary Section (Post Sales Only) -->
+                                    <!-- Traveller Document Details (Post Sales Only) -->
                                     @if($isPostSales ?? false)
+                                    <div class="mb-4 border rounded-3 p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                <i data-feather="clipboard" class="me-1" style="width: 14px; height: 14px;"></i>
+                                                Traveller Document Details
+                                            </h6>
+                                            <button type="button"
+                                                    id="openTravellerDocModalBtn"
+                                                    class="btn btn-sm btn-primary"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#travellerDocumentModal">
+                                                <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                Add
+                                            </button>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-sm mb-0" id="travellerDocumentTable">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th style="width: 5%;">Sr. No.</th>
+                                                        <th style="width: 12%;">First Name</th>
+                                                        <th style="width: 12%;">Last Name</th>
+                                                        <th style="width: 15%;">Doc Type</th>
+                                                        <th style="width: 10%;">Status</th>
+                                                        <th style="width: 18%;">Doc No.</th>
+                                                        <th style="width: 10%;">Nationality</th>
+                                                        <th style="width: 8%;">DOB</th>
+                                                        <th style="width: 10%;">Place of Issue</th>
+                                                        <th style="width: 10%;">Expiry</th>
+                                                        <th style="width: 12%;">Remark</th>
+                                                        <th style="width: 8%;" class="text-center">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="travellerDocumentTableBody">
+                                                    @php
+                                                        $travellerDocs = $lead->travellerDocuments ?? collect();
+                                                    @endphp
+                                                    @forelse($travellerDocs as $index => $doc)
+                                                        <tr data-row-type="{{ $doc->doc_type }}">
+                                                            <td>{{ $index + 1 }}</td>
+                                                            <td>{{ $doc->first_name }}</td>
+                                                            <td>{{ $doc->last_name }}</td>
+                                                            <td>
+                                                                @switch($doc->doc_type)
+                                                                    @case('passport')
+                                                                        Passport
+                                                                        @break
+                                                                    @case('aadhar_card')
+                                                                        Aadhar Card
+                                                                        @break
+                                                                    @case('pan_card')
+                                                                        PAN Card
+                                                                        @break
+                                                                    @case('visa')
+                                                                        Visa
+                                                                        @break
+                                                                    @case('voter_id')
+                                                                        Voter ID
+                                                                        @break
+                                                                    @case('driving_license')
+                                                                        Driving License
+                                                                        @break
+                                                                    @case('govt_id')
+                                                                        Govt. ID
+                                                                        @break
+                                                                    @case('school_id')
+                                                                        School ID
+                                                                        @break
+                                                                    @case('birth_certificate')
+                                                                        Birth Certificate
+                                                                        @break
+                                                                    @case('marriage_certificate')
+                                                                        Marriage Certificate
+                                                                        @break
+                                                                    @case('photos')
+                                                                        Photos
+                                                                        @break
+                                                                    @case('insurance')
+                                                                        Insurance
+                                                                        @break
+                                                                    @case('other_document')
+                                                                        Other Document
+                                                                        @break
+                                                                    @default
+                                                                        {{ ucfirst(str_replace('_', ' ', $doc->doc_type)) }}
+                                                                @endswitch
+                                                            </td>
+                                                            <td>
+                                                                @php
+                                                                    $status = strtolower($doc->status ?? '');
+                                                                    $badgeClass = 'secondary';
+                                                                    $statusLabel = ucfirst(str_replace('_', ' ', $status));
+                                                                    if ($status === 'received') {
+                                                                        $badgeClass = 'success';
+                                                                    } elseif ($status === 'pending') {
+                                                                        $badgeClass = 'warning';
+                                                                    } elseif ($status === 'not_required') {
+                                                                        $badgeClass = 'secondary';
+                                                                    } elseif ($status === 'required_again') {
+                                                                        $badgeClass = 'danger';
+                                                                    }
+                                                                @endphp
+                                                                @if($status)
+                                                                    <span class="badge bg-{{ $badgeClass }}">
+                                                                        {{ $statusLabel }}
+                                                                    </span>
+                                                                @endif
+                                                            </td>
+                                                            <td>{{ $doc->doc_no }}</td>
+                                                            <td>
+                                                                @if($doc->doc_type === 'passport')
+                                                                    {{ $doc->nationality }}
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @if($doc->doc_type === 'passport' && $doc->dob)
+                                                                    {{ $doc->dob->format('d/m/Y') }}
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @if($doc->doc_type === 'passport')
+                                                                    {{ $doc->place_of_issue }}
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @if($doc->doc_type === 'passport' && $doc->date_of_expiry)
+                                                                    {{ $doc->date_of_expiry->format('d/m/Y') }}
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                {{ $doc->remark ?? '-' }}
+                                                            </td>
+                                                            <td class="text-center text-nowrap">
+                                                                <button type="button"
+                                                                        class="btn btn-link p-0 me-1 traveller-doc-edit"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#travellerDocumentModal"
+                                                                        data-first-name="{{ $doc->first_name }}"
+                                                                        data-last-name="{{ $doc->last_name }}"
+                                                                        data-doc-type="{{ $doc->doc_type }}"
+                                                                        data-status="{{ $doc->status }}"
+                                                                        data-doc-no="{{ $doc->doc_no }}"
+                                                                        data-nationality="{{ $doc->nationality }}"
+                                                                        data-dob="{{ $doc->dob ? $doc->dob->format('Y-m-d') : '' }}"
+                                                                        data-place-of-issue="{{ $doc->place_of_issue }}"
+                                                                        data-date-of-expiry="{{ $doc->date_of_expiry ? $doc->date_of_expiry->format('Y-m-d') : '' }}"
+                                                                        data-remark="{{ $doc->remark ?? '' }}">
+                                                                    <i data-feather="edit" class="text-primary" style="width: 16px; height: 16px;"></i>
+                                                                </button>
+                                                                <button type="button"
+                                                                        class="btn btn-link p-0 traveller-doc-delete"
+                                                                        data-delete-url="{{ route('leads.traveller-documents.destroy', [$lead, $doc]) }}">
+                                                                    <i data-feather="trash-2" class="text-danger" style="width: 16px; height: 16px;"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="11" class="text-center text-muted py-3">
+                                                                No traveller document details added yet.
+                                                            </td>
+                                                        </tr>
+                                                    @endforelse
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <!-- Document Checklist Summary Section (Post Sales Only) -->
                                     <div class="mb-4 border rounded-3 p-3">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="text-uppercase text-muted small fw-semibold mb-0">
@@ -614,90 +882,67 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr>
-                                                        <td>Passports</td>
-                                                        <td class="text-center">4</td>
-                                                        <td class="text-center">3</td>
-                                                        <td class="text-center">1</td>
-                                                        <td class="text-center">0</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Visa</td>
-                                                        <td class="text-center">4</td>
-                                                        <td class="text-center">3</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">1 incorrect</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Pan Card</td>
-                                                        <td class="text-center">4</td>
-                                                        <td class="text-center">4</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Voter ID</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Driving License</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Govt. ID</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>School ID</td>
-                                                        <td class="text-center">1</td>
-                                                        <td class="text-center">1</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Birth Certificate</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Marriage Certificate</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Aadhar</td>
-                                                        <td class="text-center">4</td>
-                                                        <td class="text-center">4</td>
-                                                        <td class="text-center">0</td>
-                                                        <td class="text-center">0</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Photos</td>
-                                                        <td class="text-center">4</td>
-                                                        <td class="text-center">3</td>
-                                                        <td class="text-center">1</td>
-                                                        <td class="text-center">0</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Insurance</td>
-                                                        <td class="text-center">4</td>
-                                                        <td class="text-center">2</td>
-                                                        <td class="text-center">2</td>
-                                                        <td class="text-center">0</td>
-                                                    </tr>
+                                                    @php
+                                                        $travellerDocs = $lead->travellerDocuments ?? collect();
+                                                        $documentTypes = [
+                                                            'passport' => 'Passports',
+                                                            'visa' => 'Visa',
+                                                            'pan_card' => 'Pan Card',
+                                                            'voter_id' => 'Voter ID',
+                                                            'driving_license' => 'Driving License',
+                                                            'govt_id' => 'Govt. ID',
+                                                            'school_id' => 'School ID',
+                                                            'birth_certificate' => 'Birth Certificate',
+                                                            'marriage_certificate' => 'Marriage Certificate',
+                                                            'aadhar_card' => 'Aadhar',
+                                                            'photos' => 'Photos',
+                                                            'insurance' => 'Insurance',
+                                                        ];
+                                                        
+                                                        // Group documents by type and calculate counts
+                                                        $docCounts = [];
+                                                        foreach ($documentTypes as $docType => $docLabel) {
+                                                            $docsOfType = $travellerDocs->where('doc_type', $docType);
+                                                            $totalRequired = $docsOfType->count();
+                                                            $received = $docsOfType->where('status', 'received')->count();
+                                                            $pending = $docsOfType->where('status', 'pending')->count();
+                                                            $issuesFound = $docsOfType->where('status', 'required_again')->count();
+                                                            
+                                                            // Get remarks for documents that are not received
+                                                            $notReceivedDocs = $docsOfType->where('status', '!=', 'received')->whereNotNull('remark')->where('remark', '!=', '');
+                                                            $remarks = $notReceivedDocs->pluck('remark')->filter()->unique()->values();
+                                                            
+                                                            $docCounts[$docType] = [
+                                                                'label' => $docLabel,
+                                                                'total_required' => $totalRequired,
+                                                                'received' => $received,
+                                                                'pending' => $pending,
+                                                                'issues_found' => $issuesFound,
+                                                                'remarks' => $remarks,
+                                                            ];
+                                                        }
+                                                    @endphp
+                                                    @foreach($docCounts as $docType => $counts)
+                                                        <tr>
+                                                            <td>{{ $counts['label'] }}</td>
+                                                            <td class="text-center">{{ $counts['total_required'] }}</td>
+                                                            <td class="text-center">{{ $counts['received'] }}</td>
+                                                            <td class="text-center">{{ $counts['pending'] }}</td>
+                                                            <td class="text-center">
+                                                                @if($counts['remarks']->isNotEmpty())
+                                                                    <div class="text-start" style="max-width: 200px; font-size: 0.85rem;">
+                                                                        @foreach($counts['remarks'] as $remark)
+                                                                            <div class="mb-1">{{ $remark }}</div>
+                                                                        @endforeach
+                                                                    </div>
+                                                                @elseif($counts['issues_found'] > 0)
+                                                                    {{ $counts['issues_found'] }} incorrect
+                                                                @else
+                                                                    0
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
                                                 </tbody>
                                             </table>
                                         </div>
@@ -811,6 +1056,196 @@
             </div>
         </div>
     </div>
+
+    @can('edit leads')
+    <!-- Re-assign Lead Modal -->
+    <div class="modal fade" id="reassignLeadModal" tabindex="-1" aria-labelledby="reassignLeadModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form action="{{ route('leads.reassign', $lead) }}" method="POST">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="reassignLeadModalLabel">Re-assign Lead</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Assign To <span class="text-danger">*</span></label>
+                            <select name="reassigned_employee_id" class="form-select form-select-sm" required>
+                                <option value="">-- Select Employee --</option>
+                                @foreach ($employees as $employee)
+                                    @php
+                                        $matchingUser = \App\Models\User::where('email', $employee->login_work_email)
+                                            ->orWhere('email', $employee->user_id)
+                                            ->first();
+                                        $isSelected = false;
+                                        if ($lead->reassigned_to && $matchingUser && $lead->reassigned_to == $matchingUser->id) {
+                                            $isSelected = true;
+                                        }
+                                    @endphp
+                                    <option value="{{ $employee->id }}" 
+                                        data-user-id="{{ $matchingUser->id ?? '' }}"
+                                        {{ $isSelected ? 'selected' : '' }}>
+                                        {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }})@endif
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endcan
+
+    @if($isPostSales ?? false)
+    <!-- Traveller Document Details Modal -->
+    <div class="modal fade" id="travellerDocumentModal" tabindex="-1" aria-labelledby="travellerDocumentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="travellerDocumentModalLabel">Traveller Document Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="travellerDocumentForm" action="{{ route('leads.traveller-documents.store', $lead) }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control form-control-sm" name="first_name">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control form-control-sm" name="last_name">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Document Type</label>
+                                <select class="form-select form-select-sm" name="document_type" id="travellerDocumentType" required>
+                                    <option value="">Select</option>
+                                    <option value="passport">Passport</option>
+                                    <option value="visa">Visa</option>
+                                    <option value="aadhar_card">Aadhar Card</option>
+                                    <option value="pan_card">PAN Card</option>
+                                    <option value="voter_id">Voter ID</option>
+                                    <option value="driving_license">Driving License</option>
+                                    <option value="govt_id">Govt. ID</option>
+                                    <option value="school_id">School ID</option>
+                                    <option value="birth_certificate">Birth Certificate</option>
+                                    <option value="marriage_certificate">Marriage Certificate</option>
+                                    <option value="photos">Photos</option>
+                                    <option value="insurance">Insurance</option>
+                                    <option value="other_document">Other Document</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Status</label>
+                                <select class="form-select form-select-sm" name="status">
+                                    <option value="received">Received</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="not_required">Not Required</option>
+                                    <option value="required_again">Required Again</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Document Details</label>
+                                <input type="text" class="form-control form-control-sm" name="document_details" placeholder="Passport No. / Aadhar No. / PAN No. / Other">
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Remark</label>
+                                <textarea class="form-control form-control-sm" name="remark" rows="2" placeholder="Enter any remarks or notes about this document"></textarea>
+                            </div>
+                        </div>
+                        <hr class="my-3">
+                        <div id="passportExtraFields">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Nationality</label>
+                                    <input type="text" class="form-control form-control-sm" name="nationality">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">DOB</label>
+                                    <input type="date" class="form-control form-control-sm" name="dob">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Place of Issue</label>
+                                    <input type="text" class="form-control form-control-sm" name="place_of_issue">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Date of Expiry</label>
+                                    <input type="date" class="form-control form-control-sm" name="date_of_expiry">
+                                </div>
+                            </div>
+                            <small class="text-muted d-block mt-2">These fields are mainly for Passport documents.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Post Sales: Add/Edit Customer Payment Modal -->
+    <div class="modal fade" id="postSalesAddPaymentModal" tabindex="-1" aria-labelledby="postSalesAddPaymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form id="postSalesPaymentForm" action="{{ route('leads.payments.store', $lead->id) }}" method="POST">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="postSalesAddPaymentModalLabel">Add Customer Payment</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="_method" id="postSalesPaymentFormMethod" value="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Amount <span class="text-danger">*</span></label>
+                            <input type="number" name="amount" class="form-control form-control-sm" step="0.01" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method <span class="text-danger">*</span></label>
+                            <select name="method" class="form-select form-select-sm" required>
+                                <option value="cash">Cash</option>
+                                <option value="online">UPI / Online</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Paid On <span class="text-danger">*</span></label>
+                            <input type="date" name="payment_date" class="form-control form-control-sm" value="{{ date('Y-m-d') }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Due Date</label>
+                            <input type="date" name="due_date" class="form-control form-control-sm">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Transaction ID</label>
+                            <input type="text" name="reference" class="form-control form-control-sm" maxlength="255">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status <span class="text-danger">*</span></label>
+                            <select name="status" class="form-select form-select-sm" required>
+                                <option value="pending">Pending</option>
+                                <option value="received">Received</option>
+                                <option value="refunded">Refunded</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Save Payment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endif
 
     <!-- Add Destination Modal -->
     <div class="modal fade" id="addDestinationModal" tabindex="-1" aria-labelledby="addDestinationModalLabel" aria-hidden="true">
@@ -1849,6 +2284,198 @@
                     }
                 }
 
+                // Post Sales: handle edit payment button to populate modal
+                document.addEventListener('click', function(e) {
+                    const editBtn = e.target.closest('.post-sales-edit-payment-btn');
+                    if (!editBtn) return;
+
+                    const form = document.getElementById('postSalesPaymentForm');
+                    if (!form) return;
+
+                    const paymentId = editBtn.getAttribute('data-payment-id');
+                    const amount = editBtn.getAttribute('data-amount') || '';
+                    const method = editBtn.getAttribute('data-method') || 'cash';
+                    const paymentDate = editBtn.getAttribute('data-payment-date') || '';
+                    const dueDate = editBtn.getAttribute('data-due-date') || '';
+                    const reference = editBtn.getAttribute('data-reference') || '';
+                    const status = editBtn.getAttribute('data-status') || 'pending';
+
+                    form.action = '{{ route('leads.payments.store', $lead->id) }}'.replace('/payments', '/payments/' + paymentId);
+                    const methodInput = document.getElementById('postSalesPaymentFormMethod');
+                    if (methodInput) {
+                        methodInput.value = 'PUT';
+                    }
+
+                    form.querySelector('input[name=\"amount\"]').value = amount;
+                    form.querySelector('select[name=\"method\"]').value = method;
+                    form.querySelector('input[name=\"payment_date\"]').value = paymentDate;
+                    form.querySelector('input[name=\"due_date\"]').value = dueDate;
+                    form.querySelector('input[name=\"reference\"]').value = reference;
+                    form.querySelector('select[name=\"status\"]').value = status;
+
+                    const modalTitle = document.getElementById('postSalesAddPaymentModalLabel');
+                    if (modalTitle) {
+                        modalTitle.textContent = 'Edit Customer Payment';
+                    }
+                });
+
+                // Reset Post Sales payment modal on hide (back to Add mode)
+                document.getElementById('postSalesAddPaymentModal')?.addEventListener('hidden.bs.modal', function() {
+                    const form = document.getElementById('postSalesPaymentForm');
+                    if (!form) return;
+
+                    form.action = '{{ route('leads.payments.store', $lead->id) }}';
+                    const methodInput = document.getElementById('postSalesPaymentFormMethod');
+                    if (methodInput) {
+                        methodInput.value = 'POST';
+                    }
+                    form.reset();
+                    const modalTitle = document.getElementById('postSalesAddPaymentModalLabel');
+                    if (modalTitle) {
+                        modalTitle.textContent = 'Add Customer Payment';
+                    }
+                });
+
+                // Traveller Document Details: toggle passport extra fields
+                const travellerDocTypeSelect = document.getElementById('travellerDocumentType');
+                const passportExtraFields = document.getElementById('passportExtraFields');
+                if (travellerDocTypeSelect && passportExtraFields) {
+                    const togglePassportFields = () => {
+                        if (travellerDocTypeSelect.value === 'passport') {
+                            passportExtraFields.style.display = '';
+                        } else {
+                            passportExtraFields.style.display = 'none';
+                        }
+                    };
+                    travellerDocTypeSelect.addEventListener('change', togglePassportFields);
+                    // Initialize on load
+                    togglePassportFields();
+                }
+
+                // Traveller Document Details: hide / show Nationality/DOB/Place/Expiry columns if any Passport rows exist
+                function updateTravellerDocColumnsVisibility() {
+                    const travellerDocTable = document.getElementById('travellerDocumentTable');
+                    if (!travellerDocTable) return;
+
+                    const headerCells = travellerDocTable.querySelectorAll('thead tr th');
+                    const bodyRows = travellerDocTable.querySelectorAll('tbody tr');
+
+                    let hasPassport = false;
+                    bodyRows.forEach(row => {
+                        const rowType = row.getAttribute('data-row-type') || '';
+                        const docTypeCell = row.children[3]; // 0-based index: 3 = Doc Type column
+                        if (rowType === 'passport' || (docTypeCell && /passport/i.test(docTypeCell.textContent || ''))) {
+                            hasPassport = true;
+                        }
+                    });
+
+                    const colsToToggle = [6, 7, 8, 9]; // Nationality, DOB, Place of Issue, Date of Expiry
+                    colsToToggle.forEach(idx => {
+                        if (headerCells[idx]) {
+                            headerCells[idx].style.display = hasPassport ? '' : 'none';
+                        }
+                        bodyRows.forEach(row => {
+                            if (row.children[idx]) {
+                                row.children[idx].style.display = hasPassport ? '' : 'none';
+                            }
+                        });
+                    });
+                }
+
+                updateTravellerDocColumnsVisibility();
+
+                // Traveller Document Details: reset form when clicking "Add"
+                const openTravellerDocBtn = document.getElementById('openTravellerDocModalBtn');
+                if (openTravellerDocBtn) {
+                    openTravellerDocBtn.addEventListener('click', function () {
+                        const form = document.getElementById('travellerDocumentForm');
+                        if (!form) return;
+                        form.reset();
+                        const docTypeSelect = form.querySelector('select[name=\"document_type\"]');
+                        if (docTypeSelect) {
+                            docTypeSelect.value = '';
+                            const changeEvent = new Event('change');
+                            docTypeSelect.dispatchEvent(changeEvent);
+                        }
+                    });
+                }
+
+                // Traveller Document Details: handle delete via AJAX to avoid nested form issues
+                document.addEventListener('click', function (e) {
+                    const deleteIcon = e.target.closest('.traveller-doc-delete');
+                    if (!deleteIcon) return;
+
+                    const url = deleteIcon.getAttribute('data-delete-url');
+                    if (!url) return;
+
+                    if (!confirm('Are you sure you want to delete this traveller document?')) {
+                        return;
+                    }
+
+                    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+                    fetch(url, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': token || '',
+                            'Accept': 'application/json',
+                        },
+                    })
+                    .then(() => {
+                        // Reload to reflect changes
+                        window.location.reload();
+                    })
+                    .catch(() => {
+                        window.location.reload();
+                    });
+                });
+
+                // Traveller Document Details: handle edit icon to populate and open modal
+                document.addEventListener('click', function (e) {
+                    // Use closest() directly so clicks on SVG/icon also work
+                    const editIcon = e.target.closest('.traveller-doc-edit');
+                    if (!editIcon) return;
+
+                    const form = document.getElementById('travellerDocumentForm');
+                    if (!form) return;
+
+                    // Fill basic fields
+                    form.querySelector('input[name=\"first_name\"]').value = editIcon.getAttribute('data-first-name') || '';
+                    form.querySelector('input[name=\"last_name\"]').value = editIcon.getAttribute('data-last-name') || '';
+
+                    const docTypeSelect = form.querySelector('select[name=\"document_type\"]');
+                    const statusSelect = form.querySelector('select[name=\"status\"]');
+
+                    const docType = editIcon.getAttribute('data-doc-type') || '';
+                    if (docTypeSelect) {
+                        docTypeSelect.value = docType;
+                        const changeEvent = new Event('change');
+                        docTypeSelect.dispatchEvent(changeEvent);
+                    }
+
+                    if (statusSelect) {
+                        const status = (editIcon.getAttribute('data-status') || '').toLowerCase();
+                        statusSelect.value = status;
+                    }
+
+                    form.querySelector('input[name=\"document_details\"]').value = editIcon.getAttribute('data-doc-no') || '';
+                    form.querySelector('input[name=\"nationality\"]').value = editIcon.getAttribute('data-nationality') || '';
+                    form.querySelector('input[name=\"dob\"]').value = editIcon.getAttribute('data-dob') || '';
+                    form.querySelector('input[name=\"place_of_issue\"]').value = editIcon.getAttribute('data-place-of-issue') || '';
+                    form.querySelector('input[name=\"date_of_expiry\"]').value = editIcon.getAttribute('data-date-of-expiry') || '';
+                    form.querySelector('textarea[name=\"remark\"]').value = editIcon.getAttribute('data-remark') || '';
+
+                    // Open modal
+                    const travellerModalEl = document.getElementById('travellerDocumentModal');
+                    if (travellerModalEl && typeof bootstrap !== 'undefined') {
+                        const modal = bootstrap.Modal.getInstance(travellerModalEl) || new bootstrap.Modal(travellerModalEl);
+                        modal.show();
+                    } else if (openTravellerDocBtn) {
+                        // Fallback: trigger the Add button which is wired with data-bs-toggle
+                        openTravellerDocBtn.click();
+                    }
+                });
+
                 // Handle form submission
                 const bookingFileForm = document.getElementById('bookingFileForm');
                 if (bookingFileForm) {
@@ -2018,6 +2645,53 @@
                     document.getElementById('modalDueDate').value = row.dataset.dueDate || '';
                     document.getElementById('modalStatus').value = row.dataset.status || 'Pending';
                 }
+            });
+
+            // Handle delete customer payment button click
+            $(document).on('click', '.delete-customer-payment-btn', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (!confirm('Are you sure you want to delete this payment?')) {
+                    return;
+                }
+                
+                const deleteBtn = $(this);
+                const paymentId = deleteBtn.data('payment-id');
+                const leadId = {{ $lead->id }};
+
+                $.ajax({
+                    url: `/leads/${leadId}/payments/${paymentId}`,
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        'Accept': 'application/json',
+                    },
+                    success: function(data) {
+                        if (data.success) {
+                            deleteBtn.closest('tr').remove();
+                            // Check if table is empty
+                            const tbody = $('#customerPaymentsTable tbody');
+                            if (tbody.find('tr').length === 0) {
+                                tbody.html('<tr><td colspan="7" class="text-center text-muted py-3">No customer payments recorded</td></tr>');
+                            }
+                            // Show success message
+                            alert(data.message || 'Payment deleted successfully!');
+                            // Reload page to refresh payment state
+                            window.location.reload();
+                        } else {
+                            alert(data.message || 'Failed to delete payment');
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('Error:', xhr);
+                        let errorMsg = 'An error occurred while deleting payment';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        alert(errorMsg);
+                    }
+                });
             });
 
             // Handle delete vendor payment button click

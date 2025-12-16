@@ -84,6 +84,7 @@ class PaymentController extends Controller
             'createdBy',
             'bookedBy',
             'reassignedTo',
+            'payments',
             'accountSummaries',
             'vendorPayments'
         ]);
@@ -91,11 +92,20 @@ class PaymentController extends Controller
         $users = \App\Models\User::orderBy('name')->get();
         $accountSummaries = $lead->accountSummaries;
         $vendorPayments = $lead->vendorPayments;
+        $totalReceived = $lead->payments->where('status', 'received')->sum('amount');
+        $sellingPrice = $lead->selling_price ?? 0;
+        if ($sellingPrice <= 0 || $totalReceived <= 0) {
+            $customerPaymentState = 'none';
+        } elseif ($totalReceived >= $sellingPrice) {
+            $customerPaymentState = 'full';
+        } else {
+            $customerPaymentState = 'partial';
+        }
         
         // Accounts department only sees customer section in read-only mode
         $isViewOnly = true;
 
-        return view('accounts.booking-file', compact('lead', 'users', 'isViewOnly', 'accountSummaries', 'vendorPayments'));
+        return view('accounts.booking-file', compact('lead', 'users', 'isViewOnly', 'accountSummaries', 'vendorPayments', 'customerPaymentState', 'totalReceived'));
     }
 
     public function show(Lead $lead)
@@ -110,11 +120,12 @@ class PaymentController extends Controller
             'amount' => 'required|numeric|min:0',
             'method' => 'required|in:cash,bank_transfer,cheque,card,online',
             'payment_date' => 'required|date',
+            'due_date' => 'nullable|date',
             'reference' => 'nullable|string|max:255',
             'status' => 'required|in:pending,received,refunded',
         ]);
 
-        $validated['created_by'] = Auth::id();
+        $validated['created_by'] = $this->getCurrentUserId();
         $lead->payments()->create($validated);
         
         // Calculate and log profit
@@ -204,11 +215,12 @@ class PaymentController extends Controller
             'amount' => 'required|numeric|min:0',
             'method' => 'required|in:cash,bank_transfer,cheque,card,online',
             'payment_date' => 'required|date',
+            'due_date' => 'nullable|date',
             'reference' => 'nullable|string|max:255',
             'status' => 'required|in:pending,received,refunded',
         ]);
         
-        $validated['created_by'] = Auth::id();
+        $validated['created_by'] = $this->getCurrentUserId();
         $payment = $lead->payments()->create($validated);
         
         // Calculate and log profit
@@ -291,6 +303,7 @@ class PaymentController extends Controller
             'amount' => 'required|numeric|min:0',
             'method' => 'required|in:cash,bank_transfer,cheque,card,online',
             'payment_date' => 'required|date',
+            'due_date' => 'nullable|date',
             'reference' => 'nullable|string|max:255',
             'status' => 'required|in:pending,received,refunded',
         ]);

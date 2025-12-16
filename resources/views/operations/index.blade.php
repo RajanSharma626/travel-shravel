@@ -480,12 +480,18 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label">Assign To</label>
-                                        <select name="assigned_user_id" id="editAssignedUserId"
+                                        <select name="assigned_employee_id" id="editAssignedEmployeeId"
                                             class="form-select form-select-sm">
-                                            <option value="">-- Select User --</option>
-                                            @foreach ($users as $user)
-                                                <option value="{{ $user->id }}">{{ $user->name }}
-                                                    ({{ $user->email }})
+                                            <option value="">-- Select Employee --</option>
+                                            @foreach ($employees as $employee)
+                                                @php
+                                                    $matchingUser = \App\Models\User::where('email', $employee->login_work_email)
+                                                        ->orWhere('email', $employee->user_id)
+                                                        ->first();
+                                                @endphp
+                                                <option value="{{ $employee->id }}" 
+                                                    data-user-id="{{ $matchingUser->id ?? '' }}">
+                                                    {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }})@endif
                                                 </option>
                                             @endforeach
                                         </select>
@@ -835,7 +841,23 @@
                 document.getElementById('editChildren25').value = lead.children_2_5 || 0;
                 document.getElementById('editChildren611').value = lead.children_6_11 || 0;
                 document.getElementById('editInfants').value = lead.infants || 0;
-                document.getElementById('editAssignedUserId').value = lead.assigned_user_id || '';
+                // Map assigned_user_id to employee_id for the dropdown
+                let assignedEmployeeId = '';
+                if (lead.assigned_user_id) {
+                    const employeeSelect = document.getElementById('editAssignedEmployeeId');
+                    if (employeeSelect) {
+                        const options = employeeSelect.querySelectorAll('option');
+                        options.forEach(option => {
+                            if (option.getAttribute('data-user-id') == lead.assigned_user_id) {
+                                assignedEmployeeId = option.value;
+                            }
+                        });
+                    }
+                }
+                const editAssignedEmployeeId = document.getElementById('editAssignedEmployeeId');
+                if (editAssignedEmployeeId) {
+                    editAssignedEmployeeId.value = assignedEmployeeId || '';
+                }
                 document.getElementById('editStatus').value = lead.status || 'booked';
 
                 // Update children total

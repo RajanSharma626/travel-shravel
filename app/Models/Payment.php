@@ -14,6 +14,7 @@ class Payment extends Model
         'amount',
         'method',
         'payment_date',
+        'due_date',
         'reference',
         'status',
         'created_by',
@@ -21,6 +22,7 @@ class Payment extends Model
 
     protected $casts = [
         'payment_date' => 'date',
+        'due_date' => 'date',
         'amount' => 'decimal:2',
     ];
 

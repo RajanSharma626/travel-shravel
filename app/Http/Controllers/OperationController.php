@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Lead;
 use App\Models\Operation;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -51,9 +52,9 @@ class OperationController extends Controller
 
         $services = \App\Models\Service::orderBy('name')->get();
         $destinations = \App\Models\Destination::orderBy('name')->get();
-        $users = \App\Models\User::orderBy('name')->get();
+        $employees = Employee::whereNotNull('user_id')->orderBy('name')->get();
 
-        return view('operations.index', compact('leads', 'filters', 'services', 'destinations', 'users'));
+        return view('operations.index', compact('leads', 'filters', 'services', 'destinations', 'employees'));
     }
 
     public function store(Request $request, Lead $lead)
@@ -73,7 +74,7 @@ class OperationController extends Controller
                 $operation->update([
                     'admin_approval_required' => true,
                     'approval_reason' => 'Nett cost exceeds selling price. Profit: ' . number_format($profit, 2),
-                    'approval_requested_by' => Auth::id(),
+                    'approval_requested_by' => $this->getCurrentUserId(),
                     'approval_requested_at' => now(),
                 ]);
             }
@@ -99,7 +100,7 @@ class OperationController extends Controller
             if ($profit < 0) {
                 $validated['admin_approval_required'] = true;
                 $validated['approval_reason'] = 'Nett cost exceeds selling price. Profit: ' . number_format($profit, 2);
-                $validated['approval_requested_by'] = Auth::id();
+                $validated['approval_requested_by'] = $this->getCurrentUserId();
                 $validated['approval_requested_at'] = now();
             } else {
                 $validated['admin_approval_required'] = false;
@@ -119,7 +120,7 @@ class OperationController extends Controller
 
         $operation->update([
             'admin_approval_required' => false,
-            'approval_approved_by' => Auth::id(),
+            'approval_approved_by' => $this->getCurrentUserId(),
             'approval_approved_at' => now(),
         ]);
 
@@ -150,6 +151,7 @@ class OperationController extends Controller
             'bookedBy',
             'reassignedTo',
             'costComponents',
+            'payments',
             'bookingDestinations',
             'bookingArrivalDepartures',
             'bookingAccommodations',
@@ -157,7 +159,7 @@ class OperationController extends Controller
             'vendorPayments'
         ]);
 
-        $users = \App\Models\User::orderBy('name')->get();
+        $employees = Employee::whereNotNull('user_id')->orderBy('name')->get();
         $destinations = \App\Models\Destination::with('locations')->orderBy('name')->get();
         
         // Ops booking file is view-only except Vendor Payments (blue columns editable)
@@ -166,14 +168,27 @@ class OperationController extends Controller
         $backUrl = route('operations.index');
         $vendorPayments = $lead->vendorPayments;
 
+        // Customer payment summary (for red / yellow / green UI)
+        $totalReceived = $lead->payments->where('status', 'received')->sum('amount');
+        $sellingPrice = $lead->selling_price ?? 0;
+        if ($sellingPrice <= 0 || $totalReceived <= 0) {
+            $customerPaymentState = 'none';
+        } elseif ($totalReceived >= $sellingPrice) {
+            $customerPaymentState = 'full';
+        } else {
+            $customerPaymentState = 'partial';
+        }
+
         return view('booking.booking-form', [
             'lead' => $lead,
-            'users' => $users,
+            'employees' => $employees,
             'destinations' => $destinations,
             'isViewOnly' => $isViewOnly,
             'backUrl' => $backUrl,
             'vendorPayments' => $vendorPayments,
             'isOpsDept' => $isOpsDept,
+            'customerPaymentState' => $customerPaymentState,
+            'totalCustomerReceived' => $totalReceived,
         ]);
     }
 }

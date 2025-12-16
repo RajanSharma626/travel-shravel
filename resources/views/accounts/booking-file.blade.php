@@ -152,19 +152,43 @@
                                                 class="form-control form-control-sm" readonly disabled
                                                 style="background-color: #f8f9fa; cursor: not-allowed;">
                                         </div>
+                                        @php
+                                            $paymentState = $customerPaymentState ?? 'none';
+                                            $salesBgColor = '#f8f9fa';
+                                            $salesBorderColor = '#ced4da';
+                                            $paymentIcon = null;
+                                            $paymentIconColor = '#6c757d';
+
+                                            if ($paymentState === 'full') {
+                                                $salesBgColor = '#d4edda'; // green
+                                                $salesBorderColor = '#28a745';
+                                                $paymentIcon = 'check-circle';
+                                                $paymentIconColor = '#28a745';
+                                            } elseif ($paymentState === 'partial') {
+                                                $salesBgColor = '#fff3cd'; // yellow
+                                                $salesBorderColor = '#ffc107';
+                                                $paymentIcon = 'clock';
+                                                $paymentIconColor = '#ffc107';
+                                            } else {
+                                                $salesBgColor = '#f8d7da'; // red
+                                                $salesBorderColor = '#dc3545';
+                                                $paymentIcon = 'alert-circle';
+                                                $paymentIconColor = '#dc3545';
+                                            }
+                                        @endphp
                                         <div class="col-md-3">
                                             <label class="form-label">Sales Cost</label>
-                                            <input type="text"
-                                                value="{{ $lead->selling_price ? number_format($lead->selling_price, 2) : '0.00' }}"
-                                                class="form-control form-control-sm" readonly disabled
-                                                style="background-color: #f8f9fa; cursor: not-allowed;">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Re-assign To</label>
-                                            <input type="text"
-                                                value="{{ $lead->reassignedTo?->name ?? 'N/A' }}"
-                                                class="form-control form-control-sm" readonly disabled
-                                                style="background-color: #f8f9fa; cursor: not-allowed;">
+                                            <div class="input-group input-group-sm">
+                                                <input type="text"
+                                                    value="{{ $lead->selling_price ? number_format($lead->selling_price, 2) : '0.00' }}"
+                                                    class="form-control form-control-sm" readonly disabled
+                                                    style="background-color: {{ $salesBgColor }}; cursor: not-allowed; border-color: {{ $salesBorderColor }};">
+                                                @if($paymentIcon)
+                                                    <span class="input-group-text" style="background-color: {{ $salesBgColor }}; border-color: {{ $salesBorderColor }};">
+                                                        <i data-feather="{{ $paymentIcon }}" style="width: 14px; height: 14px; color: {{ $paymentIconColor }};"></i>
+                                                    </span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -295,6 +319,58 @@
                                                 @else
                                                     <tr>
                                                         <td colspan="12" class="text-center text-muted py-4">No vendor payments found</td>
+                                                    </tr>
+                                                @endif
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Customer Payments (View Only for Accounts) -->
+                                <div class="mb-4 border rounded-3 p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                            <i data-feather="credit-card" class="me-1" style="width: 14px; height: 14px;"></i>
+                                            Customer Payments (Post Sales → Accounts)
+                                        </h6>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-sm mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Amount</th>
+                                                    <th>Method</th>
+                                                    <th>Paid On</th>
+                                                    <th>Due Date</th>
+                                                    <th>Transaction ID</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @php
+                                                    $payments = $lead->payments ?? collect();
+                                                @endphp
+                                                @if($payments->count() > 0)
+                                                    @foreach($payments as $payment)
+                                                        <tr>
+                                                            <td>₹{{ number_format($payment->amount, 2) }}</td>
+                                                            <td>{{ ucfirst(str_replace('_', ' ', $payment->method)) }}</td>
+                                                            <td>{{ $payment->payment_date ? $payment->payment_date->format('d/m/Y') : '-' }}</td>
+                                                            <td>{{ $payment->due_date ? $payment->due_date->format('d/m/Y') : '-' }}</td>
+                                                            <td>{{ $payment->reference ?? '-' }}</td>
+                                                            <td>
+                                                                @php
+                                                                    $statusColor = $payment->status === 'received' ? 'success' : ($payment->status === 'refunded' ? 'secondary' : 'warning');
+                                                                @endphp
+                                                                <span class="badge bg-{{ $statusColor }}">
+                                                                    {{ ucfirst($payment->status) }}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                @else
+                                                    <tr>
+                                                        <td colspan="6" class="text-center text-muted py-3">No customer payments recorded</td>
                                                     </tr>
                                                 @endif
                                             </tbody>

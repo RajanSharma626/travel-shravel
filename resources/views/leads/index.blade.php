@@ -157,7 +157,7 @@
                                                             {{ Str::limit($lead->latest_remark->remark, 50) }}
                                                         </div>
                                                         <small class="text-muted">
-                                                            by {{ $lead->latest_remark->user->name ?? 'N/A' }}
+                                                            by {{ $lead->latest_remark->employee?->name ?? $lead->latest_remark->user?->name ?? 'N/A' }}
                                                             @if ($lead->latest_remark->created_at)
                                                                 - {{ $lead->latest_remark->created_at->format('d M, Y') }}
                                                             @endif
@@ -169,8 +169,8 @@
                                                 <td>{{ $lead->created_at->format('d M, Y') }}</td>
                                                 <td>
                                                     @php
-                                                        $user = Auth::user();
-                                                        $role = $user->role ?? $user->getRoleNameAttribute();
+                                                        $employee = Auth::user();
+                                                        $role = $employee->role ?? $employee->getRoleNameAttribute();
                                                         $nonSalesDepartments = ['Operation', 'Operation Manager', 'Delivery', 'Delivery Manager', 
                                                                                 'Post Sales', 'Post Sales Manager', 'Accounts', 'Accounts Manager'];
                                                         $isNonSalesDept = $role && in_array($role, $nonSalesDepartments);
@@ -205,7 +205,7 @@
                                                                         class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover assign-user-btn"
                                                                         data-lead-id="{{ $lead->id }}"
                                                                         data-lead-name="{{ $lead->customer_name }}"
-                                                                        data-current-user="{{ $lead->assignedUser?->name ?? 'Unassigned' }}"
+                                                                        data-current-user="{{ $lead->assigned_employee?->name ?? $lead->assignedUser?->name ?? 'Unassigned' }}"
                                                                         data-bs-toggle="tooltip" data-placement="top"
                                                                         title="Assign Agent">
                                                                         <span class="icon">
@@ -508,12 +508,12 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Assign To</label>
-                                    <select name="assigned_user_id" class="form-select form-select-sm">
-                                        <option value="">-- Select User --</option>
-                                        @foreach ($users as $user)
-                                            <option value="{{ $user->id }}"
-                                                {{ (string) old('assigned_user_id', Auth::id()) === (string) $user->id ? 'selected' : '' }}>
-                                                {{ $user->name }} ({{ $user->email }})
+                                    <select name="assigned_employee_id" class="form-select form-select-sm">
+                                        <option value="">-- Select Employee --</option>
+                                        @foreach ($employees as $employee)
+                                            <option value="{{ $employee->id }}"
+                                                {{ (string) old('assigned_employee_id') === (string) $employee->id ? 'selected' : '' }}>
+                                                {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }})@endif
                                             </option>
                                         @endforeach
                                     </select>
@@ -915,12 +915,20 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label">Assign To</label>
-                                        <select name="assigned_user_id" id="editAssignedUserId"
+                                        <select name="assigned_employee_id" id="editAssignedEmployeeId"
                                             class="form-select form-select-sm">
-                                            <option value="">-- Select User --</option>
-                                            @foreach ($users as $user)
-                                                <option value="{{ $user->id }}">{{ $user->name }}
-                                                    ({{ $user->email }})
+                                            <option value="">-- Select Employee --</option>
+                                            @foreach ($employees as $employee)
+                                                @php
+                                                    // Try to find matching user for this employee
+                                                    $matchingUser = \App\Models\User::where('email', $employee->login_work_email)
+                                                        ->orWhere('email', $employee->user_id)
+                                                        ->first();
+                                                @endphp
+                                                <option value="{{ $employee->id }}" 
+                                                    data-user-id="{{ $matchingUser->id ?? '' }}"
+                                                    data-user-email="{{ $employee->login_work_email ?? '' }}">
+                                                    {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }})@endif
                                                 </option>
                                             @endforeach
                                         </select>
@@ -1004,9 +1012,16 @@
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Assign To <span class="text-danger">*</span></label>
                         <select class="form-select" id="assignUserSelect" required>
-                            <option value="">-- Select User --</option>
-                            @foreach ($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                            <option value="">-- Select Employee --</option>
+                            @foreach ($employees as $employee)
+                                @php
+                                    $matchingUser = \App\Models\User::where('email', $employee->login_work_email)
+                                        ->orWhere('email', $employee->user_id)
+                                        ->first();
+                                @endphp
+                                <option value="{{ $employee->id }}" data-user-id="{{ $matchingUser->id ?? '' }}">
+                                    {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }})@endif
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -1046,9 +1061,16 @@
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Assign To <span class="text-danger">*</span></label>
                         <select class="form-select" id="bulkAssignUserSelect" required>
-                            <option value="">-- Select User --</option>
-                            @foreach ($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                            <option value="">-- Select Employee --</option>
+                            @foreach ($employees as $employee)
+                                @php
+                                    $matchingUser = \App\Models\User::where('email', $employee->login_work_email)
+                                        ->orWhere('email', $employee->user_id)
+                                        ->first();
+                                @endphp
+                                <option value="{{ $employee->id }}" data-user-id="{{ $matchingUser->id ?? '' }}">
+                                    {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }})@endif
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -1796,7 +1818,25 @@
                     document.getElementById('editChildren25').value = lead.children_2_5 || 0;
                     document.getElementById('editChildren611').value = lead.children_6_11 || 0;
                     document.getElementById('editInfants').value = lead.infants || 0;
-                    document.getElementById('editAssignedUserId').value = lead.assigned_user_id || '';
+                    
+                    // Map assigned_user_id to employee_id for the dropdown
+                    let assignedEmployeeId = '';
+                    if (lead.assigned_user_id) {
+                        const employeeSelect = document.getElementById('editAssignedEmployeeId');
+                        if (employeeSelect) {
+                            // Find option with matching data-user-id attribute
+                            const options = employeeSelect.querySelectorAll('option');
+                            options.forEach(option => {
+                                if (option.getAttribute('data-user-id') == lead.assigned_user_id) {
+                                    assignedEmployeeId = option.value;
+                                }
+                            });
+                        }
+                    }
+                    const editAssignedEmployeeId = document.getElementById('editAssignedEmployeeId');
+                    if (editAssignedEmployeeId) {
+                        editAssignedEmployeeId.value = assignedEmployeeId || '';
+                    }
                     document.getElementById('editStatus').value = lead.status || 'new';
 
                     // Update children total
@@ -1885,8 +1925,18 @@
                     if (addLeadForm.elements['children_6_11']) addLeadForm.elements['children_6_11'].value = lead
                         .children_6_11 || 0;
                     if (addLeadForm.elements['infants']) addLeadForm.elements['infants'].value = lead.infants || 0;
-                    if (addLeadForm.elements['assigned_user_id']) addLeadForm.elements['assigned_user_id'].value =
-                        lead.assigned_user_id || '';
+                    // Map assigned_user_id to assigned_employee_id
+                    if (addLeadForm.elements['assigned_employee_id'] && lead.assigned_user_id) {
+                        const employeeSelect = addLeadForm.elements['assigned_employee_id'];
+                        const options = employeeSelect.querySelectorAll('option');
+                        let foundEmployeeId = '';
+                        options.forEach(option => {
+                            if (option.getAttribute('data-user-id') == lead.assigned_user_id) {
+                                foundEmployeeId = option.value;
+                            }
+                        });
+                        addLeadForm.elements['assigned_employee_id'].value = foundEmployeeId || '';
+                    }
                     if (addLeadForm.elements['status']) addLeadForm.elements['status'].value = lead.status || 'new';
 
                     // Update children total
@@ -2104,13 +2154,13 @@
                             return;
                         }
 
-                        const userId = assignUserSelect.value;
-                        if (!userId) {
+                        const employeeId = assignUserSelect.value;
+                        if (!employeeId) {
                             if (assignUserAlert) {
                                 assignUserAlert.classList.remove('d-none');
                                 assignUserAlert.classList.remove('alert-success');
                                 assignUserAlert.classList.add('alert-danger');
-                                assignUserAlert.textContent = 'Please select a user to assign.';
+                                assignUserAlert.textContent = 'Please select an employee to assign.';
                             }
                             return;
                         }
@@ -2132,7 +2182,7 @@
                                             ''
                                     },
                                     body: JSON.stringify({
-                                        assigned_user_id: userId
+                                        assigned_employee_id: employeeId
                                     })
                                 });
 
@@ -2271,12 +2321,12 @@
                             return;
                         }
 
-                        const userId = bulkAssignUserSelect?.value;
-                        if (!userId) {
+                        const employeeId = bulkAssignUserSelect?.value;
+                        if (!employeeId) {
                             if (bulkAssignAlert) {
                                 bulkAssignAlert.classList.remove('d-none', 'alert-success');
                                 bulkAssignAlert.classList.add('alert-danger');
-                                bulkAssignAlert.textContent = 'Please select a user to assign.';
+                                bulkAssignAlert.textContent = 'Please select an employee to assign.';
                             }
                             return;
                         }
@@ -2300,7 +2350,7 @@
                                 },
                                 body: JSON.stringify({
                                     lead_ids: selectedIds,
-                                    assigned_user_id: userId
+                                    assigned_employee_id: employeeId
                                 })
                             });
 

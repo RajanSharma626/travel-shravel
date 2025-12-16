@@ -176,12 +176,18 @@
                                                 <div class="row g-3">
                                                     <div class="col-md-4">
                                                         <label class="form-label fw-semibold">Assign To</label>
-                                                        <select name="assigned_user_id" class="form-select">
-                                                            <option value="">-- Select User --</option>
-                                                            @foreach ($users as $user)
-                                                                <option value="{{ $user->id }}"
-                                                                    {{ (string)old('assigned_user_id', Auth::id()) === (string)$user->id ? 'selected' : '' }}>
-                                                                    {{ $user->name }} ({{ $user->email }})
+                                                        <select name="assigned_employee_id" class="form-select">
+                                                            <option value="">-- Select Employee --</option>
+                                                            @foreach ($employees as $employee)
+                                                                @php
+                                                                    $matchingUser = \App\Models\User::where('email', $employee->login_work_email)
+                                                                        ->orWhere('email', $employee->user_id)
+                                                                        ->first();
+                                                                @endphp
+                                                                <option value="{{ $employee->id }}"
+                                                                    data-user-id="{{ $matchingUser->id ?? '' }}"
+                                                                    {{ (string)old('assigned_employee_id') === (string)$employee->id ? 'selected' : '' }}>
+                                                                    {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }})@endif
                                                                 </option>
                                                             @endforeach
                                                         </select>

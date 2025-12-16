@@ -21,16 +21,16 @@ class PermissionMiddleware
             abort(403, 'Unauthorized');
         }
 
-        $user = Auth::user();
+        $employee = Auth::user();
 
         // Admin has all permissions
-        if ($user->hasRole('Admin') || $user->hasRole('Developer')) {
+        if ($employee->hasRole('Admin') || $employee->hasRole('Developer')) {
             return $next($request);
         }
 
-        // Check if user has any of the required permissions
+        // Check if employee has any of the required permissions
         foreach ($permissions as $permission) {
-            if ($user->can($permission)) {
+            if ($employee->can($permission)) {
                 return $next($request);
             }
         }

@@ -28,6 +28,19 @@ class LeadRemark extends Model
 
     public function user()
     {
+        // Keep relationship to User for database compatibility
         return $this->belongsTo(User::class);
+    }
+    
+    /**
+     * Get employee who created the remark (accessor)
+     */
+    public function getEmployeeAttribute()
+    {
+        $user = $this->user;
+        if ($user && $user->user_id) {
+            return Employee::where('user_id', $user->user_id)->first();
+        }
+        return null;
     }
 }

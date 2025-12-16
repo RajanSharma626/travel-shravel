@@ -104,8 +104,8 @@
                                                 <td>{{ $destination }}</td>
                                                 <td>{{ $travelDate }}</td>
                                                 <td>{{ $returnDate }}</td>
-                                                <td>{{ $lead->assignedUser ? $lead->assignedUser->name : '-' }}</td>
-                                                <td>{{ $lead->operation ? ($lead->assignedUser ? $lead->assignedUser->name : '-') : '-' }}</td>
+                                                <td>{{ $lead->assigned_employee?->name ?? $lead->assignedUser?->name ?? '-' }}</td>
+                                                <td>{{ $lead->operation ? ($lead->assigned_employee?->name ?? $lead->assignedUser?->name ?? '-') : '-' }}</td>
                                                 <td>{{ $bookingType }}</td>
                                                 <td>
                                                     <a href="{{ route('accounts.booking-file', $lead) }}"

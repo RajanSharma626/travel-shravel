@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Employee;
 
 class Lead extends Model
 {
@@ -82,22 +83,74 @@ class Lead extends Model
 
     public function assignedUser()
     {
+        // Keep relationship to User for database compatibility
         return $this->belongsTo(User::class, 'assigned_user_id');
+    }
+    
+    /**
+     * Get assigned employee (accessor)
+     */
+    public function getAssignedEmployeeAttribute()
+    {
+        $user = $this->assignedUser;
+        if ($user && $user->user_id) {
+            return Employee::where('user_id', $user->user_id)->first();
+        }
+        return null;
     }
 
     public function createdBy()
     {
+        // Keep relationship to User for database compatibility
         return $this->belongsTo(User::class, 'created_by');
+    }
+    
+    /**
+     * Get created by employee (accessor)
+     */
+    public function getCreatedByEmployeeAttribute()
+    {
+        $user = $this->createdBy;
+        if ($user && $user->user_id) {
+            return Employee::where('user_id', $user->user_id)->first();
+        }
+        return null;
     }
 
     public function bookedBy()
     {
+        // Keep relationship to User for database compatibility
         return $this->belongsTo(User::class, 'booked_by');
+    }
+    
+    /**
+     * Get booked by employee (accessor)
+     */
+    public function getBookedByEmployeeAttribute()
+    {
+        $user = $this->bookedBy;
+        if ($user && $user->user_id) {
+            return Employee::where('user_id', $user->user_id)->first();
+        }
+        return null;
     }
 
     public function reassignedTo()
     {
+        // Keep relationship to User for database compatibility
         return $this->belongsTo(User::class, 'reassigned_to');
+    }
+    
+    /**
+     * Get reassigned to employee (accessor)
+     */
+    public function getReassignedToEmployeeAttribute()
+    {
+        $user = $this->reassignedTo;
+        if ($user && $user->user_id) {
+            return Employee::where('user_id', $user->user_id)->first();
+        }
+        return null;
     }
 
     public function histories()
@@ -184,6 +237,11 @@ class Lead extends Model
     public function vendorPayments()
     {
         return $this->hasMany(VendorPayment::class);
+    }
+
+    public function travellerDocuments()
+    {
+        return $this->hasMany(TravellerDocument::class);
     }
 
     // Helper methods

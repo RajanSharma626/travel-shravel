@@ -6,6 +6,7 @@ use App\Models\Destination;
 use App\Models\Lead;
 use App\Models\Service;
 use App\Models\User;
+use App\Models\Employee;
 use App\Models\LeadHistory;
 use App\Models\LeadRemark;
 use App\Models\VendorPayment;
@@ -15,29 +16,30 @@ use Illuminate\Support\Facades\DB;
 
 class LeadController extends Controller
 {
+
     /**
-     * Check if user is Admin or Manager (can see all leads)
+     * Check if employee is Admin or Manager (can see all leads)
      */
     private function canSeeAllLeads()
     {
-        $user = Auth::user();
-        return $user->hasRole('Admin') ||
-            $user->hasRole('Developer') ||
-            $user->hasRole('Sales Manager') ||
-            $user->hasRole('Operation Manager') ||
-            $user->hasRole('Accounts Manager') ||
-            $user->hasRole('Post Sales Manager') ||
-            $user->hasRole('Delivery Manager');
+        $employee = Auth::user();
+        return $employee->hasRole('Admin') ||
+            $employee->hasRole('Developer') ||
+            $employee->hasRole('Sales Manager') ||
+            $employee->hasRole('Operation Manager') ||
+            $employee->hasRole('Accounts Manager') ||
+            $employee->hasRole('Post Sales Manager') ||
+            $employee->hasRole('Delivery Manager');
     }
 
     /**
-     * Check if user is from Operation, Delivery, Post Sales, or Accounts department
-     * These users should only see Booking File in view-only mode
+     * Check if employee is from Operation, Delivery, Post Sales, or Accounts department
+     * These employees should only see Booking File in view-only mode
      */
     private function isNonSalesDepartment()
     {
-        $user = Auth::user();
-        $role = $user->role ?? $user->getRoleNameAttribute();
+        $employee = Auth::user();
+        $role = $employee->role ?? $employee->getRoleNameAttribute();
         
         if (!$role) {
             return false;
@@ -73,7 +75,10 @@ class LeadController extends Controller
 
         // Filter by assigned user if not admin/manager
         if (!$this->canSeeAllLeads()) {
-            $leadsQuery->where('assigned_user_id', Auth::id());
+            $userId = $this->getCurrentUserId();
+            if ($userId) {
+                $leadsQuery->where('assigned_user_id', $userId);
+            }
         }
 
         if (!empty($filters['status'])) {
@@ -108,7 +113,7 @@ class LeadController extends Controller
 
         $services = Service::orderBy('name')->get();
         $destinations = Destination::orderBy('name')->get();
-        $users = User::orderBy('name')->get();
+        $employees = Employee::whereNotNull('user_id')->orderBy('name')->get();
 
         return view('leads.index', [
             'leads' => $leads,
@@ -116,7 +121,7 @@ class LeadController extends Controller
             'filters' => $filters,
             'services' => $services,
             'destinations' => $destinations,
-            'users' => $users,
+            'employees' => $employees,
         ]);
     }
 
@@ -135,7 +140,10 @@ class LeadController extends Controller
 
         // Filter by assigned user if not admin/manager
         if (!$this->canSeeAllLeads()) {
-            $leadsQuery->where('assigned_user_id', Auth::id());
+            $userId = $this->getCurrentUserId();
+            if ($userId) {
+                $leadsQuery->where('assigned_user_id', $userId);
+            }
         }
 
         if (!empty($filters['search'])) {
@@ -166,14 +174,14 @@ class LeadController extends Controller
 
         $services = Service::orderBy('name')->get();
         $destinations = Destination::orderBy('name')->get();
-        $users = User::orderBy('name')->get();
+        $employees = Employee::whereNotNull('user_id')->orderBy('name')->get();
 
         return view('booking.bookings', [
             'leads' => $leads,
             'filters' => $filters,
             'services' => $services,
             'destinations' => $destinations,
-            'users' => $users,
+            'employees' => $employees,
         ]);
     }
 
@@ -187,6 +195,8 @@ class LeadController extends Controller
             'bookedBy',
             'reassignedTo',
             'costComponents',
+            'payments',
+            'travellerDocuments',
             'bookingDestinations',
             'bookingArrivalDepartures',
             'bookingAccommodations',
@@ -194,17 +204,17 @@ class LeadController extends Controller
             'vendorPayments'
         ]);
 
-        $users = \App\Models\User::orderBy('name')->get();
+        $employees = Employee::whereNotNull('user_id')->orderBy('name')->get();
         $destinations = \App\Models\Destination::with('locations')->orderBy('name')->get();
         
         // Check if user is from non-Sales department (Operation, Delivery, Post Sales, Accounts)
         // These users should only view booking file in read-only mode
         $isViewOnly = $this->isNonSalesDepartment();
         
-        // Determine back URL based on user department and referrer
+        // Determine back URL based on employee department and referrer
         $backUrl = route('bookings.index');
-        $user = Auth::user();
-        $role = $user->role ?? $user->getRoleNameAttribute();
+        $employee = Auth::user();
+        $role = $employee->role ?? $employee->getRoleNameAttribute();
         
         // Check referrer or user department to determine back URL
         $referrer = request()->header('referer');
@@ -230,20 +240,33 @@ class LeadController extends Controller
         }
 
         $vendorPayments = $lead->vendorPayments;
+
+        // Customer payment summary (for red / yellow / green UI)
+        $totalReceived = $lead->payments->where('status', 'received')->sum('amount');
+        $sellingPrice = $lead->selling_price ?? 0;
+        if ($sellingPrice <= 0 || $totalReceived <= 0) {
+            $customerPaymentState = 'none';      // no payment received
+        } elseif ($totalReceived >= $sellingPrice) {
+            $customerPaymentState = 'full';      // fully received
+        } else {
+            $customerPaymentState = 'partial';   // partially received
+        }
         
-        // Check if user is from Ops department
-        $user = Auth::user();
-        $role = $user->role ?? $user->getRoleNameAttribute();
+        // Check if employee is from Ops department
+        $employee = Auth::user();
+        $role = $employee->role ?? $employee->getRoleNameAttribute();
         $isOpsDept = $role && in_array($role, ['Operation', 'Operation Manager']);
 
         return view('booking.booking-form', [
             'lead' => $lead,
-            'users' => $users,
+            'employees' => $employees,
             'destinations' => $destinations,
             'isViewOnly' => $isViewOnly,
             'backUrl' => $backUrl,
             'vendorPayments' => $vendorPayments,
             'isOpsDept' => $isOpsDept,
+            'customerPaymentState' => $customerPaymentState,
+            'totalCustomerReceived' => $totalReceived,
         ]);
     }
 
@@ -251,8 +274,8 @@ class LeadController extends Controller
     {
         $services = Service::all();
         $destinations = Destination::all();
-        $users = User::all();
-        return view('leads.create', compact('services', 'destinations', 'users'));
+        $employees = Employee::whereNotNull('user_id')->orderBy('name')->get();
+        return view('leads.create', compact('services', 'destinations', 'employees'));
     }
 
     public function store(Request $request)
@@ -280,7 +303,7 @@ class LeadController extends Controller
             'children_2_5' => 'nullable|integer|min:0',
             'children_6_11' => 'nullable|integer|min:0',
             'infants' => 'nullable|integer|min:0',
-            'assigned_user_id' => 'nullable|exists:users,id',
+            'assigned_employee_id' => 'nullable|exists:employees,id',
             'status' => 'required|in:new,contacted,follow_up,priority,booked,closed,cancelled,refunded',
         ]);
 
@@ -288,13 +311,28 @@ class LeadController extends Controller
         $data['children_2_5'] = $data['children_2_5'] ?? 0;
         $data['children_6_11'] = $data['children_6_11'] ?? 0;
         $data['children'] = ($data['children_2_5'] ?? 0) + ($data['children_6_11'] ?? 0);
-        $data['assigned_user_id'] = $data['assigned_user_id'] ?? Auth::id();
+        
+        // Map employee ID to user ID
+        if (!empty($data['assigned_employee_id'])) {
+            $employee = Employee::find($data['assigned_employee_id']);
+            if ($employee && $employee->user_id) {
+                // Try to find user by user_id or login_work_email
+                $user = User::where('email', $employee->login_work_email)
+                    ->orWhere('email', $employee->user_id)
+                    ->first();
+                if ($user) {
+                    $data['assigned_user_id'] = $user->id;
+                }
+            }
+            unset($data['assigned_employee_id']);
+        }
+        $data['assigned_user_id'] = $data['assigned_user_id'] ?? $this->getCurrentUserId();
         $data['status'] = $data['status'] ?? 'new';
-        $data['created_by'] = Auth::id();
+        $data['created_by'] = $this->getCurrentUserId();
 
         // Set booked_by and booked_on if status is booked
         if ($data['status'] === 'booked') {
-            $data['booked_by'] = Auth::id();
+            $data['booked_by'] = $this->getCurrentUserId();
             $data['booked_on'] = now();
         }
 
@@ -437,8 +475,8 @@ class LeadController extends Controller
     {
         $services = Service::all();
         $destinations = Destination::all();
-        $users = User::all();
-        return view('leads.edit', compact('lead', 'services', 'destinations', 'users'));
+        $employees = Employee::whereNotNull('user_id')->orderBy('name')->get();
+        return view('leads.edit', compact('lead', 'services', 'destinations', 'employees'));
     }
 
     public function update(Request $request, Lead $lead)
@@ -454,14 +492,31 @@ class LeadController extends Controller
         if ($isBookingForm) {
             // For booking form, validate and update reassigned_to, selling_price and booking-related fields
             $validated = $request->validate([
-                'reassigned_to' => 'nullable|exists:users,id',
+                'reassigned_employee_id' => 'nullable|exists:employees,id',
+                'reassigned_to' => 'nullable|exists:users,id', // Keep for backward compatibility
                 'selling_price' => 'nullable|numeric|min:0',
             ]);
 
+            // Map employee ID to user ID if provided
+            $userId = null;
+            if (!empty($validated['reassigned_employee_id'])) {
+                $employee = Employee::find($validated['reassigned_employee_id']);
+                if ($employee && $employee->user_id) {
+                    $user = User::where('email', $employee->login_work_email)
+                        ->orWhere('email', $employee->user_id)
+                        ->first();
+                    if ($user) {
+                        $userId = $user->id;
+                    }
+                }
+            } elseif (!empty($validated['reassigned_to'])) {
+                $userId = $validated['reassigned_to'];
+            }
+
             // Update reassigned_to and selling_price if provided
             $updateData = [];
-            if (isset($validated['reassigned_to'])) {
-                $updateData['reassigned_to'] = $validated['reassigned_to'];
+            if ($userId) {
+                $updateData['reassigned_to'] = $userId;
             }
             if (isset($validated['selling_price'])) {
                 $updateData['selling_price'] = $validated['selling_price'];
@@ -494,18 +549,59 @@ class LeadController extends Controller
                 'children_2_5' => 'nullable|integer|min:0',
                 'children_6_11' => 'nullable|integer|min:0',
                 'infants' => 'nullable|integer|min:0',
-                'assigned_user_id' => 'nullable|exists:users,id',
+                'assigned_employee_id' => 'nullable|exists:employees,id',
                 'status' => 'required|in:new,contacted,follow_up,priority,booked,closed,cancelled,refunded',
-                'reassigned_to' => 'nullable|exists:users,id',
+                'reassigned_employee_id' => 'nullable|exists:employees,id',
+                'reassigned_to' => 'nullable|exists:users,id', // Keep for backward compatibility
             ]);
 
             $validated['children_2_5'] = $validated['children_2_5'] ?? 0;
             $validated['children_6_11'] = $validated['children_6_11'] ?? 0;
             $validated['children'] = ($validated['children_2_5'] ?? 0) + ($validated['children_6_11'] ?? 0);
 
+            // Map employee ID to user ID for database compatibility
+            if (!empty($validated['assigned_employee_id'])) {
+                $assignedEmployee = Employee::find($validated['assigned_employee_id']);
+                if ($assignedEmployee && $assignedEmployee->user_id) {
+                    // Find or create user record for database compatibility
+                    $user = User::where('user_id', $assignedEmployee->user_id)
+                        ->orWhere('email', $assignedEmployee->login_work_email)
+                        ->first();
+                    if (!$user) {
+                        // Create user record if it doesn't exist
+                        $user = User::create([
+                            'name' => $assignedEmployee->name,
+                            'email' => $assignedEmployee->login_work_email ?? $assignedEmployee->user_id . '@travelshravel.com',
+                            'password' => $assignedEmployee->password,
+                            'user_id' => $assignedEmployee->user_id,
+                            'role' => $assignedEmployee->role ?? 'Sales',
+                            'status' => 'Active',
+                        ]);
+                    }
+                    if ($user) {
+                        $validated['assigned_user_id'] = $user->id;
+                    }
+                }
+                unset($validated['assigned_employee_id']);
+            }
+
+            // Map reassigned_employee_id to reassigned_to
+            if (!empty($validated['reassigned_employee_id'])) {
+                $employee = Employee::find($validated['reassigned_employee_id']);
+                if ($employee && $employee->user_id) {
+                    $user = User::where('email', $employee->login_work_email)
+                        ->orWhere('email', $employee->user_id)
+                        ->first();
+                    if ($user) {
+                        $validated['reassigned_to'] = $user->id;
+                    }
+                }
+                unset($validated['reassigned_employee_id']);
+            }
+
             // Set booked_by and booked_on if status is changing to booked
             if ($validated['status'] === 'booked' && $lead->status !== 'booked') {
-                $validated['booked_by'] = Auth::id();
+                $validated['booked_by'] = $this->getCurrentUserId();
                 $validated['booked_on'] = now();
             }
 
@@ -710,7 +806,7 @@ class LeadController extends Controller
 
         // Set booked_by and booked_on if status is changing to booked
         if ($validated['status'] === 'booked' && $oldStatus !== 'booked') {
-            $updateData['booked_by'] = Auth::id();
+                $updateData['booked_by'] = $this->getCurrentUserId();
             $updateData['booked_on'] = now();
         }
 
@@ -724,11 +820,36 @@ class LeadController extends Controller
     public function updateAssignedUser(Request $request, Lead $lead)
     {
         $validated = $request->validate([
-            'assigned_user_id' => 'required|exists:users,id',
+            'assigned_employee_id' => 'nullable|exists:employees,id',
+            'assigned_user_id' => 'nullable|exists:users,id', // Keep for backward compatibility
         ]);
 
+        $userId = null;
+        
+        // If employee_id is provided, map it to user_id
+        if (!empty($validated['assigned_employee_id'])) {
+            $employee = Employee::find($validated['assigned_employee_id']);
+            if ($employee && $employee->user_id) {
+                $user = User::where('email', $employee->login_work_email)
+                    ->orWhere('email', $employee->user_id)
+                    ->first();
+                if ($user) {
+                    $userId = $user->id;
+                }
+            }
+        } elseif (!empty($validated['assigned_user_id'])) {
+            // Backward compatibility: if user_id is provided directly
+            $userId = $validated['assigned_user_id'];
+        }
+
+        if (!$userId) {
+            return response()->json([
+                'message' => 'Invalid employee or user selected.',
+            ], 422);
+        }
+
         $oldAssignedUser = $lead->assignedUser;
-        $lead->update(['assigned_user_id' => $validated['assigned_user_id']]);
+        $lead->update(['assigned_user_id' => $userId]);
         $newAssignedUser = $lead->fresh()->assignedUser;
 
         if ($request->expectsJson()) {
@@ -744,16 +865,75 @@ class LeadController extends Controller
         return redirect()->back()->with('success', 'Assigned user updated successfully!');
     }
 
+    public function updateReassignedUser(Request $request, Lead $lead)
+    {
+        $validated = $request->validate([
+            'reassigned_employee_id' => 'nullable|exists:employees,id',
+            'reassigned_to' => 'nullable|exists:users,id', // Keep for backward compatibility
+        ]);
+
+        $userId = null;
+        
+        // If employee_id is provided, map it to user_id
+        if (!empty($validated['reassigned_employee_id'])) {
+            $employee = Employee::find($validated['reassigned_employee_id']);
+            if ($employee && $employee->user_id) {
+                $user = User::where('email', $employee->login_work_email)
+                    ->orWhere('email', $employee->user_id)
+                    ->first();
+                if ($user) {
+                    $userId = $user->id;
+                }
+            }
+        } elseif (!empty($validated['reassigned_to'])) {
+            // Backward compatibility: if user_id is provided directly
+            $userId = $validated['reassigned_to'];
+        }
+
+        if (!$userId) {
+            return redirect()->back()->with('error', 'Invalid employee or user selected.');
+        }
+
+        $lead->update([
+            'reassigned_to' => $userId,
+        ]);
+
+        return redirect()->back()->with('success', 'Lead reassigned successfully!');
+    }
+
     public function bulkAssign(Request $request)
     {
         $validated = $request->validate([
             'lead_ids' => 'required|array|min:1',
             'lead_ids.*' => 'required|exists:leads,id',
-            'assigned_user_id' => 'required|exists:users,id',
+            'assigned_employee_id' => 'nullable|exists:employees,id',
+            'assigned_user_id' => 'nullable|exists:users,id', // Keep for backward compatibility
         ]);
 
         $leadIds = $validated['lead_ids'];
-        $assignedUserId = $validated['assigned_user_id'];
+        $userId = null;
+        
+        // If employee_id is provided, map it to user_id
+        if (!empty($validated['assigned_employee_id'])) {
+            $employee = Employee::find($validated['assigned_employee_id']);
+            if ($employee && $employee->user_id) {
+                $user = User::where('email', $employee->login_work_email)
+                    ->orWhere('email', $employee->user_id)
+                    ->first();
+                if ($user) {
+                    $userId = $user->id;
+                }
+            }
+        } elseif (!empty($validated['assigned_user_id'])) {
+            // Backward compatibility: if user_id is provided directly
+            $userId = $validated['assigned_user_id'];
+        }
+
+        if (!$userId) {
+            return response()->json([
+                'message' => 'Invalid employee or user selected.',
+            ], 422);
+        }
 
         // Get leads that exist and user has permission to edit
         $leads = Lead::whereIn('id', $leadIds)->get();
@@ -768,11 +948,11 @@ class LeadController extends Controller
         foreach ($leads as $lead) {
             // Check permission for each lead (optional - you can remove if not needed)
             // For now, we'll update all leads that were found
-            $lead->update(['assigned_user_id' => $assignedUserId]);
+            $lead->update(['assigned_user_id' => $userId]);
             $updatedCount++;
         }
 
-        $assignedUser = \App\Models\User::find($assignedUserId);
+        $assignedUser = \App\Models\User::find($userId);
 
         if ($request->expectsJson()) {
             return response()->json([

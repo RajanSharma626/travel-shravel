@@ -16,9 +16,13 @@ class CheckUserStatus
      */
     public function handle(Request $request, Closure $next): Response
     {
-         if (Auth::check() && Auth::user()->status !== 'Active') {
+         if (Auth::check()) {
+            $employee = Auth::user();
+            // Check employment status instead of user status
+            if ($employee->employment_status && $employee->employment_status !== 'Active') {
             Auth::logout();
-            return redirect()->route('login')->withErrors(['Your account is Deactive. Please contact admin.']);
+                return redirect()->route('login')->withErrors(['Your account is inactive. Please contact admin.']);
+            }
         }
 
         return $next($request);

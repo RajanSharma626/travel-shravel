@@ -64,7 +64,7 @@
                                 <div class="dropdown-menu dropdown-menu-end shadow-lg border-1 rounded-3">
                                     <div class="dropdown-header">
                                         <h6 class="fw-bold mb-0">{{ Auth::user()->name }}</h6>
-                                        <small class="text-muted">ID: {{ Auth::user()->email }}</small>
+                                        <small class="text-muted">ID: {{ Auth::user()->user_id ?? Auth::user()->login_work_email ?? 'N/A' }}</small>
                                     </div>
                                     <div class="dropdown-divider"></div>
 
@@ -133,8 +133,10 @@
                             </li>
 
                             <!-- Sales Tab - Visible to Admin, Sales, Sales Manager -->
-                            @if (Auth::user()->hasRole('Admin') ||
-                                    Auth::user()->hasRole('Developer') ||
+                            @php
+                                $isAdmin = Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Developer');
+                            @endphp
+                            @if ($isAdmin ||
                                     Auth::user()->hasRole('Sales') ||
                                     Auth::user()->hasRole('Sales Manager'))
                                 @php
@@ -170,8 +172,7 @@
                             @endif
 
                             <!-- Operations Tab - Visible to Admin, Operation, Operation Manager -->
-                            @if (Auth::user()->hasRole('Admin') ||
-                                    Auth::user()->hasRole('Developer') ||
+                            @if ($isAdmin ||
                                     Auth::user()->hasRole('Operation') ||
                                     Auth::user()->hasRole('Operation Manager'))
                                
@@ -188,8 +189,7 @@
                             @endif
 
                             <!-- Post Sales Tab - Visible to Admin, Post Sales, Post Sales Manager -->
-                            @if (Auth::user()->hasRole('Admin') ||
-                                    Auth::user()->hasRole('Developer') ||
+                            @if ($isAdmin ||
                                     Auth::user()->hasRole('Post Sales') ||
                                     Auth::user()->hasRole('Post Sales Manager'))
                                 <li class="nav-item mb-2 {{ request()->is('post-sales*') || (request()->is('bookings/*/form') && (Auth::user()->hasRole('Post Sales') || Auth::user()->hasRole('Post Sales Manager'))) ? 'active' : '' }}">
@@ -205,8 +205,7 @@
                             @endif
 
                             <!-- Accounts Tab - Visible to Admin, Accounts, Accounts Manager -->
-                            @if (Auth::user()->hasRole('Admin') ||
-                                    Auth::user()->hasRole('Developer') ||
+                            @if ($isAdmin ||
                                     Auth::user()->hasRole('Accounts') ||
                                     Auth::user()->hasRole('Accounts Manager'))
                                 <li class="nav-item mb-2 {{ request()->is('accounts*') || (request()->routeIs('bookings.form') && (Auth::user()->hasRole('Accounts') || Auth::user()->hasRole('Accounts Manager'))) ? 'active' : '' }}">
@@ -222,8 +221,7 @@
                             @endif
 
                             <!-- Delivery Tab - Visible to Admin, Delivery, Delivery Manager -->
-                            @if (Auth::user()->hasRole('Admin') ||
-                                    Auth::user()->hasRole('Developer') ||
+                            @if ($isAdmin ||
                                     Auth::user()->hasRole('Delivery') ||
                                     Auth::user()->hasRole('Delivery Manager'))
                                 <li class="nav-item mb-2 {{ request()->is('deliveries*') || (request()->is('bookings/*/form') && (Auth::user()->hasRole('Delivery') || Auth::user()->hasRole('Delivery Manager'))) ? 'active' : '' }}">
@@ -239,8 +237,7 @@
                             @endif
 
                             <!-- HR Tab - Visible to Admin and HR only -->
-                            @if (Auth::user()->hasRole('Admin') ||
-                                    Auth::user()->hasRole('Developer') ||
+                            @if ($isAdmin ||
                                     Auth::user()->hasRole('HR'))
                                 <li class="nav-item mb-2 {{ request()->is('hr*') ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('hr.employees.index') }}">
@@ -302,8 +299,8 @@
                                 </a>
                             </li> --}}
 
-                            <!-- Users (Admin/HR only) -->
-                            @can('view users')
+                            <!-- Users removed - Now using HR tab to create user profiles and login details -->
+                            {{-- @can('view users')
                                 <li class="nav-item mb-2 {{ request()->is('users*') ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('users') }}">
                                         <span class="nav-icon-wrap">
@@ -314,7 +311,7 @@
                                         <span class="nav-link-text">Users</span>
                                     </a>
                                 </li>
-                            @endcan
+                            @endcan --}}
 
                             <!-- Settings -->
                             {{-- <li class="nav-item mb-2 {{ request()->is('settings*') ? 'active' : '' }}">
@@ -370,7 +367,8 @@
 
     </script>
 
-    <script>
+    {{-- Users JavaScript removed - Now using HR tab to create user profiles and login details --}}
+    {{-- <script>
         $(document).ready(function() {
             $('.edit-users-btn').on('click', function() {
                 let empId = $(this).data('emp-id');
@@ -400,7 +398,7 @@
                 });
             });
         });
-    </script>
+    </script> --}}
 
     <script>
         $(document).ready(function() {

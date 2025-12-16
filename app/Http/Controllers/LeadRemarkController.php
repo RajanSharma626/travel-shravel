@@ -20,10 +20,21 @@ class LeadRemarkController extends Controller
         // Set default visibility to public if not provided
         $validated['visibility'] = $validated['visibility'] ?? 'public';
 
-        $remark = $lead->remarks()->create($validated + ['user_id' => Auth::id()]);
+        // Map employee to user ID for database compatibility
+        $employee = Auth::user();
+        $userId = null;
+        if ($employee && $employee->user_id) {
+            $user = \App\Models\User::where('user_id', $employee->user_id)
+                ->orWhere('email', $employee->login_work_email)
+                ->first();
+            $userId = $user ? $user->id : null;
+        }
+        
+        $remark = $lead->remarks()->create($validated + ['user_id' => $userId]);
 
         if ($request->expectsJson()) {
             $remark->load('user');
+            $employee = $remark->employee;
             return response()->json([
                 'message' => 'Remark added successfully!',
                 'remark' => [
@@ -33,7 +44,7 @@ class LeadRemarkController extends Controller
                     'follow_up_date' => $remark->follow_up_date ? $remark->follow_up_date->format('d M, Y') : null,
                     'created_at' => $remark->created_at?->format('d M, Y h:i A'),
                     'user' => [
-                        'name' => $remark->user?->name ?? 'Unknown',
+                        'name' => $employee?->name ?? $remark->user?->name ?? 'Unknown',
                     ],
                 ],
             ]);

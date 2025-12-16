@@ -5,11 +5,12 @@ use App\Http\Controllers\DestinationController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LeadRemarkController;
 use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\UserController;
+// use App\Http\Controllers\UserController; // Removed - Now using HR tab for user management
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\CostComponentController;
 use App\Http\Controllers\OperationController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\TravellerDocumentController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\IncentiveRuleController;
 use App\Http\Controllers\IncentiveController;
@@ -32,23 +33,23 @@ Route::middleware(['auth', 'check.active'])->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // users routes restricted to admin/HR only
-    Route::middleware('permission:view users')->group(function () {
-        Route::get('/users', [UserController::class, 'index'])->name('users');
-    });
-    
-    Route::middleware('permission:create users')->group(function () {
-        Route::post('/user/store', [UserController::class, 'store'])->name('users.store');
-    });
-    
-    Route::middleware('permission:edit users')->group(function () {
-        Route::get('/user/edit/{id}', [UserController::class, 'edit'])->name('users.edit');
-        Route::post('/user/update', [UserController::class, 'update'])->name('users.update');
-    });
-    
-    Route::middleware('permission:delete users')->group(function () {
-        Route::get('/user/delete/{id}', [UserController::class, 'destroy'])->name('users.delete');
-    });
+    // Users routes removed - Now using HR tab to create user profiles and login details
+    // Route::middleware('permission:view users')->group(function () {
+    //     Route::get('/users', [UserController::class, 'index'])->name('users');
+    // });
+    // 
+    // Route::middleware('permission:create users')->group(function () {
+    //     Route::post('/user/store', [UserController::class, 'store'])->name('users.store');
+    // });
+    // 
+    // Route::middleware('permission:edit users')->group(function () {
+    //     Route::get('/user/edit/{id}', [UserController::class, 'edit'])->name('users.edit');
+    //     Route::post('/user/update', [UserController::class, 'update'])->name('users.update');
+    // });
+    // 
+    // Route::middleware('permission:delete users')->group(function () {
+    //     Route::get('/user/delete/{id}', [UserController::class, 'destroy'])->name('users.delete');
+    // });
 
     // Services
     Route::middleware('permission:view services')->group(function () {
@@ -117,6 +118,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     });
     Route::middleware('permission:edit leads')->group(function () {
         Route::post('/leads/{lead}/assign-user', [LeadController::class, 'updateAssignedUser'])->name('leads.updateAssignedUser');
+        Route::post('/leads/{lead}/reassign', [LeadController::class, 'updateReassignedUser'])->name('leads.reassign');
         Route::post('/leads/bulk-assign', [LeadController::class, 'bulkAssign'])->name('leads.bulkAssign');
     });
     Route::middleware('permission:delete leads')->group(function () {
@@ -213,6 +215,10 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     Route::middleware('permission:upload documents')->group(function () {
         Route::post('/leads/{lead}/documents', [DocumentController::class, 'store'])->name('leads.documents.store');
         Route::put('/leads/{lead}/documents/bulk-update', [DocumentController::class, 'bulkUpdate'])->name('leads.documents.bulk-update');
+
+        // Traveller document details (Post Sales)
+        Route::post('/leads/{lead}/traveller-documents', [TravellerDocumentController::class, 'store'])->name('leads.traveller-documents.store');
+        Route::delete('/leads/{lead}/traveller-documents/{travellerDocument}', [TravellerDocumentController::class, 'destroy'])->name('leads.traveller-documents.destroy');
     });
     Route::middleware('permission:verify documents')->group(function () {
         Route::put('/leads/{lead}/documents/{document}', [DocumentController::class, 'update'])->name('leads.documents.update');

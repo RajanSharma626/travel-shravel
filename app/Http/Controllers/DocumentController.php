@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Lead;
 use App\Models\Document;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -52,9 +53,9 @@ class DocumentController extends Controller
 
         $services = \App\Models\Service::orderBy('name')->get();
         $destinations = \App\Models\Destination::orderBy('name')->get();
-        $users = \App\Models\User::orderBy('name')->get();
+        $employees = Employee::whereNotNull('user_id')->orderBy('name')->get();
 
-        return view('post-sales.index', compact('leads', 'filters', 'services', 'destinations', 'users'));
+        return view('post-sales.index', compact('leads', 'filters', 'services', 'destinations', 'employees'));
     }
 
     public function show(Lead $lead)
@@ -73,7 +74,7 @@ class DocumentController extends Controller
         ]);
 
         $documentData = [
-            'uploaded_by' => Auth::id(),
+            'uploaded_by' => $this->getCurrentUserId(),
             'type' => $validated['type'],
             'status' => $validated['status'] ?? 'not_received',
             'notes' => $validated['notes'] ?? null,
@@ -84,7 +85,7 @@ class DocumentController extends Controller
 
         // Update received_by and received_at when marking as received
         if (($validated['status'] ?? 'not_received') == 'received') {
-            $documentData['received_by'] = Auth::id();
+            $documentData['received_by'] = $this->getCurrentUserId();
             $documentData['received_at'] = now();
         }
 
@@ -123,13 +124,13 @@ class DocumentController extends Controller
 
         // Update received_by and received_at when marking as received
         if ($validated['status'] == 'received' && $document->status != 'received') {
-            $updateData['received_by'] = Auth::id();
+            $updateData['received_by'] = $this->getCurrentUserId();
             $updateData['received_at'] = now();
         }
 
         // Update verified_by and verified_at when marking as verified/rejected
         if (in_array($validated['status'], ['verified', 'rejected']) && !in_array($document->status, ['verified', 'rejected'])) {
-            $updateData['verified_by'] = Auth::id();
+            $updateData['verified_by'] = $this->getCurrentUserId();
             $updateData['verified_at'] = now();
         }
 
@@ -202,7 +203,7 @@ class DocumentController extends Controller
                         } else {
                             // Create new document
                             $lead->documents()->create([
-                                'uploaded_by' => Auth::id(),
+                                'uploaded_by' => $this->getCurrentUserId(),
                                 'type' => $docType,
                                 'person_number' => $personNum,
                                 'status' => 'received',
@@ -240,7 +241,7 @@ class DocumentController extends Controller
                     } else {
                         // Create new document
                         $lead->documents()->create([
-                            'uploaded_by' => Auth::id(),
+                            'uploaded_by' => $this->getCurrentUserId(),
                             'type' => $docType,
                             'person_number' => null,
                             'status' => 'received',
@@ -279,6 +280,8 @@ class DocumentController extends Controller
             'bookedBy',
             'reassignedTo',
             'costComponents',
+            'payments',
+            'travellerDocuments',
             'bookingDestinations',
             'bookingArrivalDepartures',
             'bookingAccommodations',
@@ -286,25 +289,38 @@ class DocumentController extends Controller
             'vendorPayments'
         ]);
 
-        $users = \App\Models\User::orderBy('name')->get();
+        $employees = Employee::whereNotNull('user_id')->orderBy('name')->get();
         $destinations = \App\Models\Destination::with('locations')->orderBy('name')->get();
         
-        // Post Sales booking file is completely view-only
+        // Post Sales booking file is completely view-only (except customer payments section)
         $isViewOnly = true;
         $isOpsDept = false; // Post Sales cannot edit Vendor Payments
         $isPostSales = true; // Identify Post Sales booking file
         $backUrl = route('post-sales.index');
         $vendorPayments = $lead->vendorPayments;
 
+        // Customer payment summary (for red / yellow / green UI)
+        $totalReceived = $lead->payments->where('status', 'received')->sum('amount');
+        $sellingPrice = $lead->selling_price ?? 0;
+        if ($sellingPrice <= 0 || $totalReceived <= 0) {
+            $customerPaymentState = 'none';
+        } elseif ($totalReceived >= $sellingPrice) {
+            $customerPaymentState = 'full';
+        } else {
+            $customerPaymentState = 'partial';
+        }
+
         return view('booking.booking-form', [
             'lead' => $lead,
-            'users' => $users,
+            'employees' => $employees,
             'destinations' => $destinations,
             'isViewOnly' => $isViewOnly,
             'backUrl' => $backUrl,
             'vendorPayments' => $vendorPayments,
             'isOpsDept' => $isOpsDept,
             'isPostSales' => $isPostSales,
+            'customerPaymentState' => $customerPaymentState,
+            'totalCustomerReceived' => $totalReceived,
         ]);
     }
 }

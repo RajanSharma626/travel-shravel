@@ -64,7 +64,7 @@ class IncentiveController extends Controller
 
         $incentive->update([
             'status' => 'approved',
-            'approved_by' => Auth::id(),
+            'approved_by' => $this->getCurrentUserId(),
             'approved_at' => now(),
         ]);
 
