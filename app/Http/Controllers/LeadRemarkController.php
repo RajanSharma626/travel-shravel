@@ -13,7 +13,7 @@ class LeadRemarkController extends Controller
     {
         $validated = $request->validate([
             'remark' => 'required|string',
-            'follow_up_date' => 'nullable|date',
+            'follow_up_at' => 'nullable|date',
             'visibility' => 'nullable|in:internal,public',
         ]);
 
@@ -30,6 +30,15 @@ class LeadRemarkController extends Controller
             $userId = $user ? $user->id : null;
         }
         
+        // Normalize follow_up_at: allow datetime-local format or date string
+        if (!empty($validated['follow_up_at'])) {
+            try {
+                $validated['follow_up_at'] = \Carbon\Carbon::parse($validated['follow_up_at'])->toDateTimeString();
+            } catch (\Exception $e) {
+                $validated['follow_up_at'] = null;
+            }
+        }
+
         $remark = $lead->remarks()->create($validated + ['user_id' => $userId]);
 
         if ($request->expectsJson()) {
@@ -41,7 +50,9 @@ class LeadRemarkController extends Controller
                     'id' => $remark->id,
                     'remark' => $remark->remark,
                     'visibility' => $remark->visibility,
-                    'follow_up_date' => $remark->follow_up_date ? $remark->follow_up_date->format('d M, Y') : null,
+                    'follow_up_at' => $remark->follow_up_at ? $remark->follow_up_at->format('Y-m-d H:i:s') : null,
+                    'follow_up_date' => $remark->follow_up_at ? $remark->follow_up_at->format('d M, Y') : null,
+                    'follow_up_time' => $remark->follow_up_at ? $remark->follow_up_at->format('h:i A') : null,
                     'created_at' => $remark->created_at?->format('d M, Y h:i A'),
                     'user' => [
                         'name' => $employee?->name ?? $remark->user?->name ?? 'Unknown',
@@ -57,7 +68,7 @@ class LeadRemarkController extends Controller
     {
         $validated = $request->validate([
             'remark' => 'required|string',
-            'follow_up_date' => 'nullable|date',
+            'follow_up_at' => 'nullable|date',
             'visibility' => 'nullable|in:internal,public',
         ]);
 

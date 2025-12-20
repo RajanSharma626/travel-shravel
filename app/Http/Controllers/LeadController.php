@@ -381,7 +381,9 @@ class LeadController extends Controller
                     'id' => $remark->id,
                     'remark' => $remark->remark,
                     'visibility' => $remark->visibility,
-                    'follow_up_date' => $remark->follow_up_date ? $remark->follow_up_date->format('d M, Y') : null,
+                    'follow_up_at' => $remark->follow_up_at ? $remark->follow_up_at->format('Y-m-d H:i:s') : null,
+                    'follow_up_date' => $remark->follow_up_at ? $remark->follow_up_at->format('d M, Y') : null,
+                    'follow_up_time' => $remark->follow_up_at ? $remark->follow_up_at->format('h:i A') : null,
                     'created_at' => $remark->created_at?->format('d M, Y h:i A'),
                     'user' => [
                         'name' => $remark->user?->name ?? 'Unknown',
@@ -399,11 +401,26 @@ class LeadController extends Controller
                 ];
             });
 
+            // Compute next follow-up (nearest future follow_up_at)
+            $nextFollowUpRemark = $lead->remarks()->whereNotNull('follow_up_at')->where('follow_up_at', '>', now())->orderBy('follow_up_at', 'asc')->first();
+            $nextFollowUp = null;
+            if ($nextFollowUpRemark) {
+                $nextFollowUp = [
+                    'id' => $nextFollowUpRemark->id,
+                    'follow_up_at' => $nextFollowUpRemark->follow_up_at ? $nextFollowUpRemark->follow_up_at->format('Y-m-d H:i:s') : null,
+                    'follow_up_date' => $nextFollowUpRemark->follow_up_at ? $nextFollowUpRemark->follow_up_at->format('d M, Y') : null,
+                    'follow_up_time' => $nextFollowUpRemark->follow_up_at ? $nextFollowUpRemark->follow_up_at->format('h:i A') : null,
+                    'remark' => 
+                        strlen($nextFollowUpRemark->remark) > 120 ? substr($nextFollowUpRemark->remark, 0, 120) . '...' : $nextFollowUpRemark->remark,
+                ];
+            }
+
             return response()->json([
                 'lead' => [
                     'id' => $lead->id,
                     'tsq' => $lead->tsq,
                     'customer_name' => $lead->customer_name,
+                    'salutation' => $lead->salutation,
                     'first_name' => $lead->first_name,
                     'last_name' => $lead->last_name,
                     'primary_phone' => $lead->primary_phone ?? $lead->phone,
@@ -430,6 +447,7 @@ class LeadController extends Controller
                     'children_6_11' => $lead->children_6_11 ?? 0,
                     'infants' => $lead->infants,
                     'assigned_user' => $lead->assignedUser?->name,
+                    'assigned_user_email' => $lead->assignedUser?->email,
                     'assigned_user_id' => $lead->assigned_user_id,
                     'status' => $lead->status,
                     'status_label' => $statusLabels[$lead->status] ?? ucfirst(str_replace('_', ' ', $lead->status)),
@@ -465,6 +483,7 @@ class LeadController extends Controller
                 ],
                 'remarks' => $remarks,
                 'documents' => $documents,
+                'next_follow_up' => $nextFollowUp,
             ]);
         }
 

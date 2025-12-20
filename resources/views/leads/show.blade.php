@@ -262,7 +262,15 @@
                                     <div class="card">
                                         <div class="card-header d-flex justify-content-between">
                                             <h5 class="mb-0">Remarks & Follow-ups</h5>
-                                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addRemarkModal">Add Remark</button>
+                                            <div class="d-flex align-items-center">
+                                                @php
+                                                    $nextFollow = $lead->remarks->filter(fn($r) => $r->follow_up_at && $r->follow_up_at->isFuture())->sortBy('follow_up_at')->first();
+                                                @endphp
+                                                @if($nextFollow)
+                                                    <span class="badge bg-danger me-2">Follow-up: {{ $nextFollow->follow_up_at->format('d M, Y h:i A') }}</span>
+                                                @endif
+                                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addRemarkModal">Add Remark</button>
+                                            </div>
                                         </div>
                                         <div class="card-body">
                                             @forelse($lead->remarks as $remark)
@@ -271,8 +279,8 @@
                                                         <div class="d-flex justify-content-between">
                                                             <div>
                                                                 <strong>{{ $remark->user->name }}</strong>
-                                                                @if($remark->follow_up_date)
-                                                                    <span class="badge bg-danger ms-2">Follow-up: {{ $remark->follow_up_date->format('d M, Y') }}</span>
+                                                                @if($remark->follow_up_at)
+                                                                    <span class="badge bg-danger ms-2">Follow-up: {{ $remark->follow_up_at->format('d M, Y h:i A') }}</span>
                                                                 @endif
                                                             </div>
                                                             <small class="text-muted">{{ $remark->created_at->format('d M, Y h:i A') }}</small>

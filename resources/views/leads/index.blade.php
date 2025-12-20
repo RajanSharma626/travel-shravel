@@ -129,7 +129,7 @@
                                                     <a href="#"
                                                         class="text-primary text-decoration-none fw-semibold view-lead-btn lead-name-link"
                                                         data-lead-id="{{ $lead->id }}">
-                                                        {{ $lead->customer_name }}
+                                                        {{ ($lead->salutation ? $lead->salutation . ' ' : '') }}{{ $lead->customer_name }}
                                                     </a>
                                                 </td>
                                                 <td>{{ $lead->primary_phone ?? $lead->phone }}</td>
@@ -292,6 +292,10 @@
                         <div class="mb-4 border rounded-3 p-3 bg-light">
                             <h6 class="text-uppercase text-muted small fw-semibold mb-3">Customer Information</h6>
                             <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Ref. No.</label>
+                                    <input type="text" id="addRefNo" class="form-control form-control-sm" readonly style="background-color: #f8f9fa; cursor: not-allowed;" placeholder="TSQ Number">
+                                </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Salutation</label>
                                     <select name="salutation" class="form-select form-select-sm">
@@ -511,9 +515,16 @@
                                     <select name="assigned_employee_id" class="form-select form-select-sm">
                                         <option value="">-- Select Employee --</option>
                                         @foreach ($employees as $employee)
+                                            @php
+                                                $matchingUser = \App\Models\User::where('email', $employee->login_work_email)
+                                                    ->orWhere('email', $employee->user_id)
+                                                    ->first();
+                                            @endphp
                                             <option value="{{ $employee->id }}"
+                                                data-user-id="{{ $matchingUser->id ?? '' }}"
+                                                data-user-email="{{ $employee->login_work_email ?? '' }}"
                                                 {{ (string) old('assigned_employee_id') === (string) $employee->id ? 'selected' : '' }}>
-                                                {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }})@endif
+                                                {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }} - {{ $employee->department }})@endif
                                             </option>
                                         @endforeach
                                     </select>
@@ -709,7 +720,10 @@
                                         style="width: 18px; height: 18px;"></i>
                                     Recent Remarks
                                 </h6>
-                                <span class="badge bg-primary rounded-pill px-3 py-2" id="viewLeadRemarksCount">0</span>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary rounded-pill px-3 py-2 me-2" id="viewLeadRemarksCount">0</span>
+                                    <span class="badge bg-danger text-white d-none" id="viewLeadNextFollowUp" title="Next scheduled follow-up"></span>
+                                </div>
                             </div>
                             <div class="card-body p-4" id="viewLeadRemarks" style="max-height: 400px; overflow-y: auto;">
                                 <p class="text-muted text-center mb-0 py-3">No remarks yet.</p>
@@ -959,15 +973,15 @@
                             @csrf
 
                             <div class="row">
-                                <div class="col-md-10 mb-3">
+                                <div class="col-md-7 mb-3">
                                     <label class="form-label small mb-1">Add Remark <span
                                             class="text-danger">*</span></label>
                                     <textarea name="remark" class="form-control form-control-sm" rows="2" placeholder="Enter your remark here..."
                                         required></textarea>
                                 </div>
-                                <div class="col-md-2 mb-3">
-                                    <label class="form-label small mb-1">Follow-up Date</label>
-                                    <input type="date" name="follow_up_date" class="form-control form-control-sm">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label small mb-1">Follow-up Date &amp; Time</label>
+                                    <input type="datetime-local" name="follow_up_at" class="form-control form-control-sm">
                                 </div>
                                 <div class="col-md-12 d-flex justify-content-end gap-2">
                                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
@@ -1249,6 +1263,8 @@
 
                 let viewLeadModalInstance = null;
                 let currentLeadId = null;
+                // Global current lead data for use across view/edit flows
+                let currentLeadData = null;
 
                 // Function to show Bootstrap toast
                 const showToast = (message, type = 'success') => {
@@ -1397,10 +1413,10 @@
                     }
 
                     return remarks.map((remark, index) => {
-                        const followUp = remark.follow_up_date ?
+                        const followUp = (remark.follow_up_at || (remark.follow_up_date ? (remark.follow_up_date + (remark.follow_up_time ? ' ' + remark.follow_up_time : '')) : null)) ?
                             `<span class="badge bg-light text-danger border border-danger ms-2 px-2 py-1">
                             <i data-feather="calendar" class="me-1" style="width: 12px; height: 12px;"></i>
-                            Follow-up: ${escapeHtml(remark.follow_up_date)}
+                            Follow-up: ${escapeHtml(remark.follow_up_date ? (remark.follow_up_date + (remark.follow_up_time ? ' ' + remark.follow_up_time : '')) : (remark.follow_up_at_formatted ?? remark.follow_up_at))}
                         </span>` : '';
                         return `
                         <div class="border rounded-3 p-3 mb-3 bg-white border">
@@ -1442,6 +1458,19 @@
                     if (remarkForm) {
                         remarkForm.reset();
                         remarkForm.dataset.leadId = '';
+                    }
+
+                    // Reset remarks container and counters
+                    if (viewLeadRemarksContainer) {
+                        viewLeadRemarksContainer.innerHTML = '<p class="text-muted text-center mb-0 py-3">No remarks yet.</p>';
+                    }
+                    if (viewLeadRemarksCount) {
+                        viewLeadRemarksCount.textContent = '0';
+                    }
+                    const viewLeadNextFollowUp = document.getElementById('viewLeadNextFollowUp');
+                    if (viewLeadNextFollowUp) {
+                        viewLeadNextFollowUp.classList.add('d-none');
+                        viewLeadNextFollowUp.textContent = '';
                     }
                 };
 
@@ -1491,10 +1520,10 @@
                         currentLeadData = lead;
                         
                         // Pre-populate edit form fields if edit form exists
-                        const editRefNoEl = document.getElementById('editRefNo');
-                        if (editRefNoEl && lead.tsq) {
-                            editRefNoEl.value = lead.tsq || 'N/A';
-                        }
+                        // const editRefNoEl = document.getElementById('editRefNo');
+                        // if (editRefNoEl && lead.tsq) {
+                        //     editRefNoEl.value = lead.tsq || 'N/A';
+                        // }
 
                         if (viewLeadLoader) {
                             viewLeadLoader.classList.add('d-none');
@@ -1583,6 +1612,21 @@
                         }
                         if (viewLeadRemarksContainer) {
                             viewLeadRemarksContainer.innerHTML = renderRemarks(data.remarks || []);
+                        }
+
+                        // Show next scheduled follow-up (nearest future follow_up_at)
+                        const viewLeadNextFollowUp = document.getElementById('viewLeadNextFollowUp');
+                        if (viewLeadNextFollowUp) {
+                            if (data.next_follow_up) {
+                                const nf = data.next_follow_up;
+                                const label = nf.follow_up_date + (nf.follow_up_time ? ' ' + nf.follow_up_time : '');
+                                viewLeadNextFollowUp.innerHTML = `<i data-feather="calendar" class="me-1" style="width: 12px; height: 12px;"></i> Follow-Up: ${label}`;
+                                viewLeadNextFollowUp.classList.remove('d-none');
+                                safeFeatherReplace(viewLeadNextFollowUp);
+                            } else {
+                                viewLeadNextFollowUp.classList.add('d-none');
+                                viewLeadNextFollowUp.textContent = '';
+                            }
                         }
 
                         if (remarkForm) {
@@ -1749,6 +1793,27 @@
                                     viewLeadRemarksCount.textContent = currentCount + 1;
                                 }
 
+                                // Update next follow-up badge if this remark schedules a future follow-up
+                                if (payload?.remark?.follow_up_at) {
+                                    try {
+                                        // Normalize to ISO for Date parsing
+                                        const followUpIso = payload.remark.follow_up_at.replace(' ', 'T');
+                                        const followUpDate = new Date(followUpIso);
+                                        const now = new Date();
+                                        if (followUpDate > now) {
+                                            const viewLeadNextFollowUpEl = document.getElementById('viewLeadNextFollowUp');
+                                            if (viewLeadNextFollowUpEl) {
+                                                const label = payload.remark.follow_up_date + (payload.remark.follow_up_time ? ' ' + payload.remark.follow_up_time : '');
+                                                viewLeadNextFollowUpEl.innerHTML = `<i data-feather="calendar" class="me-1" style="width: 12px; height: 12px;"></i> Follow-Up: ${label}`;
+                                                viewLeadNextFollowUpEl.classList.remove('d-none');
+                                                safeFeatherReplace(viewLeadNextFollowUpEl);
+                                            }
+                                        }
+                                    } catch (e) {
+                                        // ignore parsing errors
+                                    }
+                                }
+
                                     // Initialize Feather icons for the new remark
                                     safeFeatherReplace(viewLeadRemarksContainer);
                             }
@@ -1769,7 +1834,6 @@
                 const editLeadAlert = document.getElementById('editLeadAlert');
                 const viewLeadModalTitle = document.getElementById('viewLeadModalTitle');
                 let currentEditLeadId = null;
-                let currentLeadData = null;
 
                 // Function to update children total for edit form
                 const updateEditChildrenTotal = () => {
@@ -1790,8 +1854,6 @@
                     const editRefNoEl = document.getElementById('editRefNo');
                     if (editRefNoEl) {
                         editRefNoEl.value = lead.tsq || 'N/A';
-                        editRefNoEl.style.display = 'block';
-                        editRefNoEl.style.visibility = 'visible';
                     }
 
                     const editSalutationEl = document.getElementById('editSalutation');
@@ -1831,6 +1893,14 @@
                                     assignedEmployeeId = option.value;
                                 }
                             });
+                            // Fallback to email match
+                            if (!assignedEmployeeId && lead.assigned_user_email) {
+                                options.forEach(option => {
+                                    if (option.getAttribute('data-user-email') == lead.assigned_user_email) {
+                                        assignedEmployeeId = option.value;
+                                    }
+                                });
+                            }
                         }
                     }
                     const editAssignedEmployeeId = document.getElementById('editAssignedEmployeeId');
@@ -1889,10 +1959,13 @@
                     addLeadForm.action = `${leadsBaseUrl}/${lead.id}`;
 
                     // Populate form fields
+                    const addRefNoEl = document.getElementById('addRefNo');
+                    if (addRefNoEl) addRefNoEl.value = lead.tsq || 'N/A';
+                    if (addLeadForm.elements['salutation']) addLeadForm.elements['salutation'].value = lead.salutation || '';
                     if (addLeadForm.elements['first_name']) addLeadForm.elements['first_name'].value = lead
-                        .first_name || '';
+                        .first_name || ''; 
                     if (addLeadForm.elements['last_name']) addLeadForm.elements['last_name'].value = lead
-                        .last_name || '';
+                        .last_name || ''; 
                     if (addLeadForm.elements['primary_phone']) addLeadForm.elements['primary_phone'].value = lead
                         .primary_phone || '';
                     if (addLeadForm.elements['secondary_phone']) addLeadForm.elements['secondary_phone'].value =
@@ -1926,15 +1999,23 @@
                         .children_6_11 || 0;
                     if (addLeadForm.elements['infants']) addLeadForm.elements['infants'].value = lead.infants || 0;
                     // Map assigned_user_id to assigned_employee_id
-                    if (addLeadForm.elements['assigned_employee_id'] && lead.assigned_user_id) {
+                    if (addLeadForm.elements['assigned_employee_id'] && (lead.assigned_user_id || lead.assigned_user_email)) {
                         const employeeSelect = addLeadForm.elements['assigned_employee_id'];
                         const options = employeeSelect.querySelectorAll('option');
                         let foundEmployeeId = '';
                         options.forEach(option => {
-                            if (option.getAttribute('data-user-id') == lead.assigned_user_id) {
+                            if (lead.assigned_user_id && option.getAttribute('data-user-id') == lead.assigned_user_id) {
                                 foundEmployeeId = option.value;
                             }
                         });
+                        // Fallback: try matching by employee email if user-id mapping wasn't found
+                        if (!foundEmployeeId && lead.assigned_user_email) {
+                            options.forEach(option => {
+                                if (option.getAttribute('data-user-email') == lead.assigned_user_email) {
+                                    foundEmployeeId = option.value;
+                                }
+                            });
+                        }
                         addLeadForm.elements['assigned_employee_id'].value = foundEmployeeId || '';
                     }
                     if (addLeadForm.elements['status']) addLeadForm.elements['status'].value = lead.status || 'new';
@@ -1962,6 +2043,9 @@
 
                     // Reset form
                     addLeadForm.reset();
+                    // Clear displayed Ref No when switching back to Add mode
+                    const addRefNoEl = document.getElementById('addRefNo');
+                    if (addRefNoEl) addRefNoEl.value = '';
                     updateChildrenTotal();
                 };
 

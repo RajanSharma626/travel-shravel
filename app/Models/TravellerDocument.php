@@ -11,6 +11,7 @@ class TravellerDocument extends Model
 
     protected $fillable = [
         'lead_id',
+        'salutation',
         'first_name',
         'last_name',
         'doc_type',

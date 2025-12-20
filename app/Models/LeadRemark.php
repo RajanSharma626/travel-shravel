@@ -14,11 +14,14 @@ class LeadRemark extends Model
         'user_id',
         'remark',
         'follow_up_date',
+        'follow_up_time',
+        'follow_up_at',
         'visibility',
     ];
 
     protected $casts = [
         'follow_up_date' => 'date',
+        'follow_up_at' => 'datetime',
     ];
 
     public function lead()
