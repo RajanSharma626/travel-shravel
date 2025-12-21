@@ -1040,7 +1040,7 @@
                                                         id="vendorPaymentsTable">
                                                         <thead class="table-light">
                                                             <tr>
-                                                                <th>Vendor Code</th>
+                                                                <th>Vendor Code/Name</th>
                                                                 <th>Booking Type</th>
                                                                 <th>Location</th>
                                                                 <th>Purchase Cost</th>
@@ -1627,7 +1627,7 @@
                                 <input type="hidden" id="vendorPaymentId" name="vendor_payment_id" value="">
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label class="form-label">Vendor Code <span class="text-danger">*</span></label>
+                                        <label class="form-label">Vendor Code/Name <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-sm" id="modalVendorCode"
                                             name="vendor_code" required>
                                     </div>
@@ -1661,7 +1661,6 @@
                                         <select class="form-select form-select-sm" id="modalStatus" name="status"
                                             required>
                                             <option value="Pending" selected>Pending</option>
-                                            <option value="Paid">Paid</option>
                                             <option value="Cancelled">Cancelled</option>
                                         </select>
                                     </div>

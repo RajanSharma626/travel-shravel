@@ -434,13 +434,22 @@ class PaymentController extends Controller
             ], 404);
         }
 
+        // Only Accounts team (or Admin) may update status via this endpoint
+        if (! $request->user()->hasAnyRole(['Admin', 'Accounts', 'Accounts Manager'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
         $validated = $request->validate([
             'paid_amount' => 'nullable|numeric|min:0',
             'pending_amount' => 'nullable|numeric|min:0',
             'payment_mode' => 'nullable|string|max:255',
             'ref_no' => 'nullable|string|max:255',
             'remarks' => 'nullable|string',
-            'status' => 'required|string|in:Pending,Paid,Cancelled',
+            // Accounts may only set status to Paid here
+            'status' => 'required|string|in:Paid',
         ]);
 
         // Calculate pending amount if not provided

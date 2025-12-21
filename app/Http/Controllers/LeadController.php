@@ -1024,13 +1024,22 @@ class LeadController extends Controller
             ], 404);
         }
 
+        // Only Operations team (or Admin) should update via this endpoint
+        if (! $request->user()->hasAnyRole(['Admin', 'Operation', 'Operation Manager'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
         $validated = $request->validate([
             'vendor_code' => 'required|string|max:255',
             'booking_type' => 'required|string|max:255',
             'location' => 'required|string|max:255',
             'purchase_cost' => 'required|numeric|min:0',
             'due_date' => 'required|date',
-            'status' => 'nullable|string|in:Pending,Paid,Cancelled',
+            // Ops may only set Pending or Cancelled here; Paid can only be set by Accounts team
+            'status' => 'nullable|string|in:Pending,Cancelled',
         ]);
 
         $vendorPayment->update([

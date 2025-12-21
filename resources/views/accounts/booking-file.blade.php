@@ -210,7 +210,7 @@
                                             <thead class="table-light">
                                                 <tr>
                                                     <th>Ref. No.</th>
-                                                    <th>Vendor Code</th>
+                                                    <th>Vendor Code/Name</th>
                                                     <th>Vendor Cost</th>
                                                     <th>Paid Amount</th>
                                                     <th>Payment Status</th>
@@ -276,7 +276,7 @@
                                         <table class="table table-bordered table-sm mb-0" id="vendorPaymentsAccountsTable">
                                             <thead class="table-light">
                                                 <tr>
-                                                    <th>Vendor Code</th>
+                                                    <th>Vendor Code/Name</th>
                                                     <th>Booking Type</th>
                                                     <th>Location</th>
                                                     <th>Purchase Cost</th>
@@ -404,7 +404,7 @@
                                 <input type="text" class="form-control form-control-sm" id="modalRefNo" value="{{ $lead->tsq }}" readonly>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Vendor Code</label>
+                                <label class="form-label">Vendor Code/Name</label>
                                 <input type="text" class="form-control form-control-sm" id="modalVendorCode" name="vendor_code" placeholder="Enter vendor code">
                             </div>
                             <div class="col-md-6">
@@ -487,9 +487,7 @@
                             <div class="col-md-6">
                                 <label class="form-label">Status <span class="text-danger">*</span></label>
                                 <select class="form-select form-select-sm" id="accountsModalStatus" name="status" required>
-                                    <option value="Pending">Pending</option>
                                     <option value="Paid">Paid</option>
-                                    <option value="Cancelled">Cancelled</option>
                                 </select>
                             </div>
                             <div class="col-12">
@@ -665,14 +663,8 @@
                     document.getElementById('accountsModalRefNo').value = row.cells[8].textContent.trim() !== '-' ? row.cells[8].textContent.trim() : '';
                     document.getElementById('accountsModalRemarks').value = row.cells[9].textContent.trim() !== '-' ? row.cells[9].textContent.trim() : '';
                     
-                    // Populate status from badge
-                    const statusCell = row.cells[10];
-                    const statusBadge = statusCell.querySelector('.badge');
-                    if (statusBadge) {
-                        document.getElementById('accountsModalStatus').value = statusBadge.textContent.trim();
-                    } else {
-                        document.getElementById('accountsModalStatus').value = 'Pending';
-                    }
+                    // Populate status from badge (Accounts can only set Paid; default to Paid)
+                    document.getElementById('accountsModalStatus').value = 'Paid';
                 }
             });
 

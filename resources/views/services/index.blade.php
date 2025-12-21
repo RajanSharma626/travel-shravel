@@ -32,10 +32,10 @@
                                     </div>
                                 @endif
 
-                                @if(isset($services) && $services->count() > 0)
-                                <div class="text-muted small mb-2 px-3">
-                                    Showing {{ $services->firstItem() ?? 0 }} out of {{ $services->total() }}
-                                </div>
+                                @if (isset($services) && $services->count() > 0)
+                                    <div class="text-muted small mb-2 px-3">
+                                        Showing {{ $services->firstItem() ?? 0 }} out of {{ $services->total() }}
+                                    </div>
                                 @endif
 
                                 <!-- Table -->
@@ -52,9 +52,12 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            @php
+                                                $sno = 1;
+                                            @endphp
                                             @forelse ($services as $service)
                                                 <tr>
-                                                    <td>{{ $service->id }}</td>
+                                                    <td>{{ $sno }}</td>
                                                     <td>{{ $service->name }}</td>
                                                     <td>
                                                         @if ($service->is_active)
@@ -80,6 +83,9 @@
                                                         </form>
                                                     </td>
                                                 </tr>
+                                                @php
+                                                    $sno++
+                                                @endphp
                                             @empty
                                                 <tr>
                                                     <td colspan="5" class="text-center text-muted">

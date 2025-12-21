@@ -8,6 +8,7 @@ use App\Models\CostComponent;
 use App\Models\Delivery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -33,12 +34,25 @@ class ReportController extends Controller
             ->limit(10)
             ->get();
 
-        // Follow-up reminders
-        $followUps = \App\Models\LeadRemark::where('follow_up_date', '>=', today())
-            ->where('follow_up_date', '<=', today()->addDays(7))
-            ->with(['lead', 'user'])
-            ->orderBy('follow_up_date')
-            ->get();
+        // Follow-up reminders — support either follow_up_at (new) or follow_up_date (legacy)
+
+        $followUpColumn = null;
+        if (Schema::hasColumn('lead_remarks', 'follow_up_at')) {
+            $followUpColumn = 'follow_up_at';
+        } elseif (Schema::hasColumn('lead_remarks', 'follow_up_date')) {
+            $followUpColumn = 'follow_up_date';
+        }
+
+        if ($followUpColumn) {
+            $followUps = \App\Models\LeadRemark::where($followUpColumn, '>=', today())
+                ->where($followUpColumn, '<=', today()->addDays(7))
+                ->with(['lead', 'user'])
+                ->orderBy($followUpColumn)
+                ->get();
+        } else {
+            // No follow-up columns available in DB
+            $followUps = collect();
+        }
 
         return view('reports.index', compact('stats', 'recentLeads', 'followUps'));
     }
