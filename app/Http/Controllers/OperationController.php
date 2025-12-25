@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Lead;
 use App\Models\Operation;
-use App\Models\Employee;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -52,7 +52,7 @@ class OperationController extends Controller
 
         $services = \App\Models\Service::orderBy('name')->get();
         $destinations = \App\Models\Destination::orderBy('name')->get();
-        $employees = Employee::whereNotNull('user_id')->orderBy('name')->get();
+        $employees = User::whereNotNull('user_id')->orderBy('name')->get();
 
         return view('operations.index', compact('leads', 'filters', 'services', 'destinations', 'employees'));
     }
@@ -159,7 +159,7 @@ class OperationController extends Controller
             'vendorPayments'
         ]);
 
-        $employees = Employee::whereNotNull('user_id')->orderBy('name')->get();
+        $employees = User::whereNotNull('user_id')->orderBy('name')->get();
         $destinations = \App\Models\Destination::with('locations')->orderBy('name')->get();
         
         // Ops booking file is view-only except Vendor Payments (blue columns editable)

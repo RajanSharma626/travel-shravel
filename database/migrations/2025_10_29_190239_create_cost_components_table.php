@@ -14,10 +14,9 @@ return new class extends Migration
         Schema::create('cost_components', function (Blueprint $table) {
             $table->id();
             $table->foreignId('lead_id')->constrained('leads')->onDelete('cascade');
-            $table->enum('type', ['hotel', 'transport', 'visa', 'insurance', 'meal', 'guide', 'other'])->default('other');
-            $table->string('description');
+            $table->string('name'); // Added from 2025_11_29, replacing type and description
             $table->decimal('amount', 12, 2);
-            $table->foreignId('entered_by')->constrained('users')->onDelete('cascade');
+            $table->foreignId('entered_by_user_id')->constrained('users')->onDelete('cascade'); // Renamed from entered_by in 2025_11_29
             $table->timestamps();
         });
     }

@@ -14,14 +14,22 @@ return new class extends Migration
         Schema::create('deliveries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('lead_id')->constrained('leads')->onDelete('cascade');
-            $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
-            $table->enum('status', ['pending', 'in_process', 'delivered', 'failed'])->default('pending');
-            $table->text('attachments')->nullable(); // JSON array of file paths
+            $table->foreignId('operation_id')->nullable()->constrained('operations')->nullOnDelete(); // Added from 2025_11_29
+            $table->foreignId('assigned_to_delivery_user_id')->nullable()->constrained('users')->nullOnDelete(); // Renamed/Added from 2025_11_29
+            
+            // Renamed status to delivery_status and updated enum in 2025_11_29
+            $table->enum('delivery_status', ['Pending', 'In_Process', 'Delivered'])->default('Pending');
+            
             $table->string('courier_id')->nullable();
-            $table->text('tracking_info')->nullable();
-            $table->date('expected_delivery_date')->nullable();
-            $table->date('actual_delivery_date')->nullable();
-            $table->text('delivery_notes')->nullable();
+            
+            // Added from 2025_11_29
+            $table->enum('delivery_method', ['soft_copy', 'courier', 'hand_delivery'])->nullable();
+            $table->text('remarks')->nullable();
+            $table->timestamp('delivered_at')->nullable();
+            
+            // Removed columns based on 2025_11_29 update:
+            // assigned_to, attachments, tracking_info, expected_delivery_date, actual_delivery_date, delivery_notes
+            
             $table->timestamps();
         });
     }

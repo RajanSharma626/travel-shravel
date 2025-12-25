@@ -1042,9 +1042,9 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Assign To</label>
-                        <select name="assigned_employee_id" class="form-select" required>
+                        <select name="assigned_user_id" class="form-select" required>
                             <option value="">-- Select Employee --</option>
-                            @foreach(\App\Models\Employee::whereNotNull('user_id')->orderBy('name')->get() as $employee)
+                            @foreach(\App\Models\User::whereNotNull('user_id')->orderBy('name')->get() as $employee)
                                 @php
                                     $matchingUser = \App\Models\User::where('email', $employee->login_work_email)
                                         ->orWhere('user_id', $employee->user_id)

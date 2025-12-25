@@ -480,7 +480,7 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label">Assign To</label>
-                                        <select name="assigned_employee_id" id="editAssignedEmployeeId"
+                                        <select name="assigned_user_id" id="editAssignedEmployeeId"
                                             class="form-select form-select-sm">
                                             <option value="">-- Select Employee --</option>
                                             @foreach ($employees as $employee)

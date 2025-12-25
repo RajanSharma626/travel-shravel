@@ -176,7 +176,7 @@
                                                 <div class="row g-3">
                                                     <div class="col-md-4">
                                                         <label class="form-label fw-semibold">Assign To</label>
-                                                        <select name="assigned_employee_id" class="form-select">
+                                                        <select name="assigned_user_id" class="form-select">
                                                             <option value="">-- Select Employee --</option>
                                                             @foreach ($employees as $employee)
                                                                 @php
@@ -186,7 +186,7 @@
                                                                 @endphp
                                                                 <option value="{{ $employee->id }}"
                                                                     data-user-id="{{ $matchingUser->id ?? '' }}"
-                                                                    {{ (string)old('assigned_employee_id') === (string)$employee->id ? 'selected' : '' }}>
+                                                                    {{ (string)old('assigned_user_id') === (string)$employee->id ? 'selected' : '' }}>
                                                                     {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }})@endif
                                                                 </option>
                                                             @endforeach

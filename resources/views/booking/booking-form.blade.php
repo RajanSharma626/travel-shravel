@@ -285,43 +285,27 @@
                                                                     <td>{{ $bd->to_date ? $bd->to_date->format('d/m/Y') : '' }}
                                                                     </td>
                                                                     @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
-                                                                        <td class="text-center">
-                                                                            @if (!$isViewOnly)
-                                                                                <input type="hidden"
-                                                                                    name="booking_destinations[{{ $index }}][id]"
-                                                                                    value="{{ $bd->id }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_destinations[{{ $index }}][destination]"
-                                                                                    value="{{ $bd->destination }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_destinations[{{ $index }}][location]"
-                                                                                    value="{{ $bd->location }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_destinations[{{ $index }}][only_hotel]"
-                                                                                    value="{{ $bd->only_hotel ? '1' : '0' }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_destinations[{{ $index }}][only_tt]"
-                                                                                    value="{{ $bd->only_tt ? '1' : '0' }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_destinations[{{ $index }}][hotel_tt]"
-                                                                                    value="{{ $bd->hotel_tt ? '1' : '0' }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_destinations[{{ $index }}][from_date]"
-                                                                                    value="{{ $bd->from_date ? $bd->from_date->format('Y-m-d') : '' }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_destinations[{{ $index }}][to_date]"
-                                                                                    value="{{ $bd->to_date ? $bd->to_date->format('Y-m-d') : '' }}">
-                                                                                <i data-feather="edit"
-                                                                                    class="editDestinationRow"
-                                                                                    data-destination-id="{{ $bd->id }}"
-                                                                                    data-bs-toggle="modal"
-                                                                                    data-bs-target="#addDestinationModal"
-                                                                                    style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
-                                                                                <i data-feather="trash-2"
-                                                                                    class="removeDestinationRow"
-                                                                                    style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
-                                                                            @endif
-                                                                        </td>
+                                                                    <td class="text-center">
+                                                                        @if (!$isViewOnly)
+                                                                            <i data-feather="edit"
+                                                                                class="editDestinationRow"
+                                                                                data-id="{{ $bd->id }}"
+                                                                                data-destination="{{ $bd->destination }}"
+                                                                                data-location="{{ $bd->location }}"
+                                                                                data-only-hotel="{{ $bd->only_hotel ? 1 : 0 }}"
+                                                                                data-only-tt="{{ $bd->only_tt ? 1 : 0 }}"
+                                                                                data-hotel-tt="{{ $bd->hotel_tt ? 1 : 0 }}"
+                                                                                data-from-date="{{ $bd->from_date ? $bd->from_date->format('Y-m-d') : '' }}"
+                                                                                data-to-date="{{ $bd->to_date ? $bd->to_date->format('Y-m-d') : '' }}"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#addDestinationModal"
+                                                                                style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
+                                                                            <i data-feather="trash-2"
+                                                                                class="removeDestinationRow"
+                                                                                data-id="{{ $bd->id }}"
+                                                                                style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                                                                        @endif
+                                                                    </td>
                                                                     @endif
                                                                 </tr>
                                                             @endforeach
@@ -484,46 +468,28 @@
                                                                         {{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}
                                                                     </td>
                                                                     @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
-                                                                        <td class="text-center">
-                                                                            @if (!$isViewOnly)
-                                                                                <input type="hidden"
-                                                                                    name="arrival_departure[{{ $index }}][id]"
-                                                                                    value="{{ $transport->id }}">
-                                                                                <input type="hidden"
-                                                                                    name="arrival_departure[{{ $index }}][mode]"
-                                                                                    value="{{ $transport->mode }}">
-                                                                                <input type="hidden"
-                                                                                    name="arrival_departure[{{ $index }}][info]"
-                                                                                    value="{{ $transport->info }}">
-                                                                                <input type="hidden"
-                                                                                    name="arrival_departure[{{ $index }}][from_city]"
-                                                                                    value="{{ $transport->from_city }}">
-                                                                                <input type="hidden"
-                                                                                    name="arrival_departure[{{ $index }}][to_city]"
-                                                                                    value="{{ $transport->to_city ?? '' }}">
-                                                                                <input type="hidden"
-                                                                                    name="arrival_departure[{{ $index }}][departure_date]"
-                                                                                    value="{{ $transport->departure_date ? ($transport->departure_date instanceof \DateTime ? $transport->departure_date->format('Y-m-d') : $transport->departure_date) : '' }}">
-                                                                                <input type="hidden"
-                                                                                    name="arrival_departure[{{ $index }}][departure_time]"
-                                                                                    value="{{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}">
-                                                                                <input type="hidden"
-                                                                                    name="arrival_departure[{{ $index }}][arrival_date]"
-                                                                                    value="{{ $transport->arrival_date ? ($transport->arrival_date instanceof \DateTime ? $transport->arrival_date->format('Y-m-d') : $transport->arrival_date) : '' }}">
-                                                                                <input type="hidden"
-                                                                                    name="arrival_departure[{{ $index }}][arrival_time]"
-                                                                                    value="{{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}">
-                                                                                <i data-feather="edit"
-                                                                                    class="editArrivalDepartureRow"
-                                                                                    data-transport-id="{{ $transport->id }}"
-                                                                                    data-bs-toggle="modal"
-                                                                                    data-bs-target="#addArrivalDepartureModal"
-                                                                                    style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
-                                                                                <i data-feather="trash-2"
-                                                                                    class="removeArrivalDepartureRow"
-                                                                                    style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
-                                                                            @endif
-                                                                        </td>
+                                                                    <td class="text-center">
+                                                                        @if (!$isViewOnly)
+                                                                            <i data-feather="edit"
+                                                                                class="editArrivalDepartureRow"
+                                                                                data-id="{{ $transport->id }}"
+                                                                                data-mode="{{ $transport->mode }}"
+                                                                                data-info="{{ $transport->info }}"
+                                                                                data-from-city="{{ $transport->from_city }}"
+                                                                                data-to-city="{{ $transport->to_city }}"
+                                                                                data-departure-date="{{ $transport->departure_date ? $transport->departure_date->format('Y-m-d') : '' }}"
+                                                                                data-departure-time="{{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}"
+                                                                                data-arrival-date="{{ $transport->arrival_date ? $transport->arrival_date->format('Y-m-d') : '' }}"
+                                                                                data-arrival-time="{{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#addArrivalDepartureModal"
+                                                                                style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
+                                                                            <i data-feather="trash-2"
+                                                                                class="removeArrivalDepartureRow"
+                                                                                data-id="{{ $transport->id }}"
+                                                                                style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                                                                        @endif
+                                                                    </td>
                                                                     @endif
                                                                 </tr>
                                                             @endforeach
@@ -584,38 +550,22 @@
                                                                     @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
                                                                         <td class="text-center">
                                                                             @if (!$isViewOnly)
-                                                                                <input type="hidden"
-                                                                                    name="booking_accommodations[{{ $index }}][id]"
-                                                                                    value="{{ $ba->id }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_accommodations[{{ $index }}][destination]"
-                                                                                    value="{{ $ba->destination }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_accommodations[{{ $index }}][location]"
-                                                                                    value="{{ $ba->location }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_accommodations[{{ $index }}][stay_at]"
-                                                                                    value="{{ $ba->stay_at }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_accommodations[{{ $index }}][checkin_date]"
-                                                                                    value="{{ $ba->checkin_date ? $ba->checkin_date->format('Y-m-d') : '' }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_accommodations[{{ $index }}][checkout_date]"
-                                                                                    value="{{ $ba->checkout_date ? $ba->checkout_date->format('Y-m-d') : '' }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_accommodations[{{ $index }}][room_type]"
-                                                                                    value="{{ $ba->room_type }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_accommodations[{{ $index }}][meal_plan]"
-                                                                                    value="{{ $ba->meal_plan }}">
                                                                                 <i data-feather="edit"
                                                                                     class="editAccommodationRow"
                                                                                     data-accommodation-id="{{ $ba->id }}"
+                                                                                    data-destination="{{ $ba->destination }}"
+                                                                                    data-location="{{ $ba->location }}"
+                                                                                    data-stay-at="{{ $ba->stay_at }}"
+                                                                                    data-checkin-date="{{ $ba->checkin_date ? $ba->checkin_date->format('Y-m-d') : '' }}"
+                                                                                    data-checkout-date="{{ $ba->checkout_date ? $ba->checkout_date->format('Y-m-d') : '' }}"
+                                                                                    data-room-type="{{ $ba->room_type }}"
+                                                                                    data-meal-plan="{{ $ba->meal_plan }}"
                                                                                     data-bs-toggle="modal"
                                                                                     data-bs-target="#addAccommodationModal"
                                                                                     style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
                                                                                 <i data-feather="trash-2"
                                                                                     class="removeAccommodationRow"
+                                                                                    data-accommodation-id="{{ $ba->id }}"
                                                                                     style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                                                                             @endif
                                                                         </td>
@@ -677,35 +627,21 @@
                                                                     @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
                                                                         <td class="text-center">
                                                                             @if (!$isViewOnly)
-                                                                                <input type="hidden"
-                                                                                    name="booking_itineraries[{{ $index }}][id]"
-                                                                                    value="{{ $bi->id }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_itineraries[{{ $index }}][day_and_date]"
-                                                                                    value="{{ $bi->day_and_date }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_itineraries[{{ $index }}][time]"
-                                                                                    value="{{ $bi->time ? substr($bi->time, 0, 5) : '' }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_itineraries[{{ $index }}][location]"
-                                                                                    value="{{ $bi->location }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_itineraries[{{ $index }}][activity_tour_description]"
-                                                                                    value="{{ $bi->activity_tour_description }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_itineraries[{{ $index }}][stay_at]"
-                                                                                    value="{{ $bi->stay_at }}">
-                                                                                <input type="hidden"
-                                                                                    name="booking_itineraries[{{ $index }}][remarks]"
-                                                                                    value="{{ $bi->remarks }}">
                                                                                 <i data-feather="edit"
                                                                                     class="editItineraryRow"
                                                                                     data-itinerary-id="{{ $bi->id }}"
+                                                                                    data-day-date="{{ $bi->day_and_date }}"
+                                                                                    data-time="{{ $bi->time ? substr($bi->time, 0, 5) : '' }}"
+                                                                                    data-location="{{ $bi->location }}"
+                                                                                    data-activity="{{ $bi->activity_tour_description }}"
+                                                                                    data-stay-at="{{ $bi->stay_at }}"
+                                                                                    data-remarks="{{ $bi->remarks }}"
                                                                                     data-bs-toggle="modal"
                                                                                     data-bs-target="#addItineraryModal"
                                                                                     style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
                                                                                 <i data-feather="trash-2"
                                                                                     class="removeItineraryRow"
+                                                                                    data-itinerary-id="{{ $bi->id }}"
                                                                                     style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
                                                                             @endif
                                                                         </td>
@@ -1163,7 +1099,7 @@
                             <div class="modal-body">
                                 <div class="mb-3">
                                     <label class="form-label">Assign To <span class="text-danger">*</span></label>
-                                    <select name="reassigned_employee_id" class="form-select form-select-sm" required>
+                                    <select name="reassigned_user_id" class="form-select form-select-sm" required>
                                         <option value="">-- Select Employee --</option>
                                         @foreach ($employees as $employee)
                                             @php
@@ -1343,7 +1279,6 @@
                                         <option value="WIB">WIB</option>
                                         <option value="Online">Online</option>
                                         <option value="Cheque">Cheque</option>
-                                        <option value="Other">Other</option>
                                     </select>
                                 </div>
                                 <div class="mb-3">
@@ -1362,11 +1297,19 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Status <span class="text-danger">*</span></label>
-                                    <select name="status" class="form-select form-select-sm" required>
+                                    <select name="status_display" class="form-select form-select-sm" {{ ($isPostSales ?? false) ? 'disabled' : 'required' }}>
                                         <option value="pending">Pending</option>
                                         <option value="received">Received</option>
                                         <option value="refunded">Refunded</option>
                                     </select>
+                                    @if($isPostSales ?? false)
+                                        <input type="hidden" name="status" id="hiddenPaymentStatus" value="pending">
+                                    @else
+                                        {{-- If not post sales, we need the select to have the name "status" --}}
+                                        <script>
+                                            document.currentScript.previousElementSibling.previousElementSibling.name = "status";
+                                        </script>
+                                    @endif
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -1409,17 +1352,15 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Service Type <span class="text-danger">*</span></label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="modalOnlyHotel">
-                                    <label class="form-check-label" for="modalOnlyHotel">Only Hotel</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="modalOnlyTT">
-                                    <label class="form-check-label" for="modalOnlyTT">Only TT</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="modalHotelTT">
-                                    <label class="form-check-label" for="modalHotelTT">Hotel + TT</label>
+                                <div class="btn-group w-100" role="group" aria-label="Service Type">
+                                    <input type="radio" class="btn-check" name="service_type" id="modalOnlyHotel" value="only_hotel" autocomplete="off">
+                                    <label class="btn btn-outline-primary btn-sm" for="modalOnlyHotel">Only Hotel</label>
+
+                                    <input type="radio" class="btn-check" name="service_type" id="modalOnlyTT" value="only_tt" autocomplete="off">
+                                    <label class="btn btn-outline-primary btn-sm" for="modalOnlyTT">Only TT</label>
+
+                                    <input type="radio" class="btn-check" name="service_type" id="modalHotelTT" value="hotel_tt" autocomplete="off">
+                                    <label class="btn btn-outline-primary btn-sm" for="modalHotelTT">Hotel + TT</label>
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -1723,164 +1664,11 @@
                     let destinationRowIndex = {{ $lead->bookingDestinations ? $lead->bookingDestinations->count() : 0 }};
 
                     // Function to load locations for input row destination
-                    function loadLocationsForInputRow(destinationSelect) {
-                        const locationSelect = document.querySelector('.location-select-input');
-                        const destinationId = destinationSelect.options[destinationSelect.selectedIndex]?.getAttribute(
-                            'data-destination-id');
-
-                        if (locationSelect) {
-                            locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
-
-                            if (destinationId) {
-                                locationSelect.disabled = true;
-                                locationSelect.innerHTML = '<option value="">Loading locations...</option>';
-                                const submitBtn = document.getElementById('submitDestinationModal');
-                                if (submitBtn) submitBtn.disabled = true;
-
-                                fetch(`/api/destinations/${destinationId}/locations`, {
-                                        method: 'GET',
-                                        headers: {
-                                            'X-Requested-With': 'XMLHttpRequest',
-                                            'Accept': 'application/json',
-                                        },
-                                        credentials: 'same-origin'
-                                    })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
-                                        data.forEach(location => {
-                                            const option = document.createElement('option');
-                                            option.value = location.name;
-                                            option.textContent = location.name;
-                                            locationSelect.appendChild(option);
-                                        });
-                                        // If a location is pending selection (editing), set it now
-                                        if (typeof editingLocationValue !== 'undefined' && editingLocationValue) {
-                                            locationSelect.value = editingLocationValue;
-                                            // Do not clear here in case another handler needs it; handlers will clear when used
-                                        }
-                                        locationSelect.disabled = false;
-                                        const submitBtn = document.getElementById('submitDestinationModal');
-                                        if (submitBtn) submitBtn.disabled = false;
-                                    })
-                                    .catch(error => {
-                                        console.error('Error loading locations:', error);
-                                        locationSelect.innerHTML = '<option value="">Error loading locations</option>';
-                                        locationSelect.disabled = false;
-                                        const submitBtn = document.getElementById('submitDestinationModal');
-                                        if (submitBtn) submitBtn.disabled = false;
-                                    });
-                            } else {
-                                locationSelect.disabled = false;
-                            }
-                        }
-                    }
-
-
-                    // Function to add destination from modal form
-                    function addDestinationFromModal() {
-                        const destination = document.getElementById('modalDestinationSelect').value;
-                        const location = document.getElementById('modalLocationSelect').value;
-                        const onlyHotel = document.getElementById('modalOnlyHotel').checked;
-                        const onlyTT = document.getElementById('modalOnlyTT').checked;
-                        const hotelTT = document.getElementById('modalHotelTT').checked;
-                        const fromDate = document.getElementById('modalFromDate').value;
-                        const toDate = document.getElementById('modalToDate').value;
-
-                        // Validation
-                        if (!destination || !location || !fromDate || !toDate) {
-                            alert('Please fill in all required fields (Destination, Location, From Date, To Date)');
-                            return false;
-                        }
-
-                        if (!onlyHotel && !onlyTT && !hotelTT) {
-                            alert('Please select at least one service type (Only Hotel, Only TT, or Hotel + TT)');
-                            return false;
-                        }
-
-                        // Format dates for display
-                        const formatDate = (dateStr) => {
-                            if (!dateStr) return '';
-                            const date = new Date(dateStr);
-                            const day = String(date.getDate()).padStart(2, '0');
-                            const month = String(date.getMonth() + 1).padStart(2, '0');
-                            const year = date.getFullYear();
-                            return `${day}/${month}/${year}`;
-                        };
-
-                        // Create new data row
-                        const tbody = document.getElementById('destinationTableBody');
-                        const newRow = document.createElement('tr');
-                        newRow.className = 'destination-data-row';
-                        newRow.setAttribute('data-row-index', destinationRowIndex);
-
-                        // Build service type checkmarks
-                        let onlyHotelMark = onlyHotel ?
-                            '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
-                        let onlyTTMark = onlyTT ?
-                            '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
-                        let hotelTTMark = hotelTT ?
-                            '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
-
-                        newRow.innerHTML = `
-                        <td>${destination}</td>
-                        <td>${location}</td>
-                        <td class="text-center">${onlyHotelMark}</td>
-                        <td class="text-center">${onlyTTMark}</td>
-                        <td class="text-center">${hotelTTMark}</td>
-                        <td>${formatDate(fromDate)}</td>
-                        <td>${formatDate(toDate)}</td>
-                        <td class="text-center">
-                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][destination]" value="${destination}">
-                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][location]" value="${location}">
-                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][only_hotel]" value="${onlyHotel ? '1' : '0'}">
-                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][only_tt]" value="${onlyTT ? '1' : '0'}">
-                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][hotel_tt]" value="${hotelTT ? '1' : '0'}">
-                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][from_date]" value="${fromDate}">
-                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][to_date]" value="${toDate}">
-                            <i data-feather="edit" class="editDestinationRow" data-bs-toggle="modal" data-bs-target="#addDestinationModal" style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
-                            <i data-feather="trash-2" class="removeDestinationRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
-                        </td>
-                    `;
-
-                        tbody.appendChild(newRow);
-
-                        // Re-initialize Feather icons
-                        if (typeof feather !== 'undefined') {
-                            feather.replace();
-                        }
-
-                        destinationRowIndex++;
-
-                        // Check itinerary visibility
-                        checkItineraryVisibility();
-
-                        return true;
-                    }
-
-                    // Handle modal form submission
-                    document.getElementById('submitDestinationModal')?.addEventListener('click', function() {
-                        // Only add a new destination if we're NOT editing an existing row
-                        if (!editingDestinationRow && addDestinationFromModal()) {
-                            // Close modal
-                            const modal = bootstrap.Modal.getInstance(document.getElementById(
-                                'addDestinationModal'));
-                            if (modal) {
-                                modal.hide();
-                            }
-
-                            // Clear modal form
-                            document.getElementById('addDestinationForm').reset();
-                            document.getElementById('modalLocationSelect').innerHTML =
-                                '<option value="">-- Select Location --</option>';
-                        }
-                        // If we were editing a row, the other handler will perform the update
-                    });
-
-                    // Handle destination select change in modal to load locations
-                    document.getElementById('modalDestinationSelect')?.addEventListener('change', function() {
-                        const destinationId = this.options[this.selectedIndex].dataset.destinationId;
+                    // Function to load locations for the modal destination dropdown
+                    function loadLocationsForModal(destinationSelect) {
                         const locationSelect = document.getElementById('modalLocationSelect');
+                        const selectedOption = destinationSelect.options[destinationSelect.selectedIndex];
+                        const destinationId = selectedOption?.getAttribute('data-destination-id');
 
                         if (locationSelect) {
                             locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
@@ -1892,92 +1680,102 @@
                                 if (submitBtn) submitBtn.disabled = true;
 
                                 fetch(`/api/destinations/${destinationId}/locations`, {
-                                        method: 'GET',
-                                        headers: {
-                                            'X-Requested-With': 'XMLHttpRequest',
-                                            'Accept': 'application/json',
-                                        },
-                                        credentials: 'same-origin'
-                                    })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        locationSelect.innerHTML =
-                                            '<option value="">-- Select Location --</option>';
-                                        data.forEach(location => {
-                                            const option = document.createElement('option');
-                                            option.value = location.name;
-                                            option.textContent = location.name;
-                                            locationSelect.appendChild(option);
-                                        });
-                                        // If editing, pick the stored location now and clear the stored value
-                                        if (typeof editingLocationValue !== 'undefined' && editingLocationValue) {
-                                            locationSelect.value = editingLocationValue;
-                                            editingLocationValue = null;
-                                        }
-                                        locationSelect.disabled = false;
-                                        const submitBtn = document.getElementById('submitDestinationModal');
-                                        if (submitBtn) submitBtn.disabled = false;
-                                    })
-                                    .catch(error => {
-                                        console.error('Error loading locations:', error);
-                                        locationSelect.innerHTML =
-                                            '<option value="">Error loading locations</option>';
-                                        locationSelect.disabled = false;
-                                        const submitBtn = document.getElementById('submitDestinationModal');
-                                        if (submitBtn) submitBtn.disabled = false;
+                                    method: 'GET',
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                        'Accept': 'application/json',
+                                    },
+                                    credentials: 'same-origin'
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
+                                    data.forEach(location => {
+                                        const option = document.createElement('option');
+                                        option.value = location.name;
+                                        option.textContent = location.name;
+                                        locationSelect.appendChild(option);
                                     });
+
+                                    // If a location is pending selection (editing), set it now
+                                    if (typeof editingLocationValue !== 'undefined' && editingLocationValue) {
+                                        locationSelect.value = editingLocationValue;
+                                    }
+                                    locationSelect.disabled = false;
+                                    const submitBtn = document.getElementById('submitDestinationModal');
+                                    if (submitBtn) submitBtn.disabled = false;
+                                })
+                                .catch(error => {
+                                    console.error('Error loading locations:', error);
+                                    locationSelect.innerHTML = '<option value="">Error loading locations</option>';
+                                    locationSelect.disabled = false;
+                                    const submitBtn = document.getElementById('submitDestinationModal');
+                                    if (submitBtn) submitBtn.disabled = false;
+                                });
                             } else {
                                 locationSelect.disabled = false;
                             }
                         }
+                    }
+
+                    // Attach change listener to modal destination dropdown
+                    document.getElementById('modalDestinationSelect')?.addEventListener('change', function() {
+                        loadLocationsForModal(this);
                     });
 
-                    // Handle service type checkboxes mutual exclusivity in modal
-                    const modalServiceTypeCheckboxes = ['modalOnlyHotel', 'modalOnlyTT', 'modalHotelTT'];
-                    modalServiceTypeCheckboxes.forEach(id => {
-                        document.getElementById(id)?.addEventListener('change', function() {
-                            if (this.checked) {
-                                modalServiceTypeCheckboxes.forEach(otherId => {
-                                    if (otherId !== id) {
-                                        document.getElementById(otherId).checked = false;
-                                    }
-                                });
-                            }
-                        });
-                    });
-
-                    // Edit destination row handler
+                    // Destination management variables
                     let editingDestinationRow = null;
-                    // When editing a row we store the location to set after locations are loaded
                     let editingLocationValue = null;
+
+                    // Reset modal for New Destination
+                    document.querySelector('[data-bs-target="#addDestinationModal"]')?.addEventListener('click', function() {
+                        if (this.id === 'submitDestinationModal') return; // Ignore submit click
+                        editingDestinationRow = null;
+                        document.getElementById('addDestinationModalLabel').textContent = 'Add Destination';
+                        document.getElementById('addDestinationForm').reset();
+                        document.getElementById('modalLocationSelect').innerHTML = '<option value="">-- Select Location --</option>';
+                        document.getElementById('submitDestinationModal').textContent = 'Add';
+                    });
+
+                    // Edit Handler (UI side)
                     document.addEventListener('click', function(e) {
                         if (e.target.closest('.editDestinationRow')) {
-                            const row = e.target.closest('tr');
+                            const icon = e.target.closest('.editDestinationRow');
+                            const row = icon.closest('tr');
                             editingDestinationRow = row;
 
-                            // Get row data
-                            const destination = row.querySelector('td:nth-child(1)').textContent.trim();
-                            const location = row.querySelector('td:nth-child(2)').textContent.trim();
-                            const onlyHotel = row.querySelector('td:nth-child(3)').querySelector('i') !== null;
-                            const onlyTT = row.querySelector('td:nth-child(4)').querySelector('i') !== null;
-                            const hotelTT = row.querySelector('td:nth-child(5)').querySelector('i') !== null;
-                            const fromDate = row.querySelector('input[name*="[from_date]"]')?.value || '';
-                            const toDate = row.querySelector('input[name*="[to_date]"]')?.value || '';
+                            // Get data from attributes
+                            const destination = icon.dataset.destination;
+                            const location = icon.dataset.location;
+                            const onlyHotel = icon.dataset.onlyHotel === '1';
+                            const onlyTT = icon.dataset.onlyTt === '1';
+                            const hotelTT = icon.dataset.hotelTt === '1';
+                            
+                            const fromDate = icon.dataset.fromDate || '';
+                            const toDate = icon.dataset.toDate || '';
 
-                            // Populate modal (set destination, and defer location until options load)
+                            // Populate modal
                             document.getElementById('modalDestinationSelect').value = destination;
-                            // store the location value so we can set it after locations are fetched
                             editingLocationValue = location;
-                            document.getElementById('modalOnlyHotel').checked = onlyHotel;
-                            document.getElementById('modalOnlyTT').checked = onlyTT;
-                            document.getElementById('modalHotelTT').checked = hotelTT;
+                            
+                            // Uncheck all first
+                            document.getElementById('modalOnlyHotel').checked = false;
+                            document.getElementById('modalOnlyTT').checked = false;
+                            document.getElementById('modalHotelTT').checked = false;
+
+                            // Check the correct radio button
+                            if (onlyHotel) document.getElementById('modalOnlyHotel').checked = true;
+                            if (onlyTT) document.getElementById('modalOnlyTT').checked = true;
+                            if (hotelTT) document.getElementById('modalHotelTT').checked = true;
+
                             document.getElementById('modalFromDate').value = fromDate;
                             document.getElementById('modalToDate').value = toDate;
 
-                            // Change modal title
+                            // Change modal title & button
                             document.getElementById('addDestinationModalLabel').textContent = 'Edit Destination';
+                            document.getElementById('submitDestinationModal').textContent = 'Update';
 
-                            // Trigger location change if destination exists
+                            // Trigger location load
                             const destinationSelect = document.getElementById('modalDestinationSelect');
                             if (destinationSelect.value) {
                                 destinationSelect.dispatchEvent(new Event('change'));
@@ -1985,118 +1783,113 @@
                         }
                     });
 
-                    // Update submit handler to handle edit
-                    const originalSubmitDestination = document.getElementById('submitDestinationModal');
-                    if (originalSubmitDestination) {
-                        originalSubmitDestination.addEventListener('click', function() {
-                            if (editingDestinationRow) {
-                                // Update existing row
-                                const row = editingDestinationRow;
-                                const destination = document.getElementById('modalDestinationSelect').value;
-                                const location = document.getElementById('modalLocationSelect').value;
-                                const onlyHotel = document.getElementById('modalOnlyHotel').checked;
-                                const onlyTT = document.getElementById('modalOnlyTT').checked;
-                                const hotelTT = document.getElementById('modalHotelTT').checked;
-                                const fromDate = document.getElementById('modalFromDate').value;
-                                const toDate = document.getElementById('modalToDate').value;
+                    // Handle modal form submission (AJAX)
+                    document.getElementById('submitDestinationModal')?.addEventListener('click', async function() {
+                        const submitBtn = this;
+                        const destination = document.getElementById('modalDestinationSelect').value;
+                        const location = document.getElementById('modalLocationSelect').value;
+                        
+                        const selectedServiceType = document.querySelector('input[name="service_type"]:checked')?.value;
+                        const onlyHotel = selectedServiceType === 'only_hotel';
+                        const onlyTT = selectedServiceType === 'only_tt';
+                        const hotelTT = selectedServiceType === 'hotel_tt';
 
-                                if (!destination || !location || !fromDate || !toDate) {
-                                    alert('Please fill in all required fields');
-                                    return;
-                                }
+                        const fromDate = document.getElementById('modalFromDate').value;
+                        const toDate = document.getElementById('modalToDate').value;
 
-                                const formatDate = (dateStr) => {
-                                    if (!dateStr) return '';
-                                    const date = new Date(dateStr);
-                                    const day = String(date.getDate()).padStart(2, '0');
-                                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                                    const year = date.getFullYear();
-                                    return `${day}/${month}/${year}`;
-                                };
-
-                                // Update row content
-                                row.querySelector('td:nth-child(1)').textContent = destination;
-                                row.querySelector('td:nth-child(2)').textContent = location;
-                                row.querySelector('td:nth-child(3)').innerHTML = onlyHotel ?
-                                    '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' :
-                                    '';
-                                row.querySelector('td:nth-child(4)').innerHTML = onlyTT ?
-                                    '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' :
-                                    '';
-                                row.querySelector('td:nth-child(5)').innerHTML = hotelTT ?
-                                    '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' :
-                                    '';
-                                row.querySelector('td:nth-child(6)').textContent = formatDate(fromDate);
-                                row.querySelector('td:nth-child(7)').textContent = formatDate(toDate);
-
-                                // Update hidden inputs
-                                row.querySelector('input[name*="[destination]"]').value = destination;
-                                row.querySelector('input[name*="[location]"]').value = location;
-                                row.querySelector('input[name*="[only_hotel]"]').value = onlyHotel ? '1' : '0';
-                                row.querySelector('input[name*="[only_tt]"]').value = onlyTT ? '1' : '0';
-                                row.querySelector('input[name*="[hotel_tt]"]').value = hotelTT ? '1' : '0';
-                                row.querySelector('input[name*="[from_date]"]').value = fromDate;
-                                row.querySelector('input[name*="[to_date]"]').value = toDate;
-
-                                // Re-initialize Feather icons
-                                if (typeof feather !== 'undefined') {
-                                    feather.replace();
-                                }
-
-                                editingDestinationRow = null;
-                                editingLocationValue = null;
-                                document.getElementById('addDestinationModalLabel').textContent = 'Add Destination';
-                                const modal = bootstrap.Modal.getInstance(document.getElementById(
-                                    'addDestinationModal'));
-                                if (modal) modal.hide();
-                                document.getElementById('addDestinationForm').reset();
-                            } else {
-                                // Original add functionality
-                                if (addDestinationFromModal()) {
-                                    const modal = bootstrap.Modal.getInstance(document.getElementById(
-                                        'addDestinationModal'));
-                                    if (modal) modal.hide();
-                                    document.getElementById('addDestinationForm').reset();
-                                }
-                                editingLocationValue = null;
-                            }
-                        });
-                    }
-
-                    // Reset editing state when modal is closed
-                    document.getElementById('addDestinationModal')?.addEventListener('hidden.bs.modal', function() {
-                        editingDestinationRow = null;
-                        editingLocationValue = null;
-                        document.getElementById('addDestinationModalLabel').textContent = 'Add Destination';
-                        const locationSelect = document.getElementById('modalLocationSelect');
-                        if (locationSelect) {
-                            locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
+                        if (!destination || !location || !fromDate || !toDate) {
+                            alert('Please fill in all required fields');
+                            return;
                         }
-                        const form = document.getElementById('addDestinationForm');
-                        if (form) form.reset();
+
+                        if (!selectedServiceType) {
+                            alert('Please select a service type');
+                            return;
+                        }
+
+                        submitBtn.disabled = true;
+                        const originalText = submitBtn.textContent;
+                        submitBtn.textContent = 'Saving...';
+
+                        const data = {
+                            destination,
+                            location,
+                            only_hotel: onlyHotel ? 1 : 0,
+                            only_tt: onlyTT ? 1 : 0,
+                            hotel_tt: hotelTT ? 1 : 0,
+                            from_date: fromDate,
+                            to_date: toDate
+                        };
+
+                        let url = `{{ route('leads.booking-destinations.store', $lead) }}`;
+                        let method = 'POST';
+
+                        if (editingDestinationRow) {
+                            const dbId = editingDestinationRow.querySelector('.editDestinationRow').dataset.id;
+                            url = `{{ route('leads.booking-destinations.update', [$lead, ':id']) }}`.replace(':id', dbId);
+                            method = 'PUT';
+                        }
+
+                        try {
+                            const response = await fetch(url, {
+                                method: method,
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                                },
+                                body: JSON.stringify(data)
+                            });
+
+                            const result = await response.json();
+
+                            if (response.ok) {
+                                window.location.reload();
+                            } else {
+                                alert(result.message || 'Error occurred while saving destination');
+                                submitBtn.disabled = false;
+                                submitBtn.textContent = originalText;
+                            }
+                        } catch (error) {
+                            console.error('Error saving destination:', error);
+                            alert('An unexpected error occurred');
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = originalText;
+                        }
                     });
 
-                    // Reset arrival/departure modal edit state when closed
-                    document.getElementById('addArrivalDepartureModal')?.addEventListener('hidden.bs.modal', function() {
-                        editingArrivalDepartureRow = null;
-                        document.getElementById('addArrivalDepartureModalLabel').textContent = 'Add Arrival/Departure';
-                        const submitBtn = document.getElementById('submitArrivalDepartureModal');
-                        if (submitBtn) submitBtn.textContent = 'Add';
-                        const form = document.getElementById('addArrivalDepartureForm');
-                        if (form) form.reset();
-                    });
-
-                    // Remove destination row handler (using event delegation)
-                    document.addEventListener('click', function(e) {
+                    // Delete Handler (AJAX)
+                    document.addEventListener('click', async function(e) {
                         if (e.target.closest('.removeDestinationRow')) {
-                            if (!confirm('Are you sure you want to delete this destination row?')) {
+                            const icon = e.target.closest('.removeDestinationRow');
+                            const dbId = icon.dataset.id;
+                            
+                            if (!dbId) {
+                                e.target.closest('tr').remove();
                                 return;
                             }
-                            const row = e.target.closest('tr');
-                            row.remove();
 
-                            // Check itinerary visibility after removing destination row
-                            checkItineraryVisibility();
+                            if (!confirm('Are you sure you want to remove this destination?')) return;
+
+                            try {
+                                const response = await fetch(`{{ route('leads.booking-destinations.destroy', [$lead, ':id']) }}`.replace(':id', dbId), {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                                        'Accept': 'application/json'
+                                    }
+                                });
+
+                                if (response.ok) {
+                                    window.location.reload();
+                                } else {
+                                    const result = await response.json();
+                                    alert(result.message || 'Error removing destination');
+                                }
+                            } catch (error) {
+                                console.error('Error removing destination:', error);
+                                alert('An unexpected error occurred');
+                            }
                         }
                     });
 
@@ -2118,608 +1911,451 @@
                         return `${day}/${month}/${year}`;
                     }
 
-                    // Function to add arrival/departure from modal
-                    function addArrivalDepartureFromModal() {
+                    // Arrival/Departure AJAX Logic
+                    let editingArrivalDepartureId = null;
+
+                    // Reset modal for new entry
+                    document.getElementById('addArrivalDepartureModal')?.addEventListener('show.bs.modal', function(e) {
+                        const button = e.relatedTarget;
+                        if (!button || !button.classList.contains('editArrivalDepartureRow')) {
+                            document.getElementById('addArrivalDepartureForm').reset();
+                            editingArrivalDepartureId = null;
+                            document.getElementById('addArrivalDepartureModalLabel').textContent = 'Add Arrival/Departure';
+                            document.getElementById('submitArrivalDepartureModal').textContent = 'Add';
+                        }
+                    });
+
+                    // Edit Handler - Populate Modal
+                    document.addEventListener('click', function(e) {
+                        const editBtn = e.target.closest('.editArrivalDepartureRow');
+                        if (editBtn) {
+                            editingArrivalDepartureId = editBtn.dataset.id;
+                            document.getElementById('addArrivalDepartureModalLabel').textContent = 'Edit Arrival/Departure';
+                            document.getElementById('submitArrivalDepartureModal').textContent = 'Update';
+
+                            // Populate modal fields from data attributes
+                            document.getElementById('modalMode').value = editBtn.dataset.mode || 'By Air';
+                            document.getElementById('modalInfo').value = editBtn.dataset.info || '';
+                            document.getElementById('modalFromCity').value = editBtn.dataset.fromCity || '';
+                            document.getElementById('modalToCity').value = editBtn.dataset.toCity || '';
+
+                            // Handle datetime-local values (YYYY-MM-DDTHH:MM)
+                            const depDate = editBtn.dataset.departureDate || '';
+                            const depTime = editBtn.dataset.departureTime || '';
+                            if (depDate && depTime) {
+                                document.getElementById('modalDepartureAt').value = `${depDate}T${depTime}`;
+                            }
+
+                            const arrDate = editBtn.dataset.arrivalDate || '';
+                            const arrTime = editBtn.dataset.arrivalTime || '';
+                            if (arrDate && arrTime) {
+                                document.getElementById('modalArrivalAt').value = `${arrDate}T${arrTime}`;
+                            }
+                        }
+                    });
+
+                    // Modal Submission (Add/Update)
+                    document.getElementById('submitArrivalDepartureModal')?.addEventListener('click', async function() {
+                        const submitBtn = this;
                         const mode = document.getElementById('modalMode').value;
                         const info = document.getElementById('modalInfo').value;
                         const fromCity = document.getElementById('modalFromCity').value;
                         const toCity = document.getElementById('modalToCity').value;
-                        const departureAt = document.getElementById('modalDepartureAt').value; // e.g. 2025-12-31T15:30
+                        const departureAt = document.getElementById('modalDepartureAt').value;
                         const arrivalAt = document.getElementById('modalArrivalAt').value;
 
-                        // Validation
                         if (!mode || !fromCity || !toCity || !departureAt || !arrivalAt) {
-                            alert('Please fill in all required fields (Mode, From City, To City, Departure Date & Time, Arrival Date & Time)');
-                            return false;
+                            alert('Please fill in all required fields');
+                            return;
                         }
 
-                        // Split datetime-local into date and time parts
-                        const [departureDate, departureTimeFull] = departureAt.split('T');
-                        const departureTime = departureTimeFull ? departureTimeFull.substr(0, 5) : '';
-                        const [arrivalDate, arrivalTimeFull] = arrivalAt.split('T');
-                        const arrivalTime = arrivalTimeFull ? arrivalTimeFull.substr(0, 5) : '';
+                        // Split datetime-local into date and time for backend
+                        const depParts = departureAt.split('T');
+                        const arrParts = arrivalAt.split('T');
 
-                        // Create new data row
-                        const tbody = document.getElementById('arrivalDepartureTableBody');
-                        const newRow = document.createElement('tr');
-                        newRow.className = 'arrival-departure-data-row';
-                        newRow.setAttribute('data-row-index', arrivalDepartureRowIndex);
+                        const data = {
+                            mode: mode,
+                            info: info,
+                            from_city: fromCity,
+                            to_city: toCity,
+                            departure_date: depParts[0],
+                            departure_time: depParts[1],
+                            arrival_date: arrParts[0],
+                            arrival_time: arrParts[1]
+                        };
 
-                        const depDateDisplay = formatDateDisplay(departureDate);
-                        const arrDateDisplay = formatDateDisplay(arrivalDate);
-                        const depTimeDisplay = departureTime ? departureTime : '';
-                        const arrTimeDisplay = arrivalTime ? arrivalTime : '';
+                        const originalText = submitBtn.textContent;
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = editingArrivalDepartureId ? 'Updating...' : 'Adding...';
 
-                        newRow.innerHTML = `
-                        <td>${mode}</td>
-                        <td>${info}</td>
-                        <td>${fromCity}</td>
-                        <td>${toCity}</td>
-                        <td>${depDateDisplay}</td>
-                        <td>${depTimeDisplay}</td>
-                        <td>${arrDateDisplay}</td>
-                        <td>${arrTimeDisplay}</td>
-                        <td class="text-center">
-                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][mode]" value="${mode}">
-                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][info]" value="${info}">
-                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][from_city]" value="${fromCity}">
-                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][to_city]" value="${toCity}">
-                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][departure_date]" value="${departureDate}">
-                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][departure_time]" value="${departureTime}">
-                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][arrival_date]" value="${arrivalDate}">
-                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][arrival_time]" value="${arrivalTime}">
-                            <i data-feather="edit" class="editArrivalDepartureRow" data-bs-toggle="modal" data-bs-target="#addArrivalDepartureModal" style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
-                            <i data-feather="trash-2" class="removeArrivalDepartureRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
-                        </td>
-                    `;
+                        try {
+                            const url = editingArrivalDepartureId ?
+                                `{{ route('leads.booking-arrival-departure.update', [$lead, ':id']) }}`.replace(':id', editingArrivalDepartureId) :
+                                `{{ route('leads.booking-arrival-departure.store', $lead) }}`;
 
-                        // If we are editing an existing row, replace its contents
-                        if (editingArrivalDepartureRow) {
-                            const row = editingArrivalDepartureRow;
-                            const rowIndex = row.getAttribute('data-row-index') || row.dataset.rowIndex || '';
-                            row.innerHTML = `
-                            <td>${mode}</td>
-                            <td>${info}</td>
-                            <td>${fromCity}</td>
-                            <td>${toCity}</td>
-                            <td>${depDateDisplay}</td>
-                            <td>${depTimeDisplay}</td>
-                            <td>${arrDateDisplay}</td>
-                            <td>${arrTimeDisplay}</td>
-                            <td class="text-center">
-                                <input type="hidden" name="arrival_departure[${rowIndex}][mode]" value="${mode}">
-                                <input type="hidden" name="arrival_departure[${rowIndex}][info]" value="${info}">
-                                <input type="hidden" name="arrival_departure[${rowIndex}][from_city]" value="${fromCity}">
-                                <input type="hidden" name="arrival_departure[${rowIndex}][to_city]" value="${toCity}">
-                                <input type="hidden" name="arrival_departure[${rowIndex}][departure_date]" value="${departureDate}">
-                                <input type="hidden" name="arrival_departure[${rowIndex}][departure_time]" value="${departureTime}">
-                                <input type="hidden" name="arrival_departure[${rowIndex}][arrival_date]" value="${arrivalDate}">
-                                <input type="hidden" name="arrival_departure[${rowIndex}][arrival_time]" value="${arrivalTime}">
-                                <i data-feather="edit" class="editArrivalDepartureRow" data-bs-toggle="modal" data-bs-target="#addArrivalDepartureModal" style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
-                                <i data-feather="trash-2" class="removeArrivalDepartureRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
-                            </td>
-                        `;
+                            const response = await fetch(url, {
+                                method: editingArrivalDepartureId ? 'PUT' : 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify(data)
+                            });
 
-                            // Re-initialize Feather icons
-                            if (typeof feather !== 'undefined') {
-                                feather.replace();
+                            const result = await response.json();
+
+                            if (response.ok) {
+                                window.location.reload();
+                            } else {
+                                alert(result.message || 'Error occurred while saving arrival/departure');
+                                submitBtn.disabled = false;
+                                submitBtn.textContent = originalText;
                             }
-
-                            // Reset edit state
-                            editingArrivalDepartureRow = null;
-                            document.getElementById('addArrivalDepartureModalLabel').textContent = 'Add Arrival/Departure';
-                            const submitBtn = document.getElementById('submitArrivalDepartureModal');
-                            if (submitBtn) submitBtn.textContent = 'Add';
-
-                            return true;
-                        }
-
-                        // Otherwise append as new row
-                        tbody.appendChild(newRow);
-
-                        // Re-initialize Feather icons
-                        if (typeof feather !== 'undefined') {
-                            feather.replace();
-                        }
-
-                        arrivalDepartureRowIndex++;
-                        return true;
-                    }
-
-                    // Handle modal form submission
-                    document.getElementById('submitArrivalDepartureModal')?.addEventListener('click', function() {
-                        if (addArrivalDepartureFromModal()) {
-                            const modal = bootstrap.Modal.getInstance(document.getElementById(
-                                'addArrivalDepartureModal'));
-                            if (modal) {
-                                modal.hide();
-                            }
-                            document.getElementById('addArrivalDepartureForm').reset();
+                        } catch (error) {
+                            console.error('Error saving arrival/departure:', error);
+                            alert('An unexpected error occurred');
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = originalText;
                         }
                     });
 
-                    // Remove arrival/departure row handler
-                    document.addEventListener('click', function(e) {
-                        if (e.target.closest('.removeArrivalDepartureRow')) {
-                            if (!confirm('Are you sure you want to delete this arrival/departure row?')) {
+                    // Delete Handler
+                    document.addEventListener('click', async function(e) {
+                        const deleteBtn = e.target.closest('.removeArrivalDepartureRow');
+                        if (deleteBtn) {
+                            const dbId = deleteBtn.dataset.id;
+                            if (!dbId) {
+                                deleteBtn.closest('tr').remove();
                                 return;
                             }
-                            const row = e.target.closest('tr');
-                            row.remove();
-                        }
 
-                        // Edit arrival/departure row handler
-                        if (e.target.closest('.editArrivalDepartureRow')) {
-                            const row = e.target.closest('tr');
-                            editingArrivalDepartureRow = row;
+                            if (!confirm('Are you sure you want to remove this arrival/departure entry?')) return;
 
-                            // Get row data
-                            const mode = row.querySelector('td:nth-child(1)').textContent.trim();
-                            const info = row.querySelector('td:nth-child(2)').textContent.trim();
-                            const fromCity = row.querySelector('td:nth-child(3)').textContent.trim();
-                            const toCity = row.querySelector('td:nth-child(4)').textContent.trim();
+                            try {
+                                const response = await fetch(`{{ route('leads.booking-arrival-departure.destroy', [$lead, ':id']) }}`.replace(':id', dbId), {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                                        'Accept': 'application/json'
+                                    }
+                                });
 
-                            const departureDateHidden = row.querySelector('input[name*="[departure_date]"]')?.value || '';
-                            const departureTimeHidden = row.querySelector('input[name*="[departure_time]"]')?.value || '';
-                            const arrivalDateHidden = row.querySelector('input[name*="[arrival_date]"]')?.value || '';
-                            const arrivalTimeHidden = row.querySelector('input[name*="[arrival_time]"]')?.value || '';
-
-                            // Populate modal fields
-                            document.getElementById('modalMode').value = mode;
-                            document.getElementById('modalInfo').value = info;
-                            document.getElementById('modalFromCity').value = fromCity;
-                            document.getElementById('modalToCity').value = toCity;
-
-                            const departureAt = departureDateHidden ? (departureTimeHidden ? `${departureDateHidden}T${departureTimeHidden}` : `${departureDateHidden}T00:00`) : '';
-                            const arrivalAt = arrivalDateHidden ? (arrivalTimeHidden ? `${arrivalDateHidden}T${arrivalTimeHidden}` : `${arrivalDateHidden}T00:00`) : '';
-
-                            document.getElementById('modalDepartureAt').value = departureAt;
-                            document.getElementById('modalArrivalAt').value = arrivalAt;
-
-                            // Change modal title and button text
-                            document.getElementById('addArrivalDepartureModalLabel').textContent = 'Edit Arrival/Departure';
-                            const submitBtn = document.getElementById('submitArrivalDepartureModal');
-                            if (submitBtn) submitBtn.textContent = 'Save';
+                                if (response.ok) {
+                                    window.location.reload();
+                                } else {
+                                    const result = await response.json();
+                                    alert(result.message || 'Error removing entry');
+                                }
+                            } catch (error) {
+                                console.error('Error removing arrival/departure:', error);
+                                alert('An unexpected error occurred');
+                            }
                         }
                     });
 
-                    // Accommodation table management
-                    let accommodationRowIndex =
-                        {{ $lead->bookingAccommodations ? $lead->bookingAccommodations->count() : 0 }};
-
-                    // Track if we are editing an existing accommodation row
-                    let editingAccommodationRow = null;
-                    // When editing, store the location to set after locations are loaded
+                    // Accommodation AJAX Logic
+                    let editingAccommodationId = null;
                     let editingAccLocationValue = null;
 
-                    // Function to load locations for accommodation modal when a destination is selected
+                    // Reset modal for new entry
+                    document.getElementById('addAccommodationModal')?.addEventListener('show.bs.modal', function(e) {
+                        const button = e.relatedTarget;
+                        if (!button || !button.classList.contains('editAccommodationRow')) {
+                            document.getElementById('addAccommodationForm').reset();
+                            editingAccommodationId = null;
+                            editingAccLocationValue = null;
+                            document.getElementById('addAccommodationModalLabel').textContent = 'Add Accommodation';
+                            document.getElementById('submitAccommodationModal').textContent = 'Add';
+                            document.getElementById('modalAccLocationSelect').innerHTML = '<option value="">-- Select Location --</option>';
+                        }
+                    });
+
+                    // Function to load locations for accommodation modal
                     function loadAccLocationsForDestination(destinationSelect) {
                         const locationSelect = document.getElementById('modalAccLocationSelect');
                         const destinationId = destinationSelect.options[destinationSelect.selectedIndex]?.getAttribute('data-destination-id');
 
                         if (locationSelect) {
                             locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
-
                             if (destinationId) {
                                 locationSelect.disabled = true;
-                                locationSelect.innerHTML = '<option value="">Loading locations...</option>';
-                                const submitBtn = document.getElementById('submitAccommodationModal');
-                                if (submitBtn) submitBtn.disabled = true;
-
+                                locationSelect.innerHTML = '<option value="">Loading...</option>';
                                 fetch(`/api/destinations/${destinationId}/locations`, {
-                                        method: 'GET',
-                                        headers: {
-                                            'X-Requested-With': 'XMLHttpRequest',
-                                            'Accept': 'application/json',
-                                        },
-                                        credentials: 'same-origin'
-                                    })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
-                                        data.forEach(location => {
-                                            const option = document.createElement('option');
-                                            option.value = location.name;
-                                            option.textContent = location.name;
-                                            locationSelect.appendChild(option);
-                                        });
-                                        // If a location is pending selection (editing), set it now and clear stored value
-                                        if (typeof editingAccLocationValue !== 'undefined' && editingAccLocationValue) {
-                                            locationSelect.value = editingAccLocationValue;
-                                            editingAccLocationValue = null;
-                                        }
-                                        locationSelect.disabled = false;
-                                        const submitBtn = document.getElementById('submitAccommodationModal');
-                                        if (submitBtn) submitBtn.disabled = false;
-                                    })
-                                    .catch(error => {
-                                        console.error('Error loading locations:', error);
-                                        locationSelect.innerHTML = '<option value="">Error loading locations</option>';
-                                        locationSelect.disabled = false;
-                                        const submitBtn = document.getElementById('submitAccommodationModal');
-                                        if (submitBtn) submitBtn.disabled = false;
+                                    headers: { 
+                                        'Accept': 'application/json',
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                .then(response => {
+                                    if (!response.ok) throw new Error('Network response was not ok');
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
+                                    data.forEach(loc => {
+                                        const option = document.createElement('option');
+                                        option.value = loc.name;
+                                        option.textContent = loc.name;
+                                        locationSelect.appendChild(option);
                                     });
-                            } else {
-                                locationSelect.disabled = false;
+                                    if (editingAccLocationValue) {
+                                        locationSelect.value = editingAccLocationValue;
+                                        // Fallback if value property didn't match (e.g. whitespace)
+                                        if (locationSelect.value !== editingAccLocationValue) {
+                                            Array.from(locationSelect.options).forEach(opt => {
+                                                if (opt.value.trim() === editingAccLocationValue.trim()) {
+                                                    locationSelect.value = opt.value;
+                                                }
+                                            });
+                                        }
+                                        editingAccLocationValue = null;
+                                    }
+                                    locationSelect.disabled = false;
+                                    const submitBtn = document.getElementById('submitAccommodationModal');
+                                    if (submitBtn) submitBtn.disabled = false;
+                                })
+                                .catch(error => {
+                                    console.error('Error loading locations:', error);
+                                    locationSelect.innerHTML = '<option value="">Error loading locations</option>';
+                                    locationSelect.disabled = false;
+                                    const submitBtn = document.getElementById('submitAccommodationModal');
+                                    if (submitBtn) submitBtn.disabled = false;
+                                });
                             }
                         }
                     }
 
-                    // Function to add accommodation from modal
-                    function addAccommodationFromModal() {
-                        const destination = document.getElementById('modalAccDestinationSelect').value;
-                        const location = document.getElementById('modalAccLocationSelect').value;
-                        const stayAt = document.getElementById('modalStayAt').value;
-                        const checkinDate = document.getElementById('modalCheckinDate').value;
-                        const checkoutDate = document.getElementById('modalCheckoutDate').value;
-                        const roomType = document.getElementById('modalRoomType').value;
-                        const mealPlan = document.getElementById('modalMealPlan').value;
-
-                        // Validation
-                        if (!destination || !location || !stayAt || !checkinDate || !checkoutDate) {
-                            alert(
-                                'Please fill in all required fields (Destination, Location, Stay At, Check-in Date, Check-out Date)'
-                            );
-                            return false;
-                        }
-
-                        // Create new data row
-                        const tbody = document.getElementById('accommodationTableBody');
-                        const newRow = document.createElement('tr');
-                        newRow.className = 'accommodation-data-row';
-                        newRow.setAttribute('data-row-index', accommodationRowIndex);
-
-                        newRow.innerHTML = `
-                        <td>${destination}</td>
-                        <td>${location}</td>
-                        <td>${stayAt}</td>
-                        <td>${formatDateDisplay(checkinDate)}</td>
-                        <td>${formatDateDisplay(checkoutDate)}</td>
-                        <td>${roomType}</td>
-                        <td>${mealPlan}</td>
-                        <td class="text-center">
-                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][destination]" value="${destination}">
-                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][location]" value="${location}">
-                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][stay_at]" value="${stayAt}">
-                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][checkin_date]" value="${checkinDate}">
-                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][checkout_date]" value="${checkoutDate}">
-                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][room_type]" value="${roomType}">
-                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][meal_plan]" value="${mealPlan}">
-                            <i data-feather="edit" class="editAccommodationRow" data-bs-toggle="modal" data-bs-target="#addAccommodationModal" style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
-                            <i data-feather="trash-2" class="removeAccommodationRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
-                        </td>
-                    `;
-
-                        // If we are editing an existing row, replace its contents
-                        if (editingAccommodationRow) {
-                            const row = editingAccommodationRow;
-                            const rowIndex = row.getAttribute('data-row-index') || row.dataset.rowIndex || '';
-                            row.innerHTML = `
-                            <td>${destination}</td>
-                            <td>${location}</td>
-                            <td>${stayAt}</td>
-                            <td>${formatDateDisplay(checkinDate)}</td>
-                            <td>${formatDateDisplay(checkoutDate)}</td>
-                            <td>${roomType}</td>
-                            <td>${mealPlan}</td>
-                            <td class="text-center">
-                                <input type="hidden" name="booking_accommodations[${rowIndex}][destination]" value="${destination}">
-                                <input type="hidden" name="booking_accommodations[${rowIndex}][location]" value="${location}">
-                                <input type="hidden" name="booking_accommodations[${rowIndex}][stay_at]" value="${stayAt}">
-                                <input type="hidden" name="booking_accommodations[${rowIndex}][checkin_date]" value="${checkinDate}">
-                                <input type="hidden" name="booking_accommodations[${rowIndex}][checkout_date]" value="${checkoutDate}">
-                                <input type="hidden" name="booking_accommodations[${rowIndex}][room_type]" value="${roomType}">
-                                <input type="hidden" name="booking_accommodations[${rowIndex}][meal_plan]" value="${mealPlan}">
-                                <i data-feather="edit" class="editAccommodationRow" data-bs-toggle="modal" data-bs-target="#addAccommodationModal" style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
-                                <i data-feather="trash-2" class="removeAccommodationRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
-                            </td>
-                        `;
-
-                            // Re-initialize Feather icons
-                            if (typeof feather !== 'undefined') {
-                                feather.replace();
-                            }
-
-                            // Reset edit state
-                            editingAccommodationRow = null;
-                            document.getElementById('addAccommodationModalLabel').textContent = 'Add Accommodation';
-                            const modal = bootstrap.Modal.getInstance(document.getElementById('addAccommodationModal'));
-                            if (modal) modal.hide();
-                            document.getElementById('addAccommodationForm').reset();
-
-                            return true;
-                        }
-
-                        // Otherwise append as new row
-                        tbody.appendChild(newRow);
-
-                        // Re-initialize Feather icons
-                        if (typeof feather !== 'undefined') {
-                            feather.replace();
-                        }
-
-                        accommodationRowIndex++;
-                        return true;
-                    }
-
-                    // Handle modal form submission
-                    document.getElementById('submitAccommodationModal')?.addEventListener('click', function() {
-                        if (addAccommodationFromModal()) {
-                            const modal = bootstrap.Modal.getInstance(document.getElementById(
-                                'addAccommodationModal'));
-                            if (modal) {
-                                modal.hide();
-                            }
-                            document.getElementById('addAccommodationForm').reset();
-                        }
-                    });
-
-                    // Remove accommodation row handler and Edit handler
-                    document.addEventListener('click', function(e) {
-                        if (e.target.closest('.removeAccommodationRow')) {
-                            if (!confirm('Are you sure you want to delete this accommodation row?')) {
-                                return;
-                            }
-                            const row = e.target.closest('tr');
-                            row.remove();
-                        }
-
-                        // Edit accommodation row handler
-                        if (e.target.closest('.editAccommodationRow')) {
-                            const row = e.target.closest('tr');
-                            editingAccommodationRow = row;
-
-                            // Get row data
-                            const destination = row.querySelector('td:nth-child(1)').textContent.trim();
-                            const location = row.querySelector('td:nth-child(2)').textContent.trim();
-                            const stayAt = row.querySelector('td:nth-child(3)').textContent.trim();
-                            const checkinDateHidden = row.querySelector('input[name*="[checkin_date]"]')?.value || '';
-                            const checkoutDateHidden = row.querySelector('input[name*="[checkout_date]"]')?.value || '';
-                            const roomType = row.querySelector('td:nth-child(6)').textContent.trim();
-                            const mealPlan = row.querySelector('td:nth-child(7)').textContent.trim();
-
-                            // Populate modal
-                            const destinationSelect = document.getElementById('modalAccDestinationSelect');
-                            if (destinationSelect) {
-                                destinationSelect.value = destination;
-                                // store the location value so we can set it after locations are fetched
-                                editingAccLocationValue = location;
-                                // Trigger location change to load options
-                                destinationSelect.dispatchEvent(new Event('change'));
-                            }
-
-                            document.getElementById('modalStayAt').value = stayAt;
-                            document.getElementById('modalCheckinDate').value = checkinDateHidden;
-                            document.getElementById('modalCheckoutDate').value = checkoutDateHidden;
-                            document.getElementById('modalRoomType').value = roomType;
-                            document.getElementById('modalMealPlan').value = mealPlan;
-
-                            // Change modal title
-                            document.getElementById('addAccommodationModalLabel').textContent = 'Edit Accommodation';
-                            const submitBtn = document.getElementById('submitAccommodationModal');
-                            if (submitBtn) submitBtn.textContent = 'Save';
-                        }
-                    });
-
-                    // Handle destination change in accommodation modal to load locations
                     document.getElementById('modalAccDestinationSelect')?.addEventListener('change', function() {
-                        const destinationId = this.options[this.selectedIndex].dataset.destinationId;
-                        const locationSelect = document.getElementById('modalAccLocationSelect');
+                        loadAccLocationsForDestination(this);
+                    });
 
-                        if (locationSelect) {
-                            locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
+                    // Edit Handler - Populate Modal
+                    document.addEventListener('click', function(e) {
+                        const editBtn = e.target.closest('.editAccommodationRow');
+                        if (editBtn) {
+                            editingAccommodationId = editBtn.dataset.accommodationId;
+                            document.getElementById('addAccommodationModalLabel').textContent = 'Edit Accommodation';
+                            document.getElementById('submitAccommodationModal').textContent = 'Update';
 
-                            if (destinationId) {
-                                locationSelect.disabled = true;
-                                locationSelect.innerHTML = '<option value="">Loading locations...</option>';
-                                const submitBtn = document.getElementById('submitAccommodationModal');
-                                if (submitBtn) submitBtn.disabled = true;
+                            // Populate fields
+                            document.getElementById('modalAccDestinationSelect').value = editBtn.dataset.destination;
+                            editingAccLocationValue = editBtn.dataset.location;
+                            document.getElementById('modalStayAt').value = editBtn.dataset.stayAt;
+                            document.getElementById('modalCheckinDate').value = editBtn.dataset.checkinDate;
+                            document.getElementById('modalCheckoutDate').value = editBtn.dataset.checkoutDate;
+                            document.getElementById('modalRoomType').value = editBtn.dataset.roomType;
+                            document.getElementById('modalMealPlan').value = editBtn.dataset.mealPlan;
 
-                                fetch(`/api/destinations/${destinationId}/locations`, {
-                                        method: 'GET',
-                                        headers: {
-                                            'X-Requested-With': 'XMLHttpRequest',
-                                            'Accept': 'application/json',
-                                        },
-                                        credentials: 'same-origin'
-                                    })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
-                                        data.forEach(location => {
-                                            const option = document.createElement('option');
-                                            option.value = location.name;
-                                            option.textContent = location.name;
-                                            locationSelect.appendChild(option);
-                                        });
-                                        // If editing, pick the stored location now and clear the stored value
-                                        if (typeof editingAccLocationValue !== 'undefined' && editingAccLocationValue) {
-                                            locationSelect.value = editingAccLocationValue;
-                                            editingAccLocationValue = null;
-                                        }
-                                        locationSelect.disabled = false;
-                                        const submitBtn = document.getElementById('submitAccommodationModal');
-                                        if (submitBtn) submitBtn.disabled = false;
-                                    })
-                                    .catch(error => {
-                                        console.error('Error loading locations:', error);
-                                        locationSelect.innerHTML = '<option value="">Error loading locations</option>';
-                                        locationSelect.disabled = false;
-                                        const submitBtn = document.getElementById('submitAccommodationModal');
-                                        if (submitBtn) submitBtn.disabled = false;
-                                    });
+                            // Trigger location load
+                            const destSelect = document.getElementById('modalAccDestinationSelect');
+                            destSelect.dispatchEvent(new Event('change'));
+                        }
+                    });
+
+                    // Modal Submission (Add/Update)
+                    document.getElementById('submitAccommodationModal')?.addEventListener('click', async function() {
+                        const submitBtn = this;
+                        const data = {
+                            destination: document.getElementById('modalAccDestinationSelect').value,
+                            location: document.getElementById('modalAccLocationSelect').value,
+                            stay_at: document.getElementById('modalStayAt').value,
+                            checkin_date: document.getElementById('modalCheckinDate').value,
+                            checkout_date: document.getElementById('modalCheckoutDate').value,
+                            room_type: document.getElementById('modalRoomType').value,
+                            meal_plan: document.getElementById('modalMealPlan').value,
+                        };
+
+                        if (!data.destination || !data.location || !data.stay_at || !data.checkin_date || !data.checkout_date) {
+                            alert('Please fill in all required fields');
+                            return;
+                        }
+
+                        const originalText = submitBtn.textContent;
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = editingAccommodationId ? 'Updating...' : 'Adding...';
+
+                        try {
+                            const url = editingAccommodationId ?
+                                `{{ route('leads.booking-accommodations.update', [$lead, ':id']) }}`.replace(':id', editingAccommodationId) :
+                                `{{ route('leads.booking-accommodations.store', $lead) }}`;
+
+                            const response = await fetch(url, {
+                                method: editingAccommodationId ? 'PUT' : 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify(data)
+                            });
+
+                            if (response.ok) {
+                                window.location.reload();
                             } else {
-                                locationSelect.disabled = false;
+                                const result = await response.json();
+                                alert(result.message || 'Error occurred while saving accommodation');
+                                submitBtn.disabled = false;
+                                submitBtn.textContent = originalText;
                             }
+                        } catch (error) {
+                            console.error('Error saving accommodation:', error);
+                            alert('An unexpected error occurred');
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = originalText;
                         }
                     });
 
-                    // Reset editing state when accommodation modal is closed
-                    document.getElementById('addAccommodationModal')?.addEventListener('hidden.bs.modal', function() {
-                        editingAccommodationRow = null;
-                        editingAccLocationValue = null;
-                        document.getElementById('addAccommodationModalLabel').textContent = 'Add Accommodation';
-                        const submitBtn = document.getElementById('submitAccommodationModal');
-                        if (submitBtn) submitBtn.textContent = 'Add';
-                        const locationSelect = document.getElementById('modalAccLocationSelect');
-                        if (locationSelect) {
-                            locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
-                        }
-                        const form = document.getElementById('addAccommodationForm');
-                        if (form) form.reset();
-                    });
-
-                    // Itinerary table management
-                    let itineraryRowIndex = {{ $lead->bookingItineraries ? $lead->bookingItineraries->count() : 0 }};
-
-                    // Function to add itinerary from modal
-                    function addItineraryFromModal() {
-                        const dayDate = document.getElementById('modalDayDate').value;
-                        const time = document.getElementById('modalItineraryTime').value;
-                        const location = document.getElementById('modalItineraryLocation').value;
-                        const activity = document.getElementById('modalActivity').value;
-                        const stayAt = document.getElementById('modalItineraryStayAt').value;
-                        const remarks = document.getElementById('modalRemarks').value;
-
-                        // Validation
-                        if (!dayDate || !location || !activity) {
-                            alert('Please fill in all required fields (Day & Date, Location, Activity/Tour Description)');
-                            return false;
-                        }
-
-                        // Create new data row
-                        const tbody = document.getElementById('itineraryTableBody');
-                        const newRow = document.createElement('tr');
-                        newRow.className = 'itinerary-data-row';
-                        newRow.setAttribute('data-row-index', itineraryRowIndex);
-
-                        newRow.innerHTML = `
-                        <td>${dayDate}</td>
-                        <td>${time || ''}</td>
-                        <td>${location}</td>
-                        <td>${activity}</td>
-                        <td>${stayAt || ''}</td>
-                        <td>${remarks || ''}</td>
-                        <td class="text-center">
-                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][day_and_date]" value="${dayDate}">
-                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][time]" value="${time}">
-                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][location]" value="${location}">
-                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][activity_tour_description]" value="${activity}">
-                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][stay_at]" value="${stayAt}">
-                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][remarks]" value="${remarks}">
-                            <i data-feather="edit" class="editItineraryRow" data-bs-toggle="modal" data-bs-target="#addItineraryModal" style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
-                            <i data-feather="trash-2" class="removeItineraryRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
-                        </td>
-                    `;
-
-                        tbody.appendChild(newRow);
-
-                        // Re-initialize Feather icons
-                        if (typeof feather !== 'undefined') {
-                            feather.replace();
-                        }
-
-                        itineraryRowIndex++;
-                        return true;
-                    }
-
-                    // Edit itinerary row handler
-                    let editingItineraryRow = null;
-                    document.addEventListener('click', function(e) {
-                        if (e.target.closest('.editItineraryRow')) {
-                            const row = e.target.closest('tr');
-                            editingItineraryRow = row;
-
-                            // Get row data
-                            const dayDate = row.querySelector('td:nth-child(1)').textContent.trim();
-                            const time = row.querySelector('td:nth-child(2)').textContent.trim();
-                            const location = row.querySelector('td:nth-child(3)').textContent.trim();
-                            const activity = row.querySelector('td:nth-child(4)').textContent.trim();
-                            const stayAt = row.querySelector('td:nth-child(5)').textContent.trim();
-                            const remarks = row.querySelector('td:nth-child(6)').textContent.trim();
-
-                            // Populate modal
-                            document.getElementById('modalDayDate').value = dayDate;
-                            document.getElementById('modalItineraryTime').value = time;
-                            document.getElementById('modalItineraryLocation').value = location;
-                            document.getElementById('modalActivity').value = activity;
-                            document.getElementById('modalItineraryStayAt').value = stayAt;
-                            document.getElementById('modalRemarks').value = remarks;
-
-                            // Change modal title
-                            document.getElementById('addItineraryModalLabel').textContent =
-                                'Edit Day-Wise Itinerary';
-                        }
-                    });
-
-                    // Handle modal form submission
-                    document.getElementById('submitItineraryModal')?.addEventListener('click', function() {
-                        if (editingItineraryRow) {
-                            // Update existing row
-                            const row = editingItineraryRow;
-                            const dayDate = document.getElementById('modalDayDate').value;
-                            const time = document.getElementById('modalItineraryTime').value;
-                            const location = document.getElementById('modalItineraryLocation').value;
-                            const activity = document.getElementById('modalActivity').value;
-                            const stayAt = document.getElementById('modalItineraryStayAt').value;
-                            const remarks = document.getElementById('modalRemarks').value;
-
-                            if (!dayDate || !location || !activity) {
-                                alert(
-                                    'Please fill in all required fields (Day & Date, Location, Activity/Tour Description)'
-                                    );
+                    // Delete Handler
+                    document.addEventListener('click', async function(e) {
+                        const deleteBtn = e.target.closest('.removeAccommodationRow');
+                        if (deleteBtn) {
+                            const dbId = deleteBtn.dataset.accommodationId;
+                            if (!dbId) {
+                                deleteBtn.closest('tr').remove();
                                 return;
                             }
 
-                            // Update row content
-                            row.querySelector('td:nth-child(1)').textContent = dayDate;
-                            row.querySelector('td:nth-child(2)').textContent = time || '';
-                            row.querySelector('td:nth-child(3)').textContent = location;
-                            row.querySelector('td:nth-child(4)').textContent = activity;
-                            row.querySelector('td:nth-child(5)').textContent = stayAt || '';
-                            row.querySelector('td:nth-child(6)').textContent = remarks || '';
+                            if (!confirm('Are you sure you want to remove this accommodation?')) return;
 
-                            // Update hidden inputs
-                            row.querySelector('input[name*="[day_and_date]"]').value = dayDate;
-                            row.querySelector('input[name*="[time]"]').value = time || '';
-                            row.querySelector('input[name*="[location]"]').value = location;
-                            row.querySelector('input[name*="[activity_tour_description]"]').value = activity;
-                            row.querySelector('input[name*="[stay_at]"]').value = stayAt || '';
-                            row.querySelector('input[name*="[remarks]"]').value = remarks || '';
+                            try {
+                                const response = await fetch(`{{ route('leads.booking-accommodations.destroy', [$lead, ':id']) }}`.replace(':id', dbId), {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                                        'Accept': 'application/json'
+                                    }
+                                });
 
-                            editingItineraryRow = null;
-                            document.getElementById('addItineraryModalLabel').textContent =
-                                'Add Day-Wise Itinerary';
-                            const modal = bootstrap.Modal.getInstance(document.getElementById('addItineraryModal'));
-                            if (modal) modal.hide();
-                            document.getElementById('addItineraryForm').reset();
-                        } else {
-                            // Original add functionality
-                            if (addItineraryFromModal()) {
-                                const modal = bootstrap.Modal.getInstance(document.getElementById(
-                                    'addItineraryModal'));
-                                if (modal) {
-                                    modal.hide();
+                                if (response.ok) {
+                                    window.location.reload();
+                                } else {
+                                    const result = await response.json();
+                                    alert(result.message || 'Error removing accommodation');
                                 }
-                                document.getElementById('addItineraryForm').reset();
+                            } catch (error) {
+                                console.error('Error removing accommodation:', error);
+                                alert('An unexpected error occurred');
                             }
                         }
                     });
 
-                    // Reset editing state when modal is closed
-                    document.getElementById('addItineraryModal')?.addEventListener('hidden.bs.modal', function() {
-                        editingItineraryRow = null;
-                        document.getElementById('addItineraryModalLabel').textContent = 'Add Day-Wise Itinerary';
+
+                    // Itinerary AJAX Logic
+                    let editingItineraryId = null;
+
+                    // Reset modal for new entry
+                    document.getElementById('addItineraryModal')?.addEventListener('show.bs.modal', function(e) {
+                        const button = e.relatedTarget;
+                        if (!button || !button.classList.contains('editItineraryRow')) {
+                            document.getElementById('addItineraryForm').reset();
+                            editingItineraryId = null;
+                            document.getElementById('addItineraryModalLabel').textContent = 'Add Day-Wise Itinerary';
+                            document.getElementById('submitItineraryModal').textContent = 'Add';
+                        }
                     });
 
-                    // Remove itinerary row handler
+                    // Edit Handler - Populate Modal
                     document.addEventListener('click', function(e) {
-                        if (e.target.closest('.removeItineraryRow')) {
-                            if (!confirm('Are you sure you want to delete this itinerary row?')) {
+                        const editBtn = e.target.closest('.editItineraryRow');
+                        if (editBtn) {
+                            editingItineraryId = editBtn.dataset.itineraryId;
+                            document.getElementById('addItineraryModalLabel').textContent = 'Edit Day-Wise Itinerary';
+                            document.getElementById('submitItineraryModal').textContent = 'Update';
+
+                            // Populate fields
+                            document.getElementById('modalDayDate').value = editBtn.dataset.dayDate;
+                            document.getElementById('modalItineraryTime').value = editBtn.dataset.time || '';
+                            document.getElementById('modalItineraryLocation').value = editBtn.dataset.location;
+                            document.getElementById('modalActivity').value = editBtn.dataset.activity;
+                            document.getElementById('modalItineraryStayAt').value = editBtn.dataset.stayAt || '';
+                            document.getElementById('modalRemarks').value = editBtn.dataset.remarks || '';
+                        }
+                    });
+
+                    // Modal Submission (Add/Update)
+                    document.getElementById('submitItineraryModal')?.addEventListener('click', async function() {
+                        const submitBtn = this;
+                        const data = {
+                            day_and_date: document.getElementById('modalDayDate').value,
+                            time: document.getElementById('modalItineraryTime').value,
+                            location: document.getElementById('modalItineraryLocation').value,
+                            activity_tour_description: document.getElementById('modalActivity').value,
+                            stay_at: document.getElementById('modalItineraryStayAt').value,
+                            remarks: document.getElementById('modalRemarks').value,
+                        };
+
+                        if (!data.day_and_date || !data.location || !data.activity_tour_description) {
+                            alert('Please fill in all required fields');
+                            return;
+                        }
+
+                        const originalText = submitBtn.textContent;
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = editingItineraryId ? 'Updating...' : 'Adding...';
+
+                        try {
+                            const url = editingItineraryId ?
+                                `{{ route('leads.booking-itineraries.update', [$lead, ':id']) }}`.replace(':id', editingItineraryId) :
+                                `{{ route('leads.booking-itineraries.store', $lead) }}`;
+
+                            const response = await fetch(url, {
+                                method: editingItineraryId ? 'PUT' : 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify(data)
+                            });
+
+                            if (response.ok) {
+                                window.location.reload();
+                            } else {
+                                const result = await response.json();
+                                alert(result.message || 'Error occurred while saving itinerary');
+                                submitBtn.disabled = false;
+                                submitBtn.textContent = originalText;
+                            }
+                        } catch (error) {
+                            console.error('Error saving itinerary:', error);
+                            alert('An unexpected error occurred');
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = originalText;
+                        }
+                    });
+
+                    // Delete Handler
+                    document.addEventListener('click', async function(e) {
+                        const deleteBtn = e.target.closest('.removeItineraryRow');
+                        if (deleteBtn) {
+                            const dbId = deleteBtn.dataset.itineraryId;
+                            if (!dbId) {
+                                deleteBtn.closest('tr').remove();
                                 return;
                             }
-                            const row = e.target.closest('tr');
-                            row.remove();
+
+                            if (!confirm('Are you sure you want to remove this itinerary entry?')) return;
+
+                            try {
+                                const response = await fetch(`{{ route('leads.booking-itineraries.destroy', [$lead, ':id']) }}`.replace(':id', dbId), {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                                        'Accept': 'application/json'
+                                    }
+                                });
+
+                                if (response.ok) {
+                                    window.location.reload();
+                                } else {
+                                    const result = await response.json();
+                                    alert(result.message || 'Error removing itinerary entry');
+                                }
+                            } catch (error) {
+                                console.error('Error removing itinerary:', error);
+                                alert('An unexpected error occurred');
+                            }
                         }
                     });
 
@@ -2736,11 +2372,12 @@
                         const destinationRows = destinationTableBody.querySelectorAll('.destination-data-row');
 
                         destinationRows.forEach(row => {
-                            const onlyTTInput = row.querySelector('input[name*="[only_tt]"]');
-                            const hotelTTInput = row.querySelector('input[name*="[hotel_tt]"]');
+                            const cells = row.querySelectorAll('td');
+                            // Column 2 is Only Hotel, Column 3 is Only TT, Column 4 is Hotel + TT (0-indexed)
+                            const onlyTTIcon = cells[3]?.querySelector('i[data-feather="check"], .feather-check');
+                            const hotelTTIcon = cells[4]?.querySelector('i[data-feather="check"], .feather-check');
 
-                            if ((onlyTTInput && onlyTTInput.value === '1') || (hotelTTInput && hotelTTInput
-                                    .value === '1')) {
+                            if (onlyTTIcon || hotelTTIcon) {
                                 shouldShow = true;
                             }
                         });
@@ -2748,8 +2385,6 @@
                         // Show/hide itinerary section
                         if (shouldShow) {
                             itinerarySection.style.display = '';
-
-                            // Input row is always present, no need to add default row
                         } else {
                             itinerarySection.style.display = 'none';
                         }
@@ -2812,7 +2447,16 @@
                         form.querySelector('input[name=\"payment_date\"]').value = paymentDate;
                         form.querySelector('input[name=\"due_date\"]').value = dueDate;
                         form.querySelector('input[name=\"reference\"]').value = reference;
-                        form.querySelector('select[name=\"status\"]').value = status;
+                        const statusSelect = form.querySelector('select[class*="form-select"]'); // Use class selector as name might be status or status_display
+                        if (statusSelect) {
+                            statusSelect.value = status;
+                        }
+                        
+                        // Update hidden status input if it exists (for Post Sales)
+                        const hiddenStatus = document.getElementById('hiddenPaymentStatus');
+                        if (hiddenStatus) {
+                            hiddenStatus.value = status;
+                        }
 
                         const modalTitle = document.getElementById('postSalesAddPaymentModalLabel');
                         if (modalTitle) {
@@ -2834,6 +2478,12 @@
                         const modalTitle = document.getElementById('postSalesAddPaymentModalLabel');
                         if (modalTitle) {
                             modalTitle.textContent = 'Add Customer Payment';
+                        }
+                        
+                        // Reset hidden status to pending
+                        const hiddenStatus = document.getElementById('hiddenPaymentStatus');
+                        if (hiddenStatus) {
+                            hiddenStatus.value = 'pending';
                         }
                     });
 
@@ -3001,133 +2651,11 @@
                         }
                     });
 
-                    // Handle form submission
+                    // Handle form submission (Direct submit enabled)
                     const bookingFileForm = document.getElementById('bookingFileForm');
                     if (bookingFileForm) {
-                        bookingFileForm.addEventListener('submit', function(e) {
-                            e.preventDefault();
-
-                            // Convert form to FormData to properly handle arrays
-                            const formData = new FormData(bookingFileForm);
-                            const submitButton = bookingFileForm.querySelector('button[type="submit"]');
-                            const originalButtonText = submitButton.textContent;
-
-                            // Disable submit button and show loading
-                            submitButton.disabled = true;
-                            submitButton.textContent = 'Saving...';
-
-                            // Convert FormData to object for JSON submission
-                            const data = {};
-                            for (let [key, value] of formData.entries()) {
-                                if (key.includes('[') && key.includes(']')) {
-                                    // Handle array notation like booking_destinations[0][destination]
-                                    const matches = key.match(/^(.+?)\[(\d+)\]\[(.+?)\]$/);
-                                    if (matches) {
-                                        const [, arrayName, index, field] = matches;
-                                        if (!data[arrayName]) data[arrayName] = {};
-                                        if (!data[arrayName][index]) data[arrayName][index] = {};
-                                        data[arrayName][index][field] = value;
-                                    } else {
-                                        // Handle simple array notation
-                                        const arrayMatch = key.match(/^(.+?)\[(\d+)\]$/);
-                                        if (arrayMatch) {
-                                            const [, arrayName, index] = arrayMatch;
-                                            if (!data[arrayName]) data[arrayName] = {};
-                                            data[arrayName][index] = value;
-                                        } else {
-                                            data[key] = value;
-                                        }
-                                    }
-                                } else {
-                                    data[key] = value;
-                                }
-                            }
-
-                            // Convert nested objects to arrays for Laravel
-                            if (data.booking_destinations) {
-                                data.booking_destinations = Object.values(data.booking_destinations);
-                            }
-                            if (data.booking_flights) {
-                                data.booking_flights = Object.values(data.booking_flights);
-                            }
-                            if (data.booking_surface_transports) {
-                                data.booking_surface_transports = Object.values(data.booking_surface_transports);
-                            }
-                            if (data.booking_sea_transports) {
-                                data.booking_sea_transports = Object.values(data.booking_sea_transports);
-                            }
-                            if (data.booking_accommodations) {
-                                data.booking_accommodations = Object.values(data.booking_accommodations);
-                            }
-                            if (data.booking_itineraries) {
-                                data.booking_itineraries = Object.values(data.booking_itineraries);
-                            }
-
-                            fetch(bookingFileForm.action, {
-                                    method: 'PUT',
-                                    headers: {
-                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                            ?.content || formData.get('_token'),
-                                        'Accept': 'application/json',
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify(data)
-                                })
-                                .then(response => {
-                                    if (!response.ok) {
-                                        return response.json().then(data => {
-                                            throw new Error(data.message || 'An error occurred');
-                                        });
-                                    }
-                                    return response.json();
-                                })
-                                .then(data => {
-                                    // Show success message
-                                    const alertDiv = document.createElement('div');
-                                    alertDiv.className = 'alert alert-success alert-dismissible fade show';
-                                    alertDiv.setAttribute('role', 'alert');
-                                    alertDiv.innerHTML = `
-                                    <strong>Success!</strong> Booking file saved successfully!
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                `;
-                                    bookingFileForm.insertBefore(alertDiv, bookingFileForm.firstChild);
-
-                                    // Scroll to top
-                                    window.scrollTo({
-                                        top: 0,
-                                        behavior: 'smooth'
-                                    });
-
-                                    // Auto-hide alert after 3 seconds
-                                    setTimeout(() => {
-                                        alertDiv.remove();
-                                    }, 3000);
-                                })
-                                .catch(error => {
-                                    console.error('Error saving booking file:', error);
-
-                                    // Show error message
-                                    const alertDiv = document.createElement('div');
-                                    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-                                    alertDiv.setAttribute('role', 'alert');
-                                    alertDiv.innerHTML = `
-                                    <strong>Error!</strong> ${error.message || 'Unable to save booking file.'}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                `;
-                                    bookingFileForm.insertBefore(alertDiv, bookingFileForm.firstChild);
-
-                                    // Scroll to top
-                                    window.scrollTo({
-                                        top: 0,
-                                        behavior: 'smooth'
-                                    });
-                                })
-                                .finally(() => {
-                                    // Re-enable submit button
-                                    submitButton.disabled = false;
-                                    submitButton.textContent = originalButtonText;
-                                });
-                        });
+                        // The form will now submit normally
+                        console.log('Direct submission enabled for bookingFileForm');
                     }
                 });
 

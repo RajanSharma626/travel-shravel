@@ -132,13 +132,29 @@
                                 </a>
                             </li>
 
-                            <!-- Sales Tab - Visible to Admin, Sales, Sales Manager -->
                             @php
                                 $isAdmin = Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Developer');
                             @endphp
-                            @if ($isAdmin ||
+
+                            <!-- Customer Care - Separate Tab -->
+                            @if ($isAdmin || Auth::user()->hasRole('Customer Care'))
+                                <li class="nav-item mb-2 {{ request()->routeIs('customer-care.*') ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('customer-care.leads.index') }}">
+                                        <span class="nav-icon-wrap">
+                                            <span class="svg-icon">
+                                                <i data-feather="headphones" class="small"></i>
+                                            </span>
+                                        </span>
+                                        <span class="nav-link-text">Customer Care</span>
+                                    </a>
+                                </li>
+                            @endif
+
+                            <!-- Sales Tab - Visible to Admin, Sales, Sales Manager (Hidden for Customer Care) -->
+                            @if (($isAdmin ||
                                     Auth::user()->hasRole('Sales') ||
-                                    Auth::user()->hasRole('Sales Manager'))
+                                    Auth::user()->hasRole('Sales Manager')) &&
+                                !Auth::user()->hasRole('Customer Care'))
                                 @php
                                     $isSalesActive = request()->is('leads*') || request()->is('bookings*');
                                     $isLeadsActive = request()->is('leads*');
@@ -171,10 +187,11 @@
                                 </li>
                             @endif
 
-                            <!-- Operations Tab - Visible to Admin, Operation, Operation Manager -->
-                            @if ($isAdmin ||
+                            <!-- Operations Tab - Visible to Admin, Operation, Operation Manager (Hidden for Customer Care) -->
+                            @if (($isAdmin ||
                                     Auth::user()->hasRole('Operation') ||
-                                    Auth::user()->hasRole('Operation Manager'))
+                                    Auth::user()->hasRole('Operation Manager')) &&
+                                !Auth::user()->hasRole('Customer Care'))
                                
 
                                 <li class="nav-item mb-2 {{ request()->is('operations*') || (request()->is('bookings/*/form') && (Auth::user()->hasRole('Operation') || Auth::user()->hasRole('Operation Manager'))) ? 'active' : '' }}">
@@ -188,10 +205,11 @@
                                 </li>
                             @endif
 
-                            <!-- Post Sales Tab - Visible to Admin, Post Sales, Post Sales Manager -->
-                            @if ($isAdmin ||
+                            <!-- Post Sales Tab - Visible to Admin, Post Sales, Post Sales Manager (Hidden for Customer Care) -->
+                            @if (($isAdmin ||
                                     Auth::user()->hasRole('Post Sales') ||
-                                    Auth::user()->hasRole('Post Sales Manager'))
+                                    Auth::user()->hasRole('Post Sales Manager')) &&
+                                !Auth::user()->hasRole('Customer Care'))
                                 <li class="nav-item mb-2 {{ request()->is('post-sales*') || (request()->is('bookings/*/form') && (Auth::user()->hasRole('Post Sales') || Auth::user()->hasRole('Post Sales Manager'))) ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('post-sales.index') }}">
                                         <span class="nav-icon-wrap">
@@ -204,10 +222,11 @@
                                 </li>
                             @endif
 
-                            <!-- Accounts Tab - Visible to Admin, Accounts, Accounts Manager -->
-                            @if ($isAdmin ||
+                            <!-- Accounts Tab - Visible to Admin, Accounts, Accounts Manager (Hidden for Customer Care) -->
+                            @if (($isAdmin ||
                                     Auth::user()->hasRole('Accounts') ||
-                                    Auth::user()->hasRole('Accounts Manager'))
+                                    Auth::user()->hasRole('Accounts Manager')) &&
+                                !Auth::user()->hasRole('Customer Care'))
                                 <li class="nav-item mb-2 {{ request()->is('accounts*') || (request()->routeIs('bookings.form') && (Auth::user()->hasRole('Accounts') || Auth::user()->hasRole('Accounts Manager'))) ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('accounts.index') }}">
                                         <span class="nav-icon-wrap">
@@ -220,10 +239,11 @@
                                 </li>
                             @endif
 
-                            <!-- Delivery Tab - Visible to Admin, Delivery, Delivery Manager -->
-                            @if ($isAdmin ||
+                            <!-- Delivery Tab - Visible to Admin, Delivery, Delivery Manager (Hidden for Customer Care) -->
+                            @if (($isAdmin ||
                                     Auth::user()->hasRole('Delivery') ||
-                                    Auth::user()->hasRole('Delivery Manager'))
+                                    Auth::user()->hasRole('Delivery Manager')) &&
+                                !Auth::user()->hasRole('Customer Care'))
                                 <li class="nav-item mb-2 {{ request()->is('deliveries*') || (request()->is('bookings/*/form') && (Auth::user()->hasRole('Delivery') || Auth::user()->hasRole('Delivery Manager'))) ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('deliveries.index') }}">
                                         <span class="nav-icon-wrap">
@@ -236,9 +256,10 @@
                                 </li>
                             @endif
 
-                            <!-- HR Tab - Visible to Admin and HR only -->
-                            @if ($isAdmin ||
-                                    Auth::user()->hasRole('HR'))
+                            <!-- HR Tab - Visible to Admin and HR only (Hidden for Customer Care) -->
+                            @if (($isAdmin ||
+                                    Auth::user()->hasRole('HR')) &&
+                                !Auth::user()->hasRole('Customer Care'))
                                 <li class="nav-item mb-2 {{ request()->is('hr*') ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('hr.employees.index') }}">
                                         <span class="nav-icon-wrap">
@@ -251,29 +272,33 @@
                                 </li>
                             @endif
 
-                            <!-- Services -->
-                            <li class="nav-item mb-2 {{ request()->is('services*') ? 'active' : '' }}">
-                                <a class="nav-link" href="{{ route('services.index') }}">
-                                    <span class="nav-icon-wrap">
-                                        <span class="svg-icon">
-                                            <i data-feather="briefcase" class="small"></i>
+                            <!-- Services (Hidden for Customer Care) -->
+                            @if (!Auth::user()->hasRole('Customer Care'))
+                                <li class="nav-item mb-2 {{ request()->is('services*') ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('services.index') }}">
+                                        <span class="nav-icon-wrap">
+                                            <span class="svg-icon">
+                                                <i data-feather="briefcase" class="small"></i>
+                                            </span>
                                         </span>
-                                    </span>
-                                    <span class="nav-link-text">Services</span>
-                                </a>
-                            </li>
+                                        <span class="nav-link-text">Services</span>
+                                    </a>
+                                </li>
+                            @endif
 
-                            <!-- Destinations -->
-                            <li class="nav-item mb-2 {{ request()->is('destinations*') ? 'active' : '' }}">
-                                <a class="nav-link" href="{{ route('destinations.index') }}">
-                                    <span class="nav-icon-wrap">
-                                        <span class="svg-icon">
-                                            <i data-feather="map-pin" class="small"></i>
+                            <!-- Destinations (Hidden for Customer Care) -->
+                            @if (!Auth::user()->hasRole('Customer Care'))
+                                <li class="nav-item mb-2 {{ request()->is('destinations*') ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('destinations.index') }}">
+                                        <span class="nav-icon-wrap">
+                                            <span class="svg-icon">
+                                                <i data-feather="map-pin" class="small"></i>
+                                            </span>
                                         </span>
-                                    </span>
-                                    <span class="nav-link-text">Destinations</span>
-                                </a>
-                            </li>
+                                        <span class="nav-link-text">Destinations</span>
+                                    </a>
+                                </li>
+                            @endif
 
                             <!-- Incentives -->
                             {{-- <li class="nav-item mb-2 {{ request()->is('incentives*') ? 'active' : '' }}">

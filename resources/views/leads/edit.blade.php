@@ -173,7 +173,7 @@
                                                 <div class="row g-3">
                                                     <div class="col-md-4">
                                                         <label class="form-label fw-semibold">Assign To</label>
-                                                        <select name="assigned_employee_id" class="form-select">
+                                                        <select name="assigned_user_id" class="form-select">
                                                             <option value="">-- Select Employee --</option>
                                                             @php
                                                                 $currentEmployeeId = null;
@@ -185,7 +185,7 @@
                                                                         // Fallback to User mapping
                                                                         $assignedUser = \App\Models\User::find($lead->assigned_user_id);
                                                                         if ($assignedUser && $assignedUser->user_id) {
-                                                                            $currentEmployee = \App\Models\Employee::where('user_id', $assignedUser->user_id)->first();
+                                                                            $currentEmployee = \App\Models\User::where('user_id', $assignedUser->user_id)->first();
                                                                             if ($currentEmployee) {
                                                                                 $currentEmployeeId = $currentEmployee->id;
                                                                             }
@@ -201,7 +201,7 @@
                                                                 @endphp
                                                                 <option value="{{ $employee->id }}"
                                                                     data-user-id="{{ $matchingUser->id ?? '' }}"
-                                                                    {{ (string)old('assigned_employee_id', $currentEmployeeId) === (string)$employee->id ? 'selected' : '' }}>
+                                                                    {{ (string)old('assigned_user_id', $currentEmployeeId) === (string)$employee->id ? 'selected' : '' }}>
                                                                     {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }})@endif
                                                                 </option>
                                                             @endforeach

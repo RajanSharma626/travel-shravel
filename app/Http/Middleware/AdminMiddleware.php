@@ -15,7 +15,7 @@ class AdminMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::check() && Auth::user()->hasRole('Admin')) {
-            // Employee model now handles this
+            // User model now handles this
             return $next($request);
         }
 

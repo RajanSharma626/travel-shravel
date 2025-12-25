@@ -14,11 +14,16 @@ return new class extends Migration
         Schema::create('destinations', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
+            // Removed country, state, city, description, is_active based on 2025_12_03
+            // The 2025_12_10 added country back, but typically we want the final state.
+            // Looking at 2025_12_10_232431_add_country_to_destinations_table.php, it ADDS country.
+            // So the final state should probably HAVE country if that migration ran last.
+            // But 2025_12_03 REMOVED it.
+            // So: Created (with country) -> Removed (no country) -> Added (with country).
+            // Final state: has country.
+            
             $table->string('country')->nullable();
-            $table->string('state')->nullable();
-            $table->string('city')->nullable();
-            $table->text('description')->nullable();
-            $table->boolean('is_active')->default(true);
+            
             $table->timestamps();
         });
     }

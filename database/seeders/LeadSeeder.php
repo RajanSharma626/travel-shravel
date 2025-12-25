@@ -27,10 +27,10 @@ class LeadSeeder extends Seeder
     {
         $services = Service::all();
         $destinations = Destination::all();
-        $salesUsers = User::whereIn('role', ['Sales', 'Sales Manager'])->get();
-        $operationUsers = User::whereIn('role', ['Operation', 'Operation Manager'])->get();
-        $accountsUsers = User::whereIn('role', ['Accounts', 'Accounts Manager'])->get();
-        $deliveryUsers = User::whereIn('role', ['Delivery', 'Delivery Manager'])->get();
+        $salesUsers = \App\Models\User::whereIn('role', ['Sales', 'Sales Manager'])->get();
+        $operationUsers = \App\Models\User::whereIn('role', ['Operation', 'Operation Manager'])->get();
+        $accountsUsers = \App\Models\User::whereIn('role', ['Accounts', 'Accounts Manager'])->get();
+        $deliveryUsers = \App\Models\User::whereIn('role', ['Delivery', 'Delivery Manager'])->get();
 
         if ($services->isEmpty() || $destinations->isEmpty() || $salesUsers->isEmpty()) {
             $this->command->warn('Please run ServiceSeeder, DestinationSeeder, and UserSeeder first!');
@@ -148,7 +148,7 @@ class LeadSeeder extends Seeder
                     'lead_id' => $lead->id,
                     'user_id' => $salesUser->id,
                     'remark' => 'Customer showed interest in ' . $destination->name . '. Follow up required.',
-                    'follow_up_date' => Carbon::now()->addDays(rand(1, 7)),
+                    'follow_up_at' => Carbon::now()->addDays(rand(1, 7)),
                     'visibility' => rand(0, 1) ? 'public' : 'internal',
                 ]);
             }

@@ -183,8 +183,8 @@
                                     </div>
                                                     <div class="col-md-3">
                                         <label class="form-label">Work E-mail</label>
-                                        <input type="email" name="login_work_email" class="form-control form-control-sm"
-                                               value="{{ old('login_work_email') }}">
+                                        <input type="email" name="email" class="form-control form-control-sm"
+                                               value="{{ old('email') }}">
                                     </div>
                                                     <div class="col-md-3">
                                         <label class="form-label">Password</label>
@@ -196,11 +196,8 @@
                                         <select name="role" class="form-select form-select-sm" required>
                                             <option value="">-- Select Role --</option>
                                             <option value="Admin" {{ old('role') == 'Admin' ? 'selected' : '' }}>Admin</option>
-                                            <option value="Sales Manager" {{ old('role') == 'Sales Manager' ? 'selected' : '' }}>Sales Manager</option>
-                                            <option value="Operation Manager" {{ old('role') == 'Operation Manager' ? 'selected' : '' }}>Operation Manager</option>
-                                            <option value="Accounts Manager" {{ old('role') == 'Accounts Manager' ? 'selected' : '' }}>Accounts Manager</option>
-                                            <option value="Post Sales Manager" {{ old('role') == 'Post Sales Manager' ? 'selected' : '' }}>Post Sales Manager</option>
-                                            <option value="Delivery Manager" {{ old('role') == 'Delivery Manager' ? 'selected' : '' }}>Delivery Manager</option>
+                                            <option value="Manager" {{ old('role') == 'Manager' ? 'selected' : '' }}>Manager</option>
+                                            <option value="User" {{ old('role') == 'User' ? 'selected' : '' }}>User</option>
                                         </select>
                                     </div>
 

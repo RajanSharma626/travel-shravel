@@ -21,9 +21,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.auth');
-Route::get('/', function () {
-    return redirect()->route('login');
-});
 
 Route::middleware(['auth', 'check.active'])->group(function () {
 
@@ -89,6 +86,28 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/destinations/{destination}', [DestinationController::class, 'show'])->name('destinations.show');
     });
 
+    // Customer Care Routes
+    Route::prefix('customer-care')->name('customer-care.')->middleware(['auth', 'check.active'])->group(function () {
+        Route::get('/leads', [\App\Http\Controllers\CustomerCareController::class, 'index'])->name('leads.index');
+        Route::get('/leads/create', [\App\Http\Controllers\CustomerCareController::class, 'create'])->name('leads.create');
+        Route::post('/leads', [\App\Http\Controllers\CustomerCareController::class, 'store'])->name('leads.store');
+        Route::get('/leads/{lead}/edit', [\App\Http\Controllers\CustomerCareController::class, 'edit'])->name('leads.edit');
+        Route::put('/leads/{lead}', [\App\Http\Controllers\CustomerCareController::class, 'update'])->name('leads.update');
+        Route::get('/leads/{lead}', [\App\Http\Controllers\CustomerCareController::class, 'show'])->name('leads.show');
+        Route::delete('/leads/{lead}', [\App\Http\Controllers\CustomerCareController::class, 'destroy'])->name('leads.destroy');
+        
+        // Lead Remarks in Customer Care
+        Route::get('/leads/{lead}/remarks', [LeadRemarkController::class, 'index'])->name('leads.remarks.index');
+        Route::post('/leads/{lead}/remarks', [LeadRemarkController::class, 'store'])->name('leads.remarks.store');
+        Route::put('/leads/{lead}/remarks/{remark}', [LeadRemarkController::class, 'update'])->name('leads.remarks.update');
+        
+        // Lead Status & Assignment in Customer Care
+        Route::post('/leads/{lead}/status', [LeadController::class, 'updateStatus'])->name('leads.updateStatus');
+        Route::post('/leads/{lead}/assign-user', [LeadController::class, 'updateAssignedUser'])->name('leads.assign-user');
+        Route::post('/leads/{lead}/reassign', [LeadController::class, 'updateReassignedUser'])->name('leads.reassign');
+        Route::post('/leads/bulk-assign', [LeadController::class, 'bulkAssign'])->name('leads.bulkAssign');
+    });
+
     // Leads routes - IMPORTANT: Specific routes must come before wildcard routes
     Route::middleware('permission:view leads')->group(function () {
         Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');
@@ -109,6 +128,25 @@ Route::middleware(['auth', 'check.active'])->group(function () {
             Route::put('/bookings/{lead}/vendor-payment/{vendorPayment}', [LeadController::class, 'updateVendorPayment'])->name('bookings.vendor-payment.update');
             Route::delete('/bookings/{lead}/vendor-payment/{vendorPayment}', [LeadController::class, 'destroyVendorPayment'])->name('bookings.vendor-payment.destroy');
         });
+
+        // Booking Destination routes
+        Route::post('/leads/{lead}/booking-destinations', [LeadController::class, 'storeBookingDestination'])->name('leads.booking-destinations.store');
+        Route::put('/leads/{lead}/booking-destinations/{bookingDestination}', [LeadController::class, 'updateBookingDestination'])->name('leads.booking-destinations.update');
+        Route::delete('/leads/{lead}/booking-destinations/{bookingDestination}', [LeadController::class, 'destroyBookingDestination'])->name('leads.booking-destinations.destroy');
+
+        Route::post('/leads/{lead}/booking-arrival-departure', [LeadController::class, 'storeBookingArrivalDeparture'])->name('leads.booking-arrival-departure.store');
+        Route::put('/leads/{lead}/booking-arrival-departure/{arrivalDeparture}', [LeadController::class, 'updateBookingArrivalDeparture'])->name('leads.booking-arrival-departure.update');
+        Route::delete('/leads/{lead}/booking-arrival-departure/{arrivalDeparture}', [LeadController::class, 'destroyBookingArrivalDeparture'])->name('leads.booking-arrival-departure.destroy');
+
+        // Accommodation routes
+        Route::post('/leads/{lead}/booking-accommodations', [LeadController::class, 'storeBookingAccommodation'])->name('leads.booking-accommodations.store');
+        Route::put('/leads/{lead}/booking-accommodations/{accommodation}', [LeadController::class, 'updateBookingAccommodation'])->name('leads.booking-accommodations.update');
+        Route::delete('/leads/{lead}/booking-accommodations/{accommodation}', [LeadController::class, 'destroyBookingAccommodation'])->name('leads.booking-accommodations.destroy');
+
+        // Itinerary routes
+        Route::post('/leads/{lead}/booking-itineraries', [LeadController::class, 'storeBookingItinerary'])->name('leads.booking-itineraries.store');
+        Route::put('/leads/{lead}/booking-itineraries/{itinerary}', [LeadController::class, 'updateBookingItinerary'])->name('leads.booking-itineraries.update');
+        Route::delete('/leads/{lead}/booking-itineraries/{itinerary}', [LeadController::class, 'destroyBookingItinerary'])->name('leads.booking-itineraries.destroy');
     });
     Route::middleware('permission:view leads')->group(function () {
         Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show');

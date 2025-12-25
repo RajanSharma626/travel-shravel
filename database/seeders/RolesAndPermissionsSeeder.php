@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use App\Models\User;
+use App\Models\Employee;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -313,14 +313,28 @@ class RolesAndPermissionsSeeder extends Seeder
             'edit users',
         ]);
 
+        // Customer Care
+        $customerCareRole = Role::firstOrCreate(['name' => 'Customer Care']);
+        $customerCareRole->givePermissionTo([
+            'view leads',
+            'create leads',
+            'edit leads',
+            'view remarks',
+            'create remarks',
+            'view reports',
+            'view services',
+            'view destinations',
+        ]);
+
         // Developer - Full access (for development)
         $developerRole = Role::firstOrCreate(['name' => 'Developer']);
         $developerRole->givePermissionTo(Permission::all());
 
         // Assign roles to existing users based on their role field
-        $users = User::all();
+        $users = \App\Models\User::all();
         foreach ($users as $user) {
             if ($user->role) {
+                // Fix role name mismatch if any (e.g. 'Sales' vs 'Sales Manager' logic is handled by exact match)
                 $role = Role::where('name', $user->role)->first();
                 if ($role && !$user->hasRole($user->role)) {
                     $user->assignRole($role);

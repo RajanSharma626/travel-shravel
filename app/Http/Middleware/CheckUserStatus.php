@@ -18,9 +18,9 @@ class CheckUserStatus
     {
          if (Auth::check()) {
             $employee = Auth::user();
-            // Check employment status instead of user status
-            if ($employee->employment_status && $employee->employment_status !== 'Active') {
-            Auth::logout();
+            // Check user status
+            if ($employee->status && $employee->status !== 'Active') {
+                Auth::logout();
                 return redirect()->route('login')->withErrors(['Your account is inactive. Please contact admin.']);
             }
         }

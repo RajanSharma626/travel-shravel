@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->decimal('purchase_cost', 10, 2)->nullable();
             $table->date('due_date')->nullable();
+            $table->string('status')->DEFAULT('Pending')->nullable(); // Added from 2025_12_11
             $table->decimal('paid_amount', 10, 2)->nullable()->default(0);
             $table->decimal('pending_amount', 10, 2)->nullable()->default(0);
             $table->string('payment_mode')->nullable(); // UPI, Bank Transfer, etc.

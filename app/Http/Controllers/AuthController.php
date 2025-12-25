@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -19,39 +20,39 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|exists:employees,user_id',
+            'user_id' => 'required|exists:users,user_id',
             'password' => 'required|min:6',
         ]);
 
         // Find employee by user_id
-        $employee = \App\Models\Employee::where('user_id', $request->user_id)->first();
+        $user = User::where('user_id', $request->user_id)->first();
 
-        if (!$employee) {
+        if (!$user) {
             return back()->with('error', 'Invalid User ID or Password');
         }
 
         // Check if employee has a password set
-        if (!$employee->password) {
+        if (!$user->password) {
             return back()->with('error', 'Password not set. Please contact admin.');
         }
 
         // Verify password
-        if (!Hash::check($request->password, $employee->password)) {
+        if (!Hash::check($request->password, $user->password)) {
             return back()->with('error', 'Invalid User ID or Password');
         }
 
         // Check employment status (allow null/empty as active for backward compatibility)
-        if ($employee->employment_status && $employee->employment_status !== 'Active') {
+        if ($user->status && $user->status !== 'Active') {
             return back()->with('error', 'Your account is inactive. Please contact admin.');
         }
 
         // Sync Spatie role from employee role
-        if ($employee->role) {
+        if ($user->role) {
             try {
                 // Remove all existing roles
-                $employee->syncRoles([]);
+                $user->syncRoles([]);
                 // Assign the role from employee
-                $employee->assignRole($employee->role);
+                $user->assignRole($user->role);
             } catch (\Exception $e) {
                 // Role might not exist in Spatie, that's okay - we'll use the role field
             }
@@ -59,11 +60,11 @@ class AuthController extends Controller
 
         // Log in the employee directly
         $remember = $request->has('remember');
-        Auth::login($employee, $remember);
+        Auth::login($user, $remember);
 
         // Redirect based on employee role
-        $employee = Auth::user();
-        $role = $employee->role ?? $employee->getRoleNameAttribute();
+        $user = Auth::user();
+        $role = $user->role ?? $user->getRoleNameAttribute();
 
             switch ($role) {
                 case 'Admin':

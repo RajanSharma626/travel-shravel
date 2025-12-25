@@ -38,7 +38,7 @@
                                     </div>
                                 @endif
 
-                                <form method="GET" action="{{ route('leads.index') }}" class="row g-3 mb-4"
+                                <form method="GET" action="{{ route($indexRoute ?? 'leads.index') }}" class="row g-3 mb-4"
                                     id="leadFiltersForm">
                                     <div class="col-md-4 col-lg-3">
                                         <label for="status" class="form-label">Status</label>
@@ -67,7 +67,7 @@
                                     </div>
                                     @if ($filters['status'] || $filters['search'])
                                         <div class="col-md-3 col-lg-2 align-self-end ms-auto">
-                                            <a href="{{ route('leads.index') }}"
+                                            <a href="{{ route($indexRoute ?? 'leads.index') }}"
                                                 class="btn btn-outline-danger w-100 btn-sm">Clear
                                                 Filters</a>
                                         </div>
@@ -217,7 +217,7 @@
                                                                     @endif
                                                                 @endcan
                                                                 @can('delete leads')
-                                                                    <form action="{{ route('leads.destroy', $lead) }}" method="POST" class="d-inline delete-lead-form"
+                                                                    <form action="{{ route($destroyRoute ?? 'leads.destroy', $lead) }}" method="POST" class="d-inline delete-lead-form"
                                                                         onsubmit="return confirm('Are you sure you want to delete lead {{ $lead->tsq }}? This action cannot be undone.');">
                                                                         @csrf
                                                                         @method('DELETE')
@@ -235,7 +235,7 @@
                                                                 @endcan
                                                             @endif
                                                             
-                                                            @if($lead->status == 'booked')
+                                                            @if ($lead->status == 'booked' && !Auth::user()->hasRole('Customer Care') && !request()->routeIs('customer-care.*'))
                                                                 <a href="{{ route('bookings.form', $lead) }}"
                                                                     class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover text-primary"
                                                                     data-bs-toggle="tooltip" data-placement="top"
@@ -283,7 +283,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('leads.store') }}" method="POST" id="addLeadForm">
+                    <form action="{{ route($storeRoute ?? 'leads.store') }}" method="POST" id="addLeadForm">
                         @csrf
                         <input type="hidden" name="_method" id="formMethod" value="POST">
                         <input type="hidden" name="lead_id" id="editLeadId" value="">
@@ -512,18 +512,13 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Assign To</label>
-                                    <select name="assigned_employee_id" class="form-select form-select-sm">
+                                    <select name="assigned_user_id" class="form-select form-select-sm">
                                         <option value="">-- Select Employee --</option>
                                         @foreach ($employees as $employee)
-                                            @php
-                                                $matchingUser = \App\Models\User::where('email', $employee->login_work_email)
-                                                    ->orWhere('email', $employee->user_id)
-                                                    ->first();
-                                            @endphp
                                             <option value="{{ $employee->id }}"
-                                                data-user-id="{{ $matchingUser->id ?? '' }}"
-                                                data-user-email="{{ $employee->login_work_email ?? '' }}"
-                                                {{ (string) old('assigned_employee_id') === (string) $employee->id ? 'selected' : '' }}>
+                                                data-user-id="{{ $employee->id }}"
+                                                data-user-email="{{ $employee->email ?? '' }}"
+                                                {{ (string) old('assigned_user_id') === (string) $employee->id ? 'selected' : '' }}>
                                                 {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }} - {{ $employee->department }})@endif
                                             </option>
                                         @endforeach
@@ -721,8 +716,6 @@
                                     Recent Remarks
                                 </h6>
                                 <div class="d-flex align-items-center">
-                                    <span class="badge bg-primary rounded-pill px-3 py-2 me-2" id="viewLeadRemarksCount">0</span>
-                                    <span class="badge bg-danger text-white d-none" id="viewLeadNextFollowUp" title="Next scheduled follow-up"></span>
                                 </div>
                             </div>
                             <div class="card-body p-4" id="viewLeadRemarks" style="max-height: 400px; overflow-y: auto;">
@@ -929,7 +922,7 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label">Assign To</label>
-                                        <select name="assigned_employee_id" id="editAssignedEmployeeId"
+                                        <select name="assigned_user_id" id="editAssignedEmployeeId"
                                             class="form-select form-select-sm">
                                             <option value="">-- Select Employee --</option>
                                             @foreach ($employees as $employee)
@@ -1184,7 +1177,7 @@
 
                 const addLeadForm = document.getElementById('addLeadForm');
                 const addLeadModalEl = document.getElementById('addLeadModal');
-                const leadsBaseUrl = @json(url('/leads'));
+                const leadsBaseUrl = @json(url(request()->path()));
 
                 const updateChildrenTotal = () => {
                     if (!addLeadForm) return;
@@ -1226,7 +1219,7 @@
                             // Form will submit directly with PUT method spoofing
                         } else {
                             // Add mode - ensure form action is correct
-                            addLeadForm.action = '{{ route('leads.store') }}';
+                            addLeadForm.action = '{{ route($storeRoute ?? 'leads.store') }}';
                             if (formMethod) formMethod.value = 'POST';
                         }
                         // Let the form submit normally (no preventDefault)
@@ -1413,11 +1406,6 @@
                     }
 
                     return remarks.map((remark, index) => {
-                        const followUp = (remark.follow_up_at || (remark.follow_up_date ? (remark.follow_up_date + (remark.follow_up_time ? ' ' + remark.follow_up_time : '')) : null)) ?
-                            `<span class="badge bg-light text-danger border border-danger ms-2 px-2 py-1">
-                            <i data-feather="calendar" class="me-1" style="width: 12px; height: 12px;"></i>
-                            Follow-up: ${escapeHtml(remark.follow_up_date ? (remark.follow_up_date + (remark.follow_up_time ? ' ' + remark.follow_up_time : '')) : (remark.follow_up_at_formatted ?? remark.follow_up_at))}
-                        </span>` : '';
                         return `
                         <div class="border rounded-3 p-3 mb-3 bg-white border">
                             <div class="d-flex justify-content-between align-items-start mb-2">
@@ -1430,7 +1418,6 @@
                                     <div class="flex-grow-1">
                                         <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
                                             <strong class="text-dark">${escapeHtml(remark.user?.name ?? 'Unknown')}</strong>
-                                            ${followUp}
                                         </div>
                                         <p class="mb-0 text-dark" style="line-height: 1.6;">${escapeHtml(remark.remark ?? '')}</p>
                                     </div>
@@ -1998,25 +1985,42 @@
                     if (addLeadForm.elements['children_6_11']) addLeadForm.elements['children_6_11'].value = lead
                         .children_6_11 || 0;
                     if (addLeadForm.elements['infants']) addLeadForm.elements['infants'].value = lead.infants || 0;
-                    // Map assigned_user_id to assigned_employee_id
-                    if (addLeadForm.elements['assigned_employee_id'] && (lead.assigned_user_id || lead.assigned_user_email)) {
-                        const employeeSelect = addLeadForm.elements['assigned_employee_id'];
-                        const options = employeeSelect.querySelectorAll('option');
+                    // Map assigned_user_id
+                    if (addLeadForm.elements['assigned_user_id']) {
+                        const employeeSelect = addLeadForm.elements['assigned_user_id'];
                         let foundEmployeeId = '';
-                        options.forEach(option => {
-                            if (lead.assigned_user_id && option.getAttribute('data-user-id') == lead.assigned_user_id) {
-                                foundEmployeeId = option.value;
+                        
+                        // Priority 1: Direct value match
+                        if (lead.assigned_user_id) {
+                            foundEmployeeId = lead.assigned_user_id;
+                        }
+
+                        // Priority 2: Try matching by data-user-id if direct value doesn't seem to exist in options
+                        // (Though setting .value directly works for standard selects if the value exists)
+                        if (foundEmployeeId) {
+                            employeeSelect.value = foundEmployeeId;
+                            
+                            // If it wasn't selected (value is empty or different), try data-user-id mapping
+                            if (employeeSelect.value != foundEmployeeId) {
+                                const options = employeeSelect.querySelectorAll('option');
+                                options.forEach(option => {
+                                    if (option.getAttribute('data-user-id') == lead.assigned_user_id) {
+                                        foundEmployeeId = option.value;
+                                    }
+                                });
+                                employeeSelect.value = foundEmployeeId || '';
                             }
-                        });
-                        // Fallback: try matching by employee email if user-id mapping wasn't found
-                        if (!foundEmployeeId && lead.assigned_user_email) {
+                        }
+                        
+                        // Final Fallback: try matching by employee email if still not found
+                        if (!employeeSelect.value && lead.assigned_user_email) {
+                            const options = employeeSelect.querySelectorAll('option');
                             options.forEach(option => {
                                 if (option.getAttribute('data-user-email') == lead.assigned_user_email) {
-                                    foundEmployeeId = option.value;
+                                    employeeSelect.value = option.value;
                                 }
                             });
                         }
-                        addLeadForm.elements['assigned_employee_id'].value = foundEmployeeId || '';
                     }
                     if (addLeadForm.elements['status']) addLeadForm.elements['status'].value = lead.status || 'new';
 
@@ -2039,7 +2043,7 @@
                     if (submitBtn) submitBtn.textContent = 'Add Lead';
 
                     // Reset form action
-                    addLeadForm.action = '{{ route('leads.store') }}';
+                    addLeadForm.action = '{{ route($storeRoute ?? 'leads.store') }}';
 
                     // Reset form
                     addLeadForm.reset();
@@ -2266,7 +2270,7 @@
                                             ''
                                     },
                                     body: JSON.stringify({
-                                        assigned_employee_id: employeeId
+                                        assigned_user_id: employeeId
                                     })
                                 });
 
@@ -2425,7 +2429,7 @@
                         bulkAssignSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Assigning...';
 
                         try {
-                            const response = await fetch('{{ route("leads.bulkAssign") }}', {
+                            const response = await fetch('{{ route($bulkAssignRoute ?? "leads.bulkAssign") }}', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -2434,7 +2438,7 @@
                                 },
                                 body: JSON.stringify({
                                     lead_ids: selectedIds,
-                                    assigned_employee_id: employeeId
+                                    assigned_user_id: employeeId
                                 })
                             });
 
