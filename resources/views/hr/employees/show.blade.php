@@ -188,6 +188,10 @@
                                                         <label class="form-label">Nominee Contact</label>
                                                         <input type="text" class="form-control form-control-sm" value="{{ $employee->nominee_contact_number ?? 'N/A' }}" readonly>
                                     </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label">Emergency Contact</label>
+                                                        <input type="text" class="form-control form-control-sm" value="{{ $employee->emergency_contact ?? 'N/A' }}" readonly>
+                                                    </div>
 
                                                     <div class="col-md-3">
                                                         <label class="form-label">Aadhar Number</label>

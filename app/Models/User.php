@@ -113,4 +113,95 @@ class User extends Authenticatable
         // Also check the role field for backward compatibility
         return $this->attributes['role'] === $role;
     }
+
+    // Accessors for empBasicInfo fields
+    public function getPreviousEmployerAttribute()
+    {
+        return $this->empBasicInfo?->previous_employer;
+    }
+
+    public function getPreviousEmployerContactPersonAttribute()
+    {
+        return $this->empBasicInfo?->contact_person;
+    }
+
+    public function getPreviousEmployerContactNumberAttribute()
+    {
+        return $this->empBasicInfo?->contact_number;
+    }
+
+    public function getReasonForLeavingAttribute()
+    {
+        return $this->empBasicInfo?->reason_for_leaving;
+    }
+
+    public function getHighestQualificationAttribute()
+    {
+        return $this->empBasicInfo?->highest_qualification;
+    }
+
+    public function getSpecializationAttribute()
+    {
+        return $this->empBasicInfo?->specialization;
+    }
+
+    public function getYearOfPassingAttribute()
+    {
+        return $this->empBasicInfo?->year_of_passing;
+    }
+
+    public function getWorkExperienceAttribute()
+    {
+        return $this->empBasicInfo?->work_experience;
+    }
+
+    public function getFatherMotherNameAttribute()
+    {
+        return $this->empBasicInfo?->father_mother_name;
+    }
+
+    public function getFatherMotherContactNumberAttribute()
+    {
+        return $this->empBasicInfo?->father_mother_contact_number;
+    }
+
+    public function getNomineeNameAttribute()
+    {
+        return $this->empBasicInfo?->nominee_name;
+    }
+
+    public function getNomineeContactNumberAttribute()
+    {
+        return $this->empBasicInfo?->nominee_contact_number;
+    }
+
+    public function getEmergencyContactAttribute()
+    {
+        return $this->empBasicInfo?->emergency_contact;
+    }
+
+    public function getAadharNumberAttribute()
+    {
+        return $this->empBasicInfo?->aadhar_number;
+    }
+
+    public function getPanNumberAttribute()
+    {
+        return $this->empBasicInfo?->pan_number;
+    }
+
+    public function getPassportNumberAttribute()
+    {
+        return $this->empBasicInfo?->passport_number;
+    }
+
+    public function getPresentAddressAttribute()
+    {
+        return $this->empBasicInfo?->present_address;
+    }
+
+    public function getPermanentAddressAttribute()
+    {
+        return $this->empBasicInfo?->permanent_address;
+    }
 }

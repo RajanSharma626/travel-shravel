@@ -120,6 +120,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     Route::middleware('permission:edit leads')->group(function () {
         Route::get('/leads/{lead}/edit', [LeadController::class, 'edit'])->name('leads.edit');
         Route::put('/leads/{lead}', [LeadController::class, 'update'])->name('leads.update');
+        Route::put('/leads/{lead}/sales-cost', [LeadController::class, 'updateSalesCost'])->name('leads.update-sales-cost');
         Route::get('/bookings/{lead}/form', [LeadController::class, 'bookingForm'])->name('bookings.form');
         
         // Vendor Payment routes (Ops only)

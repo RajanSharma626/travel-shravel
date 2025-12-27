@@ -220,8 +220,8 @@ class LeadController extends Controller
         $employees = User::whereNotNull('user_id')->orderBy('name')->get();
         $destinations = \App\Models\Destination::with('locations')->orderBy('name')->get();
         
-        // Check if user is from non-Sales department (Operation, Delivery, Post Sales, Accounts)
-        // These users should only view booking file in read-only mode
+        // Check if user is from non-Sales department (Delivery, Post Sales, Accounts)
+        // Operations can edit booking file, but Delivery, Post Sales, and Accounts are view-only
         $isViewOnly = $this->isNonSalesDepartment();
         
         // Determine back URL based on employee department and referrer
@@ -698,6 +698,27 @@ class LeadController extends Controller
         }
 
         return redirect()->back()->with('success', 'Assigned user updated successfully!');
+    }
+
+    public function updateSalesCost(Request $request, Lead $lead)
+    {
+        $validated = $request->validate([
+            'selling_price' => 'required|numeric|min:0',
+        ]);
+
+        $lead->update([
+            'selling_price' => $validated['selling_price'],
+        ]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Sales cost updated successfully!',
+                'selling_price' => number_format($lead->selling_price, 2),
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Sales cost updated successfully!');
     }
 
     public function updateReassignedUser(Request $request, Lead $lead)

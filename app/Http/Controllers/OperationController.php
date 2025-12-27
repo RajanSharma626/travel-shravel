@@ -162,8 +162,8 @@ class OperationController extends Controller
         $employees = User::whereNotNull('user_id')->orderBy('name')->get();
         $destinations = \App\Models\Destination::with('locations')->orderBy('name')->get();
         
-        // Ops booking file is view-only except Vendor Payments (blue columns editable)
-        $isViewOnly = true;
+        // Ops booking file is now editable - Operations can add/edit booking file
+        $isViewOnly = false;
         $isOpsDept = true; // This is Ops booking file
         $backUrl = route('operations.index');
         $vendorPayments = $lead->vendorPayments;

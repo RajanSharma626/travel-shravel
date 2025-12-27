@@ -14,6 +14,7 @@ class TravellerDocument extends Model
         'salutation',
         'first_name',
         'last_name',
+        'contact_no',
         'doc_type',
         'status',
         'doc_no',

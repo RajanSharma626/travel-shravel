@@ -76,36 +76,38 @@
 
                                 <!-- Bulk Actions Bar -->
                                 @can('edit leads')
-                                <div id="bulkActionsBar" class="alert alert-info mb-3 d-none" role="alert">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <div>
-                                            <strong><span id="selectedCount">0</span> lead(s) selected</strong>
-                                        </div>
-                                        <div class="d-flex gap-2">
-                                            <button type="button" class="btn btn-sm btn-primary" id="bulkAssignBtn" data-bs-toggle="modal" data-bs-target="#bulkAssignModal">
-                                                <i data-feather="user-plus" style="width: 14px; height: 14px;"></i> Assign User
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-secondary" id="clearSelectionBtn">
-                                                Clear Selection
-                                            </button>
+                                    <div id="bulkActionsBar" class="alert alert-info mb-3 d-none" role="alert">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <strong><span id="selectedCount">0</span> lead(s) selected</strong>
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <button type="button" class="btn btn-sm btn-primary" id="bulkAssignBtn"
+                                                    data-bs-toggle="modal" data-bs-target="#bulkAssignModal">
+                                                    <i data-feather="user-plus" style="width: 14px; height: 14px;"></i> Assign
+                                                    User
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-secondary" id="clearSelectionBtn">
+                                                    Clear Selection
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
                                 @endcan
 
-                                @if(isset($leads) && $leads->count() > 0)
-                                <div class="text-muted small mb-2 px-3">
-                                    Showing {{ $leads->firstItem() ?? 0 }} out of {{ $leads->total() }}
-                                </div>
+                                @if (isset($leads) && $leads->count() > 0)
+                                    <div class="text-muted small mb-2 px-3">
+                                        Showing {{ $leads->firstItem() ?? 0 }} out of {{ $leads->total() }}
+                                    </div>
                                 @endif
 
                                 <table class="table table-striped small table-bordered w-100 mb-5" id="leadsTable">
                                     <thead>
                                         <tr>
                                             @can('edit leads')
-                                            <th width="40">
-                                                <input type="checkbox" id="selectAllLeads" class="form-check-input">
-                                            </th>
+                                                <th width="40">
+                                                    <input type="checkbox" id="selectAllLeads" class="form-check-input">
+                                                </th>
                                             @endcan
                                             <th>Ref No.</th>
                                             <th>Customer Name</th>
@@ -120,16 +122,18 @@
                                         @forelse ($leads as $lead)
                                             <tr>
                                                 @can('edit leads')
-                                                <td>
-                                                    <input type="checkbox" class="form-check-input lead-checkbox" value="{{ $lead->id }}" data-lead-name="{{ $lead->customer_name }}">
-                                                </td>
+                                                    <td>
+                                                        <input type="checkbox" class="form-check-input lead-checkbox"
+                                                            value="{{ $lead->id }}"
+                                                            data-lead-name="{{ $lead->customer_name }}">
+                                                    </td>
                                                 @endcan
                                                 <td><strong>{{ $lead->tsq }}</strong></td>
                                                 <td>
                                                     <a href="#"
                                                         class="text-primary text-decoration-none fw-semibold view-lead-btn lead-name-link"
                                                         data-lead-id="{{ $lead->id }}">
-                                                        {{ ($lead->salutation ? $lead->salutation . ' ' : '') }}{{ $lead->customer_name }}
+                                                        {{ $lead->salutation ? $lead->salutation . ' ' : '' }}{{ $lead->customer_name }}
                                                     </a>
                                                 </td>
                                                 <td>{{ $lead->primary_phone ?? $lead->phone }}</td>
@@ -157,7 +161,8 @@
                                                             {{ Str::limit($lead->latest_remark->remark, 50) }}
                                                         </div>
                                                         <small class="text-muted">
-                                                            by {{ $lead->latest_remark->employee?->name ?? $lead->latest_remark->user?->name ?? 'N/A' }}
+                                                            by
+                                                            {{ $lead->latest_remark->employee?->name ?? ($lead->latest_remark->user?->name ?? 'N/A') }}
                                                             @if ($lead->latest_remark->created_at)
                                                                 - {{ $lead->latest_remark->created_at->format('d M, Y') }}
                                                             @endif
@@ -171,17 +176,27 @@
                                                     @php
                                                         $employee = Auth::user();
                                                         $role = $employee->role ?? $employee->getRoleNameAttribute();
-                                                        $nonSalesDepartments = ['Operation', 'Operation Manager', 'Delivery', 'Delivery Manager', 
-                                                                                'Post Sales', 'Post Sales Manager', 'Accounts', 'Accounts Manager'];
-                                                        $isNonSalesDept = $role && in_array($role, $nonSalesDepartments);
+                                                        $nonSalesDepartments = [
+                                                            'Operation',
+                                                            'Operation Manager',
+                                                            'Delivery',
+                                                            'Delivery Manager',
+                                                            'Post Sales',
+                                                            'Post Sales Manager',
+                                                            'Accounts',
+                                                            'Accounts Manager',
+                                                        ];
+                                                        $isNonSalesDept =
+                                                            $role && in_array($role, $nonSalesDepartments);
                                                     @endphp
                                                     <div class="d-flex align-items-center">
                                                         <div class="d-flex">
-                                                            @if(!$isNonSalesDept)
+                                                            @if (!$isNonSalesDept)
                                                                 <a href="#"
                                                                     class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover view-lead-btn"
-                                                                    data-lead-id="{{ $lead->id }}" data-bs-toggle="tooltip"
-                                                                    data-placement="top" title="View Lead">
+                                                                    data-lead-id="{{ $lead->id }}"
+                                                                    data-bs-toggle="tooltip" data-placement="top"
+                                                                    title="View Lead">
                                                                     <span class="icon">
                                                                         <span class="feather-icon">
                                                                             <i data-feather="eye"></i>
@@ -192,39 +207,43 @@
                                                                 @can('edit leads')
                                                                     <a href="#"
                                                                         class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover edit-lead-btn"
-                                                                        data-lead-id="{{ $lead->id }}" data-bs-toggle="tooltip"
-                                                                        data-placement="top" title="Edit Lead">
+                                                                        data-lead-id="{{ $lead->id }}"
+                                                                        data-bs-toggle="tooltip" data-placement="top"
+                                                                        title="Edit Lead">
                                                                         <span class="icon">
                                                                             <span class="feather-icon">
                                                                                 <i data-feather="edit"></i>
                                                                             </span>
                                                                         </span>
                                                                     </a>
-                                                                    @if(!$lead->assigned_user_id)
-                                                                    <a href="#"
-                                                                        class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover assign-user-btn"
-                                                                        data-lead-id="{{ $lead->id }}"
-                                                                        data-lead-name="{{ $lead->customer_name }}"
-                                                                        data-current-user="{{ $lead->assigned_employee?->name ?? $lead->assignedUser?->name ?? 'Unassigned' }}"
-                                                                        data-bs-toggle="tooltip" data-placement="top"
-                                                                        title="Assign Agent">
-                                                                        <span class="icon">
-                                                                            <span class="feather-icon">
-                                                                                <i data-feather="user-plus"></i>
+                                                                    @if (!$lead->assigned_user_id)
+                                                                        <a href="#"
+                                                                            class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover assign-user-btn"
+                                                                            data-lead-id="{{ $lead->id }}"
+                                                                            data-lead-name="{{ $lead->customer_name }}"
+                                                                            data-current-user="{{ $lead->assigned_employee?->name ?? ($lead->assignedUser?->name ?? 'Unassigned') }}"
+                                                                            data-bs-toggle="tooltip" data-placement="top"
+                                                                            title="Assign Agent">
+                                                                            <span class="icon">
+                                                                                <span class="feather-icon">
+                                                                                    <i data-feather="user-plus"></i>
+                                                                                </span>
                                                                             </span>
-                                                                        </span>
-                                                                    </a>
+                                                                        </a>
                                                                     @endif
                                                                 @endcan
                                                                 @can('delete leads')
-                                                                    <form action="{{ route($destroyRoute ?? 'leads.destroy', $lead) }}" method="POST" class="d-inline delete-lead-form"
+                                                                    <form
+                                                                        action="{{ route($destroyRoute ?? 'leads.destroy', $lead) }}"
+                                                                        method="POST" class="d-inline delete-lead-form"
                                                                         onsubmit="return confirm('Are you sure you want to delete lead {{ $lead->tsq }}? This action cannot be undone.');">
                                                                         @csrf
                                                                         @method('DELETE')
                                                                         <button type="submit"
                                                                             class="btn btn-icon btn-flush-danger btn-rounded flush-soft-hover text-danger"
                                                                             data-bs-toggle="tooltip" data-placement="top"
-                                                                            title="Delete Lead" style="color: #dc3545 !important;">
+                                                                            title="Delete Lead"
+                                                                            style="color: #dc3545 !important;">
                                                                             <span class="icon">
                                                                                 <span class="feather-icon">
                                                                                     <i data-feather="trash-2"></i>
@@ -234,7 +253,7 @@
                                                                     </form>
                                                                 @endcan
                                                             @endif
-                                                            
+
                                                             @if ($lead->status == 'booked' && !Auth::user()->hasRole('Customer Care') && !request()->routeIs('customer-care.*'))
                                                                 <a href="{{ route('bookings.form', $lead) }}"
                                                                     class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover text-primary"
@@ -253,7 +272,8 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="{{ Auth::user()->can('edit leads') ? 8 : 7 }}" class="text-center">No leads found</td>
+                                                <td colspan="{{ Auth::user()->can('edit leads') ? 8 : 7 }}"
+                                                    class="text-center">No leads found</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -294,17 +314,23 @@
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <label class="form-label">Ref. No.</label>
-                                    <input type="text" id="addRefNo" class="form-control form-control-sm" readonly style="background-color: #f8f9fa; cursor: not-allowed;" placeholder="TSQ Number">
+                                    <input type="text" id="addRefNo" class="form-control form-control-sm" readonly
+                                        style="background-color: #f8f9fa; cursor: not-allowed;" placeholder="TSQ Number">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Salutation</label>
                                     <select name="salutation" class="form-select form-select-sm">
                                         <option value="">-- Select --</option>
-                                        <option value="Mr" {{ old('salutation') == 'Mr' ? 'selected' : '' }}>Mr</option>
-                                        <option value="Mrs" {{ old('salutation') == 'Mrs' ? 'selected' : '' }}>Mrs</option>
-                                        <option value="Ms" {{ old('salutation') == 'Ms' ? 'selected' : '' }}>Ms</option>
-                                        <option value="Dr" {{ old('salutation') == 'Dr' ? 'selected' : '' }}>Dr</option>
-                                        <option value="Prof" {{ old('salutation') == 'Prof' ? 'selected' : '' }}>Prof</option>
+                                        <option value="Mr" {{ old('salutation') == 'Mr' ? 'selected' : '' }}>Mr
+                                        </option>
+                                        <option value="Mrs" {{ old('salutation') == 'Mrs' ? 'selected' : '' }}>Mrs
+                                        </option>
+                                        <option value="Ms" {{ old('salutation') == 'Ms' ? 'selected' : '' }}>Ms
+                                        </option>
+                                        <option value="Dr" {{ old('salutation') == 'Dr' ? 'selected' : '' }}>Dr
+                                        </option>
+                                        <option value="Prof" {{ old('salutation') == 'Prof' ? 'selected' : '' }}>Prof
+                                        </option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -515,11 +541,12 @@
                                     <select name="assigned_user_id" class="form-select form-select-sm">
                                         <option value="">-- Select Employee --</option>
                                         @foreach ($employees as $employee)
-                                            <option value="{{ $employee->id }}"
-                                                data-user-id="{{ $employee->id }}"
+                                            <option value="{{ $employee->id }}" data-user-id="{{ $employee->id }}"
                                                 data-user-email="{{ $employee->email ?? '' }}"
                                                 {{ (string) old('assigned_user_id') === (string) $employee->id ? 'selected' : '' }}>
-                                                {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }} - {{ $employee->department }})@endif
+                                                {{ $employee->name }} @if ($employee->user_id)
+                                                    ({{ $employee->user_id }} - {{ $employee->department }})
+                                                @endif
                                             </option>
                                         @endforeach
                                     </select>
@@ -577,7 +604,8 @@
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <label class="form-label">Ref. No.</label>
-                                    <input type="text" id="viewRefNo" class="form-control form-control-sm" readonly disabled style="background-color: #f8f9fa; cursor: not-allowed;">
+                                    <input type="text" id="viewRefNo" class="form-control form-control-sm" readonly
+                                        disabled style="background-color: #f8f9fa; cursor: not-allowed;">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label">Salutation</label>
@@ -738,7 +766,9 @@
                                 <div class="row g-3">
                                     <div class="col-md-3">
                                         <label class="form-label">Ref. No.</label>
-                                        <input type="text" id="editRefNo" class="form-control form-control-sm" readonly style="background-color: #f8f9fa; cursor: not-allowed;" placeholder="TSQ Number">
+                                        <input type="text" id="editRefNo" class="form-control form-control-sm"
+                                            readonly style="background-color: #f8f9fa; cursor: not-allowed;"
+                                            placeholder="TSQ Number">
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label">Salutation</label>
@@ -879,7 +909,8 @@
                                             class="form-select form-select-sm" required>
                                             <option value="">-- Select Destination --</option>
                                             @foreach ($destinations as $destination)
-                                                <option value="{{ $destination->id }}">{{ $destination->name }}</option>
+                                                <option value="{{ $destination->id }}">{{ $destination->name }}
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -928,14 +959,19 @@
                                             @foreach ($employees as $employee)
                                                 @php
                                                     // Try to find matching user for this employee
-                                                    $matchingUser = \App\Models\User::where('email', $employee->login_work_email)
+                                                    $matchingUser = \App\Models\User::where(
+                                                        'email',
+                                                        $employee->login_work_email,
+                                                    )
                                                         ->orWhere('email', $employee->user_id)
                                                         ->first();
                                                 @endphp
-                                                <option value="{{ $employee->id }}" 
+                                                <option value="{{ $employee->id }}"
                                                     data-user-id="{{ $matchingUser->id ?? '' }}"
                                                     data-user-email="{{ $employee->login_work_email ?? '' }}">
-                                                    {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }})@endif
+                                                    {{ $employee->name }} @if ($employee->user_id)
+                                                        ({{ $employee->user_id }})
+                                                    @endif
                                                 </option>
                                             @endforeach
                                         </select>
@@ -974,7 +1010,8 @@
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label small mb-1">Follow-up Date &amp; Time</label>
-                                    <input type="datetime-local" name="follow_up_at" class="form-control form-control-sm">
+                                    <input type="datetime-local" name="follow_up_at"
+                                        class="form-control form-control-sm">
                                 </div>
                                 <div class="col-md-12 d-flex justify-content-end gap-2">
                                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
@@ -1027,7 +1064,9 @@
                                         ->first();
                                 @endphp
                                 <option value="{{ $employee->id }}" data-user-id="{{ $matchingUser->id ?? '' }}">
-                                    {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }})@endif
+                                    {{ $employee->name }} @if ($employee->user_id)
+                                        ({{ $employee->user_id }})
+                                    @endif
                                 </option>
                             @endforeach
                         </select>
@@ -1046,52 +1085,55 @@
 
     <!-- Bulk Assign Modal -->
     @can('edit leads')
-    <div class="modal fade" id="bulkAssignModal" tabindex="-1" aria-labelledby="bulkAssignModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-light border-bottom">
-                    <h5 class="modal-title fw-bold" id="bulkAssignModalLabel">
-                        <i data-feather="user-plus" class="me-2" style="width: 20px; height: 20px;"></i>
-                        Bulk Assign Leads
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="bulkAssignAlert" class="alert d-none" role="alert"></div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Selected Leads</label>
-                        <div class="form-control" id="bulkAssignSelectedLeads" style="min-height: 60px; max-height: 150px; overflow-y: auto;" readonly>
-                            <small class="text-muted">No leads selected</small>
+        <div class="modal fade" id="bulkAssignModal" tabindex="-1" aria-labelledby="bulkAssignModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-light border-bottom">
+                        <h5 class="modal-title fw-bold" id="bulkAssignModalLabel">
+                            <i data-feather="user-plus" class="me-2" style="width: 20px; height: 20px;"></i>
+                            Bulk Assign Leads
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="bulkAssignAlert" class="alert d-none" role="alert"></div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Selected Leads</label>
+                            <div class="form-control" id="bulkAssignSelectedLeads"
+                                style="min-height: 60px; max-height: 150px; overflow-y: auto;" readonly>
+                                <small class="text-muted">No leads selected</small>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Assign To <span class="text-danger">*</span></label>
+                            <select class="form-select" id="bulkAssignUserSelect" required>
+                                <option value="">-- Select Employee --</option>
+                                @foreach ($employees as $employee)
+                                    @php
+                                        $matchingUser = \App\Models\User::where('email', $employee->login_work_email)
+                                            ->orWhere('email', $employee->user_id)
+                                            ->first();
+                                    @endphp
+                                    <option value="{{ $employee->id }}" data-user-id="{{ $matchingUser->id ?? '' }}">
+                                        {{ $employee->name }} @if ($employee->user_id)
+                                            ({{ $employee->user_id }})
+                                        @endif
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Assign To <span class="text-danger">*</span></label>
-                        <select class="form-select" id="bulkAssignUserSelect" required>
-                            <option value="">-- Select Employee --</option>
-                            @foreach ($employees as $employee)
-                                @php
-                                    $matchingUser = \App\Models\User::where('email', $employee->login_work_email)
-                                        ->orWhere('email', $employee->user_id)
-                                        ->first();
-                                @endphp
-                                <option value="{{ $employee->id }}" data-user-id="{{ $matchingUser->id ?? '' }}">
-                                    {{ $employee->name }} @if($employee->user_id)({{ $employee->user_id }})@endif
-                                </option>
-                            @endforeach
-                        </select>
+                    <div class="modal-footer bg-light border-top">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="bulkAssignSubmitBtn">
+                            <i data-feather="check" class="me-1" style="width: 16px; height: 16px;"></i>
+                            Assign Selected Leads
+                        </button>
                     </div>
-                </div>
-                <div class="modal-footer bg-light border-top">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="bulkAssignSubmitBtn">
-                        <i data-feather="check" class="me-1" style="width: 16px; height: 16px;"></i>
-                        Assign Selected Leads
-                    </button>
                 </div>
             </div>
         </div>
-    </div>
     @endcan
 
     @push('styles')
@@ -1113,13 +1155,14 @@
             // Safe Feather icon replacement helper
             function safeFeatherReplace(container) {
                 if (typeof feather === 'undefined') return;
-                
+
                 // Use setTimeout to ensure DOM is ready
                 setTimeout(function() {
                     try {
                         // Validate icons exist before replacing
-                        const selector = container ? container.querySelectorAll('[data-feather]') : document.querySelectorAll('[data-feather]');
-                        
+                        const selector = container ? container.querySelectorAll('[data-feather]') : document
+                            .querySelectorAll('[data-feather]');
+
                         if (selector && selector.length > 0) {
                             // Check if at least one valid icon exists
                             let hasValidIcon = false;
@@ -1131,7 +1174,7 @@
                                     break;
                                 }
                             }
-                            
+
                             if (hasValidIcon) {
                                 // Feather.replace() replaces all icons, but we can scope it
                                 if (container) {
@@ -1140,7 +1183,8 @@
                                     icons.forEach(function(icon) {
                                         try {
                                             const iconName = icon.getAttribute('data-feather');
-                                            if (iconName && feather.icons && feather.icons[iconName] && typeof feather.icons[iconName].toSvg === 'function') {
+                                            if (iconName && feather.icons && feather.icons[iconName] &&
+                                                typeof feather.icons[iconName].toSvg === 'function') {
                                                 const svg = feather.icons[iconName].toSvg();
                                                 if (svg) {
                                                     icon.outerHTML = svg;
@@ -1449,7 +1493,8 @@
 
                     // Reset remarks container and counters
                     if (viewLeadRemarksContainer) {
-                        viewLeadRemarksContainer.innerHTML = '<p class="text-muted text-center mb-0 py-3">No remarks yet.</p>';
+                        viewLeadRemarksContainer.innerHTML =
+                            '<p class="text-muted text-center mb-0 py-3">No remarks yet.</p>';
                     }
                     if (viewLeadRemarksCount) {
                         viewLeadRemarksCount.textContent = '0';
@@ -1505,7 +1550,7 @@
 
                         // Store lead data for editing
                         currentLeadData = lead;
-                        
+
                         // Pre-populate edit form fields if edit form exists
                         // const editRefNoEl = document.getElementById('editRefNo');
                         // if (editRefNoEl && lead.tsq) {
@@ -1606,8 +1651,10 @@
                         if (viewLeadNextFollowUp) {
                             if (data.next_follow_up) {
                                 const nf = data.next_follow_up;
-                                const label = nf.follow_up_date + (nf.follow_up_time ? ' ' + nf.follow_up_time : '');
-                                viewLeadNextFollowUp.innerHTML = `<i data-feather="calendar" class="me-1" style="width: 12px; height: 12px;"></i> Follow-Up: ${label}`;
+                                const label = nf.follow_up_date + (nf.follow_up_time ? ' ' + nf.follow_up_time :
+                                    '');
+                                viewLeadNextFollowUp.innerHTML =
+                                    `<i data-feather="calendar" class="me-1" style="width: 12px; height: 12px;"></i> Follow-Up: ${label}`;
                                 viewLeadNextFollowUp.classList.remove('d-none');
                                 safeFeatherReplace(viewLeadNextFollowUp);
                             } else {
@@ -1788,10 +1835,14 @@
                                         const followUpDate = new Date(followUpIso);
                                         const now = new Date();
                                         if (followUpDate > now) {
-                                            const viewLeadNextFollowUpEl = document.getElementById('viewLeadNextFollowUp');
+                                            const viewLeadNextFollowUpEl = document.getElementById(
+                                                'viewLeadNextFollowUp');
                                             if (viewLeadNextFollowUpEl) {
-                                                const label = payload.remark.follow_up_date + (payload.remark.follow_up_time ? ' ' + payload.remark.follow_up_time : '');
-                                                viewLeadNextFollowUpEl.innerHTML = `<i data-feather="calendar" class="me-1" style="width: 12px; height: 12px;"></i> Follow-Up: ${label}`;
+                                                const label = payload.remark.follow_up_date + (payload
+                                                    .remark.follow_up_time ? ' ' + payload.remark
+                                                    .follow_up_time : '');
+                                                viewLeadNextFollowUpEl.innerHTML =
+                                                    `<i data-feather="calendar" class="me-1" style="width: 12px; height: 12px;"></i> Follow-Up: ${label}`;
                                                 viewLeadNextFollowUpEl.classList.remove('d-none');
                                                 safeFeatherReplace(viewLeadNextFollowUpEl);
                                             }
@@ -1801,8 +1852,8 @@
                                     }
                                 }
 
-                                    // Initialize Feather icons for the new remark
-                                    safeFeatherReplace(viewLeadRemarksContainer);
+                                // Initialize Feather icons for the new remark
+                                safeFeatherReplace(viewLeadRemarksContainer);
                             }
                         } catch (error) {
                             // Show error toast
@@ -1867,7 +1918,7 @@
                     document.getElementById('editChildren25').value = lead.children_2_5 || 0;
                     document.getElementById('editChildren611').value = lead.children_6_11 || 0;
                     document.getElementById('editInfants').value = lead.infants || 0;
-                    
+
                     // Map assigned_user_id to employee_id for the dropdown
                     let assignedEmployeeId = '';
                     if (lead.assigned_user_id) {
@@ -1883,7 +1934,8 @@
                             // Fallback to email match
                             if (!assignedEmployeeId && lead.assigned_user_email) {
                                 options.forEach(option => {
-                                    if (option.getAttribute('data-user-email') == lead.assigned_user_email) {
+                                    if (option.getAttribute('data-user-email') == lead
+                                        .assigned_user_email) {
                                         assignedEmployeeId = option.value;
                                     }
                                 });
@@ -1906,12 +1958,12 @@
                     if (editLeadContent) editLeadContent.classList.remove('d-none');
                     if (cancelEditBtn) cancelEditBtn.classList.remove('d-none');
                     if (viewLeadModalTitle) viewLeadModalTitle.textContent = 'Edit Lead';
-                    
+
                     // Populate edit form with current lead data
                     if (currentLeadData) {
                         populateEditForm(currentLeadData);
                     }
-                    
+
                     if (typeof feather !== 'undefined') feather.replace();
                 };
 
@@ -1948,11 +2000,12 @@
                     // Populate form fields
                     const addRefNoEl = document.getElementById('addRefNo');
                     if (addRefNoEl) addRefNoEl.value = lead.tsq || 'N/A';
-                    if (addLeadForm.elements['salutation']) addLeadForm.elements['salutation'].value = lead.salutation || '';
+                    if (addLeadForm.elements['salutation']) addLeadForm.elements['salutation'].value = lead
+                        .salutation || '';
                     if (addLeadForm.elements['first_name']) addLeadForm.elements['first_name'].value = lead
-                        .first_name || ''; 
+                        .first_name || '';
                     if (addLeadForm.elements['last_name']) addLeadForm.elements['last_name'].value = lead
-                        .last_name || ''; 
+                        .last_name || '';
                     if (addLeadForm.elements['primary_phone']) addLeadForm.elements['primary_phone'].value = lead
                         .primary_phone || '';
                     if (addLeadForm.elements['secondary_phone']) addLeadForm.elements['secondary_phone'].value =
@@ -1989,7 +2042,7 @@
                     if (addLeadForm.elements['assigned_user_id']) {
                         const employeeSelect = addLeadForm.elements['assigned_user_id'];
                         let foundEmployeeId = '';
-                        
+
                         // Priority 1: Direct value match
                         if (lead.assigned_user_id) {
                             foundEmployeeId = lead.assigned_user_id;
@@ -1999,7 +2052,7 @@
                         // (Though setting .value directly works for standard selects if the value exists)
                         if (foundEmployeeId) {
                             employeeSelect.value = foundEmployeeId;
-                            
+
                             // If it wasn't selected (value is empty or different), try data-user-id mapping
                             if (employeeSelect.value != foundEmployeeId) {
                                 const options = employeeSelect.querySelectorAll('option');
@@ -2011,7 +2064,7 @@
                                 employeeSelect.value = foundEmployeeId || '';
                             }
                         }
-                        
+
                         // Final Fallback: try matching by employee email if still not found
                         if (!employeeSelect.value && lead.assigned_user_email) {
                             const options = employeeSelect.querySelectorAll('option');
@@ -2356,7 +2409,7 @@
                             const selectedNames = Array.from(checkedBoxes).map(cb => {
                                 return cb.getAttribute('data-lead-name') || 'Lead #' + cb.value;
                             });
-                            bulkAssignSelectedLeads.innerHTML = selectedNames.map(name => 
+                            bulkAssignSelectedLeads.innerHTML = selectedNames.map(name =>
                                 `<div class="badge bg-primary me-1 mb-1">${name}</div>`
                             ).join('');
                         } else {
@@ -2426,39 +2479,46 @@
 
                         // Disable button during request
                         bulkAssignSubmitBtn.disabled = true;
-                        bulkAssignSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Assigning...';
+                        bulkAssignSubmitBtn.innerHTML =
+                            '<span class="spinner-border spinner-border-sm me-1"></span>Assigning...';
 
                         try {
-                            const response = await fetch('{{ route($bulkAssignRoute ?? "leads.bulkAssign") }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-                                },
-                                body: JSON.stringify({
-                                    lead_ids: selectedIds,
-                                    assigned_user_id: employeeId
-                                })
-                            });
+                            const response = await fetch(
+                                '{{ route($bulkAssignRoute ?? 'leads.bulkAssign') }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                                'meta[name="csrf-token"]')?.getAttribute('content') ||
+                                            ''
+                                    },
+                                    body: JSON.stringify({
+                                        lead_ids: selectedIds,
+                                        assigned_user_id: employeeId
+                                    })
+                                });
 
                             const payload = await response.json();
 
                             if (!response.ok) {
-                                const message = payload?.message || Object.values(payload?.errors || {})[0]?.[0] || 'Failed to assign leads.';
+                                const message = payload?.message || Object.values(payload?.errors || {})[0]
+                                    ?.[0] || 'Failed to assign leads.';
                                 throw new Error(message);
                             }
 
                             if (bulkAssignAlert) {
                                 bulkAssignAlert.classList.remove('d-none');
                                 bulkAssignAlert.classList.add('alert-success');
-                                bulkAssignAlert.textContent = payload?.message || `Successfully assigned ${selectedIds.length} lead(s).`;
+                                bulkAssignAlert.textContent = payload?.message ||
+                                    `Successfully assigned ${selectedIds.length} lead(s).`;
                             }
 
                             // Close modal after 1.5 seconds and reload page
                             setTimeout(() => {
                                 if (bulkAssignModal) {
-                                    const modalInstance = bootstrap.Modal.getInstance(bulkAssignModal);
+                                    const modalInstance = bootstrap.Modal.getInstance(
+                                        bulkAssignModal);
                                     if (modalInstance) {
                                         modalInstance.hide();
                                     }
@@ -2485,7 +2545,8 @@
                         } finally {
                             // Re-enable button
                             bulkAssignSubmitBtn.disabled = false;
-                            bulkAssignSubmitBtn.innerHTML = '<i data-feather="check" class="me-1" style="width: 16px; height: 16px;"></i>Assign Selected Leads';
+                            bulkAssignSubmitBtn.innerHTML =
+                                '<i data-feather="check" class="me-1" style="width: 16px; height: 16px;"></i>Assign Selected Leads';
                             safeFeatherReplace(bulkAssignSubmitBtn);
                         }
                     });

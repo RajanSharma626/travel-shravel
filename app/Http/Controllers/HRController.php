@@ -110,6 +110,26 @@ class HRController extends Controller
             'password' => 'required|string|min:6|max:255',
             'role' => 'nullable|in:Admin,Sales Manager,Sales,Operation Manager,Operation,Accounts Manager,Accounts,Post Sales Manager,Post Sales,Delivery Manager,Delivery,HR,Developer',
             'status' => 'nullable|string|max:50',
+            // Basic Information fields
+            'previous_employer' => 'nullable|string|max:255',
+            'previous_employer_contact_person' => 'nullable|string|max:255',
+            'previous_employer_contact_number' => 'nullable|string|max:255',
+            'reason_for_leaving' => 'nullable|string|max:255',
+            'highest_qualification' => 'nullable|string|max:255',
+            'specialization' => 'nullable|string|max:255',
+            'year_of_passing' => 'nullable|string|max:10',
+            'work_experience' => 'nullable|string|max:255',
+            'father_mother_name' => 'nullable|string|max:255',
+            'father_mother_contact_number' => 'nullable|string|max:255',
+            'nominee_name' => 'nullable|string|max:255',
+            'nominee_contact_number' => 'nullable|string|max:255',
+            'emergency_contact' => 'nullable|string|max:255',
+            'aadhar_number' => 'nullable|string|max:255',
+            'pan_number' => 'nullable|string|max:255',
+            'passport_number' => 'nullable|string|max:255',
+            'present_address' => 'nullable|string',
+            'permanent_address' => 'nullable|string',
+            'permanent_same_as_present' => 'nullable|boolean',
         ]);
 
         // Generate employee_id if not provided
@@ -122,11 +142,28 @@ class HRController extends Controller
 
         $user = User::create($validated);
 
-        // Create basic info profile if any related data exists (optional, could just create empty)
-        $user->empBasicInfo()->create([
-            'marital_status' => $validated['marital_status'] ?? null,
-            // ... other fields if added to form
-        ]);
+        // Create basic info profile
+        $basicInfoData = [
+            'previous_employer' => $validated['previous_employer'] ?? null,
+            'contact_person' => $validated['previous_employer_contact_person'] ?? null,
+            'contact_number' => $validated['previous_employer_contact_number'] ?? null,
+            'reason_for_leaving' => $validated['reason_for_leaving'] ?? null,
+            'highest_qualification' => $validated['highest_qualification'] ?? null,
+            'specialization' => $validated['specialization'] ?? null,
+            'year_of_passing' => $validated['year_of_passing'] ?? null,
+            'work_experience' => $validated['work_experience'] ?? null,
+            'father_mother_name' => $validated['father_mother_name'] ?? null,
+            'father_mother_contact_number' => $validated['father_mother_contact_number'] ?? null,
+            'nominee_name' => $validated['nominee_name'] ?? null,
+            'nominee_contact_number' => $validated['nominee_contact_number'] ?? null,
+            'emergency_contact' => $validated['emergency_contact'] ?? null,
+            'aadhar_number' => $validated['aadhar_number'] ?? null,
+            'pan_number' => $validated['pan_number'] ?? null,
+            'passport_number' => $validated['passport_number'] ?? null,
+            'present_address' => $validated['present_address'] ?? null,
+            'permanent_address' => $validated['permanent_same_as_present'] ? ($validated['present_address'] ?? null) : ($validated['permanent_address'] ?? null),
+        ];
+        $user->empBasicInfo()->create($basicInfoData);
 
         // Sync Spatie role
         if ($user->role) {
@@ -190,6 +227,26 @@ class HRController extends Controller
             'password' => 'nullable|string|min:6|max:255',
             'role' => 'nullable|in:Admin,Sales Manager,Sales,Operation Manager,Operation,Accounts Manager,Accounts,Post Sales Manager,Post Sales,Delivery Manager,Delivery,HR,Developer',
             'status' => 'nullable|string|max:50',
+            // Basic Information fields
+            'previous_employer' => 'nullable|string|max:255',
+            'previous_employer_contact_person' => 'nullable|string|max:255',
+            'previous_employer_contact_number' => 'nullable|string|max:255',
+            'reason_for_leaving' => 'nullable|string|max:255',
+            'highest_qualification' => 'nullable|string|max:255',
+            'specialization' => 'nullable|string|max:255',
+            'year_of_passing' => 'nullable|string|max:10',
+            'work_experience' => 'nullable|string|max:255',
+            'father_mother_name' => 'nullable|string|max:255',
+            'father_mother_contact_number' => 'nullable|string|max:255',
+            'nominee_name' => 'nullable|string|max:255',
+            'nominee_contact_number' => 'nullable|string|max:255',
+            'emergency_contact' => 'nullable|string|max:255',
+            'aadhar_number' => 'nullable|string|max:255',
+            'pan_number' => 'nullable|string|max:255',
+            'passport_number' => 'nullable|string|max:255',
+            'present_address' => 'nullable|string',
+            'permanent_address' => 'nullable|string',
+            'permanent_same_as_present' => 'nullable|boolean',
         ]);
 
         // Hash password if provided, otherwise remove from array to keep existing password
@@ -201,6 +258,29 @@ class HRController extends Controller
 
         $employee->update($validated);
         $employee->refresh();
+
+        // Update basic info profile
+        $basicInfoData = [
+            'previous_employer' => $validated['previous_employer'] ?? null,
+            'contact_person' => $validated['previous_employer_contact_person'] ?? null,
+            'contact_number' => $validated['previous_employer_contact_number'] ?? null,
+            'reason_for_leaving' => $validated['reason_for_leaving'] ?? null,
+            'highest_qualification' => $validated['highest_qualification'] ?? null,
+            'specialization' => $validated['specialization'] ?? null,
+            'year_of_passing' => $validated['year_of_passing'] ?? null,
+            'work_experience' => $validated['work_experience'] ?? null,
+            'father_mother_name' => $validated['father_mother_name'] ?? null,
+            'father_mother_contact_number' => $validated['father_mother_contact_number'] ?? null,
+            'nominee_name' => $validated['nominee_name'] ?? null,
+            'nominee_contact_number' => $validated['nominee_contact_number'] ?? null,
+            'emergency_contact' => $validated['emergency_contact'] ?? null,
+            'aadhar_number' => $validated['aadhar_number'] ?? null,
+            'pan_number' => $validated['pan_number'] ?? null,
+            'passport_number' => $validated['passport_number'] ?? null,
+            'present_address' => $validated['present_address'] ?? null,
+            'permanent_address' => $validated['permanent_same_as_present'] ? ($validated['present_address'] ?? null) : ($validated['permanent_address'] ?? null),
+        ];
+        $employee->empBasicInfo()->updateOrCreate(['user_id' => $employee->id], $basicInfoData);
 
         // Sync Spatie role
         if ($employee->role) {

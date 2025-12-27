@@ -281,6 +281,11 @@
                                         <input type="text" name="nominee_contact_number" class="form-control form-control-sm"
                                                value="{{ old('nominee_contact_number', $employee->nominee_contact_number) }}">
                                     </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Emergency Contact</label>
+                                        <input type="text" name="emergency_contact" class="form-control form-control-sm"
+                                               value="{{ old('emergency_contact', $employee->emergency_contact) }}" placeholder="Emergency contact number">
+                                    </div>
 
                                     <div class="col-md-3">
                                         <label class="form-label">Aadhar Number</label>
@@ -410,7 +415,19 @@
                                         <input type="text" name="uan_number" class="form-control form-control-sm"
                                                value="{{ old('uan_number', $employee->uan_number) }}">
                                     </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
+                                    {{-- Exit & Clearance --}}
+                                    <div class="col-12">
+                                        <div class="card border shadow-sm">
+                                            <div class="card-header py-2">
+                                                <h6 class="mb-0 text-uppercase text-muted small fw-semibold">Exit & Clearance</h6>
+                                            </div>
+                                            <div class="card-body py-3">
+                                                <div class="row g-3">
                                                     <div class="col-md-3">
                                         <label class="form-label">Exit Initiated By</label>
                                         <input type="text" name="exit_initiated_by" class="form-control form-control-sm"
@@ -428,8 +445,8 @@
                                     </div>
                                                     <div class="col-md-3">
                                         <label class="form-label">Last Working Day</label>
-                                        <input type="text" name="last_working_day" class="form-control form-control-sm"
-                                               value="{{ old('last_working_day', $employee->last_working_day) }}">
+                                        <input type="date" name="last_working_day" class="form-control form-control-sm"
+                                               value="{{ old('last_working_day', $employee->last_working_day ? \Carbon\Carbon::parse($employee->last_working_day)->format('Y-m-d') : '') }}">
                                     </div>
                                                     <div class="col-md-3">
                                         <label class="form-label">Exit Interview Notes</label>
