@@ -77,12 +77,36 @@ class LeadController extends Controller
             $q->orderBy('created_at', 'desc')->limit(1);
         }])->orderBy('created_at', 'desc');
 
-        // Filter by assigned user if not admin/manager
-        if (!$this->canSeeAllLeads()) {
-            $userId = $this->getCurrentUserId();
-            if ($userId) {
-                $leadsQuery->where('assigned_user_id', $userId);
+        $user = Auth::user();
+        
+        // Filter leads based on user role (only for Sales leads section, not Customer Care)
+        if (!request()->routeIs('customer-care.*')) {
+            if ($user->hasRole('Admin')) {
+                // Admin sees all leads assigned to Sales department users
+                $salesUserIds = User::where('department', 'Sales')->pluck('id')->toArray();
+                if (!empty($salesUserIds)) {
+                    $leadsQuery->whereIn('assigned_user_id', $salesUserIds);
+                } else {
+                    // If no sales users exist, show no leads
+                    $leadsQuery->whereRaw('1 = 0');
+                }
+            } elseif ($user->hasRole('Sales') || ($user->department === 'Sales' && !$user->hasRole('Sales Manager'))) {
+                // Sales users see only their own assigned leads
+                $userId = $this->getCurrentUserId();
+                if ($userId) {
+                    $leadsQuery->where('assigned_user_id', $userId);
+                }
+            } elseif (!$this->canSeeAllLeads()) {
+                // Other non-admin/manager users see only their own assigned leads
+                $userId = $this->getCurrentUserId();
+                if ($userId) {
+                    $leadsQuery->where('assigned_user_id', $userId);
+                }
             }
+            // Sales Manager and other managers can see all leads (no additional filtering)
+        } else {
+            // For Customer Care routes - show all unassigned leads (not assigned to anyone)
+            $leadsQuery->whereNull('assigned_user_id');
         }
 
         if (!empty($filters['status'])) {
@@ -117,7 +141,13 @@ class LeadController extends Controller
 
         $services = Service::orderBy('name')->get();
         $destinations = Destination::orderBy('name')->get();
-        $employees = User::whereNotNull('user_id')->orderBy('name')->get();
+        
+        // Filter employees by department for Customer Care tab
+        $employeesQuery = User::whereNotNull('user_id');
+        if (request()->routeIs('customer-care.*')) {
+            $employeesQuery->whereIn('department', ['Admin', 'Customer Care']);
+        }
+        $employees = $employeesQuery->orderBy('name')->get();
 
         return view('leads.index', [
             'leads' => $leads,

@@ -31,13 +31,9 @@ class ServiceController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:services,name',
-            'code' => 'nullable|string|max:50',
-            'default_price' => 'nullable|numeric|min:0',
-            'description' => 'nullable|string',
-            'is_active' => 'nullable|boolean',
         ]);
 
-        Service::create($validated + ['is_active' => $request->input('is_active', 1)]);
+        Service::create($validated + ['is_active' => 1]);
         return redirect()->route('services.index')->with('success', 'Service created successfully!');
     }
 
@@ -65,10 +61,6 @@ class ServiceController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:services,name,' . $service->id,
-            'code' => 'nullable|string|max:50',
-            'default_price' => 'nullable|numeric|min:0',
-            'description' => 'nullable|string',
-            'is_active' => 'nullable|boolean',
         ]);
 
         $service->update($validated);

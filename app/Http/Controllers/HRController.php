@@ -108,7 +108,7 @@ class HRController extends Controller
             'email' => 'nullable|email|max:255|unique:users,email',
             'user_id' => 'nullable|string|max:255|unique:users,user_id',
             'password' => 'required|string|min:6|max:255',
-            'role' => 'nullable|in:Admin,Sales Manager,Sales,Operation Manager,Operation,Accounts Manager,Accounts,Post Sales Manager,Post Sales,Delivery Manager,Delivery,HR,Developer',
+            'role' => 'nullable|in:Admin,Manager,Developer,User',
             'status' => 'nullable|string|max:50',
             // Basic Information fields
             'previous_employer' => 'nullable|string|max:255',
@@ -161,7 +161,7 @@ class HRController extends Controller
             'pan_number' => $validated['pan_number'] ?? null,
             'passport_number' => $validated['passport_number'] ?? null,
             'present_address' => $validated['present_address'] ?? null,
-            'permanent_address' => $validated['permanent_same_as_present'] ? ($validated['present_address'] ?? null) : ($validated['permanent_address'] ?? null),
+            'permanent_address' => ($validated['permanent_same_as_present'] ?? false) ? ($validated['present_address'] ?? null) : ($validated['permanent_address'] ?? null),
         ];
         $user->empBasicInfo()->create($basicInfoData);
 
@@ -225,7 +225,7 @@ class HRController extends Controller
             'email' => 'nullable|email|max:255|unique:users,email,' . $employee->id,
             'user_id' => 'nullable|string|max:255|unique:users,user_id,' . $employee->id,
             'password' => 'nullable|string|min:6|max:255',
-            'role' => 'nullable|in:Admin,Sales Manager,Sales,Operation Manager,Operation,Accounts Manager,Accounts,Post Sales Manager,Post Sales,Delivery Manager,Delivery,HR,Developer',
+            'role' => 'nullable|in:Admin,Manager,Developer,User',
             'status' => 'nullable|string|max:50',
             // Basic Information fields
             'previous_employer' => 'nullable|string|max:255',
@@ -278,7 +278,7 @@ class HRController extends Controller
             'pan_number' => $validated['pan_number'] ?? null,
             'passport_number' => $validated['passport_number'] ?? null,
             'present_address' => $validated['present_address'] ?? null,
-            'permanent_address' => $validated['permanent_same_as_present'] ? ($validated['present_address'] ?? null) : ($validated['permanent_address'] ?? null),
+            'permanent_address' => ($validated['permanent_same_as_present'] ?? false) ? ($validated['present_address'] ?? null) : ($validated['permanent_address'] ?? null),
         ];
         $employee->empBasicInfo()->updateOrCreate(['user_id' => $employee->id], $basicInfoData);
 

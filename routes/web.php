@@ -25,8 +25,11 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.auth');
 Route::middleware(['auth', 'check.active'])->group(function () {
 
     Route::get('/', function () {
-        return redirect()->route('reports.index');
+        return redirect()->route('dashboard');
     })->name('home');
+
+    // Dashboard route - no permission middleware, only auth required
+    Route::get('/dashboard', [ReportController::class, 'index'])->name('dashboard');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -48,43 +51,28 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     //     Route::get('/user/delete/{id}', [UserController::class, 'destroy'])->name('users.delete');
     // });
 
-    // Services
-    Route::middleware('permission:view services')->group(function () {
-        Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
-    });
-    Route::middleware('permission:create services')->group(function () {
-        Route::get('/services/create', [ServiceController::class, 'create'])->name('services.create');
-        Route::post('/services', [ServiceController::class, 'store'])->name('services.store');
-    });
-    Route::middleware('permission:edit services')->group(function () {
-        Route::get('/services/{service}/edit', [ServiceController::class, 'edit'])->name('services.edit');
-        Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
-    });
-    Route::middleware('permission:delete services')->group(function () {
-        Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
-    });
-    Route::middleware('permission:view services')->group(function () {
-        Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
-    });
+    // Services - Accessible to all authenticated users
+    Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
+    Route::post('/services', [ServiceController::class, 'store'])->name('services.store');
+    // Redirect create and edit routes to index since forms are now on index page
+    Route::get('/services/create', function () {
+        return redirect()->route('services.index');
+    })->name('services.create');
+    Route::get('/services/{service}/edit', function () {
+        return redirect()->route('services.index');
+    })->name('services.edit');
+    Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
+    Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
+    Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
 
-    // Destinations
-    Route::middleware('permission:view destinations')->group(function () {
-        Route::get('/destinations', [DestinationController::class, 'index'])->name('destinations.index');
-    });
-    Route::middleware('permission:create destinations')->group(function () {
-        Route::get('/destinations/create', [DestinationController::class, 'create'])->name('destinations.create');
-        Route::post('/destinations', [DestinationController::class, 'store'])->name('destinations.store');
-    });
-    Route::middleware('permission:edit destinations')->group(function () {
-        Route::get('/destinations/{destination}/edit', [DestinationController::class, 'edit'])->name('destinations.edit');
-        Route::put('/destinations/{destination}', [DestinationController::class, 'update'])->name('destinations.update');
-    });
-    Route::middleware('permission:delete destinations')->group(function () {
-        Route::delete('/destinations/{destination}', [DestinationController::class, 'destroy'])->name('destinations.destroy');
-    });
-    Route::middleware('permission:view destinations')->group(function () {
-        Route::get('/destinations/{destination}', [DestinationController::class, 'show'])->name('destinations.show');
-    });
+    // Destinations - Accessible to all authenticated users
+    Route::get('/destinations', [DestinationController::class, 'index'])->name('destinations.index');
+    Route::get('/destinations/create', [DestinationController::class, 'create'])->name('destinations.create');
+    Route::post('/destinations', [DestinationController::class, 'store'])->name('destinations.store');
+    Route::get('/destinations/{destination}/edit', [DestinationController::class, 'edit'])->name('destinations.edit');
+    Route::put('/destinations/{destination}', [DestinationController::class, 'update'])->name('destinations.update');
+    Route::delete('/destinations/{destination}', [DestinationController::class, 'destroy'])->name('destinations.destroy');
+    Route::get('/destinations/{destination}', [DestinationController::class, 'show'])->name('destinations.show');
 
     // Customer Care Routes
     Route::prefix('customer-care')->name('customer-care.')->middleware(['auth', 'check.active'])->group(function () {

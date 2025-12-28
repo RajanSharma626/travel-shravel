@@ -11,9 +11,6 @@
                         <header class="contact-header">
                             <div class="w-100 align-items-center justify-content-between d-flex contactapp-title link-dark">
                                 <h1>Services</h1>
-                                <a href="{{ route('services.create') }}" class="btn btn-primary btn-sm">
-                                    + Add Service
-                                </a>
                             </div>
                         </header>
 
@@ -32,6 +29,29 @@
                                     </div>
                                 @endif
 
+                                <!-- Add Service Form -->
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <form action="{{ route('services.store') }}" method="POST">
+                                            @csrf
+                                            <div class="row g-3 align-items-end">
+                                                <div class="col-md-10">
+                                                    <label for="service_name" class="form-label">Service Name</label>
+                                                    <input type="text" class="form-control form-control-sm" 
+                                                        id="service_name" name="name" 
+                                                        value="{{ old('name') }}" 
+                                                        placeholder="Enter service name" required>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                                                        Add Service
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
                                 @if (isset($services) && $services->count() > 0)
                                     <div class="text-muted small mb-2 px-3">
                                         Showing {{ $services->firstItem() ?? 0 }} out of {{ $services->total() }}
@@ -46,8 +66,6 @@
                                             <tr>
                                                 <th>#</th>
                                                 <th>Service Name</th>
-                                                <th>Status</th>
-                                                <th>Created On</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
@@ -56,22 +74,32 @@
                                                 $sno = 1;
                                             @endphp
                                             @forelse ($services as $service)
-                                                <tr>
+                                                <tr id="service-row-{{ $service->id }}">
                                                     <td>{{ $sno }}</td>
-                                                    <td>{{ $service->name }}</td>
                                                     <td>
-                                                        @if ($service->is_active)
-                                                            <span class="badge bg-success">Active</span>
-                                                        @else
-                                                            <span class="badge bg-secondary">Inactive</span>
-                                                        @endif
+                                                        <span class="service-name-display-{{ $service->id }}">{{ $service->name }}</span>
+                                                        <form action="{{ route('services.update', $service->id) }}" method="POST" 
+                                                            class="service-edit-form-{{ $service->id }} d-none">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <div class="input-group input-group-sm">
+                                                                <input type="text" name="name" class="form-control" 
+                                                                    value="{{ $service->name }}" required>
+                                                                <button type="submit" class="btn btn-success btn-sm">
+                                                                    <i class="bi bi-check"></i> Update
+                                                                </button>
+                                                                <button type="button" class="btn btn-secondary btn-sm cancel-edit" 
+                                                                    data-service-id="{{ $service->id }}">
+                                                                    <i class="bi bi-x"></i> Cancel
+                                                                </button>
+                                                            </div>
+                                                        </form>
                                                     </td>
-                                                    <td>{{ $service->created_at->format('d M, Y') }}</td>
                                                     <td>
-                                                        <a href="{{ route('services.edit', $service->id) }}"
-                                                            class="btn btn-outline-warning btn-sm">
+                                                        <button type="button" class="btn btn-outline-warning btn-sm edit-service-btn" 
+                                                            data-service-id="{{ $service->id }}">
                                                             <i class="bi bi-pencil-square"></i> Edit
-                                                        </a>
+                                                        </button>
                                                         <form action="{{ route('services.destroy', $service->id) }}"
                                                             method="POST" class="d-inline">
                                                             @csrf
@@ -88,7 +116,7 @@
                                                 @endphp
                                             @empty
                                                 <tr>
-                                                    <td colspan="5" class="text-center text-muted">
+                                                    <td colspan="3" class="text-center text-muted">
                                                         No services found.
                                                     </td>
                                                 </tr>
@@ -112,4 +140,49 @@
         <!-- Footer -->
         @include('layouts.footer')
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle Edit button clicks
+            document.querySelectorAll('.edit-service-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const serviceId = this.getAttribute('data-service-id');
+                    const displaySpan = document.querySelector('.service-name-display-' + serviceId);
+                    const editForm = document.querySelector('.service-edit-form-' + serviceId);
+                    
+                    // Hide display, show form
+                    if (displaySpan) displaySpan.classList.add('d-none');
+                    if (editForm) editForm.classList.remove('d-none');
+                    
+                    // Hide edit button, show cancel button is already in form
+                    this.style.display = 'none';
+                });
+            });
+
+            // Handle Cancel button clicks
+            document.querySelectorAll('.cancel-edit').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const serviceId = this.getAttribute('data-service-id');
+                    const displaySpan = document.querySelector('.service-name-display-' + serviceId);
+                    const editForm = document.querySelector('.service-edit-form-' + serviceId);
+                    const editBtn = document.querySelector('.edit-service-btn[data-service-id="' + serviceId + '"]');
+                    
+                    // Show display, hide form
+                    if (displaySpan) displaySpan.classList.remove('d-none');
+                    if (editForm) editForm.classList.add('d-none');
+                    
+                    // Show edit button
+                    if (editBtn) editBtn.style.display = 'inline-block';
+                });
+            });
+
+            // Handle form submission - show edit button again after successful update
+            document.querySelectorAll('[class*="service-edit-form-"]').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    // The form will submit normally, and page will reload with success message
+                    // The edit button will be visible again after reload
+                });
+            });
+        });
+    </script>
 @endsection

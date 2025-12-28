@@ -110,6 +110,9 @@
                                                         <label class="form-label">Department</label>
                                                         <select name="department" class="form-select form-select-sm">
                                                             <option value="">-- Select Department --</option>
+                                                            <option value="Customer Care"
+                                                                {{ old('department') == 'Customer Care' ? 'selected' : '' }}>
+                                                                Customer Care</option>
                                                             <option value="Sales"
                                                                 {{ old('department') == 'Sales' ? 'selected' : '' }}>Sales
                                                             </option>
@@ -125,6 +128,7 @@
                                                             <option value="Delivery"
                                                                 {{ old('department') == 'Delivery' ? 'selected' : '' }}>
                                                                 Delivery</option>
+
                                                             <option value="HR"
                                                                 {{ old('department') == 'HR' ? 'selected' : '' }}>HR
                                                             </option>
@@ -141,29 +145,12 @@
                                                         <select name="reporting_manager" class="form-select form-select-sm">
                                                             <option value="">Select</option>
                                                             <option value="Sales Manager"
-                                                                {{ old('reporting_manager') == 'Sales Manager' ? 'selected' : '' }}>
-                                                                Sales Manager</option>
-                                                            <option value="Operation Manager"
-                                                                {{ old('reporting_manager') == 'Operation Manager' ? 'selected' : '' }}>
-                                                                Operation Manager</option>
-                                                            <option value="Accounts Manager"
-                                                                {{ old('reporting_manager') == 'Accounts Manager' ? 'selected' : '' }}>
-                                                                Accounts Manager</option>
-                                                            <option value="Post Sales Manager"
-                                                                {{ old('reporting_manager') == 'Post Sales Manager' ? 'selected' : '' }}>
-                                                                Post Sales Manager</option>
-                                                            <option value="Delivery Manager"
-                                                                {{ old('reporting_manager') == 'Delivery Manager' ? 'selected' : '' }}>
-                                                                Delivery Manager</option>
-                                                            <option value="HR Manager"
-                                                                {{ old('reporting_manager') == 'HR Manager' ? 'selected' : '' }}>
-                                                                HR Manager</option>
+                                                                {{ old('reporting_manager') == 'Manager' ? 'selected' : '' }}>
+                                                                Manager</option>
+
                                                             <option value="Admin"
                                                                 {{ old('reporting_manager') == 'Admin' ? 'selected' : '' }}>
                                                                 Admin</option>
-                                                            <option value="Other"
-                                                                {{ old('reporting_manager') == 'Other' ? 'selected' : '' }}>
-                                                                Other</option>
                                                         </select>
                                                     </div>
 
@@ -468,14 +455,16 @@
                                                     <div class="row g-3">
                                                         <div class="col-md-3">
                                                             <label class="form-label">Incentive Eligibility</label>
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="checkbox"
-                                                                    name="incentive_eligibility" value="1"
-                                                                    id="incentiveEligibility"
-                                                                    {{ old('incentive_eligibility') ? 'checked' : '' }}>
-                                                                <label class="form-check-label"
-                                                                    for="incentiveEligibility">Yes</label>
-                                                            </div>
+                                                            <select name="incentive_eligibility"
+                                                                class="form-control form-control-sm">
+                                                                <option value="">Select</option>
+                                                                <option value="Yes"
+                                                                    {{ old('incentive_eligibility') == 'Yes' ? 'selected' : '' }}>
+                                                                    Yes</option>
+                                                                <option value="No"
+                                                                    {{ old('incentive_eligibility') == 'No' ? 'selected' : '' }}>
+                                                                    No</option>
+                                                            </select>
                                                         </div>
                                                         <div class="col-md-3">
                                                             <label class="form-label">Incentive Type</label>
@@ -624,21 +613,26 @@
                                                         <div class="col-md-9">
                                                             <div class="row g-2">
                                                                 <div class="col-md-3">
-                                                                        {{-- <input class="form-check-input" type="checkbox"
+                                                                    {{-- <input class="form-check-input" type="checkbox"
                                                                             name="service_certificate_issued"
                                                                             value="1" id="serviceCertificateIssued"
                                                                             {{ old('service_certificate_issued') ? 'checked' : '' }}> --}}
-                                                                        <label class="form-label"
-                                                                            for="serviceCertificateIssued">
-                                                                            Service Certificate Issued
-                                                                        </label>
+                                                                    <label class="form-label"
+                                                                        for="serviceCertificateIssued">
+                                                                        Service Certificate Issued
+                                                                    </label>
 
-                                                                        <select name="service_certificate_issued" class="form-control form-control-sm">
-                                                                            <option value="">Select</option>
-                                                                            <option value="Yes" {{ old('service_certificate_issued') == 'Yes' ? 'selected' : '' }}>Yes</option>
-                                                                            <option value="No" {{ old('service_certificate_issued') == 'No' ? 'selected' : '' }}>No</option>
-                                                                        </select>
-                                                                        
+                                                                    <select name="service_certificate_issued"
+                                                                        class="form-control form-control-sm">
+                                                                        <option value="">Select</option>
+                                                                        <option value="Yes"
+                                                                            {{ old('service_certificate_issued') == 'Yes' ? 'selected' : '' }}>
+                                                                            Yes</option>
+                                                                        <option value="No"
+                                                                            {{ old('service_certificate_issued') == 'No' ? 'selected' : '' }}>
+                                                                            No</option>
+                                                                    </select>
+
                                                                 </div>
                                                                 <div class="col-md-3">
                                                                     <label class="form-label">Issuing Date</label>

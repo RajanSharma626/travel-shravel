@@ -64,32 +64,8 @@ class AuthController extends Controller
 
         // Redirect based on employee role
         $user = Auth::user();
-        $role = $user->role ?? $user->getRoleNameAttribute();
 
-            switch ($role) {
-                case 'Admin':
-            case 'Developer':
-                    return redirect('/');
-            case 'Sales Manager':
-            case 'Sales':
-                    return redirect('/leads');
-            case 'Operation Manager':
-            case 'Operation':
-                return redirect('/operations');
-            case 'Accounts Manager':
-            case 'Accounts':
-                return redirect('/accounts');
-            case 'Post Sales Manager':
-            case 'Post Sales':
-                return redirect('/post-sales');
-            case 'Delivery Manager':
-            case 'Delivery':
-                return redirect('/deliveries');
-            case 'HR':
-                return redirect('/hr/employees');
-            default:
-                    return redirect('/leads');
-        }
+        return redirect('/dashboard');
     }
 
     public function logout()

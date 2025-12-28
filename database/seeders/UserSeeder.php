@@ -37,10 +37,10 @@ class UserSeeder extends Seeder
 
             // Create related records (placeholders for now) - use updateOrCreate to avoid duplicates
             if (!$user->empBasicInfo) {
-                $user->empBasicInfo()->create([
-                    'present_address' => '123 Main St, City',
-                    'emergency_contact' => '9876543210'
-                ]);
+            $user->empBasicInfo()->create([
+                'present_address' => '123 Main St, City',
+                'emergency_contact' => '9876543210'
+            ]);
             } else {
                 $user->empBasicInfo()->update([
                     'present_address' => '123 Main St, City',
@@ -49,11 +49,11 @@ class UserSeeder extends Seeder
             }
             
             if (!$user->incentivePerformance) {
-                $user->incentivePerformance()->create([
-                    'incentive_eligibility' => true,
-                    'incentive_type' => 'fixed',
-                    'monthly_target' => '100000'
-                ]);
+            $user->incentivePerformance()->create([
+                'incentive_eligibility' => true,
+                'incentive_type' => 'fixed',
+                'monthly_target' => '100000'
+            ]);
             } else {
                 $user->incentivePerformance()->update([
                     'incentive_eligibility' => true,
@@ -63,10 +63,10 @@ class UserSeeder extends Seeder
             }
 
             if (!$user->statutoryPayrollDetails) {
-                $user->statutoryPayrollDetails()->create([
-                    'salary_structure' => 'CTC',
-                    'bank_name' => 'Demo Bank'
-                ]);
+            $user->statutoryPayrollDetails()->create([
+                'salary_structure' => 'CTC',
+                'bank_name' => 'Demo Bank'
+            ]);
             } else {
                 $user->statutoryPayrollDetails()->update([
                     'salary_structure' => 'CTC',
@@ -75,13 +75,13 @@ class UserSeeder extends Seeder
             }
 
             if (!$user->exitClearance) {
-                $user->exitClearance()->create([]);
+            $user->exitClearance()->create([]);
             }
             
             // Assign role (only if role exists)
             try {
                 if (!$user->hasRole($role)) {
-                    $user->assignRole($role);
+            $user->assignRole($role);
                 }
             } catch (\Exception $e) {
                 // Role might not exist, that's okay
