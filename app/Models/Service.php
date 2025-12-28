@@ -10,11 +10,7 @@ class Service extends Model
 
      use HasFactory;
     protected $fillable = [
-        'name',
-        'code',
-        'description',
-        'default_price',
-        'is_active'
+        'name'
     ];
 
     public function leads()

@@ -14,10 +14,6 @@ return new class extends Migration
         Schema::create('services', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->string('code')->nullable();        // optional service code like “TRVL01”
-            $table->text('description')->nullable();
-            $table->decimal('default_price', 10, 2)->nullable();
-            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

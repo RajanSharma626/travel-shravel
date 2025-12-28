@@ -14,61 +14,39 @@ class ServiceSeeder extends Seeder
     {
         $services = [
             [
-                'name' => 'Domestic Travel',
-                'code' => 'DOM001',
-                'description' => 'Complete domestic travel packages including flights, hotels, and local transport',
-                'default_price' => 25000.00,
-                'is_active' => true,
+                'name' => 'Air Ticket'
             ],
             [
-                'name' => 'International Travel',
-                'code' => 'INT001',
-                'description' => 'International travel packages with visa assistance and travel insurance',
-                'default_price' => 75000.00,
-                'is_active' => true,
+                'name' => 'Hotel(s)'
             ],
             [
-                'name' => 'Honeymoon Packages',
-                'code' => 'HNY001',
-                'description' => 'Special honeymoon packages with romantic destinations and luxury accommodations',
-                'default_price' => 100000.00,
-                'is_active' => true,
+                'name' => 'Tour Package(s)'
             ],
             [
-                'name' => 'Adventure Tours',
-                'code' => 'ADV001',
-                'description' => 'Adventure and trekking packages for thrill seekers',
-                'default_price' => 35000.00,
-                'is_active' => true,
+                'name' => 'Activities'
             ],
             [
-                'name' => 'Pilgrimage Tours',
-                'code' => 'PLG001',
-                'description' => 'Spiritual and pilgrimage tours to holy places',
-                'default_price' => 20000.00,
-                'is_active' => true,
+                'name' => 'Pilgrimage Tours'
             ],
             [
-                'name' => 'Beach Holidays',
-                'code' => 'BCH001',
-                'description' => 'Relaxing beach holidays with water sports activities',
-                'default_price' => 40000.00,
-                'is_active' => true,
+                'name' => 'Transport'
             ],
             [
-                'name' => 'Family Packages',
-                'code' => 'FAM001',
-                'description' => 'Family-friendly packages with kid-friendly activities',
-                'default_price' => 50000.00,
-                'is_active' => true,
+                'name' => 'Bus'
             ],
             [
-                'name' => 'Corporate Travel',
-                'code' => 'CORP001',
-                'description' => 'Business travel solutions with conference facilities',
-                'default_price' => 30000.00,
-                'is_active' => true,
+                'name' => 'Cruise'
             ],
+            [
+                'name' => 'Train'
+            ],
+            [
+                'name' => 'Visa'
+            ],
+            [
+                'name' => 'Insurance'
+            ]
+
         ];
 
         foreach ($services as $service) {

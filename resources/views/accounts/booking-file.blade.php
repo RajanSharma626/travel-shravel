@@ -492,7 +492,15 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Payment Mode</label>
-                                <input type="text" class="form-control form-control-sm" id="accountsModalPaymentMode" name="payment_mode" placeholder="e.g. UPI, Bank Transfer">
+                                <select class="form-select form-select-sm" id="accountsModalPaymentMode" name="payment_mode">
+                                    <option value="">-- Select --</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="UPI">UPI</option>
+                                    <option value="NEFT">NEFT</option>
+                                    <option value="RTGS">RTGS</option>
+                                    <option value="WIB">WIB</option>
+                                    <option value="Online">Online</option>
+                                </select>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Ref. No.</label>
@@ -518,6 +526,8 @@
                 </div>
             </div>
         </div>
+    </div>
+
     <!-- Edit Customer Payment Modal (Accounts) -->
     <div class="modal fade" id="editCustomerPaymentAccountsModal" tabindex="-1" aria-labelledby="editCustomerPaymentAccountsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -753,15 +763,40 @@
                     const formData = new FormData(form);
                     const vendorPaymentId = document.getElementById('vendorPaymentAccountsId').value;
 
+                    // Add method spoofing for PUT request
+                    formData.append('_method', 'PUT');
+
                     fetch(`/accounts/${leadId}/vendor-payment/${vendorPaymentId}`, {
-                        method: 'PUT',
+                        method: 'POST', // Use POST with _method=PUT for Laravel
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Accept': 'application/json',
                         },
                         body: formData
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        // Check if response is JSON
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            return response.json().then(data => {
+                                if (!response.ok) {
+                                    // Handle validation errors
+                                    if (data.errors) {
+                                        const errorMessages = Object.values(data.errors).flat().join('\n');
+                                        throw new Error(errorMessages);
+                                    }
+                                    throw new Error(data.message || 'Failed to update vendor payment');
+                                }
+                                return data;
+                            });
+                        } else {
+                            // If not JSON, might be a redirect or error page
+                            if (!response.ok) {
+                                throw new Error('Failed to update vendor payment');
+                            }
+                            return { success: true };
+                        }
+                    })
                     .then(data => {
                         if (data.success) {
                             // Close modal
@@ -777,7 +812,7 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('An error occurred while updating vendor payment');
+                        alert(error.message || 'An error occurred while updating vendor payment');
                     });
                 });
             }
@@ -797,6 +832,9 @@
             // Handle edit customer payment button click
             document.addEventListener('click', function(e) {
                 if (e.target.closest('.edit-customer-payment-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
                     const btn = e.target.closest('.edit-customer-payment-btn');
                     const paymentId = btn.dataset.paymentId;
                     
@@ -805,25 +843,38 @@
                     
                     // Populate fields
                     document.getElementById('custModalAmount').value = btn.dataset.amount || '';
-                    document.getElementById('custModalMethod').value = btn.dataset.method || 'Cash'; // Default to Cash if empty, although lowercase might need handling. method in DB is usually lowercase or CamelCase? Value in select is Capitalized.
-                    // Map method value casing if needed. DB usually has 'Cash', 'UPI', 'NEFT' etc as per options in booking-form.blade.php line 1339.
-                    // Actually booking-form.blade.php values are "Cash", "UPI", etc. 
-                    // But in Controller update it validates lowercase? No: 'in:cash,bank_transfer,...' line 121 in PaymentController?
-                    // Let's check PaymentController store method: `in:cash,bank_transfer,cheque,card,online`.
-                    // But booking-form.blade.php sends Capitalized values? 
-                    // Checked booking-form.blade.php line 1339: Values are Capitalized 'Cash', 'UPI'. 
-                    // PaymentController line 121 validation seems inconsistent or I misread it. 
-                    // Let's assume the values in DB match the Select options.
-                    // The btn.dataset.method comes from $payment->method. 
                     
-                    // Better approach: Set value directly. If casing mismatch, Select won't pick it.
-                    // Let's rely on exact match first.
-                    document.getElementById('custModalMethod').value = btn.dataset.method;
+                    // Handle method value - convert to proper case if needed
+                    let methodValue = btn.dataset.method || 'Cash';
+                    // Map lowercase values to capitalized ones
+                    const methodMap = {
+                        'cash': 'Cash',
+                        'bank_transfer': 'Bank Transfer',
+                        'cheque': 'Cheque',
+                        'card': 'Card',
+                        'online': 'Online',
+                        'upi': 'UPI',
+                        'neft': 'NEFT',
+                        'rtgs': 'RTGS',
+                        'wib': 'WIB',
+                        'other': 'Other'
+                    };
+                    if (methodMap[methodValue.toLowerCase()]) {
+                        methodValue = methodMap[methodValue.toLowerCase()];
+                    }
+                    document.getElementById('custModalMethod').value = methodValue;
                     
                     document.getElementById('custModalPaymentDate').value = btn.dataset.paymentDate || '';
                     document.getElementById('custModalDueDate').value = btn.dataset.dueDate || '';
                     document.getElementById('custModalReference').value = btn.dataset.reference || '';
                     document.getElementById('custModalStatus').value = btn.dataset.status || 'pending';
+                    
+                    // Manually open the modal
+                    const modalElement = document.getElementById('editCustomerPaymentAccountsModal');
+                    if (modalElement) {
+                        const modal = new bootstrap.Modal(modalElement);
+                        modal.show();
+                    }
                 }
             });
 

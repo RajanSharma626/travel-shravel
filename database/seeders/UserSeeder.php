@@ -24,75 +24,94 @@ class UserSeeder extends Seeder
                     'role' => $role,
                     'department' => $dept,
                     'designation' => $designation,
-                    'employment_status' => 'Permanent',
-                    'employment_type' => 'Full Time',
+                    'employment_status' => 'Active',
+                    'employment_type' => 'Permanent',
                     'doj' => now(),
-                    'password' => 'password123', // Will be hashed by mutator/cast
+                    'password' => Hash::make('password123'),
                     'status' => 'Active',
                 ]
             );
 
-            // Create related records (placeholders for now)
-            $user->empBasicInfo()->create([
-                'present_address' => '123 Main St, City',
-                'emergency_contact' => '9876543210'
-            ]);
-            
-            $user->incentivePerformance()->create([
-                'incentive_eligibility' => true,
-                'incentive_type' => 'fixed',
-                'monthly_target' => '100000'
-            ]);
+            // Refresh to ensure we have the latest data
+            $user->refresh();
 
-            $user->statutoryPayrollDetails()->create([
-                'salary_structure' => 'CTC',
-                'bank_name' => 'Demo Bank'
-            ]);
-
-            $user->exitClearance()->create([]);
+            // Create related records (placeholders for now) - use updateOrCreate to avoid duplicates
+            if (!$user->empBasicInfo) {
+                $user->empBasicInfo()->create([
+                    'present_address' => '123 Main St, City',
+                    'emergency_contact' => '9876543210'
+                ]);
+            } else {
+                $user->empBasicInfo()->update([
+                    'present_address' => '123 Main St, City',
+                    'emergency_contact' => '9876543210'
+                ]);
+            }
             
-            // Assign role
-            $user->assignRole($role);
+            if (!$user->incentivePerformance) {
+                $user->incentivePerformance()->create([
+                    'incentive_eligibility' => true,
+                    'incentive_type' => 'fixed',
+                    'monthly_target' => '100000'
+                ]);
+            } else {
+                $user->incentivePerformance()->update([
+                    'incentive_eligibility' => true,
+                    'incentive_type' => 'fixed',
+                    'monthly_target' => '100000'
+                ]);
+            }
+
+            if (!$user->statutoryPayrollDetails) {
+                $user->statutoryPayrollDetails()->create([
+                    'salary_structure' => 'CTC',
+                    'bank_name' => 'Demo Bank'
+                ]);
+            } else {
+                $user->statutoryPayrollDetails()->update([
+                    'salary_structure' => 'CTC',
+                    'bank_name' => 'Demo Bank'
+                ]);
+            }
+
+            if (!$user->exitClearance) {
+                $user->exitClearance()->create([]);
+            }
+            
+            // Assign role (only if role exists)
+            try {
+                if (!$user->hasRole($role)) {
+                    $user->assignRole($role);
+                }
+            } catch (\Exception $e) {
+                // Role might not exist, that's okay
+            }
             return $user;
         };
 
         // Admin
         $createUser('Admin User', 'admin@travelshravel.com', 'Admin', 'Management', 'Administrator');
 
-        // Sales Manager
-        $createUser('John Sales Manager', 'salesmanager@travelshravel.com', 'Sales Manager', 'Sales', 'Sales Manager');
+        // Sales Users
+        $createUser('Sales Manager', 'salesmanager@travelshravel.com', 'Sales Manager', 'Sales', 'Sales Manager');
+        $createUser('Sales User 1', 'sales1@travelshravel.com', 'Sales', 'Sales', 'Sales Executive');
+        $createUser('Sales User 2', 'sales2@travelshravel.com', 'Sales', 'Sales', 'Sales Executive');
 
-        // Sales Persons
-        $createUser('Priya Sharma', 'priya@travelshravel.com', 'Sales', 'Sales', 'Sales Executive');
-        $createUser('Raj Kumar', 'raj@travelshravel.com', 'Sales', 'Sales', 'Sales Executive');
-        $createUser('Anita Patel', 'anita@travelshravel.com', 'Sales', 'Sales', 'Sales Executive');
+        // Operation Users
+        $createUser('Operation Manager', 'opsmanager@travelshravel.com', 'Operation Manager', 'Operation', 'Operation Manager');
+        $createUser('Operation User 1', 'ops1@travelshravel.com', 'Operation', 'Operation', 'Operation Executive');
 
-        // Operation Manager
-        $createUser('Mike Operations Manager', 'opsmanager@travelshravel.com', 'Operation Manager', 'Operations', 'Operations Manager');
+        // Accounts Users
+        $createUser('Accounts Manager', 'accountsmanager@travelshravel.com', 'Accounts Manager', 'Accounts', 'Accounts Manager');
+        $createUser('Accounts User 1', 'accounts1@travelshravel.com', 'Accounts', 'Accounts', 'Accounts Executive');
 
-        // Operation
-        $createUser('Sarah Operations', 'sarah@travelshravel.com', 'Operation', 'Operations', 'Operations Executive');
+        // Delivery Users
+        $createUser('Delivery Manager', 'deliverymanager@travelshravel.com', 'Delivery Manager', 'Delivery', 'Delivery Manager');
+        $createUser('Delivery User 1', 'delivery1@travelshravel.com', 'Delivery', 'Delivery', 'Delivery Executive');
 
-        // Accounts Manager
-        $createUser('David Accounts Manager', 'accountsmanager@travelshravel.com', 'Accounts Manager', 'Accounts', 'Accounts Manager');
-
-        // Accounts
-        $createUser('Lisa Accounts', 'lisa@travelshravel.com', 'Accounts', 'Accounts', 'Accounts Executive');
-
-        // Post Sales Manager
-        $createUser('Emma Post Sales Manager', 'postsalesmanager@travelshravel.com', 'Post Sales Manager', 'Post Sales', 'Post Sales Manager');
-
-        // Post Sales
-        $createUser('Kevin Post Sales', 'kevin@travelshravel.com', 'Post Sales', 'Post Sales', 'Post Sales Executive');
-
-        // Delivery Manager
-        $createUser('Tom Delivery Manager', 'deliverymanager@travelshravel.com', 'Delivery Manager', 'Delivery', 'Delivery Manager');
-
-        // Delivery
-        $createUser('Alex Delivery', 'alex@travelshravel.com', 'Delivery', 'Delivery', 'Delivery Executive');
-
-        // HR
-        $createUser('HR Manager', 'hr@travelshravel.com', 'HR', 'HR', 'HR Manager');
+        // Post Sales Users
+        $createUser('Post Sales Manager', 'postsalesmanager@travelshravel.com', 'Post Sales Manager', 'Post Sales', 'Post Sales Manager');
+        $createUser('Post Sales User 1', 'postsales1@travelshravel.com', 'Post Sales', 'Post Sales', 'Post Sales Executive');
 
         $this->command->info('Users and profiles created successfully!');
         $this->command->info('Default password for all users: password123');
