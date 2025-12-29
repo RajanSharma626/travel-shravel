@@ -82,7 +82,7 @@ class LeadController extends Controller
         // Filter leads based on user role (only for Sales leads section, not Customer Care)
         if (!request()->routeIs('customer-care.*')) {
             if ($user->hasRole('Admin')) {
-                // Admin sees all leads assigned to Sales department users
+                // Admin sees all leads assigned to Sales department users (only assigned leads, not unassigned)
                 $salesUserIds = User::where('department', 'Sales')->pluck('id')->toArray();
                 if (!empty($salesUserIds)) {
                     $leadsQuery->whereIn('assigned_user_id', $salesUserIds);
@@ -91,7 +91,7 @@ class LeadController extends Controller
                     $leadsQuery->whereRaw('1 = 0');
                 }
             } elseif ($user->hasRole('Sales') || ($user->department === 'Sales' && !$user->hasRole('Sales Manager'))) {
-                // Sales users see only their own assigned leads
+                // Sales users see only their own assigned leads (not unassigned leads)
                 $userId = $this->getCurrentUserId();
                 if ($userId) {
                     $leadsQuery->where('assigned_user_id', $userId);
@@ -105,8 +105,12 @@ class LeadController extends Controller
             }
             // Sales Manager and other managers can see all leads (no additional filtering)
         } else {
-            // For Customer Care routes - show all unassigned leads (not assigned to anyone)
-            $leadsQuery->whereNull('assigned_user_id');
+            // For Customer Care routes - show unassigned leads AND leads assigned to current Customer Care user
+            $userId = $this->getCurrentUserId();
+            $leadsQuery->where(function ($query) use ($userId) {
+                $query->whereNull('assigned_user_id') // Unassigned leads
+                    ->orWhere('assigned_user_id', $userId); // Leads assigned to current user
+            });
         }
 
         if (!empty($filters['status'])) {
@@ -177,13 +181,32 @@ class LeadController extends Controller
             ->where('status', 'booked')
             ->orderBy('created_at', 'desc');
 
-        // Filter by assigned user if not admin/manager
-        if (!$this->canSeeAllLeads()) {
+        $user = Auth::user();
+        
+        // Filter bookings based on user role (same logic as leads index)
+        if ($user->hasRole('Admin')) {
+            // Admin sees all booking files assigned to Sales department users (only assigned bookings, not unassigned)
+            $salesUserIds = User::where('department', 'Sales')->pluck('id')->toArray();
+            if (!empty($salesUserIds)) {
+                $leadsQuery->whereIn('assigned_user_id', $salesUserIds);
+            } else {
+                // If no sales users exist, show no bookings
+                $leadsQuery->whereRaw('1 = 0');
+            }
+        } elseif ($user->hasRole('Sales') || ($user->department === 'Sales' && !$user->hasRole('Sales Manager'))) {
+            // Sales users see only their own assigned booking files (not unassigned bookings)
+            $userId = $this->getCurrentUserId();
+            if ($userId) {
+                $leadsQuery->where('assigned_user_id', $userId);
+            }
+        } elseif (!$this->canSeeAllLeads()) {
+            // Other non-admin/manager users see only their own assigned booking files
             $userId = $this->getCurrentUserId();
             if ($userId) {
                 $leadsQuery->where('assigned_user_id', $userId);
             }
         }
+        // Sales Manager and other managers can see all bookings (no additional filtering)
 
         if (!empty($filters['search'])) {
             $searchTerm = trim($filters['search']);
@@ -348,6 +371,7 @@ class LeadController extends Controller
             'infants' => 'nullable|integer|min:0',
             'assigned_user_id' => 'nullable|exists:users,id',
             'status' => 'required|in:new,contacted,follow_up,priority,booked,closed,cancelled,refunded',
+            'tsq' => 'nullable|string|max:255|unique:leads,tsq',
         ]);
 
         $data = $validated;
@@ -584,6 +608,7 @@ class LeadController extends Controller
                 'assigned_user_id' => 'nullable|exists:users,id',
                 'status' => 'required|in:new,contacted,follow_up,priority,booked,closed,cancelled,refunded',
                 'reassigned_to' => 'nullable|exists:users,id',
+                'tsq' => 'nullable|string|max:255|unique:leads,tsq,' . $lead->id,
             ]);
 
             $validated['children_2_5'] = $validated['children_2_5'] ?? 0;

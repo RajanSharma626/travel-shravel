@@ -37,40 +37,55 @@
                                                 <label class="form-label">Country</label>
                                                 <select name="country" class="form-select">
                                                     <option value="">-- Select Country --</option>
-                                                    <option value="India" {{ old('country') == 'India' ? 'selected' : '' }}>India</option>
-                                                    <option value="Afghanistan" {{ old('country') == 'Afghanistan' ? 'selected' : '' }}>Afghanistan</option>
+                                                    <option value="Abu Dhabi" {{ old('country') == 'Abu Dhabi' ? 'selected' : '' }}>Abu Dhabi</option>
+                                                    <option value="America" {{ old('country') == 'America' ? 'selected' : '' }}>America</option>
                                                     <option value="Australia" {{ old('country') == 'Australia' ? 'selected' : '' }}>Australia</option>
-                                                    <option value="Bangladesh" {{ old('country') == 'Bangladesh' ? 'selected' : '' }}>Bangladesh</option>
+                                                    <option value="Austria" {{ old('country') == 'Austria' ? 'selected' : '' }}>Austria</option>
+                                                    <option value="Azerbaijan" {{ old('country') == 'Azerbaijan' ? 'selected' : '' }}>Azerbaijan</option>
+                                                    <option value="Belgium" {{ old('country') == 'Belgium' ? 'selected' : '' }}>Belgium</option>
                                                     <option value="Bhutan" {{ old('country') == 'Bhutan' ? 'selected' : '' }}>Bhutan</option>
-                                                    <option value="Brazil" {{ old('country') == 'Brazil' ? 'selected' : '' }}>Brazil</option>
+                                                    <option value="Cambodia" {{ old('country') == 'Cambodia' ? 'selected' : '' }}>Cambodia</option>
                                                     <option value="Canada" {{ old('country') == 'Canada' ? 'selected' : '' }}>Canada</option>
-                                                    <option value="China" {{ old('country') == 'China' ? 'selected' : '' }}>China</option>
+                                                    <option value="Croatia" {{ old('country') == 'Croatia' ? 'selected' : '' }}>Croatia</option>
+                                                    <option value="Denmark" {{ old('country') == 'Denmark' ? 'selected' : '' }}>Denmark</option>
+                                                    <option value="Dubai" {{ old('country') == 'Dubai' ? 'selected' : '' }}>Dubai</option>
+                                                    <option value="Finland" {{ old('country') == 'Finland' ? 'selected' : '' }}>Finland</option>
                                                     <option value="France" {{ old('country') == 'France' ? 'selected' : '' }}>France</option>
+                                                    <option value="Georgia" {{ old('country') == 'Georgia' ? 'selected' : '' }}>Georgia</option>
                                                     <option value="Germany" {{ old('country') == 'Germany' ? 'selected' : '' }}>Germany</option>
+                                                    <option value="Greece" {{ old('country') == 'Greece' ? 'selected' : '' }}>Greece</option>
+                                                    <option value="Hong Kong" {{ old('country') == 'Hong Kong' ? 'selected' : '' }}>Hong Kong</option>
+                                                    <option value="Iceland" {{ old('country') == 'Iceland' ? 'selected' : '' }}>Iceland</option>
+                                                    <option value="India" {{ old('country') == 'India' ? 'selected' : '' }}>India</option>
                                                     <option value="Indonesia" {{ old('country') == 'Indonesia' ? 'selected' : '' }}>Indonesia</option>
+                                                    <option value="Ireland" {{ old('country') == 'Ireland' ? 'selected' : '' }}>Ireland</option>
                                                     <option value="Italy" {{ old('country') == 'Italy' ? 'selected' : '' }}>Italy</option>
-                                                    <option value="Japan" {{ old('country') == 'Japan' ? 'selected' : '' }}>Japan</option>
+                                                    <option value="Kazakhstan" {{ old('country') == 'Kazakhstan' ? 'selected' : '' }}>Kazakhstan</option>
+                                                    <option value="Laos" {{ old('country') == 'Laos' ? 'selected' : '' }}>Laos</option>
+                                                    <option value="Lithuania" {{ old('country') == 'Lithuania' ? 'selected' : '' }}>Lithuania</option>
+                                                    <option value="Luxembourg" {{ old('country') == 'Luxembourg' ? 'selected' : '' }}>Luxembourg</option>
+                                                    <option value="Macau" {{ old('country') == 'Macau' ? 'selected' : '' }}>Macau</option>
                                                     <option value="Malaysia" {{ old('country') == 'Malaysia' ? 'selected' : '' }}>Malaysia</option>
-                                                    <option value="Maldives" {{ old('country') == 'Maldives' ? 'selected' : '' }}>Maldives</option>
                                                     <option value="Mauritius" {{ old('country') == 'Mauritius' ? 'selected' : '' }}>Mauritius</option>
-                                                    <option value="Myanmar" {{ old('country') == 'Myanmar' ? 'selected' : '' }}>Myanmar</option>
+                                                    <option value="Moldova" {{ old('country') == 'Moldova' ? 'selected' : '' }}>Moldova</option>
                                                     <option value="Nepal" {{ old('country') == 'Nepal' ? 'selected' : '' }}>Nepal</option>
+                                                    <option value="Netherlands" {{ old('country') == 'Netherlands' ? 'selected' : '' }}>Netherlands</option>
                                                     <option value="New Zealand" {{ old('country') == 'New Zealand' ? 'selected' : '' }}>New Zealand</option>
-                                                    <option value="Pakistan" {{ old('country') == 'Pakistan' ? 'selected' : '' }}>Pakistan</option>
-                                                    <option value="Philippines" {{ old('country') == 'Philippines' ? 'selected' : '' }}>Philippines</option>
+                                                    <option value="Norway" {{ old('country') == 'Norway' ? 'selected' : '' }}>Norway</option>
+                                                    <option value="Phu Quoc" {{ old('country') == 'Phu Quoc' ? 'selected' : '' }}>Phu Quoc</option>
+                                                    <option value="Poland" {{ old('country') == 'Poland' ? 'selected' : '' }}>Poland</option>
+                                                    <option value="Portugal" {{ old('country') == 'Portugal' ? 'selected' : '' }}>Portugal</option>
                                                     <option value="Russia" {{ old('country') == 'Russia' ? 'selected' : '' }}>Russia</option>
                                                     <option value="Singapore" {{ old('country') == 'Singapore' ? 'selected' : '' }}>Singapore</option>
-                                                    <option value="South Africa" {{ old('country') == 'South Africa' ? 'selected' : '' }}>South Africa</option>
-                                                    <option value="South Korea" {{ old('country') == 'South Korea' ? 'selected' : '' }}>South Korea</option>
-                                                    <option value="Sri Lanka" {{ old('country') == 'Sri Lanka' ? 'selected' : '' }}>Sri Lanka</option>
+                                                    <option value="Spain" {{ old('country') == 'Spain' ? 'selected' : '' }}>Spain</option>
+                                                    <option value="Srilanka" {{ old('country') == 'Srilanka' ? 'selected' : '' }}>Srilanka</option>
+                                                    <option value="Sweden" {{ old('country') == 'Sweden' ? 'selected' : '' }}>Sweden</option>
                                                     <option value="Switzerland" {{ old('country') == 'Switzerland' ? 'selected' : '' }}>Switzerland</option>
                                                     <option value="Thailand" {{ old('country') == 'Thailand' ? 'selected' : '' }}>Thailand</option>
                                                     <option value="Turkey" {{ old('country') == 'Turkey' ? 'selected' : '' }}>Turkey</option>
-                                                    <option value="United Arab Emirates" {{ old('country') == 'United Arab Emirates' ? 'selected' : '' }}>United Arab Emirates</option>
                                                     <option value="United Kingdom" {{ old('country') == 'United Kingdom' ? 'selected' : '' }}>United Kingdom</option>
-                                                    <option value="United States" {{ old('country') == 'United States' ? 'selected' : '' }}>United States</option>
+                                                    <option value="Vatican City" {{ old('country') == 'Vatican City' ? 'selected' : '' }}>Vatican City</option>
                                                     <option value="Vietnam" {{ old('country') == 'Vietnam' ? 'selected' : '' }}>Vietnam</option>
-                                                    <option value="Other" {{ old('country') == 'Other' ? 'selected' : '' }}>Other</option>
                                                 </select>
                                             </div>
                                             <div class="col-12 mb-3">

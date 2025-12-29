@@ -1691,6 +1691,7 @@
                                     <label class="form-label">Meal Plan</label>
                                     <select class="form-select form-select-sm" id="modalMealPlan">
                                         <option value="">-- Select --</option>
+                                        <option value="EP">EP</option>
                                         <option value="CP">CP</option>
                                         <option value="MAP">MAP</option>
                                         <option value="AP">AP</option>

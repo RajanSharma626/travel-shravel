@@ -1,6 +1,10 @@
 @extends('layouts.app')
 @section('title', 'Leads | Travel Shravel')
 @section('content')
+@php
+    $canEditLeads = Auth::user()->can('edit leads') || Auth::user()->hasRole('Customer Care') || Auth::user()->department === 'Customer Care';
+    $canDeleteLeads = Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Developer');
+@endphp
     <!-- Toast Container -->
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
         <div id="remarkToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 300px;"
@@ -75,7 +79,7 @@
                                 </form>
 
                                 <!-- Bulk Actions Bar -->
-                                @can('edit leads')
+                                @if ($canEditLeads)
                                     <div id="bulkActionsBar" class="alert alert-info mb-3 d-none" role="alert">
                                         <div class="d-flex align-items-center justify-content-between">
                                             <div>
@@ -93,7 +97,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                @endcan
+                                @endif
 
                                 @if (isset($leads) && $leads->count() > 0)
                                     <div class="text-muted small mb-2 px-3">
@@ -104,11 +108,11 @@
                                 <table class="table table-striped small table-bordered w-100 mb-5" id="leadsTable">
                                     <thead>
                                         <tr>
-                                            @can('edit leads')
+                                            @if ($canEditLeads)
                                                 <th width="40">
                                                     <input type="checkbox" id="selectAllLeads" class="form-check-input">
                                                 </th>
-                                            @endcan
+                                            @endif
                                             <th>Ref No.</th>
                                             <th>Customer Name</th>
                                             <th>Phone</th>
@@ -121,13 +125,13 @@
                                     <tbody>
                                         @forelse ($leads as $lead)
                                             <tr>
-                                                @can('edit leads')
+                                                @if ($canEditLeads)
                                                     <td>
                                                         <input type="checkbox" class="form-check-input lead-checkbox"
                                                             value="{{ $lead->id }}"
                                                             data-lead-name="{{ $lead->customer_name }}">
                                                     </td>
-                                                @endcan
+                                                @endif
                                                 <td><strong>{{ $lead->tsq }}</strong></td>
                                                 <td>
                                                     <a href="#"
@@ -204,7 +208,7 @@
                                                                     </span>
                                                                 </a>
 
-                                                                @can('edit leads')
+                                                                @if ($canEditLeads)
                                                                     <a href="#"
                                                                         class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover edit-lead-btn"
                                                                         data-lead-id="{{ $lead->id }}"
@@ -231,8 +235,8 @@
                                                                             </span>
                                                                         </a>
                                                                     @endif
-                                                                @endcan
-                                                                @can('delete leads')
+                                                                @endif
+                                                                @if ($canDeleteLeads)
                                                                     <form
                                                                         action="{{ route($destroyRoute ?? 'leads.destroy', $lead) }}"
                                                                         method="POST" class="d-inline delete-lead-form"
@@ -251,7 +255,7 @@
                                                                             </span>
                                                                         </button>
                                                                     </form>
-                                                                @endcan
+                                                                @endif
                                                             @endif
 
                                                             @if ($lead->status == 'booked' && !Auth::user()->hasRole('Customer Care') && !request()->routeIs('customer-care.*'))
@@ -272,7 +276,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="{{ Auth::user()->can('edit leads') ? 8 : 7 }}"
+                                                <td colspan="{{ $canEditLeads ? 8 : 7 }}"
                                                     class="text-center">No leads found</td>
                                             </tr>
                                         @endforelse
@@ -391,77 +395,55 @@
                                     <label class="form-label">Country</label>
                                     <select name="country" class="form-select form-select-sm">
                                         <option value="">-- Select Country --</option>
-                                        <option value="India" {{ old('country') == 'India' ? 'selected' : '' }}>India
-                                        </option>
-                                        <option value="Afghanistan"
-                                            {{ old('country') == 'Afghanistan' ? 'selected' : '' }}>Afghanistan</option>
-                                        <option value="Australia" {{ old('country') == 'Australia' ? 'selected' : '' }}>
-                                            Australia</option>
-                                        <option value="Bangladesh" {{ old('country') == 'Bangladesh' ? 'selected' : '' }}>
-                                            Bangladesh</option>
-                                        <option value="Bhutan" {{ old('country') == 'Bhutan' ? 'selected' : '' }}>Bhutan
-                                        </option>
-                                        <option value="Brazil" {{ old('country') == 'Brazil' ? 'selected' : '' }}>Brazil
-                                        </option>
-                                        <option value="Canada" {{ old('country') == 'Canada' ? 'selected' : '' }}>Canada
-                                        </option>
-                                        <option value="China" {{ old('country') == 'China' ? 'selected' : '' }}>China
-                                        </option>
-                                        <option value="France" {{ old('country') == 'France' ? 'selected' : '' }}>France
-                                        </option>
-                                        <option value="Germany" {{ old('country') == 'Germany' ? 'selected' : '' }}>
-                                            Germany</option>
-                                        <option value="Indonesia" {{ old('country') == 'Indonesia' ? 'selected' : '' }}>
-                                            Indonesia</option>
-                                        <option value="Italy" {{ old('country') == 'Italy' ? 'selected' : '' }}>Italy
-                                        </option>
-                                        <option value="Japan" {{ old('country') == 'Japan' ? 'selected' : '' }}>Japan
-                                        </option>
-                                        <option value="Malaysia" {{ old('country') == 'Malaysia' ? 'selected' : '' }}>
-                                            Malaysia</option>
-                                        <option value="Maldives" {{ old('country') == 'Maldives' ? 'selected' : '' }}>
-                                            Maldives</option>
-                                        <option value="Mauritius" {{ old('country') == 'Mauritius' ? 'selected' : '' }}>
-                                            Mauritius</option>
-                                        <option value="Myanmar" {{ old('country') == 'Myanmar' ? 'selected' : '' }}>
-                                            Myanmar</option>
-                                        <option value="Nepal" {{ old('country') == 'Nepal' ? 'selected' : '' }}>Nepal
-                                        </option>
-                                        <option value="New Zealand"
-                                            {{ old('country') == 'New Zealand' ? 'selected' : '' }}>New Zealand</option>
-                                        <option value="Pakistan" {{ old('country') == 'Pakistan' ? 'selected' : '' }}>
-                                            Pakistan</option>
-                                        <option value="Philippines"
-                                            {{ old('country') == 'Philippines' ? 'selected' : '' }}>Philippines</option>
-                                        <option value="Russia" {{ old('country') == 'Russia' ? 'selected' : '' }}>Russia
-                                        </option>
-                                        <option value="Singapore" {{ old('country') == 'Singapore' ? 'selected' : '' }}>
-                                            Singapore</option>
-                                        <option value="South Africa"
-                                            {{ old('country') == 'South Africa' ? 'selected' : '' }}>South Africa</option>
-                                        <option value="South Korea"
-                                            {{ old('country') == 'South Korea' ? 'selected' : '' }}>South Korea</option>
-                                        <option value="Sri Lanka" {{ old('country') == 'Sri Lanka' ? 'selected' : '' }}>
-                                            Sri Lanka</option>
-                                        <option value="Switzerland"
-                                            {{ old('country') == 'Switzerland' ? 'selected' : '' }}>Switzerland</option>
-                                        <option value="Thailand" {{ old('country') == 'Thailand' ? 'selected' : '' }}>
-                                            Thailand</option>
-                                        <option value="Turkey" {{ old('country') == 'Turkey' ? 'selected' : '' }}>Turkey
-                                        </option>
-                                        <option value="United Arab Emirates"
-                                            {{ old('country') == 'United Arab Emirates' ? 'selected' : '' }}>United Arab
-                                            Emirates</option>
-                                        <option value="United Kingdom"
-                                            {{ old('country') == 'United Kingdom' ? 'selected' : '' }}>United Kingdom
-                                        </option>
-                                        <option value="United States"
-                                            {{ old('country') == 'United States' ? 'selected' : '' }}>United States
-                                        </option>
-                                        <option value="Vietnam" {{ old('country') == 'Vietnam' ? 'selected' : '' }}>
-                                            Vietnam</option>
-                                        <option value="Other" {{ old('country') == 'Other' ? 'selected' : '' }}>Other
-                                        </option>
+                                        <option value="Abu Dhabi" {{ old('country') == 'Abu Dhabi' ? 'selected' : '' }}>Abu Dhabi</option>
+                                        <option value="America" {{ old('country') == 'America' ? 'selected' : '' }}>America</option>
+                                        <option value="Australia" {{ old('country') == 'Australia' ? 'selected' : '' }}>Australia</option>
+                                        <option value="Austria" {{ old('country') == 'Austria' ? 'selected' : '' }}>Austria</option>
+                                        <option value="Azerbaijan" {{ old('country') == 'Azerbaijan' ? 'selected' : '' }}>Azerbaijan</option>
+                                        <option value="Belgium" {{ old('country') == 'Belgium' ? 'selected' : '' }}>Belgium</option>
+                                        <option value="Bhutan" {{ old('country') == 'Bhutan' ? 'selected' : '' }}>Bhutan</option>
+                                        <option value="Cambodia" {{ old('country') == 'Cambodia' ? 'selected' : '' }}>Cambodia</option>
+                                        <option value="Canada" {{ old('country') == 'Canada' ? 'selected' : '' }}>Canada</option>
+                                        <option value="Croatia" {{ old('country') == 'Croatia' ? 'selected' : '' }}>Croatia</option>
+                                        <option value="Denmark" {{ old('country') == 'Denmark' ? 'selected' : '' }}>Denmark</option>
+                                        <option value="Dubai" {{ old('country') == 'Dubai' ? 'selected' : '' }}>Dubai</option>
+                                        <option value="Finland" {{ old('country') == 'Finland' ? 'selected' : '' }}>Finland</option>
+                                        <option value="France" {{ old('country') == 'France' ? 'selected' : '' }}>France</option>
+                                        <option value="Georgia" {{ old('country') == 'Georgia' ? 'selected' : '' }}>Georgia</option>
+                                        <option value="Germany" {{ old('country') == 'Germany' ? 'selected' : '' }}>Germany</option>
+                                        <option value="Greece" {{ old('country') == 'Greece' ? 'selected' : '' }}>Greece</option>
+                                        <option value="Hong Kong" {{ old('country') == 'Hong Kong' ? 'selected' : '' }}>Hong Kong</option>
+                                        <option value="Iceland" {{ old('country') == 'Iceland' ? 'selected' : '' }}>Iceland</option>
+                                        <option value="India" {{ old('country') == 'India' ? 'selected' : '' }}>India</option>
+                                        <option value="Indonesia" {{ old('country') == 'Indonesia' ? 'selected' : '' }}>Indonesia</option>
+                                        <option value="Ireland" {{ old('country') == 'Ireland' ? 'selected' : '' }}>Ireland</option>
+                                        <option value="Italy" {{ old('country') == 'Italy' ? 'selected' : '' }}>Italy</option>
+                                        <option value="Kazakhstan" {{ old('country') == 'Kazakhstan' ? 'selected' : '' }}>Kazakhstan</option>
+                                        <option value="Laos" {{ old('country') == 'Laos' ? 'selected' : '' }}>Laos</option>
+                                        <option value="Lithuania" {{ old('country') == 'Lithuania' ? 'selected' : '' }}>Lithuania</option>
+                                        <option value="Luxembourg" {{ old('country') == 'Luxembourg' ? 'selected' : '' }}>Luxembourg</option>
+                                        <option value="Macau" {{ old('country') == 'Macau' ? 'selected' : '' }}>Macau</option>
+                                        <option value="Malaysia" {{ old('country') == 'Malaysia' ? 'selected' : '' }}>Malaysia</option>
+                                        <option value="Mauritius" {{ old('country') == 'Mauritius' ? 'selected' : '' }}>Mauritius</option>
+                                        <option value="Moldova" {{ old('country') == 'Moldova' ? 'selected' : '' }}>Moldova</option>
+                                        <option value="Nepal" {{ old('country') == 'Nepal' ? 'selected' : '' }}>Nepal</option>
+                                        <option value="Netherlands" {{ old('country') == 'Netherlands' ? 'selected' : '' }}>Netherlands</option>
+                                        <option value="New Zealand" {{ old('country') == 'New Zealand' ? 'selected' : '' }}>New Zealand</option>
+                                        <option value="Norway" {{ old('country') == 'Norway' ? 'selected' : '' }}>Norway</option>
+                                        <option value="Phu Quoc" {{ old('country') == 'Phu Quoc' ? 'selected' : '' }}>Phu Quoc</option>
+                                        <option value="Poland" {{ old('country') == 'Poland' ? 'selected' : '' }}>Poland</option>
+                                        <option value="Portugal" {{ old('country') == 'Portugal' ? 'selected' : '' }}>Portugal</option>
+                                        <option value="Russia" {{ old('country') == 'Russia' ? 'selected' : '' }}>Russia</option>
+                                        <option value="Singapore" {{ old('country') == 'Singapore' ? 'selected' : '' }}>Singapore</option>
+                                        <option value="Spain" {{ old('country') == 'Spain' ? 'selected' : '' }}>Spain</option>
+                                        <option value="Srilanka" {{ old('country') == 'Srilanka' ? 'selected' : '' }}>Srilanka</option>
+                                        <option value="Sweden" {{ old('country') == 'Sweden' ? 'selected' : '' }}>Sweden</option>
+                                        <option value="Switzerland" {{ old('country') == 'Switzerland' ? 'selected' : '' }}>Switzerland</option>
+                                        <option value="Thailand" {{ old('country') == 'Thailand' ? 'selected' : '' }}>Thailand</option>
+                                        <option value="Turkey" {{ old('country') == 'Turkey' ? 'selected' : '' }}>Turkey</option>
+                                        <option value="United Kingdom" {{ old('country') == 'United Kingdom' ? 'selected' : '' }}>United Kingdom</option>
+                                        <option value="Vatican City" {{ old('country') == 'Vatican City' ? 'selected' : '' }}>Vatican City</option>
+                                        <option value="Vietnam" {{ old('country') == 'Vietnam' ? 'selected' : '' }}>Vietnam</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -845,40 +827,55 @@
                                         <label class="form-label">Country</label>
                                         <select name="country" id="editCountry" class="form-select form-select-sm">
                                             <option value="">-- Select Country --</option>
-                                            <option value="India">India</option>
-                                            <option value="Afghanistan">Afghanistan</option>
+                                            <option value="Abu Dhabi">Abu Dhabi</option>
+                                            <option value="America">America</option>
                                             <option value="Australia">Australia</option>
-                                            <option value="Bangladesh">Bangladesh</option>
+                                            <option value="Austria">Austria</option>
+                                            <option value="Azerbaijan">Azerbaijan</option>
+                                            <option value="Belgium">Belgium</option>
                                             <option value="Bhutan">Bhutan</option>
-                                            <option value="Brazil">Brazil</option>
+                                            <option value="Cambodia">Cambodia</option>
                                             <option value="Canada">Canada</option>
-                                            <option value="China">China</option>
+                                            <option value="Croatia">Croatia</option>
+                                            <option value="Denmark">Denmark</option>
+                                            <option value="Dubai">Dubai</option>
+                                            <option value="Finland">Finland</option>
                                             <option value="France">France</option>
+                                            <option value="Georgia">Georgia</option>
                                             <option value="Germany">Germany</option>
+                                            <option value="Greece">Greece</option>
+                                            <option value="Hong Kong">Hong Kong</option>
+                                            <option value="Iceland">Iceland</option>
+                                            <option value="India">India</option>
                                             <option value="Indonesia">Indonesia</option>
+                                            <option value="Ireland">Ireland</option>
                                             <option value="Italy">Italy</option>
-                                            <option value="Japan">Japan</option>
+                                            <option value="Kazakhstan">Kazakhstan</option>
+                                            <option value="Laos">Laos</option>
+                                            <option value="Lithuania">Lithuania</option>
+                                            <option value="Luxembourg">Luxembourg</option>
+                                            <option value="Macau">Macau</option>
                                             <option value="Malaysia">Malaysia</option>
-                                            <option value="Maldives">Maldives</option>
                                             <option value="Mauritius">Mauritius</option>
-                                            <option value="Myanmar">Myanmar</option>
+                                            <option value="Moldova">Moldova</option>
                                             <option value="Nepal">Nepal</option>
+                                            <option value="Netherlands">Netherlands</option>
                                             <option value="New Zealand">New Zealand</option>
-                                            <option value="Pakistan">Pakistan</option>
-                                            <option value="Philippines">Philippines</option>
+                                            <option value="Norway">Norway</option>
+                                            <option value="Phu Quoc">Phu Quoc</option>
+                                            <option value="Poland">Poland</option>
+                                            <option value="Portugal">Portugal</option>
                                             <option value="Russia">Russia</option>
                                             <option value="Singapore">Singapore</option>
-                                            <option value="South Africa">South Africa</option>
-                                            <option value="South Korea">South Korea</option>
-                                            <option value="Sri Lanka">Sri Lanka</option>
+                                            <option value="Spain">Spain</option>
+                                            <option value="Srilanka">Srilanka</option>
+                                            <option value="Sweden">Sweden</option>
                                             <option value="Switzerland">Switzerland</option>
                                             <option value="Thailand">Thailand</option>
                                             <option value="Turkey">Turkey</option>
-                                            <option value="United Arab Emirates">United Arab Emirates</option>
                                             <option value="United Kingdom">United Kingdom</option>
-                                            <option value="United States">United States</option>
+                                            <option value="Vatican City">Vatican City</option>
                                             <option value="Vietnam">Vietnam</option>
-                                            <option value="Other">Other</option>
                                         </select>
                                     </div>
                                     <div class="col-md-3">
@@ -1084,7 +1081,7 @@
     </div>
 
     <!-- Bulk Assign Modal -->
-    @can('edit leads')
+    @if ($canEditLeads)
         <div class="modal fade" id="bulkAssignModal" tabindex="-1" aria-labelledby="bulkAssignModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -1134,7 +1131,7 @@
                 </div>
             </div>
         </div>
-    @endcan
+    @endif
 
     @push('styles')
         <style>

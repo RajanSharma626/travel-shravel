@@ -52,8 +52,8 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     // });
 
     // Services - Accessible to all authenticated users
-    Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
-    Route::post('/services', [ServiceController::class, 'store'])->name('services.store');
+        Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
+        Route::post('/services', [ServiceController::class, 'store'])->name('services.store');
     // Redirect create and edit routes to index since forms are now on index page
     Route::get('/services/create', function () {
         return redirect()->route('services.index');
@@ -61,18 +61,18 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     Route::get('/services/{service}/edit', function () {
         return redirect()->route('services.index');
     })->name('services.edit');
-    Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
-    Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
-    Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
+        Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
+        Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
+        Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
 
     // Destinations - Accessible to all authenticated users
-    Route::get('/destinations', [DestinationController::class, 'index'])->name('destinations.index');
-    Route::get('/destinations/create', [DestinationController::class, 'create'])->name('destinations.create');
-    Route::post('/destinations', [DestinationController::class, 'store'])->name('destinations.store');
-    Route::get('/destinations/{destination}/edit', [DestinationController::class, 'edit'])->name('destinations.edit');
-    Route::put('/destinations/{destination}', [DestinationController::class, 'update'])->name('destinations.update');
-    Route::delete('/destinations/{destination}', [DestinationController::class, 'destroy'])->name('destinations.destroy');
-    Route::get('/destinations/{destination}', [DestinationController::class, 'show'])->name('destinations.show');
+        Route::get('/destinations', [DestinationController::class, 'index'])->name('destinations.index');
+        Route::get('/destinations/create', [DestinationController::class, 'create'])->name('destinations.create');
+        Route::post('/destinations', [DestinationController::class, 'store'])->name('destinations.store');
+        Route::get('/destinations/{destination}/edit', [DestinationController::class, 'edit'])->name('destinations.edit');
+        Route::put('/destinations/{destination}', [DestinationController::class, 'update'])->name('destinations.update');
+        Route::delete('/destinations/{destination}', [DestinationController::class, 'destroy'])->name('destinations.destroy');
+        Route::get('/destinations/{destination}', [DestinationController::class, 'show'])->name('destinations.show');
 
     // Customer Care Routes
     Route::prefix('customer-care')->name('customer-care.')->middleware(['auth', 'check.active'])->group(function () {

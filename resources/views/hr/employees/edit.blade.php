@@ -131,7 +131,18 @@
                                                             <option value="Delivery"
                                                                 {{ old('department', $employee->department) == 'Delivery' ? 'selected' : '' }}>
                                                                 Delivery</option>
-
+                                                            <option value="Ticketing"
+                                                                {{ old('department', $employee->department) == 'Ticketing' ? 'selected' : '' }}>
+                                                                Ticketing</option>
+                                                            <option value="Cruise"
+                                                                {{ old('department', $employee->department) == 'Cruise' ? 'selected' : '' }}>
+                                                                Cruise</option>
+                                                            <option value="Visa"
+                                                                {{ old('department', $employee->department) == 'Visa' ? 'selected' : '' }}>
+                                                                Visa</option>
+                                                            <option value="Insurance"
+                                                                {{ old('department', $employee->department) == 'Insurance' ? 'selected' : '' }}>
+                                                                Insurance</option>
                                                             <option value="HR"
                                                                 {{ old('department', $employee->department) == 'HR' ? 'selected' : '' }}>
                                                                 HR</option>
@@ -223,6 +234,9 @@
                                                             <option value="On Hold"
                                                                 {{ old('employment_status', $employee->employment_status) == 'On Hold' ? 'selected' : '' }}>
                                                                 On Hold</option>
+                                                            <option value="Completed"
+                                                                {{ old('employment_status', $employee->employment_status) == 'Completed' ? 'selected' : '' }}>
+                                                                Completed</option>
                                                         </select>
                                                     </div>
                                                     <div class="col-md-3">
@@ -394,7 +408,7 @@
                                                     </div>
                                                     <div class="col-md-3">
                                                         <label class="form-label">PAN Number</label>
-                                                        <input type="text" name="pan_number"
+                                                        <input type="text" name="pan_number" id="panNumber"
                                                             class="form-control form-control-sm"
                                                             value="{{ old('pan_number', $employee->pan_number) }}">
                                                     </div>
@@ -538,6 +552,13 @@
                                                                 class="form-control form-control-sm"
                                                                 value="{{ old('uan_number', $employee->uan_number) }}">
                                                         </div>
+                                                        <div class="col-md-3">
+                                                            <label class="form-label">PAN Card Number</label>
+                                                            <input type="text" id="panCardNumber"
+                                                                class="form-control form-control-sm"
+                                                                value="{{ old('pan_number', $employee->pan_number) }}" readonly
+                                                                style="background-color: #f8f9fa; cursor: not-allowed;">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -583,66 +604,82 @@
                                                                 class="form-control form-control-sm"
                                                                 value="{{ old('exit_interview_notes', $employee->exit_interview_notes) }}">
                                                         </div>
-                                                        <div class="col-md-9">
-                                                            <div class="row g-2">
-                                                                <div class="col-md-3">
-                                                                    <div class="form-check mt-4">
-                                                                        <input class="form-check-input" type="checkbox"
-                                                                            name="service_certificate_issued"
-                                                                            value="1" id="serviceCertificateIssued"
-                                                                            {{ old('service_certificate_issued', $employee->service_certificate_issued) ? 'checked' : '' }}>
-                                                                        <label class="form-check-label"
-                                                                            for="serviceCertificateIssued">
-                                                                            Service Certificate Issued
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-3">
-                                                                    <label class="form-label">Issuing Date</label>
-                                                                    <input type="text"
-                                                                        name="service_certificate_issue_date"
-                                                                        class="form-control form-control-sm"
-                                                                        value="{{ old('service_certificate_issue_date', $employee->service_certificate_issue_date) }}">
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <label class="form-label d-block">Assets & Dues</label>
-                                                                    <div class="d-flex flex-wrap gap-3">
-                                                                        <div class="form-check">
-                                                                            <input class="form-check-input"
-                                                                                type="checkbox" name="handed_over_laptop"
-                                                                                value="1" id="handedOverLaptop"
-                                                                                {{ old('handed_over_laptop', $employee->handed_over_laptop) ? 'checked' : '' }}>
-                                                                            <label class="form-check-label"
-                                                                                for="handedOverLaptop">Laptop</label>
-                                                                        </div>
-                                                                        <div class="form-check">
-                                                                            <input class="form-check-input"
-                                                                                type="checkbox" name="handed_over_mobile"
-                                                                                value="1" id="handedOverMobile"
-                                                                                {{ old('handed_over_mobile', $employee->handed_over_mobile) ? 'checked' : '' }}>
-                                                                            <label class="form-check-label"
-                                                                                for="handedOverMobile">Mobile</label>
-                                                                        </div>
-                                                                        <div class="form-check">
-                                                                            <input class="form-check-input"
-                                                                                type="checkbox" name="handed_over_id_card"
-                                                                                value="1" id="handedOverIdCard"
-                                                                                {{ old('handed_over_id_card', $employee->handed_over_id_card) ? 'checked' : '' }}>
-                                                                            <label class="form-check-label"
-                                                                                for="handedOverIdCard">ID Card</label>
-                                                                        </div>
-                                                                        <div class="form-check">
-                                                                            <input class="form-check-input"
-                                                                                type="checkbox" name="all_dues_cleared"
-                                                                                value="1" id="allDuesCleared"
-                                                                                {{ old('all_dues_cleared', $employee->all_dues_cleared) ? 'checked' : '' }}>
-                                                                            <label class="form-check-label"
-                                                                                for="allDuesCleared">All Dues
-                                                                                Cleared?</label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+
+                                                        <div class="col-md-3">
+                                                            <label class="form-label" for="serviceCertificateIssued">
+                                                                Service Certificate Issued
+                                                            </label>
+
+                                                            <select name="service_certificate_issued"
+                                                                class="form-control form-control-sm">
+                                                                <option value="">Select</option>
+                                                                <option value="Yes"
+                                                                    {{ old('service_certificate_issued', $employee->service_certificate_issued) == 'Yes' || old('service_certificate_issued', $employee->service_certificate_issued) == '1' || old('service_certificate_issued', $employee->service_certificate_issued) == 1 ? 'selected' : '' }}>
+                                                                    Yes</option>
+                                                                <option value="No"
+                                                                    {{ old('service_certificate_issued', $employee->service_certificate_issued) == 'No' ? 'selected' : '' }}>
+                                                                    No</option>
+                                                            </select>
+
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label class="form-label">Issuing Date</label>
+                                                            <input type="date" name="service_certificate_issue_date"
+                                                                class="form-control form-control-sm"
+                                                                value="{{ old('service_certificate_issue_date', $employee->service_certificate_issue_date ? \Carbon\Carbon::parse($employee->service_certificate_issue_date)->format('Y-m-d') : '') }}">
+                                                        </div>
+                                                        <div class="col-md-3">
+
+                                                            <label class="form-label">Laptop Handed Over?</label>
+                                                            <select name="handed_over_laptop"
+                                                                class="form-control form-control-sm">
+                                                                <option value="">Select</option>
+                                                                <option value="Yes"
+                                                                    {{ old('handed_over_laptop', $employee->handed_over_laptop) == 'Yes' || old('handed_over_laptop', $employee->handed_over_laptop) == '1' || old('handed_over_laptop', $employee->handed_over_laptop) == 1 ? 'selected' : '' }}>
+                                                                    Yes</option>
+                                                                <option value="No"
+                                                                    {{ old('handed_over_laptop', $employee->handed_over_laptop) == 'No' ? 'selected' : '' }}>
+                                                                    No</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label class="form-label">Mobile Handed Over?</label>
+                                                            <select name="handed_over_mobile"
+                                                                class="form-control form-control-sm">
+                                                                <option value="">Select</option>
+                                                                <option value="Yes"
+                                                                    {{ old('handed_over_mobile', $employee->handed_over_mobile) == 'Yes' || old('handed_over_mobile', $employee->handed_over_mobile) == '1' || old('handed_over_mobile', $employee->handed_over_mobile) == 1 ? 'selected' : '' }}>
+                                                                    Yes</option>
+                                                                <option value="No"
+                                                                    {{ old('handed_over_mobile', $employee->handed_over_mobile) == 'No' ? 'selected' : '' }}>
+                                                                    No</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label class="form-label">ID Card Handed Over?</label>
+                                                            <select name="handed_over_id_card"
+                                                                class="form-control form-control-sm">
+                                                                <option value="">Select</option>
+                                                                <option value="Yes"
+                                                                    {{ old('handed_over_id_card', $employee->handed_over_id_card) == 'Yes' || old('handed_over_id_card', $employee->handed_over_id_card) == '1' || old('handed_over_id_card', $employee->handed_over_id_card) == 1 ? 'selected' : '' }}>
+                                                                    Yes</option>
+                                                                <option value="No"
+                                                                    {{ old('handed_over_id_card', $employee->handed_over_id_card) == 'No' ? 'selected' : '' }}>
+                                                                    No</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label class="form-label">All Dues Cleared?</label>
+                                                            <select name="all_dues_cleared"
+                                                                class="form-control form-control-sm">
+                                                                <option value="">Select</option>
+                                                                <option value="Yes"
+                                                                    {{ old('all_dues_cleared', $employee->all_dues_cleared) == 'Yes' || old('all_dues_cleared', $employee->all_dues_cleared) == '1' || old('all_dues_cleared', $employee->all_dues_cleared) == 1 ? 'selected' : '' }}>
+                                                                    Yes</option>
+                                                                <option value="No"
+                                                                    {{ old('all_dues_cleared', $employee->all_dues_cleared) == 'No' ? 'selected' : '' }}>
+                                                                    No</option>
+                                                            </select>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -666,4 +703,23 @@
         </div>
         @include('layouts.footer')
     </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const panNumberInput = document.getElementById('panNumber');
+                const panCardNumberInput = document.getElementById('panCardNumber');
+
+                if (panNumberInput && panCardNumberInput) {
+                    // Sync on input
+                    panNumberInput.addEventListener('input', function() {
+                        panCardNumberInput.value = this.value;
+                    });
+
+                    // Sync on page load (for existing values)
+                    panCardNumberInput.value = panNumberInput.value;
+                }
+            });
+        </script>
+    @endpush
 @endsection

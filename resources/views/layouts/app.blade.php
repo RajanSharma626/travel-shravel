@@ -280,28 +280,28 @@
                             @endif
 
                             <!-- Services - Visible to all users -->
-                            <li class="nav-item mb-2 {{ request()->is('services*') ? 'active' : '' }}">
-                                <a class="nav-link" href="{{ route('services.index') }}">
-                                    <span class="nav-icon-wrap">
-                                        <span class="svg-icon">
-                                            <i data-feather="briefcase" class="small"></i>
+                                <li class="nav-item mb-2 {{ request()->is('services*') ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('services.index') }}">
+                                        <span class="nav-icon-wrap">
+                                            <span class="svg-icon">
+                                                <i data-feather="briefcase" class="small"></i>
+                                            </span>
                                         </span>
-                                    </span>
-                                    <span class="nav-link-text">Services</span>
-                                </a>
-                            </li>
+                                        <span class="nav-link-text">Services</span>
+                                    </a>
+                                </li>
 
                             <!-- Destinations - Visible to all users -->
-                            <li class="nav-item mb-2 {{ request()->is('destinations*') ? 'active' : '' }}">
-                                <a class="nav-link" href="{{ route('destinations.index') }}">
-                                    <span class="nav-icon-wrap">
-                                        <span class="svg-icon">
-                                            <i data-feather="map-pin" class="small"></i>
+                                <li class="nav-item mb-2 {{ request()->is('destinations*') ? 'active' : '' }}">
+                                    <a class="nav-link" href="{{ route('destinations.index') }}">
+                                        <span class="nav-icon-wrap">
+                                            <span class="svg-icon">
+                                                <i data-feather="map-pin" class="small"></i>
+                                            </span>
                                         </span>
-                                    </span>
-                                    <span class="nav-link-text">Destinations</span>
-                                </a>
-                            </li>
+                                        <span class="nav-link-text">Destinations</span>
+                                    </a>
+                                </li>
 
                             <!-- Incentives -->
                             {{-- <li class="nav-item mb-2 {{ request()->is('incentives*') ? 'active' : '' }}">
