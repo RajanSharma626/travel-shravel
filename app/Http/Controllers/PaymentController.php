@@ -118,8 +118,8 @@ class PaymentController extends Controller
     {
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0',
-            'method' => 'required|in:Cash,UPI,NEFT,RTGS,WIB,Online,Cheque',
-                'payment_date' => 'required|date',
+            'method' => 'required|in:cash,bank_transfer,cheque,card,online',
+            'payment_date' => 'required|date',
             'due_date' => 'nullable|date',
             'reference' => 'nullable|string|max:255',
             'status' => 'required|in:pending,received,refunded',
@@ -213,7 +213,7 @@ class PaymentController extends Controller
         
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0',
-            'method' => 'required|in:Cash,UPI,NEFT,RTGS,WIB,Online,Cheque',
+            'method' => 'required|in:cash,bank_transfer,cheque,card,online',
             'payment_date' => 'required|date',
             'due_date' => 'nullable|date',
             'reference' => 'nullable|string|max:255',
@@ -301,7 +301,7 @@ class PaymentController extends Controller
     {
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0',
-            'method' => 'required|in:Cash,UPI,NEFT,RTGS,WIB,Online,Cheque',
+            'method' => 'required|in:cash,bank_transfer,cheque,card,online',
             'payment_date' => 'required|date',
             'due_date' => 'nullable|date',
             'reference' => 'nullable|string|max:255',
@@ -445,11 +445,11 @@ class PaymentController extends Controller
         $validated = $request->validate([
             'paid_amount' => 'nullable|numeric|min:0',
             'pending_amount' => 'nullable|numeric|min:0',
-            'payment_mode' => 'nullable|string|in:Cash,UPI,NEFT,RTGS,WIB,Online',
+            'payment_mode' => 'nullable|string|max:255',
             'ref_no' => 'nullable|string|max:255',
             'remarks' => 'nullable|string',
-            // Accounts may set status to Paid or Pending
-            'status' => 'required|string|in:Paid,Pending',
+            // Accounts may only set status to Paid here
+            'status' => 'required|string|in:Paid',
         ]);
 
         // Calculate pending amount if not provided

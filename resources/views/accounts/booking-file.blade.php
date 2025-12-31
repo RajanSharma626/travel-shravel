@@ -293,7 +293,7 @@
                                             <tbody id="vendorPaymentsAccountsTableBody">
                                                 @if(isset($vendorPayments) && $vendorPayments->count() > 0)
                                                     @foreach($vendorPayments as $vp)
-                                                        <tr data-vendor-payment-id="{{ $vp->id }}" data-status="{{ $vp->status ?? 'Pending' }}">
+                                                        <tr data-vendor-payment-id="{{ $vp->id }}">
                                                             <td>{{ $vp->vendor_code ?? '-' }}</td>
                                                             <td>{{ $vp->booking_type ?? '-' }}</td>
                                                             <td>{{ $vp->location ?? '-' }}</td>
@@ -344,7 +344,6 @@
                                                     <th>Due Date</th>
                                                     <th>Transaction ID</th>
                                                     <th>Status</th>
-                                                    <th class="text-center">Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -367,24 +366,11 @@
                                                                     {{ ucfirst($payment->status) }}
                                                                 </span>
                                                             </td>
-                                                            <td class="text-center">
-                                                                <button type="button" class="btn btn-sm btn-outline-primary edit-customer-payment-btn" 
-                                                                    data-payment-id="{{ $payment->id }}"
-                                                                    data-amount="{{ $payment->amount }}"
-                                                                    data-method="{{ $payment->method }}"
-                                                                    data-payment-date="{{ $payment->payment_date ? $payment->payment_date->format('Y-m-d') : '' }}"
-                                                                    data-due-date="{{ $payment->due_date ? $payment->due_date->format('Y-m-d') : '' }}"
-                                                                    data-reference="{{ $payment->reference }}"
-                                                                    data-status="{{ $payment->status }}"
-                                                                    data-bs-toggle="modal" data-bs-target="#editCustomerPaymentAccountsModal">
-                                                                    <i data-feather="edit" style="width: 14px; height: 14px;"></i>
-                                                                </button>
-                                                            </td>
                                                         </tr>
                                                     @endforeach
                                                 @else
                                                     <tr>
-                                                        <td colspan="7" class="text-center text-muted py-3">No customer payments recorded</td>
+                                                        <td colspan="6" class="text-center text-muted py-3">No customer payments recorded</td>
                                                     </tr>
                                                 @endif
                                             </tbody>
@@ -492,15 +478,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Payment Mode</label>
-                                <select class="form-select form-select-sm" id="accountsModalPaymentMode" name="payment_mode">
-                                    <option value="">-- Select --</option>
-                                    <option value="Cash">Cash</option>
-                                    <option value="UPI">UPI</option>
-                                    <option value="NEFT">NEFT</option>
-                                    <option value="RTGS">RTGS</option>
-                                    <option value="WIB">WIB</option>
-                                    <option value="Online">Online</option>
-                                </select>
+                                <input type="text" class="form-control form-control-sm" id="accountsModalPaymentMode" name="payment_mode" placeholder="e.g. UPI, Bank Transfer">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Ref. No.</label>
@@ -510,7 +488,6 @@
                                 <label class="form-label">Status <span class="text-danger">*</span></label>
                                 <select class="form-select form-select-sm" id="accountsModalStatus" name="status" required>
                                     <option value="Paid">Paid</option>
-                                    <option value="Pending">Pending</option>
                                 </select>
                             </div>
                             <div class="col-12">
@@ -526,70 +503,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Edit Customer Payment Modal (Accounts) -->
-    <div class="modal fade" id="editCustomerPaymentAccountsModal" tabindex="-1" aria-labelledby="editCustomerPaymentAccountsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editCustomerPaymentAccountsModalLabel">Edit Customer Payment</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editCustomerPaymentAccountsForm">
-                        @csrf
-                        <input type="hidden" id="customerPaymentAccountsId" name="payment_id" value="">
-                        
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Amount <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control form-control-sm" id="custModalAmount" name="amount" step="0.01" min="0" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Payment Method <span class="text-danger">*</span></label>
-                                <select class="form-select form-select-sm" id="custModalMethod" name="method" required>
-                                    <option value="Cash">Cash</option>
-                                    <option value="UPI">UPI</option>
-                                    <option value="NEFT">NEFT</option>
-                                    <option value="RTGS">RTGS</option>
-                                    <option value="WIB">WIB</option>
-                                    <option value="Online">Online</option>
-                                    <option value="Cheque">Cheque</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Paid On <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control form-control-sm" id="custModalPaymentDate" name="payment_date" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Due Date</label>
-                                <input type="date" class="form-control form-control-sm" id="custModalDueDate" name="due_date">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Transaction ID</label>
-                                <input type="text" class="form-control form-control-sm" id="custModalReference" name="reference">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Status <span class="text-danger">*</span></label>
-                                <select class="form-select form-select-sm" id="custModalStatus" name="status" required>
-                                    <option value="pending">Pending</option>
-                                    <option value="received">Received</option>
-                                    <option value="refunded">Refunded</option>
-                                </select>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="submitCustomerPaymentAccountsModal">Save</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     </div>
 
     @push('scripts')
@@ -750,8 +663,8 @@
                     document.getElementById('accountsModalRefNo').value = row.cells[8].textContent.trim() !== '-' ? row.cells[8].textContent.trim() : '';
                     document.getElementById('accountsModalRemarks').value = row.cells[9].textContent.trim() !== '-' ? row.cells[9].textContent.trim() : '';
                     
-                    // Populate status from row data
-                    document.getElementById('accountsModalStatus').value = row.dataset.status || 'Paid';
+                    // Populate status from badge (Accounts can only set Paid; default to Paid)
+                    document.getElementById('accountsModalStatus').value = 'Paid';
                 }
             });
 
@@ -763,40 +676,15 @@
                     const formData = new FormData(form);
                     const vendorPaymentId = document.getElementById('vendorPaymentAccountsId').value;
 
-                    // Add method spoofing for PUT request
-                    formData.append('_method', 'PUT');
-
                     fetch(`/accounts/${leadId}/vendor-payment/${vendorPaymentId}`, {
-                        method: 'POST', // Use POST with _method=PUT for Laravel
+                        method: 'PUT',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Accept': 'application/json',
                         },
                         body: formData
                     })
-                    .then(response => {
-                        // Check if response is JSON
-                        const contentType = response.headers.get('content-type');
-                        if (contentType && contentType.includes('application/json')) {
-                            return response.json().then(data => {
-                                if (!response.ok) {
-                                    // Handle validation errors
-                                    if (data.errors) {
-                                        const errorMessages = Object.values(data.errors).flat().join('\n');
-                                        throw new Error(errorMessages);
-                                    }
-                                    throw new Error(data.message || 'Failed to update vendor payment');
-                                }
-                                return data;
-                            });
-                        } else {
-                            // If not JSON, might be a redirect or error page
-                            if (!response.ok) {
-                                throw new Error('Failed to update vendor payment');
-                            }
-                            return { success: true };
-                        }
-                    })
+                    .then(response => response.json())
                     .then(data => {
                         if (data.success) {
                             // Close modal
@@ -812,7 +700,7 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert(error.message || 'An error occurred while updating vendor payment');
+                        alert('An error occurred while updating vendor payment');
                     });
                 });
             }
@@ -825,110 +713,6 @@
                     currentEditVendorPaymentId = null;
                 });
             }
-
-            // Customer Payment Accounts handlers
-            let currentEditCustomerPaymentId = null;
-
-            // Handle edit customer payment button click
-            document.addEventListener('click', function(e) {
-                if (e.target.closest('.edit-customer-payment-btn')) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    const btn = e.target.closest('.edit-customer-payment-btn');
-                    const paymentId = btn.dataset.paymentId;
-                    
-                    currentEditCustomerPaymentId = paymentId;
-                    document.getElementById('customerPaymentAccountsId').value = paymentId;
-                    
-                    // Populate fields
-                    document.getElementById('custModalAmount').value = btn.dataset.amount || '';
-                    
-                    // Handle method value - convert to proper case if needed
-                    let methodValue = btn.dataset.method || 'Cash';
-                    // Map lowercase values to capitalized ones
-                    const methodMap = {
-                        'cash': 'Cash',
-                        'bank_transfer': 'Bank Transfer',
-                        'cheque': 'Cheque',
-                        'card': 'Card',
-                        'online': 'Online',
-                        'upi': 'UPI',
-                        'neft': 'NEFT',
-                        'rtgs': 'RTGS',
-                        'wib': 'WIB',
-                        'other': 'Other'
-                    };
-                    if (methodMap[methodValue.toLowerCase()]) {
-                        methodValue = methodMap[methodValue.toLowerCase()];
-                    }
-                    document.getElementById('custModalMethod').value = methodValue;
-                    
-                    document.getElementById('custModalPaymentDate').value = btn.dataset.paymentDate || '';
-                    document.getElementById('custModalDueDate').value = btn.dataset.dueDate || '';
-                    document.getElementById('custModalReference').value = btn.dataset.reference || '';
-                    document.getElementById('custModalStatus').value = btn.dataset.status || 'pending';
-                    
-                    // Manually open the modal
-                    const modalElement = document.getElementById('editCustomerPaymentAccountsModal');
-                    if (modalElement) {
-                        const modal = new bootstrap.Modal(modalElement);
-                        modal.show();
-                    }
-                }
-            });
-
-            // Handle customer payment form submission
-            const submitCustomerPaymentBtn = document.getElementById('submitCustomerPaymentAccountsModal');
-            if (submitCustomerPaymentBtn) {
-                submitCustomerPaymentBtn.addEventListener('click', function() {
-                    const form = document.getElementById('editCustomerPaymentAccountsForm');
-                    const formData = new FormData(form);
-                    const paymentId = document.getElementById('customerPaymentAccountsId').value;
-                    const leadId = {{ $lead->id }};
-
-                    const url = `/leads/${leadId}/payments/${paymentId}`;
-                    // Method spoofing for PUT
-                    formData.append('_method', 'PUT');
-
-                    fetch(url, {
-                        method: 'POST', // Using POST with _method=PUT
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Accept': 'application/json',
-                        },
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Close modal
-                            const modal = bootstrap.Modal.getInstance(document.getElementById('editCustomerPaymentAccountsModal'));
-                            if (modal) {
-                                modal.hide();
-                            }
-                            // Reload page to show updated data
-                            window.location.reload();
-                        } else {
-                            alert(data.message || 'Failed to update payment');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred while updating payment');
-                    });
-                });
-            }
-
-            // Reset modal on close
-            const editCustomerPaymentAccountsModal = document.getElementById('editCustomerPaymentAccountsModal');
-            if (editCustomerPaymentAccountsModal) {
-                editCustomerPaymentAccountsModal.addEventListener('hidden.bs.modal', function() {
-                    document.getElementById('editCustomerPaymentAccountsForm').reset();
-                    currentEditCustomerPaymentId = null;
-                });
-            }
-
         });
     </script>
     @endpush

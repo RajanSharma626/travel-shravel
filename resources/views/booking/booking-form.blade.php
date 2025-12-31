@@ -226,1048 +226,1196 @@
                                             </div>
                                         </div>
                                     </div>
+                                </form>
 
-                                    <!-- Destination Section -->
-                                    @if (!($isPostSales ?? false))
-                                        <div class="mb-4 border rounded-3 p-3 bg-light">
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                    <i data-feather="map-pin" class="me-1"
-                                                        style="width: 14px; height: 14px;"></i>
-                                                    Destination
-                                                </h6>
-                                                @if (!$isViewOnly)
-                                                    <button type="button" class="btn btn-sm btn-primary"
-                                                        data-bs-toggle="modal" data-bs-target="#addDestinationModal">
-                                                        <i data-feather="plus" style="width: 14px; height: 14px;"></i>
-                                                        Add
-                                                    </button>
-                                                @endif
-                                            </div>
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered table-sm mb-0" id="destinationTable">
-                                                    <thead class="table-light">
-                                                        <tr>
-                                                            <th style="width: 15%;">Destination</th>
-                                                            <th style="width: 15%;">Location</th>
-                                                            <th style="width: 12%;" class="text-center">Only Hotel</th>
-                                                            <th style="width: 12%;" class="text-center">Only TT</th>
-                                                            <th style="width: 12%;" class="text-center">Hotel + TT</th>
-                                                            <th style="width: 10%;">From Date</th>
-                                                            <th style="width: 10%;">To Date</th>
-                                                            @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
-                                                                <th style="width: 10%;" class="text-center">Action</th>
-                                                            @endif
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="destinationTableBody">
-                                                        @if ($lead->bookingDestinations && $lead->bookingDestinations->count() > 0)
-                                                            @foreach ($lead->bookingDestinations as $index => $bd)
-                                                                <tr class="destination-data-row"
-                                                                    data-destination-id="{{ $bd->id }}"
-                                                                    data-row-index="{{ $index }}">
-                                                                    <td>{{ $bd->destination }}</td>
-                                                                    <td>{{ $bd->location }}</td>
-                                                                    <td class="text-center">
-                                                                        @if ($bd->only_hotel)
-                                                                            <i data-feather="check"
-                                                                                style="width: 16px; height: 16px; color: #28a745;"></i>
-                                                                        @endif
-                                                                    </td>
-                                                                    <td class="text-center">
-                                                                        @if ($bd->only_tt)
-                                                                            <i data-feather="check"
-                                                                                style="width: 16px; height: 16px; color: #28a745;"></i>
-                                                                        @endif
-                                                                    </td>
-                                                                    <td class="text-center">
-                                                                        @if ($bd->hotel_tt)
-                                                                            <i data-feather="check"
-                                                                                style="width: 16px; height: 16px; color: #28a745;"></i>
-                                                                        @endif
-                                                                    </td>
-                                                                    <td>{{ $bd->from_date ? $bd->from_date->format('d/m/Y') : '' }}
-                                                                    </td>
-                                                                    <td>{{ $bd->to_date ? $bd->to_date->format('d/m/Y') : '' }}
-                                                                    </td>
-                                                                    @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
-                                                                        <td class="text-center">
-                                                                            @if (!$isViewOnly)
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    width="16" height="16"
-                                                                                    viewBox="0 0 24 24" fill="none"
-                                                                                    stroke="currentColor" stroke-width="2"
-                                                                                    stroke-linecap="round"
-                                                                                    stroke-linejoin="round"
-                                                                                    class="editDestinationRow"
-                                                                                    data-id="{{ $bd->id }}"
-                                                                                    data-destination="{{ $bd->destination }}"
-                                                                                    data-location="{{ $bd->location }}"
-                                                                                    data-only-hotel="{{ $bd->only_hotel ? 1 : 0 }}"
-                                                                                    data-only-tt="{{ $bd->only_tt ? 1 : 0 }}"
-                                                                                    data-hotel-tt="{{ $bd->hotel_tt ? 1 : 0 }}"
-                                                                                    data-from-date="{{ $bd->from_date ? $bd->from_date->format('Y-m-d') : '' }}"
-                                                                                    data-to-date="{{ $bd->to_date ? $bd->to_date->format('Y-m-d') : '' }}"
-                                                                                    data-bs-toggle="modal"
-                                                                                    data-bs-target="#addDestinationModal"
-                                                                                    style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;">
-                                                                                    <path
-                                                                                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
-                                                                                    </path>
-                                                                                    <path
-                                                                                        d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
-                                                                                    </path>
-                                                                                </svg>
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    width="16" height="16"
-                                                                                    viewBox="0 0 24 24" fill="none"
-                                                                                    stroke="currentColor" stroke-width="2"
-                                                                                    stroke-linecap="round"
-                                                                                    stroke-linejoin="round"
-                                                                                    class="removeDestinationRow"
-                                                                                    data-id="{{ $bd->id }}"
-                                                                                    style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;">
-                                                                                    <polyline points="3 6 5 6 21 6">
-                                                                                    </polyline>
-                                                                                    <path
-                                                                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                                                                    </path>
-                                                                                </svg>
-                                                                            @endif
-                                                                        </td>
-                                                                    @endif
-                                                                </tr>
-                                                            @endforeach
-                                                        @else
-                                                            <tr>
-                                                                <td colspan="{{ !($isViewOnly && ($isOpsDept || ($isPostSales ?? false))) ? '8' : '7' }}"
-                                                                    class="text-center text-muted py-4">
-                                                                    <i data-feather="inbox"
-                                                                        style="width: 24px; height: 24px; opacity: 0.5;"
-                                                                        class="mb-2"></i>
-                                                                    <div>No destination data available</div>
-                                                                </td>
-                                                            </tr>
-                                                        @endif
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    @endif
+                                <!-- Remarks Section (Own Remarks Only) -->
+                                <div class="mb-4 border rounded-3 p-3">
+                                    <h6 class="text-uppercase text-muted small fw-semibold mb-3">
+                                        <i data-feather="message-circle" class="me-1"
+                                            style="width: 14px; height: 14px;"></i>
+                                        My Remarks
+                                    </h6>
 
-                                    {{-- Customer Payments (Post Sales editable, others view-only via accounts booking file) --}}
-                                    @if ($isPostSales ?? false)
-                                        <div class="mb-4 border rounded-3 p-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                    <i data-feather="credit-card" class="me-1"
-                                                        style="width: 14px; height: 14px;"></i>
-                                                    Customer Payments (Post Sales → Accounts)
-                                                </h6>
-                                                <button type="button" class="btn btn-sm btn-primary"
-                                                    data-bs-toggle="modal" data-bs-target="#postSalesAddPaymentModal">
-                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
-                                                    Add Payment
+                                    <!-- Add Remark Form -->
+                                    <form id="addRemarkForm" method="POST"
+                                        action="{{ route('leads.booking-file-remarks.store', $lead) }}">
+                                        <input type="hidden" name="department"
+                                            value="{{ $isOpsDept ?? false ? 'Operations' : ($isPostSales ?? false ? 'Post Sales' : 'Sales') }}">
+                                        @csrf
+                                        <div class="row g-3 align-items-end">
+                                            <div class="col-md-5">
+                                                <label class="form-label">Remark <span
+                                                        class="text-danger">*</span></label>
+                                                <textarea name="remark" class="form-control form-control-sm" rows="2" required
+                                                    placeholder="Enter your remark..."></textarea>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Follow-up Date & Time</label>
+                                                <input type="datetime-local" name="follow_up_at"
+                                                    class="form-control form-control-sm">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button type="submit" class="btn btn-sm btn-primary w-100">
+                                                    <i data-feather="save" style="width: 14px; height: 14px;"></i>
+                                                    Add Remark
                                                 </button>
                                             </div>
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered table-sm mb-0"
-                                                    id="customerPaymentsTable">
-                                                    <thead class="table-light">
-                                                        <tr>
-                                                            <th>Amount</th>
-                                                            <th>Method</th>
-                                                            <th>Paid On</th>
-                                                            <th>Due Date</th>
-                                                            <th>Transaction ID</th>
-                                                            <th>Status</th>
-                                                            <th class="text-center">Action</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @php
-                                                            $payments = $lead->payments ?? collect();
-                                                        @endphp
-                                                        @if ($payments->count() > 0)
-                                                            @foreach ($payments as $payment)
-                                                                <tr>
-                                                                    <td>₹{{ number_format($payment->amount, 2) }}</td>
-                                                                    <td>{{ ucfirst(str_replace('_', ' ', $payment->method)) }}
-                                                                    </td>
-                                                                    <td>{{ $payment->payment_date ? $payment->payment_date->format('d/m/Y') : '-' }}
-                                                                    </td>
-                                                                    <td>{{ $payment->due_date ? $payment->due_date->format('d/m/Y') : '-' }}
-                                                                    </td>
-                                                                    <td>{{ $payment->reference ?? '-' }}</td>
-                                                                    <td>
-                                                                        @php
-                                                                            $statusColor =
-                                                                                $payment->status === 'received'
-                                                                                    ? 'success'
-                                                                                    : ($payment->status === 'refunded'
-                                                                                        ? 'secondary'
-                                                                                        : 'warning');
-                                                                        @endphp
-                                                                        <span class="badge bg-{{ $statusColor }}">
-                                                                            {{ ucfirst($payment->status) }}
-                                                                        </span>
-                                                                    </td>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Destination Section -->
+                                @if (!($isPostSales ?? false))
+                                    <div class="mb-4 border rounded-3 p-3 bg-light">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                <i data-feather="map-pin" class="me-1"
+                                                    style="width: 14px; height: 14px;"></i>
+                                                Destination
+                                            </h6>
+                                            @if (!$isViewOnly)
+                                                <button type="button" class="btn btn-sm btn-primary"
+                                                    data-bs-toggle="modal" data-bs-target="#addDestinationModal">
+                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                    Add
+                                                </button>
+                                            @endif
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-sm mb-0" id="destinationTable">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th style="width: 15%;">Destination</th>
+                                                        <th style="width: 15%;">Location</th>
+                                                        <th style="width: 12%;" class="text-center">Only Hotel</th>
+                                                        <th style="width: 12%;" class="text-center">Only TT</th>
+                                                        <th style="width: 12%;" class="text-center">Hotel + TT</th>
+                                                        <th style="width: 10%;">From Date</th>
+                                                        <th style="width: 10%;">To Date</th>
+                                                        @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                            <th style="width: 10%;" class="text-center">Action</th>
+                                                        @endif
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="destinationTableBody">
+                                                    @if ($lead->bookingDestinations && $lead->bookingDestinations->count() > 0)
+                                                        @foreach ($lead->bookingDestinations as $index => $bd)
+                                                            <tr class="destination-data-row"
+                                                                data-destination-id="{{ $bd->id }}"
+                                                                data-row-index="{{ $index }}">
+                                                                <td>{{ $bd->destination }}</td>
+                                                                <td>{{ $bd->location }}</td>
+                                                                <td class="text-center">
+                                                                    @if ($bd->only_hotel)
+                                                                        <i data-feather="check"
+                                                                            style="width: 16px; height: 16px; color: #28a745;"></i>
+                                                                    @endif
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    @if ($bd->only_tt)
+                                                                        <i data-feather="check"
+                                                                            style="width: 16px; height: 16px; color: #28a745;"></i>
+                                                                    @endif
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    @if ($bd->hotel_tt)
+                                                                        <i data-feather="check"
+                                                                            style="width: 16px; height: 16px; color: #28a745;"></i>
+                                                                    @endif
+                                                                </td>
+                                                                <td>{{ $bd->from_date ? $bd->from_date->format('d/m/Y') : '' }}
+                                                                </td>
+                                                                <td>{{ $bd->to_date ? $bd->to_date->format('d/m/Y') : '' }}
+                                                                </td>
+                                                                @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
                                                                     <td class="text-center">
-                                                                        <i data-feather="edit"
-                                                                            class="post-sales-edit-payment-btn"
-                                                                            data-payment-id="{{ $payment->id }}"
-                                                                            data-amount="{{ $payment->amount }}"
-                                                                            data-method="{{ $payment->method }}"
-                                                                            data-payment-date="{{ $payment->payment_date ? $payment->payment_date->format('Y-m-d') : '' }}"
-                                                                            data-due-date="{{ $payment->due_date ? $payment->due_date->format('Y-m-d') : '' }}"
-                                                                            data-reference="{{ $payment->reference }}"
-                                                                            data-status="{{ $payment->status }}"
-                                                                            data-bs-toggle="modal"
-                                                                            data-bs-target="#postSalesAddPaymentModal"
-                                                                            style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
-                                                                        <button type="button"
-                                                                            class="border-0 bg-transparent p-0 m-0 delete-customer-payment-btn"
-                                                                            data-payment-id="{{ $payment->id }}"
-                                                                            title="Delete Payment">
-                                                                            <i data-feather="trash-2"
-                                                                                style="width: 16px; height: 16px; color: #dc3545; cursor: pointer; pointer-events: none;"></i>
-                                                                        </button>
-                                                                    </td>
-                                                                </tr>
-                                                            @endforeach
-                                                        @else
-                                                            <tr>
-                                                                <td colspan="7" class="text-center text-muted py-3">No
-                                                                    customer payments recorded</td>
-                                                            </tr>
-                                                        @endif
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    @endif
-                                    <!-- Arrival/Departure Details Section -->
-                                    @if (!($isPostSales ?? false))
-                                        <div class="mb-4 border rounded-3 p-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                    <i data-feather="navigation" class="me-1"
-                                                        style="width: 14px; height: 14px;"></i>
-                                                    Arrival/Departure Details
-                                                </h6>
-                                                @if (!$isViewOnly)
-                                                    <button type="button" class="btn btn-sm btn-primary"
-                                                        data-bs-toggle="modal" data-bs-target="#addArrivalDepartureModal">
-                                                        <i data-feather="plus" style="width: 14px; height: 14px;"></i>
-                                                        Add
-                                                    </button>
-                                                @endif
-                                            </div>
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered table-sm mb-0"
-                                                    id="arrivalDepartureTable">
-                                                    <thead class="table-light">
-                                                        <tr>
-                                                            <th style="width: 12%;" rowspan="2">Mode</th>
-                                                            <th style="width: 15%;" rowspan="2">Info</th>
-                                                            <th style="width: 12%;" rowspan="2">From City</th>
-                                                            <th style="width: 12%;" rowspan="2">To City</th>
-                                                            <th colspan="2" style="width: 18%;">Dep Date & Time</th>
-                                                            <th colspan="2" style="width: 18%;">Arrival Date & Time
-                                                            </th>
-                                                            @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
-                                                                <th style="width: 13%;" rowspan="2"
-                                                                    class="text-center">Action</th>
-                                                            @endif
-                                                        </tr>
-
-                                                    </thead>
-                                                    <tbody id="arrivalDepartureTableBody">
-                                                        @php
-                                                            $allTransports =
-                                                                $lead->bookingArrivalDepartures ?? collect();
-                                                        @endphp
-                                                        @if ($allTransports && $allTransports->count() > 0)
-                                                            @foreach ($allTransports as $index => $transport)
-                                                                <tr class="arrival-departure-data-row"
-                                                                    data-transport-id="{{ $transport->id }}"
-                                                                    data-row-index="{{ $index }}">
-                                                                    <td>{{ $transport->mode }}</td>
-                                                                    <td>{{ $transport->info }}</td>
-                                                                    <td>{{ $transport->from_city }}</td>
-                                                                    <td>{{ $transport->to_city ?? '' }}</td>
-                                                                    <td>
-                                                                        {{ $transport->departure_date ? ($transport->departure_date instanceof \DateTime ? $transport->departure_date->format('d/m/Y') : date('d/m/Y', strtotime($transport->departure_date))) : '' }}
-                                                                    </td>
-                                                                    <td>
-                                                                        {{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}
-                                                                    </td>
-                                                                    <td>
-                                                                        {{ $transport->arrival_date ? ($transport->arrival_date instanceof \DateTime ? $transport->arrival_date->format('d/m/Y') : date('d/m/Y', strtotime($transport->arrival_date))) : '' }}
-                                                                    </td>
-                                                                    <td>
-                                                                        {{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}
-                                                                    </td>
-                                                                    @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
-                                                                        <td class="text-center">
-                                                                            @if (!$isViewOnly)
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    width="16" height="16"
-                                                                                    viewBox="0 0 24 24" fill="none"
-                                                                                    stroke="currentColor" stroke-width="2"
-                                                                                    stroke-linecap="round"
-                                                                                    stroke-linejoin="round"
-                                                                                    class="editArrivalDepartureRow"
-                                                                                    data-id="{{ $transport->id }}"
-                                                                                    data-mode="{{ $transport->mode }}"
-                                                                                    data-info="{{ $transport->info }}"
-                                                                                    data-from-city="{{ $transport->from_city }}"
-                                                                                    data-to-city="{{ $transport->to_city }}"
-                                                                                    data-departure-date="{{ $transport->departure_date ? $transport->departure_date->format('Y-m-d') : '' }}"
-                                                                                    data-departure-time="{{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}"
-                                                                                    data-arrival-date="{{ $transport->arrival_date ? $transport->arrival_date->format('Y-m-d') : '' }}"
-                                                                                    data-arrival-time="{{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}"
-                                                                                    data-bs-toggle="modal"
-                                                                                    data-bs-target="#addArrivalDepartureModal"
-                                                                                    style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;">
-                                                                                    <path
-                                                                                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
-                                                                                    </path>
-                                                                                    <path
-                                                                                        d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
-                                                                                    </path>
-                                                                                </svg>
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    width="16" height="16"
-                                                                                    viewBox="0 0 24 24" fill="none"
-                                                                                    stroke="currentColor" stroke-width="2"
-                                                                                    stroke-linecap="round"
-                                                                                    stroke-linejoin="round"
-                                                                                    class="removeArrivalDepartureRow"
-                                                                                    data-id="{{ $transport->id }}"
-                                                                                    style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;">
-                                                                                    <polyline points="3 6 5 6 21 6">
-                                                                                    </polyline>
-                                                                                    <path
-                                                                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                                                                    </path>
-                                                                                </svg>
-                                                                            @endif
-                                                                        </td>
-                                                                    @endif
-                                                                </tr>
-                                                            @endforeach
-                                                        @else
-                                                            <tr>
-                                                                <td colspan="{{ !($isViewOnly && ($isOpsDept || ($isPostSales ?? false))) ? '9' : '8' }}"
-                                                                    class="text-center text-muted py-4">
-                                                                    <i data-feather="inbox"
-                                                                        style="width: 24px; height: 24px; opacity: 0.5;"
-                                                                        class="mb-2"></i>
-                                                                    <div>No arrival/departure data available</div>
-                                                                </td>
-                                                            </tr>
-                                                        @endif
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    @endif
-
-                                    <!-- Accommodation Details Section -->
-                                    @if (!($isPostSales ?? false))
-                                        <div class="mb-4 border rounded-3 p-3 bg-light">
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                    <i data-feather="home" class="me-1"
-                                                        style="width: 14px; height: 14px;"></i>
-                                                    Accommodation Details
-                                                </h6>
-                                                @if (!$isViewOnly)
-                                                    <button type="button" class="btn btn-sm btn-primary"
-                                                        data-bs-toggle="modal" data-bs-target="#addAccommodationModal">
-                                                        <i data-feather="plus" style="width: 14px; height: 14px;"></i>
-                                                        Add
-                                                    </button>
-                                                @endif
-                                            </div>
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered table-sm mb-0" id="accommodationTable">
-                                                    <thead class="table-light">
-                                                        <tr>
-                                                            <th style="width: 12%;">Destination</th>
-                                                            <th style="width: 12%;">Location</th>
-                                                            <th style="width: 12%;">Stay At</th>
-                                                            <th style="width: 12%;">Check-in</th>
-                                                            <th style="width: 12%;">Check-out</th>
-                                                            <th style="width: 12%;">Room Type</th>
-                                                            <th style="width: 12%;">Meal Plan</th>
-                                                            @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
-                                                                <th style="width: 4%;" class="text-center">Action</th>
-                                                            @endif
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="accommodationTableBody">
-                                                        @if ($lead->bookingAccommodations && $lead->bookingAccommodations->count() > 0)
-                                                            @foreach ($lead->bookingAccommodations as $index => $ba)
-                                                                <tr class="accommodation-data-row"
-                                                                    data-row-index="{{ $index }}">
-                                                                    <td>{{ $ba->destination }}</td>
-                                                                    <td>{{ $ba->location }}</td>
-                                                                    <td>{{ $ba->stay_at }}</td>
-                                                                    <td>{{ $ba->checkin_date ? $ba->checkin_date->format('d/m/Y') : '' }}
-                                                                    </td>
-                                                                    <td>{{ $ba->checkout_date ? $ba->checkout_date->format('d/m/Y') : '' }}
-                                                                    </td>
-                                                                    <td>{{ $ba->room_type }}</td>
-                                                                    <td>{{ $ba->meal_plan }}</td>
-                                                                    @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
-                                                                        <td class="text-center">
-                                                                            @if (!$isViewOnly)
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    width="16" height="16"
-                                                                                    viewBox="0 0 24 24" fill="none"
-                                                                                    stroke="currentColor" stroke-width="2"
-                                                                                    stroke-linecap="round"
-                                                                                    stroke-linejoin="round"
-                                                                                    class="editAccommodationRow"
-                                                                                    data-accommodation-id="{{ $ba->id }}"
-                                                                                    data-destination="{{ $ba->destination }}"
-                                                                                    data-location="{{ $ba->location }}"
-                                                                                    data-stay-at="{{ $ba->stay_at }}"
-                                                                                    data-checkin-date="{{ $ba->checkin_date ? $ba->checkin_date->format('Y-m-d') : '' }}"
-                                                                                    data-checkout-date="{{ $ba->checkout_date ? $ba->checkout_date->format('Y-m-d') : '' }}"
-                                                                                    data-room-type="{{ $ba->room_type }}"
-                                                                                    data-meal-plan="{{ $ba->meal_plan }}"
-                                                                                    data-bs-toggle="modal"
-                                                                                    data-bs-target="#addAccommodationModal"
-                                                                                    style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;">
-                                                                                    <path
-                                                                                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
-                                                                                    </path>
-                                                                                    <path
-                                                                                        d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
-                                                                                    </path>
-                                                                                </svg>
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    width="16" height="16"
-                                                                                    viewBox="0 0 24 24" fill="none"
-                                                                                    stroke="currentColor" stroke-width="2"
-                                                                                    stroke-linecap="round"
-                                                                                    stroke-linejoin="round"
-                                                                                    class="removeAccommodationRow"
-                                                                                    data-accommodation-id="{{ $ba->id }}"
-                                                                                    style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;">
-                                                                                    <polyline points="3 6 5 6 21 6">
-                                                                                    </polyline>
-                                                                                    <path
-                                                                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                                                                    </path>
-                                                                                </svg>
-                                                                            @endif
-                                                                        </td>
-                                                                    @endif
-                                                                </tr>
-                                                            @endforeach
-                                                        @else
-                                                            <tr>
-                                                                <td colspan="{{ !($isViewOnly && ($isOpsDept || ($isPostSales ?? false))) ? '8' : '7' }}"
-                                                                    class="text-center text-muted py-4">
-                                                                    <i data-feather="inbox"
-                                                                        style="width: 24px; height: 24px; opacity: 0.5;"
-                                                                        class="mb-2"></i>
-                                                                    <div>No accommodation data available</div>
-                                                                </td>
-                                                            </tr>
-                                                        @endif
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    @endif
-
-                                    <!-- Day-Wise Itinerary Section -->
-                                    @if (!($isPostSales ?? false))
-                                        <div class="mb-4 border rounded-3 p-3" id="dayWiseItinerarySection"
-                                            style="display: none;">
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                    <i data-feather="calendar" class="me-1"
-                                                        style="width: 14px; height: 14px;"></i>
-                                                    Day-Wise Itinerary
-                                                </h6>
-                                                @if (!$isViewOnly)
-                                                    <button type="button" class="btn btn-sm btn-primary"
-                                                        data-bs-toggle="modal" data-bs-target="#addItineraryModal">
-                                                        <i data-feather="plus" style="width: 14px; height: 14px;"></i>
-                                                        Add
-                                                    </button>
-                                                @endif
-                                            </div>
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered table-sm mb-0" id="itineraryTable">
-                                                    <thead class="table-light">
-                                                        <tr>
-                                                            <th style="width: 12%;">Day & Date</th>
-                                                            <th style="width: 8%;">Time</th>
-                                                            <th style="width: 10%;">Location</th>
-                                                            <th style="width: 20%;">Activity/Tour Description</th>
-                                                            <th style="width: 10%;">Stay at</th>
-                                                            <th style="width: 15%;">Remarks</th>
-                                                            @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
-                                                                <th style="width: 7%;" class="text-center">Action</th>
-                                                            @endif
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="itineraryTableBody">
-                                                        @if ($lead->bookingItineraries && $lead->bookingItineraries->count() > 0)
-                                                            @foreach ($lead->bookingItineraries as $index => $bi)
-                                                                <tr class="itinerary-data-row"
-                                                                    data-row-index="{{ $index }}">
-                                                                    <td>{{ $bi->day_and_date }}</td>
-                                                                    <td>{{ $bi->time ? substr($bi->time, 0, 5) : '' }}
-                                                                    </td>
-                                                                    <td>{{ $bi->location }}</td>
-                                                                    <td>
-                                                                        @if ($bi->activity_tour_description)
-                                                                            @php
-                                                                                // Handle different line break formats (Windows \r\n, Unix \n, Mac \r)
-                                                                                $text = str_replace(
-                                                                                    ["\r\n", "\r"],
-                                                                                    "\n",
-                                                                                    $bi->activity_tour_description,
-                                                                                );
-                                                                                $activities = array_filter(
-                                                                                    array_map(
-                                                                                        'trim',
-                                                                                        explode("\n", $text),
-                                                                                    ),
-                                                                                    function ($item) {
-                                                                                        return !empty($item);
-                                                                                    },
-                                                                                );
-                                                                            @endphp
-                                                                            @if (count($activities) > 0)
-                                                                                <div class="mb-0"
-                                                                                    style="padding-left: 0; margin-bottom: 0;">
-                                                                                    @foreach ($activities as $activity)
-                                                                                        <div
-                                                                                            style="margin-bottom: 4px; padding-left: 0;">
-                                                                                            <span
-                                                                                                style="margin-right: 8px;">•</span>{{ $activity }}
-                                                                                        </div>
-                                                                                    @endforeach
-                                                                                </div>
-                                                                            @else
-                                                                                {{ $bi->activity_tour_description }}
-                                                                            @endif
-                                                                        @else
-                                                                            -
+                                                                        @if (!$isViewOnly)
+                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                width="16" height="16"
+                                                                                viewBox="0 0 24 24" fill="none"
+                                                                                stroke="currentColor" stroke-width="2"
+                                                                                stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                class="editDestinationRow"
+                                                                                data-id="{{ $bd->id }}"
+                                                                                data-destination="{{ $bd->destination }}"
+                                                                                data-location="{{ $bd->location }}"
+                                                                                data-only-hotel="{{ $bd->only_hotel ? 1 : 0 }}"
+                                                                                data-only-tt="{{ $bd->only_tt ? 1 : 0 }}"
+                                                                                data-hotel-tt="{{ $bd->hotel_tt ? 1 : 0 }}"
+                                                                                data-from-date="{{ $bd->from_date ? $bd->from_date->format('Y-m-d') : '' }}"
+                                                                                data-to-date="{{ $bd->to_date ? $bd->to_date->format('Y-m-d') : '' }}"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#addDestinationModal"
+                                                                                style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;">
+                                                                                <path
+                                                                                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
+                                                                                </path>
+                                                                                <path
+                                                                                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
+                                                                                </path>
+                                                                            </svg>
+                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                width="16" height="16"
+                                                                                viewBox="0 0 24 24" fill="none"
+                                                                                stroke="currentColor" stroke-width="2"
+                                                                                stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                class="removeDestinationRow"
+                                                                                data-id="{{ $bd->id }}"
+                                                                                style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;">
+                                                                                <polyline points="3 6 5 6 21 6">
+                                                                                </polyline>
+                                                                                <path
+                                                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                                                                </path>
+                                                                            </svg>
                                                                         @endif
-                                                                    </td>
-                                                                    <td>{{ $bi->stay_at }}</td>
-                                                                    <td>{{ $bi->remarks }}</td>
-                                                                    @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
-                                                                        <td class="text-center">
-                                                                            @if (!$isViewOnly)
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    width="16" height="16"
-                                                                                    viewBox="0 0 24 24" fill="none"
-                                                                                    stroke="currentColor" stroke-width="2"
-                                                                                    stroke-linecap="round"
-                                                                                    stroke-linejoin="round"
-                                                                                    class="editItineraryRow"
-                                                                                    data-itinerary-id="{{ $bi->id }}"
-                                                                                    data-day-date="{{ $bi->day_and_date }}"
-                                                                                    data-time="{{ $bi->time ? substr($bi->time, 0, 5) : '' }}"
-                                                                                    data-location="{{ $bi->location }}"
-                                                                                    data-activity="{{ $bi->activity_tour_description }}"
-                                                                                    data-stay-at="{{ $bi->stay_at }}"
-                                                                                    data-remarks="{{ $bi->remarks }}"
-                                                                                    data-bs-toggle="modal"
-                                                                                    data-bs-target="#addItineraryModal"
-                                                                                    style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;">
-                                                                                    <path
-                                                                                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
-                                                                                    </path>
-                                                                                    <path
-                                                                                        d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
-                                                                                    </path>
-                                                                                </svg>
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    width="16" height="16"
-                                                                                    viewBox="0 0 24 24" fill="none"
-                                                                                    stroke="currentColor" stroke-width="2"
-                                                                                    stroke-linecap="round"
-                                                                                    stroke-linejoin="round"
-                                                                                    class="removeItineraryRow"
-                                                                                    data-itinerary-id="{{ $bi->id }}"
-                                                                                    style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;">
-                                                                                    <polyline points="3 6 5 6 21 6">
-                                                                                    </polyline>
-                                                                                    <path
-                                                                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                                                                    </path>
-                                                                                </svg>
-                                                                            @endif
-                                                                        </td>
-                                                                    @endif
-                                                                </tr>
-                                                            @endforeach
-                                                        @else
-                                                            <tr>
-                                                                <td colspan="{{ !($isViewOnly && ($isOpsDept || ($isPostSales ?? false))) ? '7' : '6' }}"
-                                                                    class="text-center text-muted py-4">
-                                                                    <i data-feather="inbox"
-                                                                        style="width: 24px; height: 24px; opacity: 0.5;"
-                                                                        class="mb-2"></i>
-                                                                    <div>No itinerary data available</div>
-                                                                </td>
-                                                            </tr>
-                                                        @endif
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    @endif
-
-                                    <!-- Traveller Document Details (Post Sales editable, Operations view-only) -->
-                                    @if (($isPostSales ?? false) || ($isOpsDept ?? false))
-                                        <div class="mb-4 border rounded-3 p-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                    <i data-feather="clipboard" class="me-1"
-                                                        style="width: 14px; height: 14px;"></i>
-                                                    Traveller Document Details
-                                                </h6>
-                                                @if (!($isOpsDept ?? false))
-                                                    <button type="button" id="openTravellerDocModalBtn"
-                                                        class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                                        data-bs-target="#travellerDocumentModal">
-                                                        <i data-feather="plus" style="width: 14px; height: 14px;"></i>
-                                                        Add
-                                                    </button>
-                                                @endif
-                                            </div>
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered table-sm mb-0"
-                                                    id="travellerDocumentTable">
-                                                    <thead class="table-light">
-                                                        <tr>
-                                                            <th style="width: 5%;">Sr. No.</th>
-                                                            <th style="width: 25%;">Full Name</th>
-                                                            <th style="width: 10%;">Contact No.</th>
-                                                            <th style="width: 15%;">Doc Type</th>
-                                                            <th style="width: 18%;">Doc No.</th>
-                                                            <th style="width: 10%;">Nationality</th>
-                                                            <th style="width: 8%;">DOB</th>
-                                                            <th style="width: 10%;">Place of Issue</th>
-                                                            <th style="width: 10%;">Expiry</th>
-                                                            <th style="width: 12%;">Remark</th>
-                                                            <th style="width: 10%;">Status</th>
-                                                            @if (!($isOpsDept ?? false))
-                                                                <th style="width: 8%;" class="text-center">Action</th>
-                                                            @endif
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="travellerDocumentTableBody">
-                                                        @php
-                                                            $travellerDocs = $lead->travellerDocuments ?? collect();
-                                                        @endphp
-                                                        @forelse($travellerDocs as $index => $doc)
-                                                            <tr data-row-type="{{ $doc->doc_type }}">
-                                                                <td>{{ $index + 1 }}</td>
-                                                                <td>
-                                                                    @php
-                                                                        $fullName = trim(
-                                                                            ($doc->salutation
-                                                                                ? $doc->salutation . ' '
-                                                                                : '') .
-                                                                                ($doc->first_name ?? '') .
-                                                                                ($doc->last_name
-                                                                                    ? ' ' . $doc->last_name
-                                                                                    : ''),
-                                                                        );
-                                                                    @endphp
-                                                                    {{ $fullName ?: '-' }}
-                                                                </td>
-                                                                <td>{{ $doc->contact_no ?? '-' }}</td>
-                                                                <td>
-                                                                    @switch($doc->doc_type)
-                                                                        @case('passport')
-                                                                            Passport
-                                                                        @break
-
-                                                                        @case('aadhar_card')
-                                                                            Aadhar Card
-                                                                        @break
-
-                                                                        @case('pan_card')
-                                                                            PAN Card
-                                                                        @break
-
-                                                                        @case('visa')
-                                                                            Visa
-                                                                        @break
-
-                                                                        @case('voter_id')
-                                                                            Voter ID
-                                                                        @break
-
-                                                                        @case('driving_license')
-                                                                            Driving License
-                                                                        @break
-
-                                                                        @case('govt_id')
-                                                                            Govt. ID
-                                                                        @break
-
-                                                                        @case('school_id')
-                                                                            School ID
-                                                                        @break
-
-                                                                        @case('birth_certificate')
-                                                                            Birth Certificate
-                                                                        @break
-
-                                                                        @case('marriage_certificate')
-                                                                            Marriage Certificate
-                                                                        @break
-
-                                                                        @case('photos')
-                                                                            Photos
-                                                                        @break
-
-                                                                        @case('insurance')
-                                                                            Insurance
-                                                                        @break
-
-                                                                        @case('other_document')
-                                                                            Other Document
-                                                                        @break
-
-                                                                        @default
-                                                                            {{ ucfirst(str_replace('_', ' ', $doc->doc_type)) }}
-                                                                    @endswitch
-                                                                </td>
-
-                                                                <td>{{ $doc->doc_no ?? '-' }}</td>
-                                                                <td>
-                                                                    @if ($doc->doc_type === 'passport')
-                                                                        {{ $doc->nationality }}
-                                                                    @endif
-                                                                </td>
-                                                                <td>
-                                                                    @if ($doc->doc_type === 'passport' && $doc->dob)
-                                                                        {{ $doc->dob->format('d/m/Y') }}
-                                                                    @endif
-                                                                </td>
-                                                                <td>
-                                                                    @if ($doc->doc_type === 'passport')
-                                                                        {{ $doc->place_of_issue }}
-                                                                    @endif
-                                                                </td>
-                                                                <td>
-                                                                    @if ($doc->doc_type === 'passport' && $doc->date_of_expiry)
-                                                                        {{ $doc->date_of_expiry->format('d/m/Y') }}
-                                                                    @endif
-                                                                </td>
-                                                                <td>
-                                                                    {{ $doc->remark ?? '-' }}
-                                                                </td>
-                                                                <td>
-                                                                    @php
-                                                                        $status = strtolower($doc->status ?? '');
-                                                                        $badgeClass = 'secondary';
-                                                                        $statusLabel = ucfirst(
-                                                                            str_replace('_', ' ', $status),
-                                                                        );
-                                                                        if ($status === 'received') {
-                                                                            $badgeClass = 'success';
-                                                                        } elseif ($status === 'pending') {
-                                                                            $badgeClass = 'warning';
-                                                                        } elseif ($status === 'not_required') {
-                                                                            $badgeClass = 'secondary';
-                                                                        } elseif ($status === 'required_again') {
-                                                                            $badgeClass = 'danger';
-                                                                        }
-                                                                    @endphp
-                                                                    @if ($status)
-                                                                        <span class="badge bg-{{ $badgeClass }}">
-                                                                            {{ $statusLabel }}
-                                                                        </span>
-                                                                    @endif
-                                                                </td>
-                                                                @if (!($isOpsDept ?? false))
-                                                                    <td class="text-center text-nowrap">
-                                                                        <button type="button"
-                                                                            class="btn btn-link p-0 me-1 traveller-doc-edit"
-                                                                            data-bs-toggle="modal"
-                                                                            data-bs-target="#travellerDocumentModal"
-                                                                            data-document-id="{{ $doc->id }}"
-                                                                            data-salutation="{{ $doc->salutation ?? '' }}"
-                                                                            data-first-name="{{ $doc->first_name }}"
-                                                                            data-last-name="{{ $doc->last_name }}"
-                                                                            data-contact-no="{{ $doc->contact_no ?? '' }}"
-                                                                            data-doc-type="{{ $doc->doc_type }}"
-                                                                            data-status="{{ $doc->status }}"
-                                                                            data-doc-no="{{ $doc->doc_no }}"
-                                                                            data-nationality="{{ $doc->nationality }}"
-                                                                            data-dob="{{ $doc->dob ? $doc->dob->format('Y-m-d') : '' }}"
-                                                                            data-place-of-issue="{{ $doc->place_of_issue }}"
-                                                                            data-date-of-expiry="{{ $doc->date_of_expiry ? $doc->date_of_expiry->format('Y-m-d') : '' }}"
-                                                                            data-remark="{{ $doc->remark ?? '' }}">
-                                                                            <i data-feather="edit" class="text-primary"
-                                                                                style="width: 16px; height: 16px;"></i>
-                                                                        </button>
-                                                                        <button type="button"
-                                                                            class="btn btn-link p-0 traveller-doc-delete"
-                                                                            data-delete-url="{{ route('leads.traveller-documents.destroy', [$lead, $doc]) }}">
-                                                                            <i data-feather="trash-2" class="text-danger"
-                                                                                style="width: 16px; height: 16px;"></i>
-                                                                        </button>
                                                                     </td>
                                                                 @endif
                                                             </tr>
-                                                            @empty
-                                                                <tr>
-                                                                    <td colspan="{{ $isOpsDept ?? false ? '11' : '12' }}"
-                                                                        class="text-center text-muted py-3">
-                                                                        No traveller document details added yet.
-                                                                    </td>
-                                                                </tr>
-                                                            @endforelse
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
+                                                        @endforeach
+                                                    @else
+                                                        <tr>
+                                                            <td colspan="{{ !($isViewOnly && ($isOpsDept || ($isPostSales ?? false))) ? '8' : '7' }}"
+                                                                class="text-center text-muted py-4">
+                                                                <i data-feather="inbox"
+                                                                    style="width: 24px; height: 24px; opacity: 0.5;"
+                                                                    class="mb-2"></i>
+                                                                <div>No destination data available</div>
+                                                            </td>
+                                                        </tr>
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                @endif
 
-                                            <!-- Document Checklist Summary Section (Post Sales Only) -->
-                                            <div class="mb-4 border rounded-3 p-3">
-                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                {{-- Customer Payments (Post Sales editable, others view-only via accounts booking file) --}}
+                                @if ($isPostSales ?? false)
+                                    <div class="mb-4 border rounded-3 p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                <i data-feather="credit-card" class="me-1"
+                                                    style="width: 14px; height: 14px;"></i>
+                                                Customer Payments (Post Sales → Accounts)
+                                            </h6>
+                                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                                data-bs-target="#postSalesAddPaymentModal">
+                                                <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                Add Payment
+                                            </button>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-sm mb-0" id="customerPaymentsTable">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Amount</th>
+                                                        <th>Method</th>
+                                                        <th>Paid On</th>
+                                                        <th>Due Date</th>
+                                                        <th>Transaction ID</th>
+                                                        <th>Status</th>
+                                                        <th class="text-center">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @php
+                                                        $payments = $lead->payments ?? collect();
+                                                    @endphp
+                                                    @if ($payments->count() > 0)
+                                                        @foreach ($payments as $payment)
+                                                            <tr>
+                                                                <td>₹{{ number_format($payment->amount, 2) }}</td>
+                                                                <td>{{ ucfirst(str_replace('_', ' ', $payment->method)) }}
+                                                                </td>
+                                                                <td>{{ $payment->payment_date ? $payment->payment_date->format('d/m/Y') : '-' }}
+                                                                </td>
+                                                                <td>{{ $payment->due_date ? $payment->due_date->format('d/m/Y') : '-' }}
+                                                                </td>
+                                                                <td>{{ $payment->reference ?? '-' }}</td>
+                                                                <td>
+                                                                    @php
+                                                                        $statusColor =
+                                                                            $payment->status === 'received'
+                                                                                ? 'success'
+                                                                                : ($payment->status === 'refunded'
+                                                                                    ? 'secondary'
+                                                                                    : 'warning');
+                                                                    @endphp
+                                                                    <span class="badge bg-{{ $statusColor }}">
+                                                                        {{ ucfirst($payment->status) }}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <i data-feather="edit"
+                                                                        class="post-sales-edit-payment-btn"
+                                                                        data-payment-id="{{ $payment->id }}"
+                                                                        data-amount="{{ $payment->amount }}"
+                                                                        data-method="{{ $payment->method }}"
+                                                                        data-payment-date="{{ $payment->payment_date ? $payment->payment_date->format('Y-m-d') : '' }}"
+                                                                        data-due-date="{{ $payment->due_date ? $payment->due_date->format('Y-m-d') : '' }}"
+                                                                        data-reference="{{ $payment->reference }}"
+                                                                        data-status="{{ $payment->status }}"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#postSalesAddPaymentModal"
+                                                                        style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
+                                                                    <button type="button"
+                                                                        class="border-0 bg-transparent p-0 m-0 delete-customer-payment-btn"
+                                                                        data-payment-id="{{ $payment->id }}"
+                                                                        title="Delete Payment">
+                                                                        <i data-feather="trash-2"
+                                                                            style="width: 16px; height: 16px; color: #dc3545; cursor: pointer; pointer-events: none;"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    @else
+                                                        <tr>
+                                                            <td colspan="7" class="text-center text-muted py-3">No
+                                                                customer payments recorded</td>
+                                                        </tr>
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                @endif
+                                <!-- Arrival/Departure Details Section -->
+                                @if (!($isPostSales ?? false))
+                                    <div class="mb-4 border rounded-3 p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                <i data-feather="navigation" class="me-1"
+                                                    style="width: 14px; height: 14px;"></i>
+                                                Arrival/Departure Details
+                                            </h6>
+                                            @if (!$isViewOnly)
+                                                <button type="button" class="btn btn-sm btn-primary"
+                                                    data-bs-toggle="modal" data-bs-target="#addArrivalDepartureModal">
+                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                    Add
+                                                </button>
+                                            @endif
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-sm mb-0" id="arrivalDepartureTable">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th style="width: 12%;" rowspan="2">Mode</th>
+                                                        <th style="width: 15%;" rowspan="2">Info</th>
+                                                        <th style="width: 12%;" rowspan="2">From City</th>
+                                                        <th style="width: 12%;" rowspan="2">To City</th>
+                                                        <th colspan="2" style="width: 18%;">Dep Date & Time</th>
+                                                        <th colspan="2" style="width: 18%;">Arrival Date & Time
+                                                        </th>
+                                                        @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                            <th style="width: 13%;" rowspan="2" class="text-center">
+                                                                Action</th>
+                                                        @endif
+                                                    </tr>
+
+                                                </thead>
+                                                <tbody id="arrivalDepartureTableBody">
+                                                    @php
+                                                        $allTransports = $lead->bookingArrivalDepartures ?? collect();
+                                                    @endphp
+                                                    @if ($allTransports && $allTransports->count() > 0)
+                                                        @foreach ($allTransports as $index => $transport)
+                                                            <tr class="arrival-departure-data-row"
+                                                                data-transport-id="{{ $transport->id }}"
+                                                                data-row-index="{{ $index }}">
+                                                                <td>{{ $transport->mode }}</td>
+                                                                <td>{{ $transport->info }}</td>
+                                                                <td>{{ $transport->from_city }}</td>
+                                                                <td>{{ $transport->to_city ?? '' }}</td>
+                                                                <td>
+                                                                    {{ $transport->departure_date ? ($transport->departure_date instanceof \DateTime ? $transport->departure_date->format('d/m/Y') : date('d/m/Y', strtotime($transport->departure_date))) : '' }}
+                                                                </td>
+                                                                <td>
+                                                                    {{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}
+                                                                </td>
+                                                                <td>
+                                                                    {{ $transport->arrival_date ? ($transport->arrival_date instanceof \DateTime ? $transport->arrival_date->format('d/m/Y') : date('d/m/Y', strtotime($transport->arrival_date))) : '' }}
+                                                                </td>
+                                                                <td>
+                                                                    {{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}
+                                                                </td>
+                                                                @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                    <td class="text-center">
+                                                                        @if (!$isViewOnly)
+                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                width="16" height="16"
+                                                                                viewBox="0 0 24 24" fill="none"
+                                                                                stroke="currentColor" stroke-width="2"
+                                                                                stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                class="editArrivalDepartureRow"
+                                                                                data-id="{{ $transport->id }}"
+                                                                                data-mode="{{ $transport->mode }}"
+                                                                                data-info="{{ $transport->info }}"
+                                                                                data-from-city="{{ $transport->from_city }}"
+                                                                                data-to-city="{{ $transport->to_city }}"
+                                                                                data-departure-date="{{ $transport->departure_date ? $transport->departure_date->format('Y-m-d') : '' }}"
+                                                                                data-departure-time="{{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}"
+                                                                                data-arrival-date="{{ $transport->arrival_date ? $transport->arrival_date->format('Y-m-d') : '' }}"
+                                                                                data-arrival-time="{{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#addArrivalDepartureModal"
+                                                                                style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;">
+                                                                                <path
+                                                                                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
+                                                                                </path>
+                                                                                <path
+                                                                                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
+                                                                                </path>
+                                                                            </svg>
+                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                width="16" height="16"
+                                                                                viewBox="0 0 24 24" fill="none"
+                                                                                stroke="currentColor" stroke-width="2"
+                                                                                stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                class="removeArrivalDepartureRow"
+                                                                                data-id="{{ $transport->id }}"
+                                                                                style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;">
+                                                                                <polyline points="3 6 5 6 21 6">
+                                                                                </polyline>
+                                                                                <path
+                                                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                                                                </path>
+                                                                            </svg>
+                                                                        @endif
+                                                                    </td>
+                                                                @endif
+                                                            </tr>
+                                                        @endforeach
+                                                    @else
+                                                        <tr>
+                                                            <td colspan="{{ !($isViewOnly && ($isOpsDept || ($isPostSales ?? false))) ? '9' : '8' }}"
+                                                                class="text-center text-muted py-4">
+                                                                <i data-feather="inbox"
+                                                                    style="width: 24px; height: 24px; opacity: 0.5;"
+                                                                    class="mb-2"></i>
+                                                                <div>No arrival/departure data available</div>
+                                                            </td>
+                                                        </tr>
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <!-- Accommodation Details Section -->
+                                @if (!($isPostSales ?? false))
+                                    <div class="mb-4 border rounded-3 p-3 bg-light">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                <i data-feather="home" class="me-1"
+                                                    style="width: 14px; height: 14px;"></i>
+                                                Accommodation Details
+                                            </h6>
+                                            @if (!$isViewOnly)
+                                                <button type="button" class="btn btn-sm btn-primary"
+                                                    data-bs-toggle="modal" data-bs-target="#addAccommodationModal">
+                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                    Add
+                                                </button>
+                                            @endif
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-sm mb-0" id="accommodationTable">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th style="width: 12%;">Destination</th>
+                                                        <th style="width: 12%;">Location</th>
+                                                        <th style="width: 12%;">Stay At</th>
+                                                        <th style="width: 12%;">Check-in</th>
+                                                        <th style="width: 12%;">Check-out</th>
+                                                        <th style="width: 12%;">Room Type</th>
+                                                        <th style="width: 12%;">Meal Plan</th>
+                                                        @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                            <th style="width: 4%;" class="text-center">Action</th>
+                                                        @endif
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="accommodationTableBody">
+                                                    @if ($lead->bookingAccommodations && $lead->bookingAccommodations->count() > 0)
+                                                        @foreach ($lead->bookingAccommodations as $index => $ba)
+                                                            <tr class="accommodation-data-row"
+                                                                data-row-index="{{ $index }}">
+                                                                <td>{{ $ba->destination }}</td>
+                                                                <td>{{ $ba->location }}</td>
+                                                                <td>{{ $ba->stay_at }}</td>
+                                                                <td>{{ $ba->checkin_date ? $ba->checkin_date->format('d/m/Y') : '' }}
+                                                                </td>
+                                                                <td>{{ $ba->checkout_date ? $ba->checkout_date->format('d/m/Y') : '' }}
+                                                                </td>
+                                                                <td>{{ $ba->room_type }}</td>
+                                                                <td>{{ $ba->meal_plan }}</td>
+                                                                @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                    <td class="text-center">
+                                                                        @if (!$isViewOnly)
+                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                width="16" height="16"
+                                                                                viewBox="0 0 24 24" fill="none"
+                                                                                stroke="currentColor" stroke-width="2"
+                                                                                stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                class="editAccommodationRow"
+                                                                                data-accommodation-id="{{ $ba->id }}"
+                                                                                data-destination="{{ $ba->destination }}"
+                                                                                data-location="{{ $ba->location }}"
+                                                                                data-stay-at="{{ $ba->stay_at }}"
+                                                                                data-checkin-date="{{ $ba->checkin_date ? $ba->checkin_date->format('Y-m-d') : '' }}"
+                                                                                data-checkout-date="{{ $ba->checkout_date ? $ba->checkout_date->format('Y-m-d') : '' }}"
+                                                                                data-room-type="{{ $ba->room_type }}"
+                                                                                data-meal-plan="{{ $ba->meal_plan }}"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#addAccommodationModal"
+                                                                                style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;">
+                                                                                <path
+                                                                                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
+                                                                                </path>
+                                                                                <path
+                                                                                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
+                                                                                </path>
+                                                                            </svg>
+                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                width="16" height="16"
+                                                                                viewBox="0 0 24 24" fill="none"
+                                                                                stroke="currentColor" stroke-width="2"
+                                                                                stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                class="removeAccommodationRow"
+                                                                                data-accommodation-id="{{ $ba->id }}"
+                                                                                style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;">
+                                                                                <polyline points="3 6 5 6 21 6">
+                                                                                </polyline>
+                                                                                <path
+                                                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                                                                </path>
+                                                                            </svg>
+                                                                        @endif
+                                                                    </td>
+                                                                @endif
+                                                            </tr>
+                                                        @endforeach
+                                                    @else
+                                                        <tr>
+                                                            <td colspan="{{ !($isViewOnly && ($isOpsDept || ($isPostSales ?? false))) ? '8' : '7' }}"
+                                                                class="text-center text-muted py-4">
+                                                                <i data-feather="inbox"
+                                                                    style="width: 24px; height: 24px; opacity: 0.5;"
+                                                                    class="mb-2"></i>
+                                                                <div>No accommodation data available</div>
+                                                            </td>
+                                                        </tr>
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <!-- Day-Wise Itinerary Section -->
+                                @if (!($isPostSales ?? false))
+                                    <div class="mb-4 border rounded-3 p-3" id="dayWiseItinerarySection"
+                                        style="display: none;">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                <i data-feather="calendar" class="me-1"
+                                                    style="width: 14px; height: 14px;"></i>
+                                                Day-Wise Itinerary
+                                            </h6>
+                                            @if (!$isViewOnly)
+                                                <button type="button" class="btn btn-sm btn-primary"
+                                                    data-bs-toggle="modal" data-bs-target="#addItineraryModal">
+                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                    Add
+                                                </button>
+                                            @endif
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-sm mb-0" id="itineraryTable">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th style="width: 12%;">Day & Date</th>
+                                                        <th style="width: 8%;">Time</th>
+                                                        <th style="width: 10%;">Location</th>
+                                                        <th style="width: 20%;">Activity/Tour Description</th>
+                                                        <th style="width: 10%;">Stay at</th>
+                                                        <th style="width: 15%;">Remarks</th>
+                                                        @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                            <th style="width: 7%;" class="text-center">Action</th>
+                                                        @endif
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="itineraryTableBody">
+                                                    @if ($lead->bookingItineraries && $lead->bookingItineraries->count() > 0)
+                                                        @foreach ($lead->bookingItineraries as $index => $bi)
+                                                            <tr class="itinerary-data-row"
+                                                                data-row-index="{{ $index }}">
+                                                                <td>{{ $bi->day_and_date }}</td>
+                                                                <td>{{ $bi->time ? substr($bi->time, 0, 5) : '' }}
+                                                                </td>
+                                                                <td>{{ $bi->location }}</td>
+                                                                <td>
+                                                                    @if ($bi->activity_tour_description)
+                                                                        @php
+                                                                            // Handle different line break formats (Windows \r\n, Unix \n, Mac \r)
+                                                                            $text = str_replace(
+                                                                                ["\r\n", "\r"],
+                                                                                "\n",
+                                                                                $bi->activity_tour_description,
+                                                                            );
+                                                                            $activities = array_filter(
+                                                                                array_map('trim', explode("\n", $text)),
+                                                                                function ($item) {
+                                                                                    return !empty($item);
+                                                                                },
+                                                                            );
+                                                                        @endphp
+                                                                        @if (count($activities) > 0)
+                                                                            <div class="mb-0"
+                                                                                style="padding-left: 0; margin-bottom: 0;">
+                                                                                @foreach ($activities as $activity)
+                                                                                    <div
+                                                                                        style="margin-bottom: 4px; padding-left: 0;">
+                                                                                        <span
+                                                                                            style="margin-right: 8px;">•</span>{{ $activity }}
+                                                                                    </div>
+                                                                                @endforeach
+                                                                            </div>
+                                                                        @else
+                                                                            {{ $bi->activity_tour_description }}
+                                                                        @endif
+                                                                    @else
+                                                                        -
+                                                                    @endif
+                                                                </td>
+                                                                <td>{{ $bi->stay_at }}</td>
+                                                                <td>{{ $bi->remarks }}</td>
+                                                                @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                    <td class="text-center">
+                                                                        @if (!$isViewOnly)
+                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                width="16" height="16"
+                                                                                viewBox="0 0 24 24" fill="none"
+                                                                                stroke="currentColor" stroke-width="2"
+                                                                                stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                class="editItineraryRow"
+                                                                                data-itinerary-id="{{ $bi->id }}"
+                                                                                data-day-date="{{ $bi->day_and_date }}"
+                                                                                data-time="{{ $bi->time ? substr($bi->time, 0, 5) : '' }}"
+                                                                                data-location="{{ $bi->location }}"
+                                                                                data-activity="{{ $bi->activity_tour_description }}"
+                                                                                data-stay-at="{{ $bi->stay_at }}"
+                                                                                data-remarks="{{ $bi->remarks }}"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#addItineraryModal"
+                                                                                style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;">
+                                                                                <path
+                                                                                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
+                                                                                </path>
+                                                                                <path
+                                                                                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
+                                                                                </path>
+                                                                            </svg>
+                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                width="16" height="16"
+                                                                                viewBox="0 0 24 24" fill="none"
+                                                                                stroke="currentColor" stroke-width="2"
+                                                                                stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                class="removeItineraryRow"
+                                                                                data-itinerary-id="{{ $bi->id }}"
+                                                                                style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;">
+                                                                                <polyline points="3 6 5 6 21 6">
+                                                                                </polyline>
+                                                                                <path
+                                                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                                                                </path>
+                                                                            </svg>
+                                                                        @endif
+                                                                    </td>
+                                                                @endif
+                                                            </tr>
+                                                        @endforeach
+                                                    @else
+                                                        <tr>
+                                                            <td colspan="{{ !($isViewOnly && ($isOpsDept || ($isPostSales ?? false))) ? '7' : '6' }}"
+                                                                class="text-center text-muted py-4">
+                                                                <i data-feather="inbox"
+                                                                    style="width: 24px; height: 24px; opacity: 0.5;"
+                                                                    class="mb-2"></i>
+                                                                <div>No itinerary data available</div>
+                                                            </td>
+                                                        </tr>
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <!-- Traveller Document Details (Post Sales editable, Operations view-only) -->
+                                @if (($isPostSales ?? false) || ($isOpsDept ?? false))
+                                    <div class="mb-4 border rounded-3 p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                <i data-feather="clipboard" class="me-1"
+                                                    style="width: 14px; height: 14px;"></i>
+                                                Traveller Document Details
+                                            </h6>
+                                            @if (!($isOpsDept ?? false))
+                                                <button type="button" id="openTravellerDocModalBtn"
+                                                    class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                                    data-bs-target="#travellerDocumentModal">
+                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                    Add
+                                                </button>
+                                            @endif
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-sm mb-0" id="travellerDocumentTable">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th style="width: 5%;">Sr. No.</th>
+                                                        <th style="width: 25%;">Full Name</th>
+                                                        <th style="width: 10%;">Contact No.</th>
+                                                        <th style="width: 15%;">Doc Type</th>
+                                                        <th style="width: 18%;">Doc No.</th>
+                                                        <th style="width: 10%;">Nationality</th>
+                                                        <th style="width: 8%;">DOB</th>
+                                                        <th style="width: 10%;">Place of Issue</th>
+                                                        <th style="width: 10%;">Expiry</th>
+                                                        <th style="width: 12%;">Remark</th>
+                                                        <th style="width: 10%;">Status</th>
+                                                        @if (!($isOpsDept ?? false))
+                                                            <th style="width: 8%;" class="text-center">Action</th>
+                                                        @endif
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="travellerDocumentTableBody">
+                                                    @php
+                                                        $travellerDocs = $lead->travellerDocuments ?? collect();
+                                                    @endphp
+                                                    @forelse($travellerDocs as $index => $doc)
+                                                        <tr data-row-type="{{ $doc->doc_type }}">
+                                                            <td>{{ $index + 1 }}</td>
+                                                            <td>
+                                                                @php
+                                                                    $fullName = trim(
+                                                                        ($doc->salutation
+                                                                            ? $doc->salutation . ' '
+                                                                            : '') .
+                                                                            ($doc->first_name ?? '') .
+                                                                            ($doc->last_name
+                                                                                ? ' ' . $doc->last_name
+                                                                                : ''),
+                                                                    );
+                                                                @endphp
+                                                                {{ $fullName ?: '-' }}
+                                                            </td>
+                                                            <td>{{ $doc->contact_no ?? '-' }}</td>
+                                                            <td>
+                                                                @switch($doc->doc_type)
+                                                                    @case('passport')
+                                                                        Passport
+                                                                    @break
+
+                                                                    @case('aadhar_card')
+                                                                        Aadhar Card
+                                                                    @break
+
+                                                                    @case('pan_card')
+                                                                        PAN Card
+                                                                    @break
+
+                                                                    @case('visa')
+                                                                        Visa
+                                                                    @break
+
+                                                                    @case('voter_id')
+                                                                        Voter ID
+                                                                    @break
+
+                                                                    @case('driving_license')
+                                                                        Driving License
+                                                                    @break
+
+                                                                    @case('govt_id')
+                                                                        Govt. ID
+                                                                    @break
+
+                                                                    @case('school_id')
+                                                                        School ID
+                                                                    @break
+
+                                                                    @case('birth_certificate')
+                                                                        Birth Certificate
+                                                                    @break
+
+                                                                    @case('marriage_certificate')
+                                                                        Marriage Certificate
+                                                                    @break
+
+                                                                    @case('photos')
+                                                                        Photos
+                                                                    @break
+
+                                                                    @case('insurance')
+                                                                        Insurance
+                                                                    @break
+
+                                                                    @case('other_document')
+                                                                        Other Document
+                                                                    @break
+
+                                                                    @default
+                                                                        {{ ucfirst(str_replace('_', ' ', $doc->doc_type)) }}
+                                                                @endswitch
+                                                            </td>
+
+                                                            <td>{{ $doc->doc_no ?? '-' }}</td>
+                                                            <td>
+                                                                @if ($doc->doc_type === 'passport')
+                                                                    {{ $doc->nationality }}
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @if ($doc->doc_type === 'passport' && $doc->dob)
+                                                                    {{ $doc->dob->format('d/m/Y') }}
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @if ($doc->doc_type === 'passport')
+                                                                    {{ $doc->place_of_issue }}
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @if ($doc->doc_type === 'passport' && $doc->date_of_expiry)
+                                                                    {{ $doc->date_of_expiry->format('d/m/Y') }}
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                {{ $doc->remark ?? '-' }}
+                                                            </td>
+                                                            <td>
+                                                                @php
+                                                                    $status = strtolower($doc->status ?? '');
+                                                                    $badgeClass = 'secondary';
+                                                                    $statusLabel = ucfirst(
+                                                                        str_replace('_', ' ', $status),
+                                                                    );
+                                                                    if ($status === 'received') {
+                                                                        $badgeClass = 'success';
+                                                                    } elseif ($status === 'pending') {
+                                                                        $badgeClass = 'warning';
+                                                                    } elseif ($status === 'not_required') {
+                                                                        $badgeClass = 'secondary';
+                                                                    } elseif ($status === 'required_again') {
+                                                                        $badgeClass = 'danger';
+                                                                    }
+                                                                @endphp
+                                                                @if ($status)
+                                                                    <span class="badge bg-{{ $badgeClass }}">
+                                                                        {{ $statusLabel }}
+                                                                    </span>
+                                                                @endif
+                                                            </td>
+                                                            @if (!($isOpsDept ?? false))
+                                                                <td class="text-center text-nowrap">
+                                                                    <button type="button"
+                                                                        class="btn btn-link p-0 me-1 traveller-doc-edit"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#travellerDocumentModal"
+                                                                        data-document-id="{{ $doc->id }}"
+                                                                        data-salutation="{{ $doc->salutation ?? '' }}"
+                                                                        data-first-name="{{ $doc->first_name }}"
+                                                                        data-last-name="{{ $doc->last_name }}"
+                                                                        data-contact-no="{{ $doc->contact_no ?? '' }}"
+                                                                        data-doc-type="{{ $doc->doc_type }}"
+                                                                        data-status="{{ $doc->status }}"
+                                                                        data-doc-no="{{ $doc->doc_no }}"
+                                                                        data-nationality="{{ $doc->nationality }}"
+                                                                        data-dob="{{ $doc->dob ? $doc->dob->format('Y-m-d') : '' }}"
+                                                                        data-place-of-issue="{{ $doc->place_of_issue }}"
+                                                                        data-date-of-expiry="{{ $doc->date_of_expiry ? $doc->date_of_expiry->format('Y-m-d') : '' }}"
+                                                                        data-remark="{{ $doc->remark ?? '' }}">
+                                                                        <i data-feather="edit" class="text-primary"
+                                                                            style="width: 16px; height: 16px;"></i>
+                                                                    </button>
+                                                                    <button type="button"
+                                                                        class="btn btn-link p-0 traveller-doc-delete"
+                                                                        data-delete-url="{{ route('leads.traveller-documents.destroy', [$lead, $doc]) }}">
+                                                                        <i data-feather="trash-2" class="text-danger"
+                                                                            style="width: 16px; height: 16px;"></i>
+                                                                    </button>
+                                                                </td>
+                                                            @endif
+                                                        </tr>
+                                                        @empty
+                                                            <tr>
+                                                                <td colspan="{{ $isOpsDept ?? false ? '11' : '12' }}"
+                                                                    class="text-center text-muted py-3">
+                                                                    No traveller document details added yet.
+                                                                </td>
+                                                            </tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    <!-- Vendor Payments Section (Ops Only) -->
+                                    @if ($isOpsDept ?? false)
+                                        <div class="mb-4 border rounded-3 p-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <div>
                                                     <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                        <i data-feather="file-text" class="me-1"
+                                                        <i data-feather="dollar-sign" class="me-1"
                                                             style="width: 14px; height: 14px;"></i>
-                                                        Document Checklist Summary (Across Entire Booking)
+                                                        Vendor Payments (Ops → Accounts)
                                                     </h6>
                                                 </div>
+                                                {{-- Ops can always edit Vendor Payments, even in view-only mode --}}
+                                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                                    data-bs-target="#addVendorPaymentModal">
+                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                    Add
+                                                </button>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-sm mb-0" id="vendorPaymentsTable">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>Vendor Code/Name</th>
+                                                            <th>Booking Type</th>
+                                                            <th>Location</th>
+                                                            <th>Purchase Cost</th>
+                                                            <th>Due Date</th>
+                                                            @if (!($isOpsDept ?? false) && !($isPostSales ?? false))
+                                                                <th style="background-color: #fff3cd;">Paid</th>
+                                                                <th style="background-color: #fff3cd;">Pending</th>
+                                                                <th style="background-color: #fff3cd;">Payment Mode</th>
+                                                                <th style="background-color: #fff3cd;">Ref. No.</th>
+                                                                <th style="background-color: #fff3cd;">Remarks</th>
+                                                            @else
+                                                                <th>Status</th>
+                                                            @endif
+                                                            <th class="text-center">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="vendorPaymentsTableBody">
+                                                        @if (isset($vendorPayments) && $vendorPayments->count() > 0)
+                                                            @foreach ($vendorPayments as $vp)
+                                                                <tr data-vendor-payment-id="{{ $vp->id }}"
+                                                                    data-vendor-code="{{ $vp->vendor_code ?? '' }}"
+                                                                    data-booking-type="{{ $vp->booking_type ?? '' }}"
+                                                                    data-location="{{ $vp->location ?? '' }}"
+                                                                    data-purchase-cost="{{ $vp->purchase_cost ?? 0 }}"
+                                                                    data-due-date="{{ $vp->due_date ? $vp->due_date->format('Y-m-d') : '' }}"
+                                                                    data-status="{{ $vp->status ?? 'Pending' }}">
+                                                                    <td>{{ $vp->vendor_code ?? '-' }}</td>
+                                                                    <td>{{ $vp->booking_type ?? '-' }}</td>
+                                                                    <td>{{ $vp->location ?? '-' }}</td>
+                                                                    <td>{{ $vp->purchase_cost ? number_format($vp->purchase_cost, 2) : '-' }}
+                                                                    </td>
+                                                                    <td>{{ $vp->due_date ? $vp->due_date->format('d/m/Y') : '-' }}
+                                                                    </td>
+                                                                    @if (!($isOpsDept ?? false) && !($isPostSales ?? false))
+                                                                        <td style="background-color: #fff3cd;">
+                                                                            {{ $vp->paid_amount ? number_format($vp->paid_amount, 2) : '-' }}
+                                                                        </td>
+                                                                        <td style="background-color: #fff3cd;">
+                                                                            {{ $vp->pending_amount ? number_format($vp->pending_amount, 2) : '-' }}
+                                                                        </td>
+                                                                        <td style="background-color: #fff3cd;">
+                                                                            {{ $vp->payment_mode ?? '-' }}</td>
+                                                                        <td style="background-color: #fff3cd;">
+                                                                            {{ $vp->ref_no ?? '-' }}</td>
+                                                                        <td style="background-color: #fff3cd;">
+                                                                            {{ $vp->remarks ?? '-' }}</td>
+                                                                    @else
+                                                                        <td>
+                                                                            <span
+                                                                                class="badge bg-{{ $vp->status == 'Paid' ? 'success' : ($vp->status == 'Pending' ? 'warning' : 'secondary') }}">
+                                                                                {{ $vp->status ?? 'Pending' }}
+                                                                            </span>
+                                                                        </td>
+                                                                    @endif
+                                                                    <td class="text-center">
+                                                                        {{-- Ops can always edit/delete Vendor Payments, even in view-only mode --}}
+                                                                        <button type="button"
+                                                                            class="btn btn-sm btn-outline-primary edit-vendor-payment-btn"
+                                                                            data-vendor-payment-id="{{ $vp->id }}"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#addVendorPaymentModal">
+                                                                            <i data-feather="edit"
+                                                                                style="width: 14px; height: 14px;"></i>
+                                                                        </button>
+                                                                        <button type="button"
+                                                                            class="btn btn-sm btn-outline-danger delete-vendor-payment-btn"
+                                                                            data-vendor-payment-id="{{ $vp->id }}">
+                                                                            <i data-feather="trash-2"
+                                                                                style="width: 14px; height: 14px;"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        @else
+                                                            <tr>
+                                                                <td colspan="{{ $isViewOnly && $isOpsDept ? '7' : '11' }}"
+                                                                    class="text-center text-muted py-4">No vendor payments
+                                                                    found</td>
+                                                            </tr>
+                                                        @endif
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <!-- Status Update Section -->
+                                @php
+                                    $currentUserId = Auth::id();
+                                    $department = Auth::user()->department ?? '';
+                                    $userRole = Auth::user()->getRoleNames()->first() ?? '';
+                                @endphp
+                                <div class="mb-4 border rounded-3 p-3">
+                                    <h6 class="text-uppercase text-muted small fw-semibold mb-3">
+                                        <i data-feather="edit-3" class="me-1" style="width: 14px; height: 14px;"></i>
+                                        Status Update
+                                    </h6>
+                                    @if ($isOpsDept ?? false)
+                                        <!-- Operations Status Update -->
+                                        @if ($lead->operation)
+                                            <form method="POST"
+                                                action="{{ route('leads.operations.update', [$lead, $lead->operation]) }}">
+                                                @csrf
+                                                @method('PUT')
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Operation Status</label>
+                                                        <select name="operation_status" class="form-select form-select-sm"
+                                                            {{ $isViewOnly ? 'disabled' : '' }}>
+                                                            <option value="pending"
+                                                                {{ $lead->operation->operation_status == 'pending' ? 'selected' : '' }}>
+                                                                Pending</option>
+                                                            <option value="in_progress"
+                                                                {{ $lead->operation->operation_status == 'in_progress' ? 'selected' : '' }}>
+                                                                In Progress</option>
+                                                            <option value="completed"
+                                                                {{ $lead->operation->operation_status == 'completed' ? 'selected' : '' }}>
+                                                                Completed</option>
+                                                            <option value="cancelled"
+                                                                {{ $lead->operation->operation_status == 'cancelled' ? 'selected' : '' }}>
+                                                                Cancelled</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6 d-flex align-items-end">
+                                                        @if (!$isViewOnly)
+                                                            <button type="submit" class="btn btn-sm btn-primary">
+                                                                <i data-feather="save" style="width: 14px; height: 14px;"></i>
+                                                                Update Status
+                                                            </button>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        @else
+                                            <form method="POST" action="{{ route('leads.operations.store', $lead) }}">
+                                                @csrf
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Operation Status</label>
+                                                        <select name="operation_status" class="form-select form-select-sm"
+                                                            {{ $isViewOnly ? 'disabled' : '' }} required>
+                                                            <option value="pending" selected>Pending</option>
+                                                            <option value="in_progress">In Progress</option>
+                                                            <option value="completed">Completed</option>
+                                                            <option value="cancelled">Cancelled</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6 d-flex align-items-end">
+                                                        @if (!$isViewOnly)
+                                                            <button type="submit" class="btn btn-sm btn-primary">
+                                                                <i data-feather="save" style="width: 14px; height: 14px;"></i>
+                                                                Create Operation
+                                                            </button>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        @endif
+                                    @elseif($isPostSales ?? false)
+                                        <!-- Post Sales Status Update (Document Status) -->
+                                        <div class="row g-3">
+                                            <div class="col-md-12">
+                                                <label class="form-label">Document Status Summary</label>
                                                 <div class="table-responsive">
                                                     <table class="table table-bordered table-sm mb-0">
                                                         <thead class="table-light">
                                                             <tr>
                                                                 <th>Document Type</th>
-                                                                <th class="text-center">Total Required</th>
-                                                                <th class="text-center">Received</th>
-                                                                <th class="text-center">Pending</th>
-                                                                <th class="text-center">Issues Found</th>
+                                                                <th>Status</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
                                                             @php
-                                                                $travellerDocs = $lead->travellerDocuments ?? collect();
-                                                                $documentTypes = [
-                                                                    'passport' => 'Passports',
-                                                                    'visa' => 'Visa',
-                                                                    'pan_card' => 'Pan Card',
-                                                                    'voter_id' => 'Voter ID',
-                                                                    'driving_license' => 'Driving License',
-                                                                    'govt_id' => 'Govt. ID',
-                                                                    'school_id' => 'School ID',
-                                                                    'birth_certificate' => 'Birth Certificate',
-                                                                    'marriage_certificate' => 'Marriage Certificate',
-                                                                    'aadhar_card' => 'Aadhar',
-                                                                    'photos' => 'Photos',
-                                                                    'insurance' => 'Insurance',
-                                                                ];
-
-                                                                // Group documents by type and calculate counts
-                                                                $docCounts = [];
-                                                                foreach ($documentTypes as $docType => $docLabel) {
-                                                                    $docsOfType = $travellerDocs->where(
-                                                                        'doc_type',
-                                                                        $docType,
-                                                                    );
-                                                                    $totalRequired = $docsOfType->count();
-                                                                    $received = $docsOfType
-                                                                        ->where('status', 'received')
-                                                                        ->count();
-                                                                    $pending = $docsOfType
-                                                                        ->where('status', 'pending')
-                                                                        ->count();
-                                                                    $issuesFound = $docsOfType
-                                                                        ->where('status', 'required_again')
-                                                                        ->count();
-
-                                                                    // Get remarks for documents that are not received
-                                                                    $notReceivedDocs = $docsOfType
-                                                                        ->where('status', '!=', 'received')
-                                                                        ->whereNotNull('remark')
-                                                                        ->where('remark', '!=', '');
-                                                                    $remarks = $notReceivedDocs
-                                                                        ->pluck('remark')
-                                                                        ->filter()
-                                                                        ->unique()
-                                                                        ->values();
-
-                                                                    $docCounts[$docType] = [
-                                                                        'label' => $docLabel,
-                                                                        'total_required' => $totalRequired,
-                                                                        'received' => $received,
-                                                                        'pending' => $pending,
-                                                                        'issues_found' => $issuesFound,
-                                                                        'remarks' => $remarks,
-                                                                    ];
-                                                                }
+                                                                $documents = $lead->travellerDocuments ?? collect();
                                                             @endphp
-                                                            @foreach ($docCounts as $docType => $counts)
-                                                                <tr>
-                                                                    <td>{{ $counts['label'] }}</td>
-                                                                    <td class="text-center">{{ $counts['total_required'] }}
-                                                                    </td>
-                                                                    <td class="text-center">{{ $counts['received'] }}</td>
-                                                                    <td class="text-center">{{ $counts['pending'] }}</td>
-                                                                    <td class="text-center">
-                                                                        @if ($counts['remarks']->isNotEmpty())
-                                                                            <div class="text-start"
-                                                                                style="max-width: 200px; font-size: 0.85rem;">
-                                                                                @foreach ($counts['remarks'] as $remark)
-                                                                                    <div class="mb-1">{{ $remark }}
-                                                                                    </div>
-                                                                                @endforeach
-                                                                            </div>
-                                                                        @elseif($counts['issues_found'] > 0)
-                                                                            {{ $counts['issues_found'] }} incorrect
-                                                                        @else
-                                                                            0
-                                                                        @endif
-                                                                    </td>
-                                                                </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        @endif
-
-                                        <!-- Vendor Payments Section (Ops Only) -->
-                                        @if ($isOpsDept ?? false)
-                                            <div class="mb-4 border rounded-3 p-3">
-                                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                                    <div>
-                                                        <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                            <i data-feather="dollar-sign" class="me-1"
-                                                                style="width: 14px; height: 14px;"></i>
-                                                            Vendor Payments (Ops → Accounts)
-                                                        </h6>
-                                                    </div>
-                                                    {{-- Ops can always edit Vendor Payments, even in view-only mode --}}
-                                                    <button type="button" class="btn btn-sm btn-primary"
-                                                        data-bs-toggle="modal" data-bs-target="#addVendorPaymentModal">
-                                                        <i data-feather="plus" style="width: 14px; height: 14px;"></i>
-                                                        Add
-                                                    </button>
-                                                </div>
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered table-sm mb-0"
-                                                        id="vendorPaymentsTable">
-                                                        <thead class="table-light">
-                                                            <tr>
-                                                                <th>Vendor Code/Name</th>
-                                                                <th>Booking Type</th>
-                                                                <th>Location</th>
-                                                                <th>Purchase Cost</th>
-                                                                <th>Due Date</th>
-                                                                @if (!($isOpsDept ?? false) && !($isPostSales ?? false))
-                                                                    <th style="background-color: #fff3cd;">Paid</th>
-                                                                    <th style="background-color: #fff3cd;">Pending</th>
-                                                                    <th style="background-color: #fff3cd;">Payment Mode</th>
-                                                                    <th style="background-color: #fff3cd;">Ref. No.</th>
-                                                                    <th style="background-color: #fff3cd;">Remarks</th>
-                                                                @else
-                                                                    <th>Status</th>
-                                                                @endif
-                                                                <th class="text-center">Action</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody id="vendorPaymentsTableBody">
-                                                            @if (isset($vendorPayments) && $vendorPayments->count() > 0)
-                                                                @foreach ($vendorPayments as $vp)
-                                                                    <tr data-vendor-payment-id="{{ $vp->id }}"
-                                                                        data-vendor-code="{{ $vp->vendor_code ?? '' }}"
-                                                                        data-booking-type="{{ $vp->booking_type ?? '' }}"
-                                                                        data-location="{{ $vp->location ?? '' }}"
-                                                                        data-purchase-cost="{{ $vp->purchase_cost ?? 0 }}"
-                                                                        data-due-date="{{ $vp->due_date ? $vp->due_date->format('Y-m-d') : '' }}"
-                                                                        data-status="{{ $vp->status ?? 'Pending' }}">
-                                                                        <td>{{ $vp->vendor_code ?? '-' }}</td>
-                                                                        <td>{{ $vp->booking_type ?? '-' }}</td>
-                                                                        <td>{{ $vp->location ?? '-' }}</td>
-                                                                        <td>{{ $vp->purchase_cost ? number_format($vp->purchase_cost, 2) : '-' }}
-                                                                        </td>
-                                                                        <td>{{ $vp->due_date ? $vp->due_date->format('d/m/Y') : '-' }}
-                                                                        </td>
-                                                                        @if (!($isOpsDept ?? false) && !($isPostSales ?? false))
-                                                                            <td style="background-color: #fff3cd;">
-                                                                                {{ $vp->paid_amount ? number_format($vp->paid_amount, 2) : '-' }}
-                                                                            </td>
-                                                                            <td style="background-color: #fff3cd;">
-                                                                                {{ $vp->pending_amount ? number_format($vp->pending_amount, 2) : '-' }}
-                                                                            </td>
-                                                                            <td style="background-color: #fff3cd;">
-                                                                                {{ $vp->payment_mode ?? '-' }}</td>
-                                                                            <td style="background-color: #fff3cd;">
-                                                                                {{ $vp->ref_no ?? '-' }}</td>
-                                                                            <td style="background-color: #fff3cd;">
-                                                                                {{ $vp->remarks ?? '-' }}</td>
-                                                                        @else
-                                                                            <td>
+                                                            @if ($documents->count() > 0)
+                                                                @foreach ($documents->groupBy('type') as $type => $docs)
+                                                                    <tr>
+                                                                        <td>{{ ucfirst(str_replace('_', ' ', $type)) }}</td>
+                                                                        <td>
+                                                                            @php
+                                                                                $statusCounts = $docs->groupBy(
+                                                                                    'status',
+                                                                                );
+                                                                            @endphp
+                                                                            @foreach ($statusCounts as $status => $statusDocs)
                                                                                 <span
-                                                                                    class="badge bg-{{ $vp->status == 'Paid' ? 'success' : ($vp->status == 'Pending' ? 'warning' : 'secondary') }}">
-                                                                                    {{ $vp->status ?? 'Pending' }}
+                                                                                    class="badge bg-{{ $status == 'verified' ? 'success' : ($status == 'received' ? 'warning' : 'secondary') }}">
+                                                                                    {{ ucfirst($status) }}:
+                                                                                    {{ $statusDocs->count() }}
                                                                                 </span>
-                                                                            </td>
-                                                                        @endif
-                                                                        <td class="text-center">
-                                                                            {{-- Ops can always edit/delete Vendor Payments, even in view-only mode --}}
-                                                                            <button type="button"
-                                                                                class="btn btn-sm btn-outline-primary edit-vendor-payment-btn"
-                                                                                data-vendor-payment-id="{{ $vp->id }}"
-                                                                                data-bs-toggle="modal"
-                                                                                data-bs-target="#addVendorPaymentModal">
-                                                                                <i data-feather="edit"
-                                                                                    style="width: 14px; height: 14px;"></i>
-                                                                            </button>
-                                                                            <button type="button"
-                                                                                class="btn btn-sm btn-outline-danger delete-vendor-payment-btn"
-                                                                                data-vendor-payment-id="{{ $vp->id }}">
-                                                                                <i data-feather="trash-2"
-                                                                                    style="width: 14px; height: 14px;"></i>
-                                                                            </button>
+                                                                            @endforeach
                                                                         </td>
                                                                     </tr>
                                                                 @endforeach
                                                             @else
                                                                 <tr>
-                                                                    <td colspan="{{ $isViewOnly && $isOpsDept ? '7' : '11' }}"
-                                                                        class="text-center text-muted py-4">No vendor payments
-                                                                        found</td>
+                                                                    <td colspan="2" class="text-center text-muted">No
+                                                                        documents found</td>
                                                                 </tr>
                                                             @endif
                                                         </tbody>
                                                     </table>
                                                 </div>
                                             </div>
-                                        @endif
-
-                                        @if (!$isViewOnly)
-                                            {{-- Cancel and Save Booking File buttons removed --}}
-                                        @else
-                                            <div class="d-flex justify-content-end gap-2 mb-4">
-                                                <a href="{{ $backUrl ?? route('bookings.index') }}"
-                                                    class="btn btn-light border">Back</a>
+                                        </div>
+                                    @else
+                                        <!-- Sales Status Update -->
+                                        <form method="POST" action="{{ route('leads.update', $lead) }}">
+                                            @csrf
+                                            @method('PUT')
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Lead Status</label>
+                                                    <select name="status" class="form-select form-select-sm"
+                                                        {{ $isViewOnly ? 'disabled' : '' }}>
+                                                        <option value="new"
+                                                            {{ $lead->status == 'new' ? 'selected' : '' }}>New</option>
+                                                        <option value="contacted"
+                                                            {{ $lead->status == 'contacted' ? 'selected' : '' }}>Contacted
+                                                        </option>
+                                                        <option value="follow_up"
+                                                            {{ $lead->status == 'follow_up' ? 'selected' : '' }}>Follow Up
+                                                        </option>
+                                                        <option value="priority"
+                                                            {{ $lead->status == 'priority' ? 'selected' : '' }}>Priority
+                                                        </option>
+                                                        <option value="booked"
+                                                            {{ $lead->status == 'booked' ? 'selected' : '' }}>Booked</option>
+                                                        <option value="closed"
+                                                            {{ $lead->status == 'closed' ? 'selected' : '' }}>Closed</option>
+                                                        <option value="cancelled"
+                                                            {{ $lead->status == 'cancelled' ? 'selected' : '' }}>Cancelled
+                                                        </option>
+                                                        <option value="refunded"
+                                                            {{ $lead->status == 'refunded' ? 'selected' : '' }}>Refunded
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6 d-flex align-items-end">
+                                                    @if (!$isViewOnly)
+                                                        <button type="submit" class="btn btn-sm btn-primary">
+                                                            <i data-feather="save" style="width: 14px; height: 14px;"></i>
+                                                            Update Status
+                                                        </button>
+                                                    @endif
+                                                </div>
                                             </div>
+                                        </form>
+                                    @endif
+                                </div>
+
+                                <!-- History Section (Remark History) -->
+                                <div class="mb-4 border rounded-3 p-3">
+                                    <h6 class="text-uppercase text-muted small fw-semibold mb-3">
+                                        <i data-feather="clock" class="me-1" style="width: 14px; height: 14px;"></i>
+                                        History
+                                    </h6>
+                                    <div style="max-height: 400px; overflow-y: auto;">
+                                        @php
+                                            $lead->load('bookingFileRemarks.user');
+                                            $currentDepartment = Auth::user()->department ?? 'Sales';
+                                            if ($isOpsDept ?? false) {
+                                                $currentDepartment = 'Operations';
+                                            } elseif ($isPostSales ?? false) {
+                                                $currentDepartment = 'Post Sales';
+                                            }
+                                            // Check if user is admin
+                                            $isAdmin =
+                                                Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Developer');
+                                            // If admin, show all remarks; otherwise, show only own remarks
+                                            $remarksQuery = $lead
+                                                ->bookingFileRemarks()
+                                                ->where('department', $currentDepartment);
+                                            if (!$isAdmin) {
+                                                $remarksQuery->where('user_id', Auth::id());
+                                            }
+                                            $allRemarks = $remarksQuery->orderBy('created_at', 'desc')->get();
+                                        @endphp
+                                        @if ($allRemarks->count() > 0)
+                                            <div class="timeline">
+                                                @foreach ($allRemarks as $remark)
+                                                    <div class="border rounded-3 p-3 mb-3 bg-white">
+                                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                                            <div class="d-flex align-items-start flex-grow-1">
+                                                                <div class="avatar avatar-rounded rounded-circle me-3 flex-shrink-0"
+                                                                    style="background-color: #007d88; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                                                    <span class="text-white fw-bold"
+                                                                        style="font-size: 0.875rem;">
+                                                                        {{ strtoupper(substr($remark->user->name ?? 'U', 0, 1)) }}
+                                                                    </span>
+                                                                </div>
+                                                                <div class="flex-grow-1">
+                                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                                                        <strong
+                                                                            class="text-dark">{{ $remark->user->name ?? 'Unknown' }}</strong>
+                                                                        <small
+                                                                            class="text-muted">{{ $remark->created_at->format('d M, Y h:i A') }}</small>
+                                                                        @if ($remark->follow_up_at)
+                                                                            <span class="badge bg-danger">Follow-up:
+                                                                                {{ $remark->follow_up_at->format('d M, Y h:i A') }}</span>
+                                                                        @endif
+                                                                    </div>
+                                                                    <p class="mb-0 text-dark" style="line-height: 1.6;">
+                                                                        {{ $remark->remark }}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <p class="text-muted text-center mb-0 py-4">
+                                                <i data-feather="message-circle" class="me-2"
+                                                    style="width: 16px; height: 16px;"></i>
+                                                No remarks available.
+                                            </p>
                                         @endif
-                                    </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1275,6 +1423,9 @@
                 </div>
             </div>
         </div>
+        @include('layouts.footer')
+        </div>
+
 
         @can('edit leads')
             <!-- Re-assign Lead Modal -->
@@ -1586,8 +1737,8 @@
         </div>
 
         <!-- Add Arrival/Departure Modal -->
-        <div class="modal fade" id="addArrivalDepartureModal" tabindex="-1" aria-labelledby="addArrivalDepartureModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="addArrivalDepartureModal" tabindex="-1"
+            aria-labelledby="addArrivalDepartureModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -1621,9 +1772,10 @@
                                         placeholder="To City">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Departure Date & Time <span class="text-danger">*</span></label>
-                                    <input type="datetime-local" class="form-control form-control-sm" id="modalDepartureAt"
-                                        required>
+                                    <label class="form-label">Departure Date & Time <span
+                                            class="text-danger">*</span></label>
+                                    <input type="datetime-local" class="form-control form-control-sm"
+                                        id="modalDepartureAt" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Arrival Date & Time <span class="text-danger">*</span></label>
@@ -1939,15 +2091,15 @@
 
                     // Reset modal for New Destination
                     document.querySelector('[data-bs-target="#addDestinationModal"]')?.addEventListener('click',
-                function() {
-                        if (this.id === 'submitDestinationModal') return; // Ignore submit click
-                        editingDestinationRow = null;
-                        document.getElementById('addDestinationModalLabel').textContent = 'Add Destination';
-                        document.getElementById('addDestinationForm').reset();
-                        document.getElementById('modalLocationSelect').innerHTML =
-                            '<option value="">-- Select Location --</option>';
-                        document.getElementById('submitDestinationModal').textContent = 'Add';
-                    });
+                        function() {
+                            if (this.id === 'submitDestinationModal') return; // Ignore submit click
+                            editingDestinationRow = null;
+                            document.getElementById('addDestinationModalLabel').textContent = 'Add Destination';
+                            document.getElementById('addDestinationForm').reset();
+                            document.getElementById('modalLocationSelect').innerHTML =
+                                '<option value="">-- Select Location --</option>';
+                            document.getElementById('submitDestinationModal').textContent = 'Add';
+                        });
 
                     // Edit Handler (UI side)
                     document.addEventListener('click', function(e) {
@@ -2364,12 +2516,12 @@
                         if (editBtn) {
                             editingAccommodationId = editBtn.dataset.accommodationId;
                             document.getElementById('addAccommodationModalLabel').textContent =
-                            'Edit Accommodation';
+                                'Edit Accommodation';
                             document.getElementById('submitAccommodationModal').textContent = 'Update';
 
                             // Populate fields
                             document.getElementById('modalAccDestinationSelect').value = editBtn.dataset
-                            .destination;
+                                .destination;
                             editingAccLocationValue = editBtn.dataset.location;
                             document.getElementById('modalStayAt').value = editBtn.dataset.stayAt;
                             document.getElementById('modalCheckinDate').value = editBtn.dataset.checkinDate;
@@ -2569,7 +2721,7 @@
                             document.getElementById('addItineraryForm').reset();
                             editingItineraryId = null;
                             document.getElementById('addItineraryModalLabel').textContent =
-                            'Add Day-Wise Itinerary';
+                                'Add Day-Wise Itinerary';
                             document.getElementById('submitItineraryModal').textContent = 'Add';
 
                             // Pre-fill Day & Date based on existing data
@@ -2829,7 +2981,8 @@
                         form.querySelector('input[name=\"due_date\"]').value = dueDate;
                         form.querySelector('input[name=\"reference\"]').value = reference;
                         const statusSelect = form.querySelector(
-                        'select[class*="form-select"]'); // Use class selector as name might be status or status_display
+                            'select[class*="form-select"]'
+                        ); // Use class selector as name might be status or status_display
                         if (statusSelect) {
                             statusSelect.value = status;
                         }
@@ -3071,6 +3224,7 @@
                         console.log('Direct submission enabled for bookingFileForm');
                     }
 
+
                     // Handle Sales Cost Update Button
                     const updateSalesCostBtn = document.getElementById('updateSalesCostBtn');
                     const salesCostInput = document.getElementById('salesCostInput');
@@ -3090,18 +3244,18 @@
 
                             try {
                                 const response = await fetch(
-                                '{{ route('leads.update-sales-cost', $lead) }}', {
-                                    method: 'PUT',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': document.querySelector(
-                                            'meta[name="csrf-token"]')?.content,
-                                        'Accept': 'application/json'
-                                    },
-                                    body: JSON.stringify({
-                                        selling_price: salesCost
-                                    })
-                                });
+                                    '{{ route('leads.update-sales-cost', $lead) }}', {
+                                        method: 'PUT',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': document.querySelector(
+                                                'meta[name="csrf-token"]')?.content,
+                                            'Accept': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            selling_price: salesCost
+                                        })
+                                    });
 
                                 const result = await response.json();
 

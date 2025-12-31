@@ -187,6 +187,11 @@ class Lead extends Model
         return $this->hasMany(VendorPayment::class);
     }
 
+    public function bookingFileRemarks()
+    {
+        return $this->hasMany(BookingFileRemark::class);
+    }
+
     public function travellerDocuments()
     {
         return $this->hasMany(TravellerDocument::class);

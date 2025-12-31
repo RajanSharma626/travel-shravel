@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DestinationController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LeadRemarkController;
+use App\Http\Controllers\BookingFileRemarkController;
 use App\Http\Controllers\ServiceController;
 // use App\Http\Controllers\UserController; // Removed - Now using HR tab for user management
 use App\Http\Controllers\PaymentController;
@@ -166,6 +167,20 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::delete('/leads/{lead}/remarks/{remark}', [LeadRemarkController::class, 'destroy'])->name('leads.remarks.destroy');
     });
 
+    // Booking File Remarks
+    Route::middleware('permission:view remarks')->group(function () {
+        Route::get('/leads/{lead}/booking-file-remarks', [BookingFileRemarkController::class, 'index'])->name('leads.booking-file-remarks.index');
+    });
+    Route::middleware('permission:create remarks')->group(function () {
+        Route::post('/leads/{lead}/booking-file-remarks', [BookingFileRemarkController::class, 'store'])->name('leads.booking-file-remarks.store');
+    });
+    Route::middleware('permission:edit remarks')->group(function () {
+        Route::put('/leads/{lead}/booking-file-remarks/{bookingFileRemark}', [BookingFileRemarkController::class, 'update'])->name('leads.booking-file-remarks.update');
+    });
+    Route::middleware('permission:delete remarks')->group(function () {
+        Route::delete('/leads/{lead}/booking-file-remarks/{bookingFileRemark}', [BookingFileRemarkController::class, 'destroy'])->name('leads.booking-file-remarks.destroy');
+    });
+
     // Accounts & Payments
     Route::middleware('permission:view payments')->group(function () {
         Route::get('/accounts', [PaymentController::class, 'index'])->name('accounts.index');
@@ -257,6 +272,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     // Deliveries
     Route::middleware('permission:view deliveries')->group(function () {
         Route::get('/deliveries', [DeliveryController::class, 'index'])->name('deliveries.index');
+        Route::get('/deliveries/{lead}/booking-file', [DeliveryController::class, 'bookingFile'])->name('deliveries.booking-file');
     });
     Route::middleware('permission:view deliveries')->group(function () {
         Route::get('/leads/{lead}/deliveries', [DeliveryController::class, 'show'])->name('leads.deliveries.index');

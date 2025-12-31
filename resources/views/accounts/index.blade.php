@@ -37,12 +37,13 @@
                                         </div>
                                     </div>
                                     @can('export reports')
-                                    <div class="col-md-4 col-lg-3 align-self-end">
-                                        <a href="{{ route('api.accounts.export') }}" class="btn btn-primary btn-sm">
-                                            <i data-feather="download" class="me-1" style="width: 16px; height: 16px;"></i>
-                                            Export
-                                        </a>
-                                    </div>
+                                        <div class="col-md-4 col-lg-3 align-self-end">
+                                            <a href="{{ route('api.accounts.export') }}" class="btn btn-primary btn-sm">
+                                                <i data-feather="download" class="me-1"
+                                                    style="width: 16px; height: 16px;"></i>
+                                                Export
+                                            </a>
+                                        </div>
                                     @endcan
                                     @if (!empty($filters['search']) || !empty($filters['payment_status']))
                                         <div class="col-md-3 col-lg-2 align-self-end ms-auto">
@@ -53,10 +54,10 @@
                                     @endif
                                 </form>
 
-                                @if(isset($leads) && $leads->count() > 0)
-                                <div class="text-muted small mb-2 px-3">
-                                    Showing {{ $leads->firstItem() ?? 0 }} out of {{ $leads->total() }}
-                                </div>
+                                @if (isset($leads) && $leads->count() > 0)
+                                    <div class="text-muted small mb-2 px-3">
+                                        Showing {{ $leads->firstItem() ?? 0 }} out of {{ $leads->total() }}
+                                    </div>
                                 @endif
 
                                 <table class="table table-striped small table-bordered w-100 mb-5" id="accountsTable">
@@ -68,8 +69,8 @@
                                             <th>Travel Date</th>
                                             <th>Date of Return</th>
                                             <th>Sales Person</th>
-                                            <th>Ops Person</th>
                                             <th>Booking Type</th>
+                                            <th>Remark</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -77,10 +78,22 @@
                                         @forelse ($leads as $lead)
                                             @php
                                                 $firstDestination = $lead->bookingDestinations->first();
-                                                $destination = $firstDestination ? $firstDestination->destination : ($lead->destination ? $lead->destination->name : '-');
-                                                $travelDate = $firstDestination && $firstDestination->from_date ? $firstDestination->from_date->format('d/m/Y') : ($lead->travel_date ? $lead->travel_date->format('d/m/Y') : '-');
-                                                $returnDate = $firstDestination && $firstDestination->to_date ? $firstDestination->to_date->format('d/m/Y') : '-';
-                                                
+                                                $destination = $firstDestination
+                                                    ? $firstDestination->destination
+                                                    : ($lead->destination
+                                                        ? $lead->destination->name
+                                                        : '-');
+                                                $travelDate =
+                                                    $firstDestination && $firstDestination->from_date
+                                                        ? $firstDestination->from_date->format('d/m/Y')
+                                                        : ($lead->travel_date
+                                                            ? $lead->travel_date->format('d/m/Y')
+                                                            : '-');
+                                                $returnDate =
+                                                    $firstDestination && $firstDestination->to_date
+                                                        ? $firstDestination->to_date->format('d/m/Y')
+                                                        : '-';
+
                                                 // Determine booking type
                                                 $bookingType = '-';
                                                 if ($firstDestination) {
@@ -104,14 +117,32 @@
                                                 <td>{{ $destination }}</td>
                                                 <td>{{ $travelDate }}</td>
                                                 <td>{{ $returnDate }}</td>
-                                                <td>{{ $lead->assigned_employee?->name ?? $lead->assignedUser?->name ?? '-' }}</td>
-                                                <td>{{ $lead->operation ? ($lead->assigned_employee?->name ?? $lead->assignedUser?->name ?? '-') : '-' }}</td>
+                                                <td>{{ $lead->assigned_employee?->name ?? ($lead->assignedUser?->name ?? '-') }}
+                                                </td>
                                                 <td>{{ $bookingType }}</td>
+                                                <td>
+                                                    @if ($lead->latest_booking_file_remark)
+                                                        <div class="d-flex align-items-start">
+                                                            <div class="flex-grow-1">
+                                                                <div class="small text-muted mb-1">
+                                                                    <strong>{{ $lead->latest_booking_file_remark->user->name ?? 'Unknown' }}</strong>
+                                                                    <span
+                                                                        class="ms-2">{{ $lead->latest_booking_file_remark->created_at->format('d/m/Y h:i A') }}</span>
+                                                                </div>
+                                                                <div class="text-truncate" style="max-width: 300px;"
+                                                                    title="{{ $lead->latest_booking_file_remark->remark }}">
+                                                                    {{ Str::limit($lead->latest_booking_file_remark->remark, 80) }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <span class="text-muted">-</span>
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     <a href="{{ route('accounts.booking-file', $lead) }}"
                                                         class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover text-primary"
-                                                        data-bs-toggle="tooltip" data-placement="top"
-                                                        title="Booking File">
+                                                        data-bs-toggle="tooltip" data-placement="top" title="Booking File">
                                                         <span class="icon">
                                                             <span class="feather-icon">
                                                                 <i data-feather="file-text"></i>
@@ -128,10 +159,10 @@
                                     </tbody>
                                 </table>
                                 <!-- Pagination -->
-                                @if($leads->hasPages())
-                                <div class="d-flex justify-content-center mt-4 mb-3 px-3">
-                                    {{ $leads->links('pagination::bootstrap-5') }}
-                                </div>
+                                @if ($leads->hasPages())
+                                    <div class="d-flex justify-content-center mt-4 mb-3 px-3">
+                                        {{ $leads->links('pagination::bootstrap-5') }}
+                                    </div>
                                 @endif
                             </div>
                         </div>
@@ -335,74 +366,74 @@
     </div>
 
     @push('scripts')
-    <script>
-        $(document).ready(function() {
-            const leadsBaseUrl = '/leads';
-            
-            // Initialize DataTable without search, length menu, ordering, and pagination
-            // We use Laravel's server-side pagination instead
-            if ($('#accountsTable').length) {
-                $('#accountsTable').DataTable({
-                    searching: false, // Disable search box
-                    lengthChange: false, // Disable entries per page selector
-                    ordering: false, // Disable column ordering
-                    info: false, // Disable DataTable info (we use Laravel pagination)
-                    paging: false, // Disable DataTable pagination (we use Laravel pagination)
-                    dom: 'rt' // Only show table (r), table (t) - no info or pagination
-                });
-            }
+        <script>
+            $(document).ready(function() {
+                const leadsBaseUrl = '/leads';
 
-            // Safe feather replace function
-            const safeFeatherReplace = (container) => {
-                if (typeof feather !== 'undefined' && container) {
-                    try {
-                        feather.replace({}, container);
-                    } catch (e) {
-                        console.warn('Feather icon replacement failed:', e);
+                // Initialize DataTable without search, length menu, ordering, and pagination
+                // We use Laravel's server-side pagination instead
+                if ($('#accountsTable').length) {
+                    $('#accountsTable').DataTable({
+                        searching: false, // Disable search box
+                        lengthChange: false, // Disable entries per page selector
+                        ordering: false, // Disable column ordering
+                        info: false, // Disable DataTable info (we use Laravel pagination)
+                        paging: false, // Disable DataTable pagination (we use Laravel pagination)
+                        dom: 'rt' // Only show table (r), table (t) - no info or pagination
+                    });
+                }
+
+                // Safe feather replace function
+                const safeFeatherReplace = (container) => {
+                    if (typeof feather !== 'undefined' && container) {
+                        try {
+                            feather.replace({}, container);
+                        } catch (e) {
+                            console.warn('Feather icon replacement failed:', e);
+                        }
                     }
-                }
-            };
+                };
 
-            // View Lead Modal Elements
-            const viewLeadModalEl = document.getElementById('viewLeadModal');
-            const viewLeadLoader = document.getElementById('viewLeadLoader');
-            const viewLeadContent = document.getElementById('viewLeadContent');
-            const viewLeadAlert = document.getElementById('viewLeadAlert');
-            const viewLeadMeta = document.getElementById('viewLeadMeta');
-            const viewLeadTitle = document.getElementById('viewLeadModalTitle');
-            let viewLeadModalInstance = null;
-            let currentLeadId = null;
+                // View Lead Modal Elements
+                const viewLeadModalEl = document.getElementById('viewLeadModal');
+                const viewLeadLoader = document.getElementById('viewLeadLoader');
+                const viewLeadContent = document.getElementById('viewLeadContent');
+                const viewLeadAlert = document.getElementById('viewLeadAlert');
+                const viewLeadMeta = document.getElementById('viewLeadMeta');
+                const viewLeadTitle = document.getElementById('viewLeadModalTitle');
+                let viewLeadModalInstance = null;
+                let currentLeadId = null;
 
-            // Escape HTML function
-            const escapeHtml = (unsafe) => {
-                if (unsafe === null || unsafe === undefined) {
-                    return '';
-                }
-                return String(unsafe).replace(/[&<>"']/g, function(match) {
-                    const map = {
-                        '&': '&amp;',
-                        '<': '&lt;',
-                        '>': '&gt;',
-                        '"': '&quot;',
-                        "'": '&#039;',
-                    };
-                    return map[match] || match;
-                });
-            };
+                // Escape HTML function
+                const escapeHtml = (unsafe) => {
+                    if (unsafe === null || unsafe === undefined) {
+                        return '';
+                    }
+                    return String(unsafe).replace(/[&<>"']/g, function(match) {
+                        const map = {
+                            '&': '&amp;',
+                            '<': '&lt;',
+                            '>': '&gt;',
+                            '"': '&quot;',
+                            "'": '&#039;',
+                        };
+                        return map[match] || match;
+                    });
+                };
 
-            // Render remarks function
-            const renderRemarks = (remarks) => {
-                if (!remarks || !remarks.length) {
-                    return '<p class="text-muted text-center mb-0 py-4"><i data-feather="message-circle" class="me-2" style="width: 16px; height: 16px;"></i>No remarks yet.</p>';
-                }
+                // Render remarks function
+                const renderRemarks = (remarks) => {
+                    if (!remarks || !remarks.length) {
+                        return '<p class="text-muted text-center mb-0 py-4"><i data-feather="message-circle" class="me-2" style="width: 16px; height: 16px;"></i>No remarks yet.</p>';
+                    }
 
-                return remarks.map((remark, index) => {
-                    const followUp = remark.follow_up_date ?
-                        `<span class="badge bg-light text-danger border border-danger ms-2 px-2 py-1">
+                    return remarks.map((remark, index) => {
+                        const followUp = remark.follow_up_date ?
+                            `<span class="badge bg-light text-danger border border-danger ms-2 px-2 py-1">
                             <i data-feather="calendar" class="me-1" style="width: 12px; height: 12px;"></i>
                             Follow-up: ${escapeHtml(remark.follow_up_date)}
                         </span>` : '';
-                    return `
+                        return `
                         <div class="border rounded-3 p-3 mb-3 bg-white border">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div class="d-flex align-items-start flex-grow-1">
@@ -423,265 +454,266 @@
                             </div>
                         </div>
                     `;
-                }).join('');
-            };
+                    }).join('');
+                };
 
-            // Reset view lead modal
-            const resetViewLeadModal = () => {
-                if (viewLeadLoader) {
-                    viewLeadLoader.classList.remove('d-none');
-                }
-                if (viewLeadContent) {
-                    viewLeadContent.classList.add('d-none');
-                }
-                if (viewLeadAlert) {
-                    viewLeadAlert.classList.add('d-none');
-                    viewLeadAlert.textContent = '';
-                    viewLeadAlert.classList.remove('alert-danger', 'alert-success');
-                }
-            };
-
-            // Show view lead error
-            const showViewLeadError = (message) => {
-                if (viewLeadAlert) {
-                    viewLeadAlert.classList.remove('d-none');
-                    viewLeadAlert.classList.remove('alert-success');
-                    viewLeadAlert.classList.add('alert-danger');
-                    viewLeadAlert.textContent = message;
-                }
-                if (viewLeadLoader) {
-                    viewLeadLoader.classList.add('d-none');
-                }
-                if (viewLeadContent) {
-                    viewLeadContent.classList.add('d-none');
-                }
-            };
-
-            // Load lead details
-            const loadLeadDetails = async (leadId) => {
-                if (!leadId || !leadsBaseUrl) {
-                    showViewLeadError('Invalid lead.');
-                    return Promise.reject('Invalid lead.');
-                }
-
-                currentLeadId = leadId;
-                resetViewLeadModal();
-
-                try {
-                    const response = await fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
-                        headers: {
-                            'Accept': 'application/json',
-                        },
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Unable to load lead details.');
+                // Reset view lead modal
+                const resetViewLeadModal = () => {
+                    if (viewLeadLoader) {
+                        viewLeadLoader.classList.remove('d-none');
                     }
-
-                    const data = await response.json();
-                    const lead = data.lead;
-
-                    if (!lead) {
-                        throw new Error('Lead details not found.');
+                    if (viewLeadContent) {
+                        viewLeadContent.classList.add('d-none');
                     }
+                    if (viewLeadAlert) {
+                        viewLeadAlert.classList.add('d-none');
+                        viewLeadAlert.textContent = '';
+                        viewLeadAlert.classList.remove('alert-danger', 'alert-success');
+                    }
+                };
 
-                    // Store lead data for editing
-                    window.currentLeadData = lead;
-
+                // Show view lead error
+                const showViewLeadError = (message) => {
+                    if (viewLeadAlert) {
+                        viewLeadAlert.classList.remove('d-none');
+                        viewLeadAlert.classList.remove('alert-success');
+                        viewLeadAlert.classList.add('alert-danger');
+                        viewLeadAlert.textContent = message;
+                    }
                     if (viewLeadLoader) {
                         viewLeadLoader.classList.add('d-none');
                     }
                     if (viewLeadContent) {
-                        viewLeadContent.classList.remove('d-none');
+                        viewLeadContent.classList.add('d-none');
+                    }
+                };
+
+                // Load lead details
+                const loadLeadDetails = async (leadId) => {
+                    if (!leadId || !leadsBaseUrl) {
+                        showViewLeadError('Invalid lead.');
+                        return Promise.reject('Invalid lead.');
                     }
 
-                    if (viewLeadTitle) {
-                        viewLeadTitle.textContent = `${lead.tsq ?? 'Lead'} - ${lead.customer_name ?? ''}`;
-                    }
-                    if (viewLeadMeta) {
-                        viewLeadMeta.textContent = lead.created_at ? `Created on ${lead.created_at}` : '';
-                    }
-
-                    // Populate Customer Information
-                    const viewFirstName = document.getElementById('viewFirstName');
-                    const viewMiddleName = document.getElementById('viewMiddleName');
-                    const viewLastName = document.getElementById('viewLastName');
-                    if (viewFirstName) viewFirstName.value = lead.first_name || '';
-                    if (viewLastName) viewLastName.value = lead.last_name || '';
-
-                    // Populate Contact Information
-                    const viewPrimaryPhone = document.getElementById('viewPrimaryPhone');
-                    const viewSecondaryPhone = document.getElementById('viewSecondaryPhone');
-                    const viewOtherPhone = document.getElementById('viewOtherPhone');
-                    const viewEmail = document.getElementById('viewEmail');
-                    if (viewPrimaryPhone) viewPrimaryPhone.value = lead.primary_phone || '';
-                    if (viewSecondaryPhone) viewSecondaryPhone.value = lead.secondary_phone || '';
-                    if (viewOtherPhone) viewOtherPhone.value = lead.other_phone || '';
-                    if (viewEmail) viewEmail.value = lead.email || '';
-
-                    // Populate Address fields
-                    const viewAddressLine = document.getElementById('viewAddressLine');
-                    const viewCity = document.getElementById('viewCity');
-                    const viewState = document.getElementById('viewState');
-                    const viewCountry = document.getElementById('viewCountry');
-                    const viewPinCode = document.getElementById('viewPinCode');
-                    if (viewAddressLine) viewAddressLine.value = lead.address_line || '';
-                    if (viewCity) viewCity.value = lead.city || '';
-                    if (viewState) viewState.value = lead.state || '';
-                    if (viewCountry) viewCountry.value = lead.country || '';
-                    if (viewPinCode) viewPinCode.value = lead.pin_code || '';
-
-                    // Populate Travel Preferences
-                    const viewLeadService = document.getElementById('viewService');
-                    const viewLeadDestination = document.getElementById('viewDestination');
-                    const viewLeadTravelDate = document.getElementById('viewTravelDate');
-                    if (viewLeadService) {
-                        viewLeadService.value = lead.service ?? 'N/A';
-                    }
-                    if (viewLeadDestination) {
-                        viewLeadDestination.value = lead.destination ?? 'N/A';
-                    }
-                    if (viewLeadTravelDate) {
-                        viewLeadTravelDate.value = lead.travel_date ?? 'N/A';
-                    }
-                    const viewAdults = document.getElementById('viewAdults');
-                    const viewChildren25 = document.getElementById('viewChildren25');
-                    const viewChildren611 = document.getElementById('viewChildren611');
-                    const viewInfants = document.getElementById('viewInfants');
-                    if (viewAdults) viewAdults.value = lead.adults ?? 0;
-                    if (viewChildren25) viewChildren25.value = lead.children_2_5 ?? 0;
-                    if (viewChildren611) viewChildren611.value = lead.children_6_11 ?? 0;
-                    if (viewInfants) viewInfants.value = lead.infants ?? 0;
-
-                    // Populate Assignment
-                    const viewLeadAssignedUser = document.getElementById('viewAssignedUser');
-                    if (viewLeadAssignedUser) {
-                        viewLeadAssignedUser.value = lead.assigned_user ?? 'Unassigned';
-                    }
-                    const viewStatus = document.getElementById('viewStatus');
-                    if (viewStatus) {
-                        viewStatus.value = lead.status_label ?? lead.status ?? 'N/A';
-                    }
-
-                    const viewLeadRemarksCount = document.getElementById('viewLeadRemarksCount');
-                    const viewLeadRemarksContainer = document.getElementById('viewLeadRemarks');
-                    if (viewLeadRemarksCount) {
-                        viewLeadRemarksCount.textContent = data.remarks?.length ?? 0;
-                    }
-                    if (viewLeadRemarksContainer) {
-                        viewLeadRemarksContainer.innerHTML = renderRemarks(data.remarks || []);
-                    }
-
-                    // Initialize Feather icons after content is loaded
-                    safeFeatherReplace(viewLeadContent);
-                    
-                    return Promise.resolve(data);
-                } catch (error) {
-                    console.error(error);
-                    showViewLeadError(error.message || 'Unexpected error occurred.');
-                    return Promise.reject(error);
-                }
-            };
-
-            // Store loadLeadDetails on window for access in global event handler
-            window.loadLeadDetails = loadLeadDetails;
-
-            // Remark form submission
-            const remarkForm = document.getElementById('leadRemarkForm');
-            if (remarkForm) {
-                remarkForm.addEventListener('submit', async (event) => {
-                    event.preventDefault();
-                    if (!currentLeadId || !leadsBaseUrl) {
-                        return;
-                    }
-
-                    const formData = new FormData(remarkForm);
+                    currentLeadId = leadId;
+                    resetViewLeadModal();
 
                     try {
-                        const response = await fetch(`${leadsBaseUrl}/${currentLeadId}/remarks`, {
-                            method: 'POST',
+                        const response = await fetch(`${leadsBaseUrl}/${leadId}?modal=1`, {
                             headers: {
                                 'Accept': 'application/json',
                             },
-                            body: formData,
                         });
 
-                        const payload = await response.json();
-
                         if (!response.ok) {
-                            const message = payload?.message || Object.values(payload?.errors || {})[0]?.[0] || 'Failed to add remark.';
-                            throw new Error(message);
+                            throw new Error('Unable to load lead details.');
                         }
 
-                        // Show success message
-                        if (viewLeadAlert) {
-                            viewLeadAlert.classList.remove('d-none');
-                            viewLeadAlert.classList.remove('alert-danger');
-                            viewLeadAlert.classList.add('alert-success');
-                            viewLeadAlert.textContent = payload?.message || 'Remark added successfully!';
+                        const data = await response.json();
+                        const lead = data.lead;
+
+                        if (!lead) {
+                            throw new Error('Lead details not found.');
                         }
 
-                        remarkForm.reset();
+                        // Store lead data for editing
+                        window.currentLeadData = lead;
 
-                        // Reload remarks
-                        if (typeof window.loadLeadDetails === 'function') {
-                            window.loadLeadDetails(currentLeadId);
+                        if (viewLeadLoader) {
+                            viewLeadLoader.classList.add('d-none');
                         }
+                        if (viewLeadContent) {
+                            viewLeadContent.classList.remove('d-none');
+                        }
+
+                        if (viewLeadTitle) {
+                            viewLeadTitle.textContent = `${lead.tsq ?? 'Lead'} - ${lead.customer_name ?? ''}`;
+                        }
+                        if (viewLeadMeta) {
+                            viewLeadMeta.textContent = lead.created_at ? `Created on ${lead.created_at}` : '';
+                        }
+
+                        // Populate Customer Information
+                        const viewFirstName = document.getElementById('viewFirstName');
+                        const viewMiddleName = document.getElementById('viewMiddleName');
+                        const viewLastName = document.getElementById('viewLastName');
+                        if (viewFirstName) viewFirstName.value = lead.first_name || '';
+                        if (viewLastName) viewLastName.value = lead.last_name || '';
+
+                        // Populate Contact Information
+                        const viewPrimaryPhone = document.getElementById('viewPrimaryPhone');
+                        const viewSecondaryPhone = document.getElementById('viewSecondaryPhone');
+                        const viewOtherPhone = document.getElementById('viewOtherPhone');
+                        const viewEmail = document.getElementById('viewEmail');
+                        if (viewPrimaryPhone) viewPrimaryPhone.value = lead.primary_phone || '';
+                        if (viewSecondaryPhone) viewSecondaryPhone.value = lead.secondary_phone || '';
+                        if (viewOtherPhone) viewOtherPhone.value = lead.other_phone || '';
+                        if (viewEmail) viewEmail.value = lead.email || '';
+
+                        // Populate Address fields
+                        const viewAddressLine = document.getElementById('viewAddressLine');
+                        const viewCity = document.getElementById('viewCity');
+                        const viewState = document.getElementById('viewState');
+                        const viewCountry = document.getElementById('viewCountry');
+                        const viewPinCode = document.getElementById('viewPinCode');
+                        if (viewAddressLine) viewAddressLine.value = lead.address_line || '';
+                        if (viewCity) viewCity.value = lead.city || '';
+                        if (viewState) viewState.value = lead.state || '';
+                        if (viewCountry) viewCountry.value = lead.country || '';
+                        if (viewPinCode) viewPinCode.value = lead.pin_code || '';
+
+                        // Populate Travel Preferences
+                        const viewLeadService = document.getElementById('viewService');
+                        const viewLeadDestination = document.getElementById('viewDestination');
+                        const viewLeadTravelDate = document.getElementById('viewTravelDate');
+                        if (viewLeadService) {
+                            viewLeadService.value = lead.service ?? 'N/A';
+                        }
+                        if (viewLeadDestination) {
+                            viewLeadDestination.value = lead.destination ?? 'N/A';
+                        }
+                        if (viewLeadTravelDate) {
+                            viewLeadTravelDate.value = lead.travel_date ?? 'N/A';
+                        }
+                        const viewAdults = document.getElementById('viewAdults');
+                        const viewChildren25 = document.getElementById('viewChildren25');
+                        const viewChildren611 = document.getElementById('viewChildren611');
+                        const viewInfants = document.getElementById('viewInfants');
+                        if (viewAdults) viewAdults.value = lead.adults ?? 0;
+                        if (viewChildren25) viewChildren25.value = lead.children_2_5 ?? 0;
+                        if (viewChildren611) viewChildren611.value = lead.children_6_11 ?? 0;
+                        if (viewInfants) viewInfants.value = lead.infants ?? 0;
+
+                        // Populate Assignment
+                        const viewLeadAssignedUser = document.getElementById('viewAssignedUser');
+                        if (viewLeadAssignedUser) {
+                            viewLeadAssignedUser.value = lead.assigned_user ?? 'Unassigned';
+                        }
+                        const viewStatus = document.getElementById('viewStatus');
+                        if (viewStatus) {
+                            viewStatus.value = lead.status_label ?? lead.status ?? 'N/A';
+                        }
+
+                        const viewLeadRemarksCount = document.getElementById('viewLeadRemarksCount');
+                        const viewLeadRemarksContainer = document.getElementById('viewLeadRemarks');
+                        if (viewLeadRemarksCount) {
+                            viewLeadRemarksCount.textContent = data.remarks?.length ?? 0;
+                        }
+                        if (viewLeadRemarksContainer) {
+                            viewLeadRemarksContainer.innerHTML = renderRemarks(data.remarks || []);
+                        }
+
+                        // Initialize Feather icons after content is loaded
+                        safeFeatherReplace(viewLeadContent);
+
+                        return Promise.resolve(data);
                     } catch (error) {
-                        if (viewLeadAlert) {
-                            viewLeadAlert.classList.remove('d-none');
-                            viewLeadAlert.classList.remove('alert-success');
-                            viewLeadAlert.classList.add('alert-danger');
-                            viewLeadAlert.textContent = error.message || 'Unable to add remark.';
+                        console.error(error);
+                        showViewLeadError(error.message || 'Unexpected error occurred.');
+                        return Promise.reject(error);
+                    }
+                };
+
+                // Store loadLeadDetails on window for access in global event handler
+                window.loadLeadDetails = loadLeadDetails;
+
+                // Remark form submission
+                const remarkForm = document.getElementById('leadRemarkForm');
+                if (remarkForm) {
+                    remarkForm.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+                        if (!currentLeadId || !leadsBaseUrl) {
+                            return;
                         }
-                    }
-                });
-            }
 
-            // Initialize modal instance
-            if (viewLeadModalEl && typeof bootstrap !== 'undefined') {
-                if (!viewLeadModalInstance) {
-                    viewLeadModalInstance = new bootstrap.Modal(viewLeadModalEl, {
-                        backdrop: 'static',
-                        keyboard: false
+                        const formData = new FormData(remarkForm);
+
+                        try {
+                            const response = await fetch(`${leadsBaseUrl}/${currentLeadId}/remarks`, {
+                                method: 'POST',
+                                headers: {
+                                    'Accept': 'application/json',
+                                },
+                                body: formData,
+                            });
+
+                            const payload = await response.json();
+
+                            if (!response.ok) {
+                                const message = payload?.message || Object.values(payload?.errors || {})[0]
+                                    ?.[0] || 'Failed to add remark.';
+                                throw new Error(message);
+                            }
+
+                            // Show success message
+                            if (viewLeadAlert) {
+                                viewLeadAlert.classList.remove('d-none');
+                                viewLeadAlert.classList.remove('alert-danger');
+                                viewLeadAlert.classList.add('alert-success');
+                                viewLeadAlert.textContent = payload?.message ||
+                                'Remark added successfully!';
+                            }
+
+                            remarkForm.reset();
+
+                            // Reload remarks
+                            if (typeof window.loadLeadDetails === 'function') {
+                                window.loadLeadDetails(currentLeadId);
+                            }
+                        } catch (error) {
+                            if (viewLeadAlert) {
+                                viewLeadAlert.classList.remove('d-none');
+                                viewLeadAlert.classList.remove('alert-success');
+                                viewLeadAlert.classList.add('alert-danger');
+                                viewLeadAlert.textContent = error.message || 'Unable to add remark.';
+                            }
+                        }
                     });
-                    window.viewLeadModalInstance = viewLeadModalInstance;
                 }
-            }
 
-            // View Lead click handler removed - Accounts department only sees Booking File
-
-            if (viewLeadModalEl) {
-                viewLeadModalEl.addEventListener('shown.bs.modal', () => {
-                    safeFeatherReplace(viewLeadModalEl);
-                });
-
-                viewLeadModalEl.addEventListener('hidden.bs.modal', () => {
-                    currentLeadId = null;
-                    resetViewLeadModal();
-                });
-            }
-
-            // Initialize feather icons
-            if (typeof feather !== 'undefined') {
-                feather.replace();
-            }
-
-            // Initialize Bootstrap tooltips
-            if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
-                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    try {
-                        return new bootstrap.Tooltip(tooltipTriggerEl);
-                    } catch (e) {
-                        console.warn('Tooltip initialization failed:', e);
-                        return null;
+                // Initialize modal instance
+                if (viewLeadModalEl && typeof bootstrap !== 'undefined') {
+                    if (!viewLeadModalInstance) {
+                        viewLeadModalInstance = new bootstrap.Modal(viewLeadModalEl, {
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+                        window.viewLeadModalInstance = viewLeadModalInstance;
                     }
-                });
-            }
+                }
 
-        });
-    </script>
+                // View Lead click handler removed - Accounts department only sees Booking File
+
+                if (viewLeadModalEl) {
+                    viewLeadModalEl.addEventListener('shown.bs.modal', () => {
+                        safeFeatherReplace(viewLeadModalEl);
+                    });
+
+                    viewLeadModalEl.addEventListener('hidden.bs.modal', () => {
+                        currentLeadId = null;
+                        resetViewLeadModal();
+                    });
+                }
+
+                // Initialize feather icons
+                if (typeof feather !== 'undefined') {
+                    feather.replace();
+                }
+
+                // Initialize Bootstrap tooltips
+                if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+                    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                    tooltipTriggerList.map(function(tooltipTriggerEl) {
+                        try {
+                            return new bootstrap.Tooltip(tooltipTriggerEl);
+                        } catch (e) {
+                            console.warn('Tooltip initialization failed:', e);
+                            return null;
+                        }
+                    });
+                }
+
+            });
+        </script>
     @endpush
 @endsection
-

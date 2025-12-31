@@ -20,6 +20,8 @@ class DocumentController extends Controller
         // Show all booked leads for Post Sales team
         $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'documents', 'operation', 'remarks' => function ($q) {
             $q->orderBy('created_at', 'desc')->limit(1);
+        }, 'bookingFileRemarks' => function ($q) {
+            $q->orderBy('created_at', 'desc')->limit(1)->with('user');
         }])
             ->where('status', 'booked')
             ->orderBy('created_at', 'desc');
@@ -45,9 +47,10 @@ class DocumentController extends Controller
         $leads = $leadsQuery->paginate(25);
         $leads->appends($request->query());
 
-        // Add latest remark to each lead
+        // Add latest remark and booking file remark to each lead
         $leads->getCollection()->transform(function ($lead) {
             $lead->latest_remark = $lead->remarks->first();
+            $lead->latest_booking_file_remark = $lead->bookingFileRemarks->first();
             return $lead;
         });
 
@@ -286,7 +289,9 @@ class DocumentController extends Controller
             'bookingArrivalDepartures',
             'bookingAccommodations',
             'bookingItineraries',
-            'vendorPayments'
+            'vendorPayments',
+            'bookingFileRemarks.user',
+            'histories.changedBy'
         ]);
 
         $employees = User::whereNotNull('user_id')->orderBy('name')->get();

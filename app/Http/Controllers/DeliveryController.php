@@ -36,6 +36,9 @@ class DeliveryController extends Controller
             'operation', 
             'remarks' => function ($q) {
                 $q->orderBy('created_at', 'desc')->limit(1);
+            },
+            'bookingFileRemarks' => function ($q) {
+                $q->orderBy('created_at', 'desc')->limit(1)->with('user');
             }
         ])
             ->where('status', 'booked')
@@ -72,9 +75,10 @@ class DeliveryController extends Controller
         $leads = $leadsQuery->paginate(25);
         $leads->appends($request->query());
 
-        // Add latest remark to each lead
+        // Add latest remark and booking file remark to each lead
         $leads->getCollection()->transform(function ($lead) {
             $lead->latest_remark = $lead->remarks->first();
+            $lead->latest_booking_file_remark = $lead->bookingFileRemarks->first();
             return $lead;
         });
 
@@ -305,6 +309,29 @@ class DeliveryController extends Controller
     public function show(Lead $lead)
     {
         return redirect()->route('leads.show', $lead)->with('active_tab', 'delivery');
+    }
+
+    public function bookingFile(Lead $lead)
+    {
+        $lead->load([
+            'service',
+            'destination',
+            'assignedUser',
+            'createdBy',
+            'bookedBy',
+            'reassignedTo',
+            'operation',
+            'delivery',
+            'delivery.assignedTo',
+            'delivery.files',
+            'bookingFileRemarks.user',
+            'histories.changedBy'
+        ]);
+
+        $backUrl = route('deliveries.index');
+        $isViewOnly = false; // Delivery can update their own status
+
+        return view('deliveries.booking-file', compact('lead', 'backUrl', 'isViewOnly'));
     }
 
     public function store(Request $request, Lead $lead)

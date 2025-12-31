@@ -58,7 +58,7 @@
                                             <th>Customer Name</th>
                                             <th>Phone</th>
                                             <th>Status</th>
-                                            <th>Last Remark</th>
+                                            <th>Remark</th>
                                             <th>Created On</th>
                                             <th>Actions</th>
                                         </tr>
@@ -80,19 +80,20 @@
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    @if ($lead->latest_remark)
-                                                        <div class="text-truncate" style="max-width: 200px;"
-                                                            title="{{ $lead->latest_remark->remark }}">
-                                                            {{ Str::limit($lead->latest_remark->remark, 50) }}
+                                                    @if ($lead->latest_booking_file_remark)
+                                                        <div class="d-flex align-items-start">
+                                                            <div class="flex-grow-1">
+                                                                <div class="small text-muted mb-1">
+                                                                    <strong>{{ $lead->latest_booking_file_remark->user->name ?? 'Unknown' }}</strong>
+                                                                    <span class="ms-2">{{ $lead->latest_booking_file_remark->created_at->format('d/m/Y h:i A') }}</span>
+                                                                </div>
+                                                                <div class="text-truncate" style="max-width: 200px;" title="{{ $lead->latest_booking_file_remark->remark }}">
+                                                                    {{ Str::limit($lead->latest_booking_file_remark->remark, 50) }}
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        <small class="text-muted">
-                                                            by {{ $lead->latest_remark->user->name ?? 'N/A' }}
-                                                            @if ($lead->latest_remark->created_at)
-                                                                - {{ $lead->latest_remark->created_at->format('d M, Y') }}
-                                                            @endif
-                                                        </small>
                                                     @else
-                                                        <span class="text-muted">No remarks yet</span>
+                                                        <span class="text-muted">-</span>
                                                     @endif
                                                 </td>
                                                 <td>{{ $lead->created_at->format('d M, Y') }}</td>
