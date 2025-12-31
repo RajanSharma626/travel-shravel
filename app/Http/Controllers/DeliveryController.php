@@ -42,10 +42,31 @@ class DeliveryController extends Controller
             }
         ])
             ->where('status', 'booked')
-            ->whereHas('operation', function ($q) {
-                $q->where('operation_status', 'completed'); // Vouchered/Completed operations
-            })
+            
             ->orderBy('created_at', 'desc');
+
+        $currentUser = Auth::user();
+        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer');
+        $userRole = $currentUser->role ?? $currentUser->getRoleNameAttribute();
+        $userDepartment = $currentUser->department;
+
+        // Filter booking files based on user role
+        if ($isAdmin) {
+            // Admin/Developer: Show all booked leads assigned to Delivery users
+            $deliveryUserIds = User::where(function ($query) {
+                $query->where('department', 'Delivery')
+                    ->orWhere('role', 'Delivery')
+                    ->orWhere('role', 'Delivery Manager');
+            })->pluck('id');
+            
+            $leadsQuery->whereIn('assigned_user_id', $deliveryUserIds);
+        } elseif ($userRole === 'Delivery' || $userDepartment === 'Delivery' || $userRole === 'Delivery Manager') {
+            // Delivery users: Show only their own assigned booking files
+            $userId = $this->getCurrentUserId();
+            if ($userId) {
+                $leadsQuery->where('assigned_user_id', $userId);
+            }
+        }
 
         // Search filter
         if (!empty($filters['search'])) {
@@ -311,6 +332,36 @@ class DeliveryController extends Controller
         return redirect()->route('leads.show', $lead)->with('active_tab', 'delivery');
     }
 
+    public function downloadVoucher(Lead $lead)
+    {
+        // Check if user has permission to view deliveries
+        if (!Auth::user()->hasAnyRole(['Admin', 'Delivery', 'Delivery Manager'])) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Load necessary relationships
+        $lead->load([
+            'service',
+            'destination',
+            'assignedUser',
+            'bookingDestinations',
+            'bookingArrivalDepartures',
+            'bookingItineraries',
+            'operation'
+        ]);
+
+        // For now, return a simple response - you can enhance this to generate a PDF voucher
+        // Example: Generate PDF voucher using a PDF library like DomPDF, TCPDF, or Laravel Snappy
+        return response()->streamDownload(function () use ($lead) {
+            // This is a placeholder - replace with actual PDF generation
+            echo "Voucher for: " . $lead->tsq . "\n";
+            echo "Customer: " . $lead->customer_name . "\n";
+            echo "Generated on: " . now()->format('Y-m-d H:i:s') . "\n";
+        }, 'voucher_' . $lead->tsq . '.txt', [
+            'Content-Type' => 'text/plain',
+        ]);
+    }
+
     public function bookingFile(Lead $lead)
     {
         $lead->load([
@@ -324,14 +375,18 @@ class DeliveryController extends Controller
             'delivery',
             'delivery.assignedTo',
             'delivery.files',
+            'bookingDestinations',
+            'bookingArrivalDepartures',
+            'bookingItineraries',
             'bookingFileRemarks.user',
             'histories.changedBy'
         ]);
 
+        $employees = \App\Models\User::whereNotNull('user_id')->orderBy('name')->get();
         $backUrl = route('deliveries.index');
-        $isViewOnly = false; // Delivery can update their own status
+        $isViewOnly = true; // Delivery booking file is view-only for all sections
 
-        return view('deliveries.booking-file', compact('lead', 'backUrl', 'isViewOnly'));
+        return view('deliveries.booking-file', compact('lead', 'backUrl', 'isViewOnly', 'employees'));
     }
 
     public function store(Request $request, Lead $lead)

@@ -16,7 +16,7 @@ class OperationController extends Controller
             'search' => $request->input('search'),
         ];
 
-        // Show all booked leads for Operations team
+        // Show booked leads for Operations team
         $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'operation', 'remarks' => function ($q) {
             $q->orderBy('created_at', 'desc')->limit(1);
         }, 'bookingFileRemarks' => function ($q) {
@@ -24,6 +24,37 @@ class OperationController extends Controller
         }])
             ->where('status', 'booked')
             ->orderBy('created_at', 'desc');
+
+        $currentUser = Auth::user();
+        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer');
+        $userRole = $currentUser->role ?? $currentUser->getRoleNameAttribute();
+        $userDepartment = $currentUser->department;
+
+        // Filter booking files based on user role
+        if ($isAdmin) {
+            // Admin/Developer: Show all booked leads assigned to Operation, Ticketing, Cruise, Visa, Insurance department users
+            $opsDepartmentUserIds = User::where(function ($query) {
+                $query->where('department', 'Operation')
+                    ->orWhere('department', 'Ticketing')
+                    ->orWhere('department', 'Cruise')
+                    ->orWhere('department', 'Visa')
+                    ->orWhere('department', 'Insurance')
+                    ->orWhere('role', 'Operation')
+                    ->orWhere('role', 'Operation Manager')
+                    ->orWhere('role', 'Ticketing')
+                    ->orWhere('role', 'Cruise')
+                    ->orWhere('role', 'Visa')
+                    ->orWhere('role', 'Insurance');
+            })->pluck('id');
+            
+            $leadsQuery->whereIn('assigned_user_id', $opsDepartmentUserIds);
+        } else {
+            // Operation/Ticketing/Cruise/Visa/Insurance users: Show only their own assigned booking files
+            $userId = $this->getCurrentUserId();
+            if ($userId) {
+                $leadsQuery->where('assigned_user_id', $userId);
+            }
+        }
 
         // Search filter - same as bookings page
         if (!empty($filters['search'])) {

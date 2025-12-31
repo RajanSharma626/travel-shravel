@@ -1181,240 +1181,77 @@
                                             </div>
                                         </div>
                                     @endif
-                                </div>
 
-                                <!-- Status Update Section -->
-                                @php
-                                    $currentUserId = Auth::id();
-                                    $department = Auth::user()->department ?? '';
-                                    $userRole = Auth::user()->getRoleNames()->first() ?? '';
-                                @endphp
-                                <div class="mb-4 border rounded-3 p-3">
-                                    <h6 class="text-uppercase text-muted small fw-semibold mb-3">
-                                        <i data-feather="edit-3" class="me-1" style="width: 14px; height: 14px;"></i>
-                                        Status Update
-                                    </h6>
-                                    @if ($isOpsDept ?? false)
-                                        <!-- Operations Status Update -->
-                                        @if ($lead->operation)
-                                            <form method="POST"
-                                                action="{{ route('leads.operations.update', [$lead, $lead->operation]) }}">
-                                                @csrf
-                                                @method('PUT')
-                                                <div class="row g-3">
-                                                    <div class="col-md-6">
-                                                        <label class="form-label">Operation Status</label>
-                                                        <select name="operation_status" class="form-select form-select-sm"
-                                                            {{ $isViewOnly ? 'disabled' : '' }}>
-                                                            <option value="pending"
-                                                                {{ $lead->operation->operation_status == 'pending' ? 'selected' : '' }}>
-                                                                Pending</option>
-                                                            <option value="in_progress"
-                                                                {{ $lead->operation->operation_status == 'in_progress' ? 'selected' : '' }}>
-                                                                In Progress</option>
-                                                            <option value="completed"
-                                                                {{ $lead->operation->operation_status == 'completed' ? 'selected' : '' }}>
-                                                                Completed</option>
-                                                            <option value="cancelled"
-                                                                {{ $lead->operation->operation_status == 'cancelled' ? 'selected' : '' }}>
-                                                                Cancelled</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-6 d-flex align-items-end">
-                                                        @if (!$isViewOnly)
-                                                            <button type="submit" class="btn btn-sm btn-primary">
-                                                                <i data-feather="save" style="width: 14px; height: 14px;"></i>
-                                                                Update Status
-                                                            </button>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </form>
-                                        @else
-                                            <form method="POST" action="{{ route('leads.operations.store', $lead) }}">
-                                                @csrf
-                                                <div class="row g-3">
-                                                    <div class="col-md-6">
-                                                        <label class="form-label">Operation Status</label>
-                                                        <select name="operation_status" class="form-select form-select-sm"
-                                                            {{ $isViewOnly ? 'disabled' : '' }} required>
-                                                            <option value="pending" selected>Pending</option>
-                                                            <option value="in_progress">In Progress</option>
-                                                            <option value="completed">Completed</option>
-                                                            <option value="cancelled">Cancelled</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-6 d-flex align-items-end">
-                                                        @if (!$isViewOnly)
-                                                            <button type="submit" class="btn btn-sm btn-primary">
-                                                                <i data-feather="save" style="width: 14px; height: 14px;"></i>
-                                                                Create Operation
-                                                            </button>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </form>
-                                        @endif
-                                    @elseif($isPostSales ?? false)
-                                        <!-- Post Sales Status Update (Document Status) -->
-                                        <div class="row g-3">
-                                            <div class="col-md-12">
-                                                <label class="form-label">Document Status Summary</label>
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered table-sm mb-0">
-                                                        <thead class="table-light">
-                                                            <tr>
-                                                                <th>Document Type</th>
-                                                                <th>Status</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @php
-                                                                $documents = $lead->travellerDocuments ?? collect();
-                                                            @endphp
-                                                            @if ($documents->count() > 0)
-                                                                @foreach ($documents->groupBy('type') as $type => $docs)
-                                                                    <tr>
-                                                                        <td>{{ ucfirst(str_replace('_', ' ', $type)) }}</td>
-                                                                        <td>
-                                                                            @php
-                                                                                $statusCounts = $docs->groupBy(
-                                                                                    'status',
-                                                                                );
-                                                                            @endphp
-                                                                            @foreach ($statusCounts as $status => $statusDocs)
-                                                                                <span
-                                                                                    class="badge bg-{{ $status == 'verified' ? 'success' : ($status == 'received' ? 'warning' : 'secondary') }}">
-                                                                                    {{ ucfirst($status) }}:
-                                                                                    {{ $statusDocs->count() }}
-                                                                                </span>
-                                                                            @endforeach
-                                                                        </td>
-                                                                    </tr>
-                                                                @endforeach
-                                                            @else
-                                                                <tr>
-                                                                    <td colspan="2" class="text-center text-muted">No
-                                                                        documents found</td>
-                                                                </tr>
-                                                            @endif
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <!-- Sales Status Update -->
-                                        <form method="POST" action="{{ route('leads.update', $lead) }}">
-                                            @csrf
-                                            @method('PUT')
-                                            <div class="row g-3">
-                                                <div class="col-md-6">
-                                                    <label class="form-label">Lead Status</label>
-                                                    <select name="status" class="form-select form-select-sm"
-                                                        {{ $isViewOnly ? 'disabled' : '' }}>
-                                                        <option value="new"
-                                                            {{ $lead->status == 'new' ? 'selected' : '' }}>New</option>
-                                                        <option value="contacted"
-                                                            {{ $lead->status == 'contacted' ? 'selected' : '' }}>Contacted
-                                                        </option>
-                                                        <option value="follow_up"
-                                                            {{ $lead->status == 'follow_up' ? 'selected' : '' }}>Follow Up
-                                                        </option>
-                                                        <option value="priority"
-                                                            {{ $lead->status == 'priority' ? 'selected' : '' }}>Priority
-                                                        </option>
-                                                        <option value="booked"
-                                                            {{ $lead->status == 'booked' ? 'selected' : '' }}>Booked</option>
-                                                        <option value="closed"
-                                                            {{ $lead->status == 'closed' ? 'selected' : '' }}>Closed</option>
-                                                        <option value="cancelled"
-                                                            {{ $lead->status == 'cancelled' ? 'selected' : '' }}>Cancelled
-                                                        </option>
-                                                        <option value="refunded"
-                                                            {{ $lead->status == 'refunded' ? 'selected' : '' }}>Refunded
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-6 d-flex align-items-end">
-                                                    @if (!$isViewOnly)
-                                                        <button type="submit" class="btn btn-sm btn-primary">
-                                                            <i data-feather="save" style="width: 14px; height: 14px;"></i>
-                                                            Update Status
-                                                        </button>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </form>
-                                    @endif
-                                </div>
+                                    
 
-                                <!-- History Section (Remark History) -->
-                                <div class="mb-4 border rounded-3 p-3">
-                                    <h6 class="text-uppercase text-muted small fw-semibold mb-3">
-                                        <i data-feather="clock" class="me-1" style="width: 14px; height: 14px;"></i>
-                                        History
-                                    </h6>
-                                    <div style="max-height: 400px; overflow-y: auto;">
-                                        @php
-                                            $lead->load('bookingFileRemarks.user');
-                                            $currentDepartment = Auth::user()->department ?? 'Sales';
-                                            if ($isOpsDept ?? false) {
-                                                $currentDepartment = 'Operations';
-                                            } elseif ($isPostSales ?? false) {
-                                                $currentDepartment = 'Post Sales';
-                                            }
-                                            // Check if user is admin
-                                            $isAdmin =
-                                                Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Developer');
-                                            // If admin, show all remarks; otherwise, show only own remarks
-                                            $remarksQuery = $lead
-                                                ->bookingFileRemarks()
-                                                ->where('department', $currentDepartment);
-                                            if (!$isAdmin) {
-                                                $remarksQuery->where('user_id', Auth::id());
-                                            }
-                                            $allRemarks = $remarksQuery->orderBy('created_at', 'desc')->get();
-                                        @endphp
-                                        @if ($allRemarks->count() > 0)
-                                            <div class="timeline">
-                                                @foreach ($allRemarks as $remark)
-                                                    <div class="border rounded-3 p-3 mb-3 bg-white">
-                                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                                            <div class="d-flex align-items-start flex-grow-1">
-                                                                <div class="avatar avatar-rounded rounded-circle me-3 flex-shrink-0"
-                                                                    style="background-color: #007d88; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                                                                    <span class="text-white fw-bold"
-                                                                        style="font-size: 0.875rem;">
-                                                                        {{ strtoupper(substr($remark->user->name ?? 'U', 0, 1)) }}
-                                                                    </span>
-                                                                </div>
-                                                                <div class="flex-grow-1">
-                                                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                                                        <strong
-                                                                            class="text-dark">{{ $remark->user->name ?? 'Unknown' }}</strong>
-                                                                        <small
-                                                                            class="text-muted">{{ $remark->created_at->format('d M, Y h:i A') }}</small>
-                                                                        @if ($remark->follow_up_at)
-                                                                            <span class="badge bg-danger">Follow-up:
-                                                                                {{ $remark->follow_up_at->format('d M, Y h:i A') }}</span>
-                                                                        @endif
+
+                                    <!-- History Section (Remark History) -->
+                                    <div class="mb-4 border rounded-3 p-3">
+                                        <h6 class="text-uppercase text-muted small fw-semibold mb-3">
+                                            <i data-feather="clock" class="me-1" style="width: 14px; height: 14px;"></i>
+                                            History
+                                        </h6>
+                                        <div style="max-height: 400px; overflow-y: auto;">
+                                            @php
+                                                $lead->load('bookingFileRemarks.user');
+                                                $currentDepartment = Auth::user()->department ?? 'Sales';
+                                                if ($isOpsDept ?? false) {
+                                                    $currentDepartment = 'Operations';
+                                                } elseif ($isPostSales ?? false) {
+                                                    $currentDepartment = 'Post Sales';
+                                                }
+                                                // Check if user is admin
+                                                $isAdmin =
+                                                    Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Developer');
+                                                // If admin, show all remarks; otherwise, show only own remarks
+                                                $remarksQuery = $lead
+                                                    ->bookingFileRemarks()
+                                                    ->where('department', $currentDepartment);
+                                                if (!$isAdmin) {
+                                                    $remarksQuery->where('user_id', Auth::id());
+                                                }
+                                                $allRemarks = $remarksQuery->orderBy('created_at', 'desc')->get();
+                                            @endphp
+                                            @if ($allRemarks->count() > 0)
+                                                <div class="timeline">
+                                                    @foreach ($allRemarks as $remark)
+                                                        <div class="border rounded-3 p-3 mb-3 bg-white">
+                                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                                <div class="d-flex align-items-start flex-grow-1">
+                                                                    <div class="avatar avatar-rounded rounded-circle me-3 flex-shrink-0"
+                                                                        style="background-color: #007d88; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                                                        <span class="text-white fw-bold"
+                                                                            style="font-size: 0.875rem;">
+                                                                            {{ strtoupper(substr($remark->user->name ?? 'U', 0, 1)) }}
+                                                                        </span>
                                                                     </div>
-                                                                    <p class="mb-0 text-dark" style="line-height: 1.6;">
-                                                                        {{ $remark->remark }}</p>
+                                                                    <div class="flex-grow-1">
+                                                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                                                            <strong
+                                                                                class="text-dark">{{ $remark->user->name ?? 'Unknown' }}</strong>
+                                                                            <small
+                                                                                class="text-muted">{{ $remark->created_at->format('d M, Y h:i A') }}</small>
+                                                                            @if ($remark->follow_up_at)
+                                                                                <span class="badge bg-danger">Follow-up:
+                                                                                    {{ $remark->follow_up_at->format('d M, Y h:i A') }}</span>
+                                                                            @endif
+                                                                        </div>
+                                                                        <p class="mb-0 text-dark" style="line-height: 1.6;">
+                                                                            {{ $remark->remark }}</p>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @else
-                                            <p class="text-muted text-center mb-0 py-4">
-                                                <i data-feather="message-circle" class="me-2"
-                                                    style="width: 16px; height: 16px;"></i>
-                                                No remarks available.
-                                            </p>
-                                        @endif
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                <p class="text-muted text-center mb-0 py-4">
+                                                    <i data-feather="message-circle" class="me-2"
+                                                        style="width: 16px; height: 16px;"></i>
+                                                    No remarks available.
+                                                </p>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1422,8 +1259,7 @@
                     </div>
                 </div>
             </div>
-        </div>
-        @include('layouts.footer')
+            @include('layouts.footer')
         </div>
 
 
@@ -1442,7 +1278,7 @@
                             <div class="modal-body">
                                 <div class="mb-3">
                                     <label class="form-label">Assign To <span class="text-danger">*</span></label>
-                                    <select name="reassigned_user_id" class="form-select form-select-sm" required>
+                                    <select name="reassigned_employee_id" class="form-select form-select-sm" required>
                                         <option value="">-- Select Employee --</option>
                                         @foreach ($employees as $employee)
                                             @php
@@ -1454,9 +1290,9 @@
                                                     ->first();
                                                 $isSelected = false;
                                                 if (
-                                                    $lead->reassigned_to &&
+                                                    $lead->assigned_user_id &&
                                                     $matchingUser &&
-                                                    $lead->reassigned_to == $matchingUser->id
+                                                    $lead->assigned_user_id == $matchingUser->id
                                                 ) {
                                                     $isSelected = true;
                                                 }
@@ -1621,7 +1457,7 @@
                                 <div class="mb-3">
                                     <label class="form-label">Payment Method <span class="text-danger">*</span></label>
                                     <select name="method" class="form-select form-select-sm" required>
-                                        <option value="">Select</option>
+                                        <option value="">-- Select --</option>
                                         <option value="Cash">Cash</option>
                                         <option value="UPI">UPI</option>
                                         <option value="NEFT">NEFT</option>
@@ -1629,7 +1465,6 @@
                                         <option value="WIB">WIB</option>
                                         <option value="Online">Online</option>
                                         <option value="Cheque">Cheque</option>
-                                        <option value="Other">Other</option>
                                     </select>
                                 </div>
                                 <div class="mb-3">
@@ -1685,10 +1520,15 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="addDestinationForm">
+                        <form id="addDestinationForm" action="{{ route('leads.booking-destinations.store', $lead) }}"
+                            method="POST">
+                            @csrf
+                            <input type="hidden" name="_method" id="destinationFormMethod" value="POST">
+                            <input type="hidden" name="booking_destination_id" id="bookingDestinationId" value="">
                             <div class="mb-3">
                                 <label class="form-label">Destination <span class="text-danger">*</span></label>
-                                <select class="form-select form-select-sm" id="modalDestinationSelect" required>
+                                <select class="form-select form-select-sm" id="modalDestinationSelect" name="destination"
+                                    required>
                                     <option value="">-- Select Destination --</option>
                                     @foreach ($destinations as $dest)
                                         <option value="{{ $dest->name }}" data-destination-id="{{ $dest->id }}">
@@ -1698,7 +1538,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Location <span class="text-danger">*</span></label>
-                                <select class="form-select form-select-sm" id="modalLocationSelect" required>
+                                <select class="form-select form-select-sm" id="modalLocationSelect" name="location" required>
                                     <option value="">-- Select Location --</option>
                                 </select>
                             </div>
@@ -1706,31 +1546,33 @@
                                 <label class="form-label">Service Type <span class="text-danger">*</span></label>
                                 <div class="btn-group w-100" role="group" aria-label="Service Type">
                                     <input type="radio" class="btn-check" name="service_type" id="modalOnlyHotel"
-                                        value="only_hotel" autocomplete="off">
+                                        value="only_hotel" autocomplete="off" required>
                                     <label class="btn btn-outline-primary btn-sm" for="modalOnlyHotel">Only Hotel</label>
 
                                     <input type="radio" class="btn-check" name="service_type" id="modalOnlyTT"
-                                        value="only_tt" autocomplete="off">
+                                        value="only_tt" autocomplete="off" required>
                                     <label class="btn btn-outline-primary btn-sm" for="modalOnlyTT">Only TT</label>
 
                                     <input type="radio" class="btn-check" name="service_type" id="modalHotelTT"
-                                        value="hotel_tt" autocomplete="off">
+                                        value="hotel_tt" autocomplete="off" required>
                                     <label class="btn btn-outline-primary btn-sm" for="modalHotelTT">Hotel + TT</label>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">From Date <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control form-control-sm" id="modalFromDate" required>
+                                <input type="date" class="form-control form-control-sm" id="modalFromDate"
+                                    name="from_date" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">To Date <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control form-control-sm" id="modalToDate" required>
+                                <input type="date" class="form-control form-control-sm" id="modalToDate"
+                                    name="to_date" required>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" id="submitDestinationModal">Add</button>
                             </div>
                         </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="submitDestinationModal">Add</button>
                     </div>
                 </div>
             </div>
@@ -1746,11 +1588,19 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="addArrivalDepartureForm">
+                        <form id="addArrivalDepartureForm"
+                            action="{{ route('leads.booking-arrival-departure.store', $lead) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="_method" id="arrivalDepartureFormMethod" value="POST">
+                            <input type="hidden" name="arrival_departure_id" id="arrivalDepartureId" value="">
+                            <input type="hidden" name="departure_date" id="hiddenDepartureDate" value="">
+                            <input type="hidden" name="departure_time" id="hiddenDepartureTime" value="">
+                            <input type="hidden" name="arrival_date" id="hiddenArrivalDate" value="">
+                            <input type="hidden" name="arrival_time" id="hiddenArrivalTime" value="">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Mode <span class="text-danger">*</span></label>
-                                    <select class="form-select form-select-sm" id="modalMode" required>
+                                    <select class="form-select form-select-sm" id="modalMode" name="mode" required>
                                         <option value="By Air">By Air</option>
                                         <option value="By Surface">By Surface</option>
                                         <option value="By Sea">By Sea</option>
@@ -1759,17 +1609,17 @@
                                 <div class="col-md-6">
                                     <label class="form-label">Info</label>
                                     <input type="text" class="form-control form-control-sm" id="modalInfo"
-                                        placeholder="Info">
+                                        name="info" placeholder="Info">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">From City</label>
+                                    <label class="form-label">From City <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control form-control-sm" id="modalFromCity"
-                                        placeholder="From City">
+                                        name="from_city" placeholder="From City" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">To City</label>
+                                    <label class="form-label">To City <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control form-control-sm" id="modalToCity"
-                                        placeholder="To City">
+                                        name="to_city" placeholder="To City" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Departure Date & Time <span
@@ -1783,11 +1633,12 @@
                                         required>
                                 </div>
                             </div>
+                            <div class="modal-footer mt-3">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary"
+                                    id="submitArrivalDepartureModal">Add</button>
+                            </div>
                         </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="submitArrivalDepartureModal">Add</button>
                     </div>
                 </div>
             </div>
@@ -1803,11 +1654,16 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="addAccommodationForm">
+                        <form id="addAccommodationForm" action="{{ route('leads.booking-accommodations.store', $lead) }}"
+                            method="POST">
+                            @csrf
+                            <input type="hidden" name="_method" id="accommodationFormMethod" value="POST">
+                            <input type="hidden" name="accommodation_id" id="accommodationId" value="">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Destination</label>
-                                    <select class="form-select form-select-sm" id="modalAccDestinationSelect">
+                                    <select class="form-select form-select-sm" id="modalAccDestinationSelect"
+                                        name="destination">
                                         <option value="">-- Select Destination --</option>
                                         @foreach ($destinations as $dest)
                                             <option value="{{ $dest->name }}"
@@ -1817,31 +1673,34 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Location</label>
-                                    <select class="form-select form-select-sm" id="modalAccLocationSelect">
+                                    <select class="form-select form-select-sm" id="modalAccLocationSelect"
+                                        name="location">
                                         <option value="">-- Select Location --</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Stay At</label>
                                     <input type="text" class="form-control form-control-sm" id="modalStayAt"
-                                        placeholder="Stay At">
+                                        name="stay_at" placeholder="Stay At">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Check-in Date</label>
-                                    <input type="date" class="form-control form-control-sm" id="modalCheckinDate">
+                                    <input type="date" class="form-control form-control-sm" id="modalCheckinDate"
+                                        name="checkin_date">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Check-out Date</label>
-                                    <input type="date" class="form-control form-control-sm" id="modalCheckoutDate">
+                                    <input type="date" class="form-control form-control-sm" id="modalCheckoutDate"
+                                        name="checkout_date">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Room Type</label>
                                     <input type="text" class="form-control form-control-sm" id="modalRoomType"
-                                        placeholder="Room Type">
+                                        name="room_type" placeholder="Room Type">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Meal Plan</label>
-                                    <select class="form-select form-select-sm" id="modalMealPlan">
+                                    <select class="form-select form-select-sm" id="modalMealPlan" name="meal_plan">
                                         <option value="">-- Select --</option>
                                         <option value="EP">EP</option>
                                         <option value="CP">CP</option>
@@ -1851,11 +1710,11 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="modal-footer mt-3">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" id="submitAccommodationModal">Add</button>
+                            </div>
                         </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="submitAccommodationModal">Add</button>
                     </div>
                 </div>
             </div>
@@ -1871,44 +1730,50 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="addItineraryForm">
+                        <form id="addItineraryForm" action="{{ route('leads.booking-itineraries.store', $lead) }}"
+                            method="POST">
+                            @csrf
+                            <input type="hidden" name="_method" id="itineraryFormMethod" value="POST">
+                            <input type="hidden" name="itinerary_id" id="itineraryId" value="">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Day & Date</label>
                                     <input type="text" class="form-control form-control-sm" id="modalDayDate"
-                                        placeholder="Day & Date">
+                                        name="day_and_date" placeholder="Day & Date">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Time</label>
-                                    <input type="time" class="form-control form-control-sm" id="modalItineraryTime">
+                                    <input type="time" class="form-control form-control-sm" id="modalItineraryTime"
+                                        name="time">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Location</label>
                                     <input type="text" class="form-control form-control-sm" id="modalItineraryLocation"
-                                        placeholder="Location">
+                                        name="location" placeholder="Location">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Stay At</label>
                                     <input type="text" class="form-control form-control-sm" id="modalItineraryStayAt"
-                                        placeholder="Stay at">
+                                        name="stay_at" placeholder="Stay at">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label">Activity/Tour Description</label>
-                                    <textarea class="form-control form-control-sm" id="modalActivity" rows="5"
-                                        placeholder="Enter each activity on a new line (press Enter for list items)"></textarea>
+                                    <textarea class="form-control form-control-sm" id="modalActivity" name="activity_tour_description"
+                                        rows="5" placeholder="Enter each activity on a new line (press Enter for list items)"></textarea>
                                     <small class="text-muted">Each line will be displayed as a list item in the itinerary
                                         table.</small>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label">Remarks</label>
-                                    <textarea class="form-control form-control-sm" id="modalRemarks" rows="3" placeholder="Remarks"></textarea>
+                                    <textarea class="form-control form-control-sm" id="modalRemarks" name="remarks" rows="3"
+                                        placeholder="Remarks"></textarea>
                                 </div>
                             </div>
+                            <div class="modal-footer mt-3">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" id="submitItineraryModal">Add</button>
+                            </div>
                         </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="submitItineraryModal">Add</button>
                     </div>
                 </div>
             </div>
@@ -1926,8 +1791,10 @@
                                 aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form id="addVendorPaymentForm">
+                            <form id="addVendorPaymentForm" action="{{ route('bookings.vendor-payment.store', $lead) }}"
+                                method="POST">
                                 @csrf
+                                <input type="hidden" name="_method" id="vendorPaymentFormMethod" value="POST">
                                 <input type="hidden" id="vendorPaymentId" name="vendor_payment_id" value="">
                                 <div class="row g-3">
                                     <div class="col-md-6">
@@ -1970,11 +1837,13 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="modal-footer mt-3">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary"
+                                        id="submitVendorPaymentModal">Save</button>
+                                </div>
                             </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" id="submitVendorPaymentModal">Save</button>
                         </div>
                     </div>
                 </div>
@@ -2090,16 +1959,35 @@
                     let editingLocationValue = null;
 
                     // Reset modal for New Destination
+                    // Reset form when modal is opened for adding
                     document.querySelector('[data-bs-target="#addDestinationModal"]')?.addEventListener('click',
                         function() {
                             if (this.id === 'submitDestinationModal') return; // Ignore submit click
                             editingDestinationRow = null;
+
+                            // Reset form action and method for add
+                            const form = document.getElementById('addDestinationForm');
+                            form.action = `{{ route('leads.booking-destinations.store', $lead) }}`;
+                            document.getElementById('destinationFormMethod').value = 'POST';
+                            document.getElementById('bookingDestinationId').value = '';
+
                             document.getElementById('addDestinationModalLabel').textContent = 'Add Destination';
                             document.getElementById('addDestinationForm').reset();
                             document.getElementById('modalLocationSelect').innerHTML =
                                 '<option value="">-- Select Location --</option>';
                             document.getElementById('submitDestinationModal').textContent = 'Add';
                         });
+
+                    // Reset form when modal is closed
+                    document.getElementById('addDestinationModal')?.addEventListener('hidden.bs.modal', function() {
+                        editingDestinationRow = null;
+                        const form = document.getElementById('addDestinationForm');
+                        form.action = `{{ route('leads.booking-destinations.store', $lead) }}`;
+                        document.getElementById('destinationFormMethod').value = 'POST';
+                        document.getElementById('bookingDestinationId').value = '';
+                        document.getElementById('addDestinationModalLabel').textContent = 'Add Destination';
+                        document.getElementById('submitDestinationModal').textContent = 'Add';
+                    });
 
                     // Edit Handler (UI side)
                     document.addEventListener('click', function(e) {
@@ -2109,6 +1997,7 @@
                             editingDestinationRow = row;
 
                             // Get data from attributes
+                            const dbId = icon.dataset.id;
                             const destination = icon.dataset.destination;
                             const location = icon.dataset.location;
                             const onlyHotel = icon.dataset.onlyHotel === '1';
@@ -2117,6 +2006,13 @@
 
                             const fromDate = icon.dataset.fromDate || '';
                             const toDate = icon.dataset.toDate || '';
+
+                            // Update form action and method for edit
+                            const form = document.getElementById('addDestinationForm');
+                            form.action = `{{ route('leads.booking-destinations.update', [$lead, ':id']) }}`
+                                .replace(':id', dbId);
+                            document.getElementById('destinationFormMethod').value = 'PUT';
+                            document.getElementById('bookingDestinationId').value = dbId;
 
                             // Populate modal
                             document.getElementById('modalDestinationSelect').value = destination;
@@ -2144,84 +2040,6 @@
                             if (destinationSelect.value) {
                                 destinationSelect.dispatchEvent(new Event('change'));
                             }
-                        }
-                    });
-
-                    // Handle modal form submission (AJAX)
-                    document.getElementById('submitDestinationModal')?.addEventListener('click', async function() {
-                        const submitBtn = this;
-                        const destination = document.getElementById('modalDestinationSelect').value;
-                        const location = document.getElementById('modalLocationSelect').value;
-
-                        const selectedServiceType = document.querySelector('input[name="service_type"]:checked')
-                            ?.value;
-                        const onlyHotel = selectedServiceType === 'only_hotel';
-                        const onlyTT = selectedServiceType === 'only_tt';
-                        const hotelTT = selectedServiceType === 'hotel_tt';
-
-                        const fromDate = document.getElementById('modalFromDate').value;
-                        const toDate = document.getElementById('modalToDate').value;
-
-                        if (!destination || !location || !fromDate || !toDate) {
-                            alert('Please fill in all required fields');
-                            return;
-                        }
-
-                        if (!selectedServiceType) {
-                            alert('Please select a service type');
-                            return;
-                        }
-
-                        submitBtn.disabled = true;
-                        const originalText = submitBtn.textContent;
-                        submitBtn.textContent = 'Saving...';
-
-                        const data = {
-                            destination,
-                            location,
-                            only_hotel: onlyHotel ? 1 : 0,
-                            only_tt: onlyTT ? 1 : 0,
-                            hotel_tt: hotelTT ? 1 : 0,
-                            from_date: fromDate,
-                            to_date: toDate
-                        };
-
-                        let url = `{{ route('leads.booking-destinations.store', $lead) }}`;
-                        let method = 'POST';
-
-                        if (editingDestinationRow) {
-                            const dbId = editingDestinationRow.querySelector('.editDestinationRow').dataset.id;
-                            url = `{{ route('leads.booking-destinations.update', [$lead, ':id']) }}`.replace(
-                                ':id', dbId);
-                            method = 'PUT';
-                        }
-
-                        try {
-                            const response = await fetch(url, {
-                                method: method,
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                        ?.content
-                                },
-                                body: JSON.stringify(data)
-                            });
-
-                            const result = await response.json();
-
-                            if (response.ok) {
-                                window.location.reload();
-                            } else {
-                                alert(result.message || 'Error occurred while saving destination');
-                                submitBtn.disabled = false;
-                                submitBtn.textContent = originalText;
-                            }
-                        } catch (error) {
-                            console.error('Error saving destination:', error);
-                            alert('An unexpected error occurred');
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = originalText;
                         }
                     });
 
@@ -2288,8 +2106,15 @@
                     document.getElementById('addArrivalDepartureModal')?.addEventListener('show.bs.modal', function(e) {
                         const button = e.relatedTarget;
                         if (!button || !button.classList.contains('editArrivalDepartureRow')) {
-                            document.getElementById('addArrivalDepartureForm').reset();
                             editingArrivalDepartureId = null;
+
+                            // Reset form action and method for add
+                            const form = document.getElementById('addArrivalDepartureForm');
+                            form.action = `{{ route('leads.booking-arrival-departure.store', $lead) }}`;
+                            document.getElementById('arrivalDepartureFormMethod').value = 'POST';
+                            document.getElementById('arrivalDepartureId').value = '';
+
+                            document.getElementById('addArrivalDepartureForm').reset();
                             document.getElementById('addArrivalDepartureModalLabel').textContent =
                                 'Add Arrival/Departure';
                             document.getElementById('submitArrivalDepartureModal').textContent = 'Add';
@@ -2300,7 +2125,16 @@
                     document.addEventListener('click', function(e) {
                         const editBtn = e.target.closest('.editArrivalDepartureRow');
                         if (editBtn) {
-                            editingArrivalDepartureId = editBtn.dataset.id;
+                            const dbId = editBtn.dataset.id;
+                            editingArrivalDepartureId = dbId;
+
+                            // Update form action and method for edit
+                            const form = document.getElementById('addArrivalDepartureForm');
+                            form.action = `{{ route('leads.booking-arrival-departure.update', [$lead, ':id']) }}`
+                                .replace(':id', dbId);
+                            document.getElementById('arrivalDepartureFormMethod').value = 'PUT';
+                            document.getElementById('arrivalDepartureId').value = dbId;
+
                             document.getElementById('addArrivalDepartureModalLabel').textContent =
                                 'Edit Arrival/Departure';
                             document.getElementById('submitArrivalDepartureModal').textContent = 'Update';
@@ -2326,17 +2160,13 @@
                         }
                     });
 
-                    // Modal Submission (Add/Update)
-                    document.getElementById('submitArrivalDepartureModal')?.addEventListener('click', async function() {
-                        const submitBtn = this;
-                        const mode = document.getElementById('modalMode').value;
-                        const info = document.getElementById('modalInfo').value;
-                        const fromCity = document.getElementById('modalFromCity').value;
-                        const toCity = document.getElementById('modalToCity').value;
+                    // Handle form submission - split datetime-local into date and time
+                    document.getElementById('addArrivalDepartureForm')?.addEventListener('submit', function(e) {
                         const departureAt = document.getElementById('modalDepartureAt').value;
                         const arrivalAt = document.getElementById('modalArrivalAt').value;
 
-                        if (!mode || !fromCity || !toCity || !departureAt || !arrivalAt) {
+                        if (!departureAt || !arrivalAt) {
+                            e.preventDefault();
                             alert('Please fill in all required fields');
                             return;
                         }
@@ -2345,53 +2175,23 @@
                         const depParts = departureAt.split('T');
                         const arrParts = arrivalAt.split('T');
 
-                        const data = {
-                            mode: mode,
-                            info: info,
-                            from_city: fromCity,
-                            to_city: toCity,
-                            departure_date: depParts[0],
-                            departure_time: depParts[1],
-                            arrival_date: arrParts[0],
-                            arrival_time: arrParts[1]
-                        };
+                        // Populate hidden fields
+                        document.getElementById('hiddenDepartureDate').value = depParts[0] || '';
+                        document.getElementById('hiddenDepartureTime').value = depParts[1] || '';
+                        document.getElementById('hiddenArrivalDate').value = arrParts[0] || '';
+                        document.getElementById('hiddenArrivalTime').value = arrParts[1] || '';
+                    });
 
-                        const originalText = submitBtn.textContent;
-                        submitBtn.disabled = true;
-                        submitBtn.textContent = editingArrivalDepartureId ? 'Updating...' : 'Adding...';
-
-                        try {
-                            const url = editingArrivalDepartureId ?
-                                `{{ route('leads.booking-arrival-departure.update', [$lead, ':id']) }}`
-                                .replace(':id', editingArrivalDepartureId) :
-                                `{{ route('leads.booking-arrival-departure.store', $lead) }}`;
-
-                            const response = await fetch(url, {
-                                method: editingArrivalDepartureId ? 'PUT' : 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                        ?.content,
-                                    'Accept': 'application/json'
-                                },
-                                body: JSON.stringify(data)
-                            });
-
-                            const result = await response.json();
-
-                            if (response.ok) {
-                                window.location.reload();
-                            } else {
-                                alert(result.message || 'Error occurred while saving arrival/departure');
-                                submitBtn.disabled = false;
-                                submitBtn.textContent = originalText;
-                            }
-                        } catch (error) {
-                            console.error('Error saving arrival/departure:', error);
-                            alert('An unexpected error occurred');
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = originalText;
-                        }
+                    // Reset form when modal is closed
+                    document.getElementById('addArrivalDepartureModal')?.addEventListener('hidden.bs.modal', function() {
+                        editingArrivalDepartureId = null;
+                        const form = document.getElementById('addArrivalDepartureForm');
+                        form.action = `{{ route('leads.booking-arrival-departure.store', $lead) }}`;
+                        document.getElementById('arrivalDepartureFormMethod').value = 'POST';
+                        document.getElementById('arrivalDepartureId').value = '';
+                        document.getElementById('addArrivalDepartureModalLabel').textContent =
+                            'Add Arrival/Departure';
+                        document.getElementById('submitArrivalDepartureModal').textContent = 'Add';
                     });
 
                     // Delete Handler
@@ -2440,9 +2240,16 @@
                     document.getElementById('addAccommodationModal')?.addEventListener('show.bs.modal', function(e) {
                         const button = e.relatedTarget;
                         if (!button || !button.classList.contains('editAccommodationRow')) {
-                            document.getElementById('addAccommodationForm').reset();
                             editingAccommodationId = null;
                             editingAccLocationValue = null;
+
+                            // Reset form action and method for add
+                            const form = document.getElementById('addAccommodationForm');
+                            form.action = `{{ route('leads.booking-accommodations.store', $lead) }}`;
+                            document.getElementById('accommodationFormMethod').value = 'POST';
+                            document.getElementById('accommodationId').value = '';
+
+                            document.getElementById('addAccommodationForm').reset();
                             document.getElementById('addAccommodationModalLabel').textContent = 'Add Accommodation';
                             document.getElementById('submitAccommodationModal').textContent = 'Add';
                             document.getElementById('modalAccLocationSelect').innerHTML =
@@ -2514,7 +2321,16 @@
                     document.addEventListener('click', function(e) {
                         const editBtn = e.target.closest('.editAccommodationRow');
                         if (editBtn) {
-                            editingAccommodationId = editBtn.dataset.accommodationId;
+                            const dbId = editBtn.dataset.accommodationId;
+                            editingAccommodationId = dbId;
+
+                            // Update form action and method for edit
+                            const form = document.getElementById('addAccommodationForm');
+                            form.action = `{{ route('leads.booking-accommodations.update', [$lead, ':id']) }}`
+                                .replace(':id', dbId);
+                            document.getElementById('accommodationFormMethod').value = 'PUT';
+                            document.getElementById('accommodationId').value = dbId;
+
                             document.getElementById('addAccommodationModalLabel').textContent =
                                 'Edit Accommodation';
                             document.getElementById('submitAccommodationModal').textContent = 'Update';
@@ -2523,11 +2339,11 @@
                             document.getElementById('modalAccDestinationSelect').value = editBtn.dataset
                                 .destination;
                             editingAccLocationValue = editBtn.dataset.location;
-                            document.getElementById('modalStayAt').value = editBtn.dataset.stayAt;
-                            document.getElementById('modalCheckinDate').value = editBtn.dataset.checkinDate;
-                            document.getElementById('modalCheckoutDate').value = editBtn.dataset.checkoutDate;
-                            document.getElementById('modalRoomType').value = editBtn.dataset.roomType;
-                            document.getElementById('modalMealPlan').value = editBtn.dataset.mealPlan;
+                            document.getElementById('modalStayAt').value = editBtn.dataset.stayAt || '';
+                            document.getElementById('modalCheckinDate').value = editBtn.dataset.checkinDate || '';
+                            document.getElementById('modalCheckoutDate').value = editBtn.dataset.checkoutDate || '';
+                            document.getElementById('modalRoomType').value = editBtn.dataset.roomType || '';
+                            document.getElementById('modalMealPlan').value = editBtn.dataset.mealPlan || '';
 
                             // Trigger location load
                             const destSelect = document.getElementById('modalAccDestinationSelect');
@@ -2535,60 +2351,16 @@
                         }
                     });
 
-                    // Modal Submission (Add/Update)
-                    document.getElementById('submitAccommodationModal')?.addEventListener('click', async function() {
-                        const submitBtn = this;
-                        const data = {
-                            destination: document.getElementById('modalAccDestinationSelect').value,
-                            location: document.getElementById('modalAccLocationSelect').value,
-                            stay_at: document.getElementById('modalStayAt').value,
-                            checkin_date: document.getElementById('modalCheckinDate').value,
-                            checkout_date: document.getElementById('modalCheckoutDate').value,
-                            room_type: document.getElementById('modalRoomType').value,
-                            meal_plan: document.getElementById('modalMealPlan').value,
-                        };
-
-                        if (!data.destination || !data.location || !data.stay_at || !data.checkin_date || !data
-                            .checkout_date) {
-                            alert('Please fill in all required fields');
-                            return;
-                        }
-
-                        const originalText = submitBtn.textContent;
-                        submitBtn.disabled = true;
-                        submitBtn.textContent = editingAccommodationId ? 'Updating...' : 'Adding...';
-
-                        try {
-                            const url = editingAccommodationId ?
-                                `{{ route('leads.booking-accommodations.update', [$lead, ':id']) }}`.replace(
-                                    ':id', editingAccommodationId) :
-                                `{{ route('leads.booking-accommodations.store', $lead) }}`;
-
-                            const response = await fetch(url, {
-                                method: editingAccommodationId ? 'PUT' : 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                        ?.content,
-                                    'Accept': 'application/json'
-                                },
-                                body: JSON.stringify(data)
-                            });
-
-                            if (response.ok) {
-                                window.location.reload();
-                            } else {
-                                const result = await response.json();
-                                alert(result.message || 'Error occurred while saving accommodation');
-                                submitBtn.disabled = false;
-                                submitBtn.textContent = originalText;
-                            }
-                        } catch (error) {
-                            console.error('Error saving accommodation:', error);
-                            alert('An unexpected error occurred');
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = originalText;
-                        }
+                    // Reset form when modal is closed
+                    document.getElementById('addAccommodationModal')?.addEventListener('hidden.bs.modal', function() {
+                        editingAccommodationId = null;
+                        editingAccLocationValue = null;
+                        const form = document.getElementById('addAccommodationForm');
+                        form.action = `{{ route('leads.booking-accommodations.store', $lead) }}`;
+                        document.getElementById('accommodationFormMethod').value = 'POST';
+                        document.getElementById('accommodationId').value = '';
+                        document.getElementById('addAccommodationModalLabel').textContent = 'Add Accommodation';
+                        document.getElementById('submitAccommodationModal').textContent = 'Add';
                     });
 
                     // Delete Handler
@@ -2718,8 +2490,15 @@
                     document.getElementById('addItineraryModal')?.addEventListener('show.bs.modal', function(e) {
                         const button = e.relatedTarget;
                         if (!button || !button.classList.contains('editItineraryRow')) {
-                            document.getElementById('addItineraryForm').reset();
                             editingItineraryId = null;
+
+                            // Reset form action and method for add
+                            const form = document.getElementById('addItineraryForm');
+                            form.action = `{{ route('leads.booking-itineraries.store', $lead) }}`;
+                            document.getElementById('itineraryFormMethod').value = 'POST';
+                            document.getElementById('itineraryId').value = '';
+
+                            document.getElementById('addItineraryForm').reset();
                             document.getElementById('addItineraryModalLabel').textContent =
                                 'Add Day-Wise Itinerary';
                             document.getElementById('submitItineraryModal').textContent = 'Add';
@@ -2741,15 +2520,25 @@
                     document.addEventListener('click', function(e) {
                         const editBtn = e.target.closest('.editItineraryRow');
                         if (editBtn) {
-                            editingItineraryId = editBtn.dataset.itineraryId;
+                            const dbId = editBtn.dataset.itineraryId;
+                            editingItineraryId = dbId;
+
+                            // Update form action and method for edit
+                            const form = document.getElementById('addItineraryForm');
+                            form.action = `{{ route('leads.booking-itineraries.update', [$lead, ':id']) }}`
+                                .replace(':id', dbId);
+                            document.getElementById('itineraryFormMethod').value = 'PUT';
+                            document.getElementById('itineraryId').value = dbId;
+
                             document.getElementById('addItineraryModalLabel').textContent =
                                 'Edit Day-Wise Itinerary';
                             document.getElementById('submitItineraryModal').textContent = 'Update';
 
                             // Populate fields
-                            document.getElementById('modalDayDate').value = editBtn.dataset.dayDate;
+                            document.getElementById('modalDayDate').value = editBtn.dataset.dayDate || '';
                             document.getElementById('modalItineraryTime').value = editBtn.dataset.time || '';
-                            document.getElementById('modalItineraryLocation').value = editBtn.dataset.location;
+                            document.getElementById('modalItineraryLocation').value = editBtn.dataset.location ||
+                            '';
 
                             // Handle activity with list format - add bullet points for display
                             const activityText = editBtn.dataset.activity || '';
@@ -2762,63 +2551,23 @@
                         }
                     });
 
-                    // Modal Submission (Add/Update)
-                    document.getElementById('submitItineraryModal')?.addEventListener('click', async function() {
-                        const submitBtn = this;
-
-                        // Remove bullet points before saving
+                    // Handle form submission - remove bullet points before submit
+                    document.getElementById('addItineraryForm')?.addEventListener('submit', function(e) {
+                        // Remove bullet points from activity text before saving
                         const activityText = document.getElementById('modalActivity').value;
                         const cleanActivityText = removeBulletsFromText(activityText);
+                        document.getElementById('modalActivity').value = cleanActivityText;
+                    });
 
-                        const data = {
-                            day_and_date: document.getElementById('modalDayDate').value,
-                            time: document.getElementById('modalItineraryTime').value,
-                            location: document.getElementById('modalItineraryLocation').value,
-                            activity_tour_description: cleanActivityText,
-                            stay_at: document.getElementById('modalItineraryStayAt').value,
-                            remarks: document.getElementById('modalRemarks').value,
-                        };
-
-                        if (!data.day_and_date || !data.location || !data.activity_tour_description) {
-                            alert('Please fill in all required fields');
-                            return;
-                        }
-
-                        const originalText = submitBtn.textContent;
-                        submitBtn.disabled = true;
-                        submitBtn.textContent = editingItineraryId ? 'Updating...' : 'Adding...';
-
-                        try {
-                            const url = editingItineraryId ?
-                                `{{ route('leads.booking-itineraries.update', [$lead, ':id']) }}`.replace(
-                                    ':id', editingItineraryId) :
-                                `{{ route('leads.booking-itineraries.store', $lead) }}`;
-
-                            const response = await fetch(url, {
-                                method: editingItineraryId ? 'PUT' : 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                        ?.content,
-                                    'Accept': 'application/json'
-                                },
-                                body: JSON.stringify(data)
-                            });
-
-                            if (response.ok) {
-                                window.location.reload();
-                            } else {
-                                const result = await response.json();
-                                alert(result.message || 'Error occurred while saving itinerary');
-                                submitBtn.disabled = false;
-                                submitBtn.textContent = originalText;
-                            }
-                        } catch (error) {
-                            console.error('Error saving itinerary:', error);
-                            alert('An unexpected error occurred');
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = originalText;
-                        }
+                    // Reset form when modal is closed
+                    document.getElementById('addItineraryModal')?.addEventListener('hidden.bs.modal', function() {
+                        editingItineraryId = null;
+                        const form = document.getElementById('addItineraryForm');
+                        form.action = `{{ route('leads.booking-itineraries.store', $lead) }}`;
+                        document.getElementById('itineraryFormMethod').value = 'POST';
+                        document.getElementById('itineraryId').value = '';
+                        document.getElementById('addItineraryModalLabel').textContent = 'Add Day-Wise Itinerary';
+                        document.getElementById('submitItineraryModal').textContent = 'Add';
                     });
 
                     // Delete Handler
@@ -2961,11 +2710,23 @@
 
                         const paymentId = editBtn.getAttribute('data-payment-id');
                         const amount = editBtn.getAttribute('data-amount') || '';
-                        const method = editBtn.getAttribute('data-method') || 'cash';
+                        let method = editBtn.getAttribute('data-method') || '';
                         const paymentDate = editBtn.getAttribute('data-payment-date') || '';
                         const dueDate = editBtn.getAttribute('data-due-date') || '';
                         const reference = editBtn.getAttribute('data-reference') || '';
                         const status = editBtn.getAttribute('data-status') || 'pending';
+
+                        // Map old database values to new dropdown values
+                        const methodMap = {
+                            'Cash': 'Cash',
+                            'UPI': 'UPI',
+                            'NEFT': 'NEFT',
+                            'RTGS': 'RTGS',
+                            'WIB': 'WIB',
+                            'Online': 'Online',
+                            'Cheque': 'Cheque'
+                        };
+
 
                         // Update form action to use update route
                         form.action = '{{ route('leads.payments.update', [$lead->id, ':id']) }}'.replace(':id',
@@ -2976,7 +2737,10 @@
                         }
 
                         form.querySelector('input[name=\"amount\"]').value = amount;
-                        form.querySelector('select[name=\"method\"]').value = method;
+                        const methodSelect = form.querySelector('select[name=\"method\"]');
+                        if (methodSelect) {
+                            methodSelect.value = method;
+                        }
                         form.querySelector('input[name=\"payment_date\"]').value = paymentDate;
                         form.querySelector('input[name=\"due_date\"]').value = dueDate;
                         form.querySelector('input[name=\"reference\"]').value = reference;
@@ -3219,11 +2983,6 @@
 
                     // Handle form submission (Direct submit enabled)
                     const bookingFileForm = document.getElementById('bookingFileForm');
-                    if (bookingFileForm) {
-                        // The form will now submit normally
-                        console.log('Direct submission enabled for bookingFileForm');
-                    }
-
 
                     // Handle Sales Cost Update Button
                     const updateSalesCostBtn = document.getElementById('updateSalesCostBtn');
@@ -3284,8 +3043,11 @@
 
                     // Reset vendor payment modal
                     function resetVendorPaymentModal() {
-                        document.getElementById('addVendorPaymentForm').reset();
+                        const form = document.getElementById('addVendorPaymentForm');
+                        form.action = `{{ route('bookings.vendor-payment.store', $lead) }}`;
+                        document.getElementById('vendorPaymentFormMethod').value = 'POST';
                         document.getElementById('vendorPaymentId').value = '';
+                        document.getElementById('addVendorPaymentForm').reset();
                         document.getElementById('addVendorPaymentModalLabel').textContent = 'Add Vendor Payment';
                         currentEditVendorPaymentId = null;
                     }
@@ -3306,7 +3068,14 @@
                             const row = btn.closest('tr');
 
                             currentEditVendorPaymentId = vendorPaymentId;
+
+                            // Update form action and method for edit
+                            const form = document.getElementById('addVendorPaymentForm');
+                            form.action = `{{ route('bookings.vendor-payment.update', [$lead, ':id']) }}`.replace(':id',
+                                vendorPaymentId);
+                            document.getElementById('vendorPaymentFormMethod').value = 'PUT';
                             document.getElementById('vendorPaymentId').value = vendorPaymentId;
+
                             document.getElementById('addVendorPaymentModalLabel').textContent = 'Edit Vendor Payment';
 
                             // Populate form from data attributes
@@ -3318,7 +3087,6 @@
                             document.getElementById('modalStatus').value = row.dataset.status || 'Pending';
                         }
                     });
-
 
                     // Handle delete vendor payment button click
                     document.addEventListener('click', function(e) {
@@ -3341,14 +3109,7 @@
                                 .then(response => response.json())
                                 .then(data => {
                                     if (data.success) {
-                                        const row = btn.closest('tr');
-                                        row.remove();
-                                        // Check if table is empty
-                                        const tbody = document.getElementById('vendorPaymentsTableBody');
-                                        if (tbody && tbody.querySelectorAll('tr').length === 0) {
-                                            tbody.innerHTML =
-                                                '<tr><td colspan="11" class="text-center text-muted py-4">No vendor payments found</td></tr>';
-                                        }
+                                        window.location.reload();
                                     } else {
                                         alert(data.message || 'Failed to delete vendor payment');
                                     }
@@ -3360,53 +3121,15 @@
                         }
                     });
 
-                    // Handle vendor payment form submission
-                    const submitVendorPaymentBtn = document.getElementById('submitVendorPaymentModal');
-                    if (submitVendorPaymentBtn) {
-                        submitVendorPaymentBtn.addEventListener('click', function() {
-                            const form = document.getElementById('addVendorPaymentForm');
-                            const formData = new FormData(form);
-                            const vendorPaymentId = document.getElementById('vendorPaymentId').value;
-                            const leadId = {{ $lead->id }};
-
-                            let url = `/bookings/${leadId}/vendor-payment`;
-                            let method = 'POST';
-
-                            if (vendorPaymentId) {
-                                url = `/bookings/${leadId}/vendor-payment/${vendorPaymentId}`;
-                                method = 'PUT';
-                                formData.append('_method', 'PUT');
-                            }
-
-                            fetch(url, {
-                                    method: method,
-                                    headers: {
-                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                                            'content'),
-                                        'Accept': 'application/json',
-                                    },
-                                    body: formData
-                                })
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        // Close modal
-                                        const modal = bootstrap.Modal.getInstance(addVendorPaymentModal);
-                                        if (modal) {
-                                            modal.hide();
-                                        }
-                                        // Reload page to show updated data
-                                        window.location.reload();
-                                    } else {
-                                        alert(data.message || 'Failed to save vendor payment');
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
-                                    alert('An error occurred while saving vendor payment');
-                                });
-                        });
-                    }
+                    // Reset form when modal is closed
+                    addVendorPaymentModal?.addEventListener('hidden.bs.modal', function() {
+                        currentEditVendorPaymentId = null;
+                        const form = document.getElementById('addVendorPaymentForm');
+                        form.action = `{{ route('bookings.vendor-payment.store', $lead) }}`;
+                        document.getElementById('vendorPaymentFormMethod').value = 'POST';
+                        document.getElementById('vendorPaymentId').value = '';
+                        document.getElementById('addVendorPaymentModalLabel').textContent = 'Add Vendor Payment';
+                    });
                 @endif
 
 

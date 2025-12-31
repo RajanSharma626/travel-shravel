@@ -22,6 +22,7 @@ class VendorPayment extends Model
         'payment_mode',
         'ref_no',
         'remarks',
+        'paid_on',
     ];
 
     protected $casts = [
@@ -29,6 +30,7 @@ class VendorPayment extends Model
         'paid_amount' => 'decimal:2',
         'pending_amount' => 'decimal:2',
         'due_date' => 'date',
+        'paid_on' => 'date',
     ];
 
     public function lead()

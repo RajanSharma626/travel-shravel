@@ -428,7 +428,7 @@
                                     <div class="col-12">
                                         <div class="card border shadow-sm">
                                             <div class="card-header py-2">
-                                                <h6 class="mb-0 text-uppercase text-muted small fw-semibold">Addresses</h6>
+                                                <h6 class="mb-0 text-uppercase text-muted small fw-semibold">Address</h6>
                                             </div>
                                             <div class="card-body py-3">
                                                 <div class="row g-3">

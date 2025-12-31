@@ -189,15 +189,25 @@
                                 </li>
                             @endif
 
-                            <!-- Operations Tab - Visible to Admin, Operation, Operation Manager (Hidden for Customer Care) -->
-                            @if (($isAdmin ||
+                            <!-- Operations Tab - Visible to Admin, Operation, Ticketing, Cruise, Visa, Insurance departments (Hidden for Customer Care) -->
+                            @php
+                                $isOpsDept = $isAdmin ||
                                     Auth::user()->hasRole('Operation') ||
                                     Auth::user()->hasRole('Operation Manager') ||
-                                    Auth::user()->department === 'Operation') &&
-                                !$isCustomerCare)
-                               
-
-                                <li class="nav-item mb-2 {{ request()->is('operations*') || (request()->is('bookings/*/form') && (Auth::user()->hasRole('Operation') || Auth::user()->hasRole('Operation Manager'))) ? 'active' : '' }}">
+                                    Auth::user()->hasRole('Ticketing') ||
+                                    Auth::user()->hasRole('Cruise') ||
+                                    Auth::user()->hasRole('Visa') ||
+                                    Auth::user()->hasRole('Insurance') ||
+                                    Auth::user()->department === 'Operation' ||
+                                    Auth::user()->department === 'Ticketing' ||
+                                    Auth::user()->department === 'Cruise' ||
+                                    Auth::user()->department === 'Visa' ||
+                                    Auth::user()->department === 'Insurance';
+                                // Only activate Operations tab for operations routes, not for Sales booking file (bookings/*/form)
+                                $isOpsActive = request()->is('operations*');
+                            @endphp
+                            @if ($isOpsDept && !$isCustomerCare)
+                                <li class="nav-item mb-2 {{ $isOpsActive ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('operations.index') }}">
                                         <span class="nav-icon-wrap">
                                             <span class="svg-icon"><i data-feather="settings"

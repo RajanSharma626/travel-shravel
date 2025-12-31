@@ -17,7 +17,7 @@ class DocumentController extends Controller
             'search' => $request->input('search'),
         ];
 
-        // Show all booked leads for Post Sales team
+        // Show booked leads for Post Sales team
         $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'documents', 'operation', 'remarks' => function ($q) {
             $q->orderBy('created_at', 'desc')->limit(1);
         }, 'bookingFileRemarks' => function ($q) {
@@ -25,6 +25,29 @@ class DocumentController extends Controller
         }])
             ->where('status', 'booked')
             ->orderBy('created_at', 'desc');
+
+        $currentUser = Auth::user();
+        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer');
+        $userRole = $currentUser->role ?? $currentUser->getRoleNameAttribute();
+        $userDepartment = $currentUser->department;
+
+        // Filter booking files based on user role
+        if ($isAdmin) {
+            // Admin/Developer: Show all booked leads assigned to Post Sales users
+            $postSalesUserIds = User::where(function ($query) {
+                $query->where('department', 'Post Sales')
+                    ->orWhere('role', 'Post Sales')
+                    ->orWhere('role', 'Post Sales Manager');
+            })->pluck('id');
+            
+            $leadsQuery->whereIn('assigned_user_id', $postSalesUserIds);
+        } elseif ($userRole === 'Post Sales' || $userDepartment === 'Post Sales' || $userRole === 'Post Sales Manager') {
+            // Post Sales users: Show only their own assigned booking files
+            $userId = $this->getCurrentUserId();
+            if ($userId) {
+                $leadsQuery->where('assigned_user_id', $userId);
+            }
+        }
 
         // Search filter - same as bookings/operations page
         if (!empty($filters['search'])) {

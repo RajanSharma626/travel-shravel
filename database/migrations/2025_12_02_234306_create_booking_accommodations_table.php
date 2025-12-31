@@ -20,7 +20,7 @@ return new class extends Migration
             $table->date('checkin_date')->nullable();
             $table->date('checkout_date')->nullable();
             $table->text('room_type')->nullable();
-            $table->enum('meal_plan', ['CP', 'MAP', 'AP', 'AI'])->nullable();
+            $table->enum('meal_plan', ['EP','CP', 'MAP', 'AP', 'AI'])->nullable();
             $table->enum('booking_status', ['Pending', 'In Progress', 'Complete'])->default('Pending');
             $table->timestamps();
         });

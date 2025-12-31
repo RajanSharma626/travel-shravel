@@ -151,7 +151,7 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="d-flex">
-                                                        <a href="{{ route('bookings.form', $lead) }}"
+                                                        <a href="{{ route('deliveries.booking-file', $lead) }}"
                                                             class="btn btn-icon btn-flush-dark btn-rounded flush-soft-hover text-primary"
                                                             data-bs-toggle="tooltip" data-placement="top"
                                                             title="Booking File">
