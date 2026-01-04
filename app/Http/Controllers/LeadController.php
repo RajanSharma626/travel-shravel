@@ -107,10 +107,10 @@ class LeadController extends Controller
             }
         } else {
             // Other users: Use existing logic (filter by assigned user if not admin/manager)
-            if (!$this->canSeeAllLeads()) {
-                $userId = $this->getCurrentUserId();
-                if ($userId) {
-                    $leadsQuery->where('assigned_user_id', $userId);
+        if (!$this->canSeeAllLeads()) {
+            $userId = $this->getCurrentUserId();
+            if ($userId) {
+                $leadsQuery->where('assigned_user_id', $userId);
                 }
             }
         }
@@ -197,10 +197,10 @@ class LeadController extends Controller
             }
         } else {
             // Other users: Use existing logic (filter by assigned user if not admin/manager)
-            if (!$this->canSeeAllLeads()) {
-                $userId = $this->getCurrentUserId();
-                if ($userId) {
-                    $leadsQuery->where('assigned_user_id', $userId);
+        if (!$this->canSeeAllLeads()) {
+            $userId = $this->getCurrentUserId();
+            if ($userId) {
+                $leadsQuery->where('assigned_user_id', $userId);
                 }
             }
         }

@@ -272,6 +272,18 @@
                                 </li>
                             @endif
 
+                            <!-- Completed Travels Tab - Visible to all authenticated users -->
+                            <li class="nav-item mb-2 {{ request()->is('completed-travels*') ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ route('completed-travels.index') }}">
+                                    <span class="nav-icon-wrap">
+                                        <span class="svg-icon">
+                                            <i data-feather="check-circle" class="small"></i>
+                                        </span>
+                                    </span>
+                                    <span class="nav-link-text">Completed Travels</span>
+                                </a>
+                            </li>
+
                             <!-- HR Tab - Visible to Admin and HR only (Hidden for Customer Care) -->
                             @if (($isAdmin ||
                                     Auth::user()->hasRole('HR') ||

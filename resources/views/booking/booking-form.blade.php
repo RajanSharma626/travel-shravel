@@ -22,13 +22,15 @@
                                         <p class="text-muted mb-0 small">TSQ: {{ $lead->tsq }}</p>
                                     </div>
                                 </div>
-                                @can('edit leads')
-                                    <button type="button" class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal"
-                                        data-bs-target="#reassignLeadModal">
-                                        <i data-feather="user-check" class="me-1" style="width: 14px; height: 14px;"></i>
-                                        Re-assign
-                                    </button>
-                                @endcan
+                                @if(!isset($isCompletedTravel) || !$isCompletedTravel)
+                                    @can('edit leads')
+                                        <button type="button" class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal"
+                                            data-bs-target="#reassignLeadModal">
+                                            <i data-feather="user-check" class="me-1" style="width: 14px; height: 14px;"></i>
+                                            Re-assign
+                                        </button>
+                                    @endcan
+                                @endif
                             </div>
                         </header>
 
@@ -57,6 +59,10 @@
 
                                 @php
                                     $isViewOnly = $isViewOnly ?? false;
+                                    // Force read-only mode for completed travels
+                                    if (isset($isCompletedTravel) && $isCompletedTravel) {
+                                        $isViewOnly = true;
+                                    }
                                     $disabledAttr = $isViewOnly ? 'readonly disabled' : '';
                                     $disabledStyle = $isViewOnly
                                         ? 'style="background-color: #f8f9fa; cursor: not-allowed;"'

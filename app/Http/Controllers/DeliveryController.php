@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DeliveryController extends Controller
 {
@@ -332,12 +333,14 @@ class DeliveryController extends Controller
         return redirect()->route('leads.show', $lead)->with('active_tab', 'delivery');
     }
 
-    public function downloadVoucher(Lead $lead)
+    public function downloadVoucher(Lead $lead, Request $request)
     {
         // Check if user has permission to view deliveries
         if (!Auth::user()->hasAnyRole(['Admin', 'Delivery', 'Delivery Manager'])) {
             abort(403, 'Unauthorized');
         }
+
+        $type = $request->get('type', 'itinerary'); // Default to itinerary
 
         // Load necessary relationships
         $lead->load([
@@ -347,19 +350,45 @@ class DeliveryController extends Controller
             'bookingDestinations',
             'bookingArrivalDepartures',
             'bookingItineraries',
+            'bookingAccommodations',
             'operation'
         ]);
 
-        // For now, return a simple response - you can enhance this to generate a PDF voucher
-        // Example: Generate PDF voucher using a PDF library like DomPDF, TCPDF, or Laravel Snappy
-        return response()->streamDownload(function () use ($lead) {
-            // This is a placeholder - replace with actual PDF generation
-            echo "Voucher for: " . $lead->tsq . "\n";
-            echo "Customer: " . $lead->customer_name . "\n";
-            echo "Generated on: " . now()->format('Y-m-d H:i:s') . "\n";
-        }, 'voucher_' . $lead->tsq . '.txt', [
-            'Content-Type' => 'text/plain',
-        ]);
+        // Get logo path and encode to base64 for better PDF compatibility
+        $logoPath = public_path('dist/img/transparency Royal Blue 2-01.png');
+        $logoBase64 = null;
+        if (file_exists($logoPath)) {
+            $logoData = file_get_contents($logoPath);
+            $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
+        }
+        
+        // Generate PDF based on type
+        if ($type === 'itinerary') {
+            // Generate itinerary PDF
+            $pdf = Pdf::loadView('pdf.itinerary', compact('lead', 'logoBase64'));
+            $pdf->setPaper('A4', 'portrait');
+            return $pdf->download('Itinerary_' . $lead->tsq . '.pdf');
+        } elseif ($type === 'service-voucher') {
+            // Generate service voucher PDF
+            $pdf = Pdf::loadView('pdf.service-voucher', compact('lead', 'logoBase64'));
+            $pdf->setPaper('A4', 'portrait');
+            return $pdf->download('Service_Voucher_' . $lead->tsq . '.pdf');
+        } elseif ($type === 'destination') {
+            // Generate destination voucher PDF
+            $pdf = Pdf::loadView('pdf.destination-voucher', compact('lead', 'logoBase64'));
+            $pdf->setPaper('A4', 'portrait');
+            return $pdf->download('Destination_Voucher_' . $lead->tsq . '.pdf');
+        } else {
+            // For other types, return a simple response for now
+            return response()->streamDownload(function () use ($lead, $type) {
+                echo "Voucher for: " . $lead->tsq . "\n";
+                echo "Type: " . $type . "\n";
+                echo "Customer: " . $lead->customer_name . "\n";
+                echo "Generated on: " . now()->format('Y-m-d H:i:s') . "\n";
+            }, 'voucher_' . $lead->tsq . '_' . $type . '.txt', [
+                'Content-Type' => 'text/plain',
+            ]);
+        }
     }
 
     public function bookingFile(Lead $lead)

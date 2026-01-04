@@ -13,6 +13,7 @@ use App\Http\Controllers\OperationController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\TravellerDocumentController;
 use App\Http\Controllers\DeliveryController;
+use App\Http\Controllers\CompletedTravelController;
 use App\Http\Controllers\IncentiveRuleController;
 use App\Http\Controllers\IncentiveController;
 use App\Http\Controllers\ReportController;
@@ -294,6 +295,10 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::post('/{delivery}/upload-files', [DeliveryController::class, 'uploadFiles'])->middleware('permission:update deliveries')->name('api.delivery.upload-files');
         Route::get('/export', [DeliveryController::class, 'export'])->middleware('permission:export reports')->name('api.delivery.export');
     });
+
+    // Completed Travels - Accessible to all authenticated users
+    Route::get('/completed-travels', [CompletedTravelController::class, 'index'])->name('completed-travels.index');
+    Route::get('/completed-travels/{lead}/booking-file', [CompletedTravelController::class, 'bookingFile'])->name('completed-travels.booking-file');
 
     // Destination API Routes
     Route::get('/api/destinations/{destination}/locations', [DestinationController::class, 'getLocations'])->name('api.destinations.locations');

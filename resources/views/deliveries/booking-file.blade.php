@@ -208,7 +208,7 @@
                                         @php
                                             $hasDestinationData = $lead->bookingDestinations && $lead->bookingDestinations->count() > 0;
                                         @endphp
-                                        <a href="{{ route('deliveries.download-voucher', $lead) }}" 
+                                        <a href="{{ route('deliveries.download-voucher', ['lead' => $lead, 'type' => 'destination']) }}" 
                                            class="btn btn-sm btn-outline-success {{ !$hasDestinationData ? 'disabled' : '' }}" 
                                            target="_blank"
                                            @if(!$hasDestinationData) onclick="return false;" style="pointer-events: none; opacity: 0.6;" @endif>
@@ -284,7 +284,7 @@
                                         @php
                                             $hasArrivalDepartureData = $lead->bookingArrivalDepartures && $lead->bookingArrivalDepartures->count() > 0;
                                         @endphp
-                                        <a href="{{ route('deliveries.download-voucher', $lead) }}" 
+                                        <a href="{{ route('deliveries.download-voucher', ['lead' => $lead, 'type' => 'service-voucher']) }}" 
                                            class="btn btn-sm btn-outline-success {{ !$hasArrivalDepartureData ? 'disabled' : '' }}" 
                                            target="_blank"
                                            @if(!$hasArrivalDepartureData) onclick="return false;" style="pointer-events: none; opacity: 0.6;" @endif>
@@ -360,7 +360,7 @@
                                         @php
                                             $hasItineraryData = $lead->bookingItineraries && $lead->bookingItineraries->count() > 0;
                                         @endphp
-                                        <a href="{{ route('deliveries.download-voucher', $lead) }}" 
+                                        <a href="{{ route('deliveries.download-voucher', ['lead' => $lead, 'type' => 'itinerary']) }}" 
                                            class="btn btn-sm btn-outline-success {{ !$hasItineraryData ? 'disabled' : '' }}" 
                                            target="_blank"
                                            @if(!$hasItineraryData) onclick="return false;" style="pointer-events: none; opacity: 0.6;" @endif>
