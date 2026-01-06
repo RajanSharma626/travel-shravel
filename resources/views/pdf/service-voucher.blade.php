@@ -24,7 +24,7 @@
             width: 100%;
             margin-bottom: 25px;
             padding-bottom: 15px;
-            border-bottom: 3px solid #2c3e50;
+            border-bottom: 2px solid #000000;
         }
         .header-wrapper {
             display: table-row;
@@ -48,9 +48,9 @@
             color: #000;
         }
         .voucher-title {
-            font-size: 18px;
+            font-size: 22px;
             font-weight: bold;
-            color: #2c3e50;
+            color: #000000;
             margin-bottom: 12px;
             margin-top: 8px;
         }
@@ -70,16 +70,13 @@
         /* Section Dividers */
         .section-divider {
             margin: 25px 0 15px 0;
-            border-top: 2px solid #2c3e50;
-            padding-top: 15px;
         }
+
         .section-header {
             font-size: 14px;
             font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 12px;
+            color: #000000;
             padding-bottom: 8px;
-            border-bottom: 1px solid #ccc;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -90,17 +87,17 @@
             border-collapse: collapse;
             margin-bottom: 20px;
             font-size: 11px;
-            border: 2px solid #2c3e50;
+            border: 1px solid #000000;
         }
         table td, table th {
             padding: 6px 8px;
-            border: 1px solid #333;
+            border: 1px solid #000000;
             text-align: left;
             vertical-align: middle;
         }
         table th {
-            background-color: #2c3e50;
-            color: #fff;
+            background-color: #000000;
+            color: #ffffff;
             font-weight: bold;
             font-size: 11px;
             text-align: center;
@@ -120,77 +117,95 @@
         .accommodation-table td:nth-child(5),
         .accommodation-table td:nth-child(7) {
             font-weight: bold;
-            background-color: #e8ecef;
-            width: 12%;
-            color: #2c3e50;
-            font-size: 10px;
+            background-color: #f5f5f5;
+            /* width: 12%; */
+            color: #000000;
+            font-size: 11px;
         }
         .accommodation-table td:nth-child(2),
         .accommodation-table td:nth-child(4),
         .accommodation-table td:nth-child(6),
         .accommodation-table td:nth-child(8) {
             background-color: #ffffff;
-            font-weight: 600;
             font-size: 11px;
         }
         
         /* Guest Details Tables */
         .guest-details-wrapper {
-            margin-bottom: 25px;
+            width: 100%;
+            margin-bottom: 0;
+            table-layout: fixed;
+            border: none;
+        }
+        .guest-details-wrapper td {
+            vertical-align: top;
+            padding: 0;
+            border: none;
+        }
+        .guest-details-wrapper td:first-child {
+            width: 50%;
+        }
+        .guest-details-wrapper td:nth-child(2),
+        .guest-details-wrapper td:nth-child(3) {
+            width: 25%;
         }
         .guest-details-table {
-            margin-bottom: 20px;
             width: 100%;
-        }
-        .guest-details-table:last-of-type {
-            margin-bottom: 0;
+            margin: 0;
+            border: 1px solid #000000;
+            border-collapse: collapse;
         }
         .guest-details-table th {
-            background-color: #2c3e50;
-            color: #fff;
+            background-color: #f5f5f5;
+            color: #000000;
             font-weight: bold;
-            font-size: 10px;
+            font-size: 11px;
             text-align: center;
             padding: 8px 6px;
+            border: 1px solid #000000;
         }
         .guest-details-table td {
             padding: 6px 8px;
             font-size: 11px;
             vertical-align: middle;
+            border: 1px solid #000000;
         }
         .guest-details-table .label-cell {
             font-weight: bold;
-            background-color: #e8ecef;
-            text-align: center;
-            color: #2c3e50;
-            font-size: 10px;
+            background-color: #f5f5f5;
+            text-align: left;
+            color: #000000;
+            font-size: 11px;
+            width: 40%;
         }
         .guest-details-table .value-cell {
-            text-align: center;
+            text-align: left;
             background-color: #ffffff;
-            font-weight: 600;
             font-size: 11px;
+            width: 60%;
         }
         .guest-details-table .name-cell {
-            font-weight: 600;
             font-size: 11px;
             background-color: #ffffff;
+            text-align: left;
         }
-        .guest-details-table .trpl-note {
-            font-style: italic;
-            font-size: 9px;
-            color: #555;
-            background-color: #ffffff;
-            padding-top: 4px;
+        .trpl-note-outside {
+            font-style: italic !important;
+            font-size: 10px;
+            color: #000000;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 0;
+            text-align: left;
+            line-height: 1.4;
         }
+       
         
         /* Flight Table */
-        .flight-table {
-            margin-bottom: 25px;
-        }
+      
         .flight-table th {
-            background-color: #2c3e50;
-            color: #fff;
+            background-color: #f5f5f5;
+            color: #000000;
             font-weight: bold;
             font-size: 11px;
             text-align: center;
@@ -203,50 +218,40 @@
             background-color: #ffffff;
         }
         .flight-table td strong {
-            font-weight: 600;
-        }
-        .flight-table tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-        .flight-table tr:nth-child(even) td {
-            background-color: #f8f9fa;
+            font-weight: bold;
         }
         
         /* Hotel Contact Table */
-        .hotel-contact-table {
-            margin-bottom: 25px;
-        }
+        
         .hotel-contact-table td {
             padding: 8px 10px;
             font-size: 11px;
         }
+
         .hotel-contact-table td:first-child,
         .hotel-contact-table td:nth-child(3) {
             font-weight: bold;
-            background-color: #e8ecef;
+            background-color: #f5f5f5;
             width: 12%;
-            color: #2c3e50;
+            color: #000000;
         }
         .hotel-contact-table td:nth-child(2),
         .hotel-contact-table td:nth-child(4) {
             background-color: #ffffff;
-            font-weight: 600;
             font-size: 12px;
         }
         
         /* Services Section */
         .services-section {
-            margin: 25px 0;
             padding: 15px;
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            background-color: #ffffff;
+            border: 1px solid #000000;
         }
         .section-title {
             font-size: 13px;
             font-weight: bold;
             margin-bottom: 12px;
-            color: #2c3e50;
+            color: #000000;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -271,7 +276,7 @@
             position: absolute;
             left: 8px;
             font-weight: bold;
-            color: #2c3e50;
+            color: #000000;
             font-size: 14px;
         }
         
@@ -280,16 +285,16 @@
             margin: 20px 0;
             padding: 15px;
             background-color: #ffffff;
-            border-left: 4px solid #2c3e50;
-            border-right: 1px solid #ddd;
-            border-top: 1px solid #ddd;
-            border-bottom: 1px solid #ddd;
+            border-left: 2px solid #000000;
+            border-right: 1px solid #000000;
+            border-top: 1px solid #000000;
+            border-bottom: 1px solid #000000;
         }
         .info-section-title {
             font-size: 12px;
             font-weight: bold;
             margin-bottom: 10px;
-            color: #2c3e50;
+            color: #000000;
             text-transform: uppercase;
         }
         .info-section-content {
@@ -309,7 +314,7 @@
         .footer-header {
             display: table;
             width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         .footer-title {
             display: table-cell;
@@ -420,10 +425,11 @@
     <div class="header">
         <div class="header-wrapper">
             <div class="header-left">
-                <div class="company-name">TRAVEL SHRAVEL</div>
                 <div class="voucher-title">Service Voucher</div>
-                <div class="greeting">Dear Correlate,</div>
-                <div class="greeting">Kindly provide the mentioned services to our esteemed guests in the exchange of this voucher.</div>
+                <div class="greeting">
+                    Dear Correlate,<br>
+                    Kindly provide the mentioned services to our esteemed guests in the exchange of this voucher.
+                </div>
             </div>
             @if(isset($logoBase64) && $logoBase64)
             <div class="header-right">
@@ -434,16 +440,10 @@
     </div>
 
     @php
-        $accommodation = $lead->bookingAccommodations->first();
-        $checkinDate = $accommodation->checkin_date ?? null;
-        $checkoutDate = $accommodation->checkout_date ?? null;
-        $nights = 0;
-        if ($checkinDate && $checkoutDate) {
-            $nights = \Carbon\Carbon::parse($checkinDate)->diffInDays(\Carbon\Carbon::parse($checkoutDate));
-        }
-        
+        $accommodations = $lead->bookingAccommodations ?? collect();
         $totalGuests = ($lead->adults ?? 0) + ($lead->children_2_5 ?? 0) + ($lead->children_6_11 ?? 0) + ($lead->infants ?? 0);
         $adults = $lead->adults ?? 0;
+        $eba = $lead->children_2_5 ?? 0;
         $cwb = $lead->children_6_11 ?? 0;
         $cnb = $lead->children_2_5 ?? 0;
         $infants = $lead->infants ?? 0;
@@ -452,98 +452,166 @@
         $dbl = floor($adults / 2);
         $remaining = $adults % 2;
         $trpl = ($remaining > 0 || $cwb > 0) ? 1 : 0;
-        $totalRooms = $dbl + $trpl;
+        $quad = 0; // Quad room calculation can be added later if needed
+        $totalRooms = $dbl + $trpl + $quad;
     @endphp
 
     <!-- Accommodation Details Section -->
+    @if($accommodations->count() > 0)
     <div class="section-divider">
-        <div class="section-header">Accommodation Details</div>
         <table class="accommodation-table">
+            @foreach($accommodations as $accommodation)
+            @php
+                $checkinDate = $accommodation->checkin_date ?? null;
+                $checkoutDate = $accommodation->checkout_date ?? null;
+                $nights = 0;
+                if ($checkinDate && $checkoutDate) {
+                    $nights = \Carbon\Carbon::parse($checkinDate)->diffInDays(\Carbon\Carbon::parse($checkoutDate));
+                }
+            @endphp
             <tr>
                 <td><strong>Stay at</strong></td>
-                <td><strong>{{ $accommodation->stay_at ?? 'N/A' }}</strong></td>
+                <td>{{ $accommodation->stay_at ?? 'N/A' }}</td>
                 <td><strong>Check-in</strong></td>
-                <td><strong>{{ $checkinDate ? \Carbon\Carbon::parse($checkinDate)->format('d-M') : 'N/A' }}</strong></td>
+                <td>{{ $checkinDate ? \Carbon\Carbon::parse($checkinDate)->format('d-M-y') : 'N/A' }}</td>
                 <td><strong>Check-out</strong></td>
-                <td><strong>{{ $checkoutDate ? \Carbon\Carbon::parse($checkoutDate)->format('d-M') : 'N/A' }}</strong></td>
+                <td>{{ $checkoutDate ? \Carbon\Carbon::parse($checkoutDate)->format('d-M-y') : 'N/A' }}</td>
                 <td><strong>Number of Nights</strong></td>
-                <td><strong>{{ $nights }}</strong></td>
+                <td>{{ $nights }}</td>
             </tr>
+            @endforeach
         </table>
     </div>
+    @endif
 
     <!-- Guest Details Section -->
     <div class="section-divider">
-        <div class="section-header">Guest Details & Room Allocation</div>
-        <div class="guest-details-wrapper">
-            <!-- First Table: Name, TST No., Dated, TRPL -->
-            <table class="guest-details-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>TST No.</th>
-                        <th>Dated</th>
-                        <th>TRPL</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="name-cell"><strong>{{ $lead->salutation ?? '' }} {{ $lead->first_name }} {{ $lead->last_name ?? '' }} x {{ $totalGuests }}</strong></td>
-                        <td class="value-cell"><strong>{{ $lead->tsq }}</strong></td>
-                        <td class="value-cell"><strong>{{ $lead->travel_date ? \Carbon\Carbon::parse($lead->travel_date)->format('d-M-y') : 'N/A' }}</strong></td>
-                        <td class="trpl-note">Double bedded room will be provided with a roll away bed.</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <!-- Second Table: Guest Count -->
-            <table class="guest-details-table">
-                <thead>
-                    <tr>
-                        <th>Adults</th>
-                        <th>CWB</th>
-                        <th>CNB</th>
-                        <th>INF</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="value-cell"><strong>{{ $adults }}</strong></td>
-                        <td class="value-cell"><strong>{{ $cwb }}</strong></td>
-                        <td class="value-cell"><strong>{{ $cnb }}</strong></td>
-                        <td class="value-cell"><strong>{{ $infants }}</strong></td>
-                        <td class="value-cell"><strong>{{ $totalGuests }}</strong></td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <!-- Third Table: Type of Room -->
-            <table class="guest-details-table">
-                <thead>
-                    <tr>
-                        <th>SGL</th>
-                        <th>DBL</th>
-                        <th>TWIN</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="value-cell"><strong>0</strong></td>
-                        <td class="value-cell"><strong>{{ $dbl }}</strong></td>
-                        <td class="value-cell"><strong>0</strong></td>
-                        <td class="value-cell"><strong>{{ $totalRooms }}</strong></td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="section-header">Booking Summary</div>
+        <table class="guest-details-wrapper">
+            <tr>
+                <td>
+                    <!-- First Table: Guest Information -->
+                    <table class="guest-details-table">
+                        <thead>
+                            <tr>
+                                <th colspan="2">Overview</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="label-cell">TST No.</td>
+                                <td class="value-cell">{{ $lead->tsq }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Name</td>
+                                <td class="name-cell">{{ $lead->salutation ?? '' }} {{ $lead->first_name }} {{ $lead->last_name ?? '' }} x {{ $totalGuests }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Travel Date</td>
+                                <td class="value-cell">{{ $lead->travel_date ? \Carbon\Carbon::parse($lead->travel_date)->format('d-M-y') : 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Voucher no.</td>
+                                <td class="value-cell">{{ $lead->operation->voucher_number ?? 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Dated</td>
+                                <td class="value-cell">{{ $lead->travel_date ? \Carbon\Carbon::parse($lead->travel_date)->format('d-M-y') : 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">
+                                    Emergency No. :
+                                </td>
+                                <td class="value-cell">
+                                    +91 9796614307
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td>
+                    <!-- Second Table: Guest Count -->
+                    <table class="guest-details-table">
+                        <thead>
+                            <tr>
+                                <th colspan="2">Guest Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="label-cell">Adult(s)</td>
+                                <td class="value-cell">{{ $adults }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">EBA</td>
+                                <td class="value-cell">{{ $eba }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">CWB</td>
+                                <td class="value-cell">{{ $cwb }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">CNB</td>
+                                <td class="value-cell">{{ $cnb }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">INF</td>
+                                <td class="value-cell">{{ $infants }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Total</td>
+                                <td class="value-cell">{{ $totalGuests }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td>
+                    <!-- Third Table: Type of Room -->
+                    <table class="guest-details-table">
+                        <thead>
+                            <tr>
+                                <th colspan="2">Type of Room</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="label-cell">SGL</td>
+                                <td class="value-cell">0</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">DBL</td>
+                                <td class="value-cell">{{ $dbl }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">TWIN</td>
+                                <td class="value-cell">0</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">TRPL*</td>
+                                <td class="value-cell">{{ $trpl }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">QUAD</td>
+                                <td class="value-cell">{{ $quad }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell">Total</td>
+                                <td class="value-cell">{{ $totalRooms }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <div class="trpl-note-outside">
+            <strong>TRPL*</strong> Double bedded room will be provided with a mattress on the floor / roll away bed / extra bed / sofa cum bed / depending upon the availability.
         </div>
     </div>
 
     <!-- Flight/Transport Details Section -->
     @if($lead->bookingArrivalDepartures && $lead->bookingArrivalDepartures->count() > 0)
     <div class="section-divider">
-        <div class="section-header">Transportation Details</div>
+        <div class="section-header">Arrival/Departure Details</div>
         <table class="flight-table">
             <thead>
                 <tr>
@@ -558,24 +626,24 @@
             <tbody>
                 @foreach($lead->bookingArrivalDepartures as $flight)
                 <tr>
-                    <td><strong>{{ $flight->mode ?? 'N/A' }}</strong></td>
-                    <td><strong>{{ $flight->info ?? 'N/A' }}</strong></td>
-                    <td><strong>{{ $flight->from_city ?? 'N/A' }}</strong></td>
-                    <td><strong>{{ $flight->to_city ?? 'N/A' }}</strong></td>
-                    <td><strong>
+                    <td>{{ $flight->mode ?? 'N/A' }}</td>
+                    <td>{{ $flight->info ?? 'N/A' }}</td>
+                    <td>{{ $flight->from_city ?? 'N/A' }}</td>
+                    <td>{{ $flight->to_city ?? 'N/A' }}</td>
+                    <td>
                         @if($flight->departure_date && $flight->departure_time)
-                            {{ \Carbon\Carbon::parse($flight->departure_date)->format('d-M') }} {{ \Carbon\Carbon::parse($flight->departure_time)->format('H:i') }} Hrs
+                            {{ \Carbon\Carbon::parse($flight->departure_date)->format('d-M-y') }} {{ \Carbon\Carbon::parse($flight->departure_time)->format('H:i') }} Hrs
                         @else
                             N/A
                         @endif
-                    </strong></td>
-                    <td><strong>
+                    </td>
+                    <td>
                         @if($flight->arrival_date && $flight->arrival_time)
-                            {{ \Carbon\Carbon::parse($flight->arrival_date)->format('d-M') }} {{ \Carbon\Carbon::parse($flight->arrival_time)->format('H:i') }} Hrs
+                            {{ \Carbon\Carbon::parse($flight->arrival_date)->format('d-M-y') }} {{ \Carbon\Carbon::parse($flight->arrival_time)->format('H:i') }} Hrs
                         @else
                             N/A
                         @endif
-                    </strong></td>
+                    </td>
                 </tr>
                 @endforeach
             </tbody>
@@ -584,20 +652,29 @@
     @endif
 
     <!-- Hotel Contact Information Section -->
-    @if($accommodation && $accommodation->stay_at)
+    @if($accommodations->count() > 0)
     <div class="section-divider">
         <div class="section-header">Hotel Contact Information</div>
         <table class="hotel-contact-table">
+            @foreach($accommodations as $index => $accommodation)
+            @if($accommodation->stay_at)
+            @if($index > 0)
+            <tr class="hotel-separator">
+                <td colspan="4" style="padding: 5px; background-color: transparent; border: none;"></td>
+            </tr>
+            @endif
             <tr>
                 <td><strong>Name</strong></td>
-                <td><strong>{{ $accommodation->stay_at }}</strong></td>
+                <td>{{ $accommodation->stay_at }}</td>
                 <td><strong>Call</strong></td>
-                <td><strong>+971 4 507 9000</strong></td>
+                <td>{{ $accommodation->contact_number ?? '+91 145079000' }}</td>
             </tr>
             <tr>
                 <td><strong>Address</strong></td>
-                <td colspan="3"><strong>{{ $accommodation->location ?? 'N/A' }}</strong></td>
+                <td colspan="3">{{ $accommodation->location ?? 'N/A' }}</td>
             </tr>
+            @endif
+            @endforeach
         </table>
     </div>
     @endif
@@ -648,7 +725,7 @@
     <div class="info-section">
         <div class="info-section-title">Remarks</div>
         <div class="info-section-content">
-            For hotel factsheet, exact location, facilities offered and star categorisation of the hotel, we request you to log on to the respective hotels website. Early check-in and late check-out is subject to availability. Standard check-in time observed by the hotels is 1400 - 1600 hrs and 0900 - 1100 hrs as the check-out time. Usually hotels have twin bedded rooms. Double bedded room is subject to availability. Triple room may provided with roll away bed / extra bed / sofa cum bed / depending upon the availability.
+            For hotel factsheet, exact location, facilities offered and star categorisation of the hotel, we request you to log on to the respective hotels website. Early check-in and late check-out is subject to availability. Standard check-in time observed by the hotels is 1400 - 1600 hrs and 0900 - 1100 hrs as the check-out time. Usually hotels have twin bedded rooms. Double bedded room is subject to availability. Triple room may provided with mattress on the floor / roll away bed / extra bed / sofa cum bed / depending upon the availability.
         </div>
     </div>
 
@@ -663,26 +740,18 @@
     <!-- Footer -->
     <div class="footer">
         <div class="footer-header">
-            <div class="footer-title">For further details / queries, approach</div>
-            <div class="signature-box">
+            <div class="footer-title">For further details / queries, approach
+                <div class="footer-company-name">TRAVEL SHRAVEL TOUR & TRAVELS</div>
+            </div>
+            {{-- <div class="signature-box">
                 <div class="signature-placeholder"></div>
                 <div class="signature-label">(Authorised Signatory)</div>
-            </div>
+            </div> --}}
         </div>
-        <div class="footer-company-name">TRAVEL SHRAVEL TOUR & TRAVELS</div>
-        <div class="footer-address-section">
-            <div class="address-left">
-                <div>Place of Business</div>
-                <div>Liaison Support</div>
-            </div>
-            <div class="address-right">
-                <div>Akalpur Sarora Road Near Tagore College, Jammu, Jammu & Kashmir, India - 180002</div>
-                <div>Near Bhartiya Vidya Mandir, Main Bazar, Udhampur, Jammu & Kashmir, India - 182101</div>
-            </div>
-        </div>
+        
         <div class="footer-contact-section">
             <div class="contact-left">Email: travel@travelshravel.com</div>
-            <div class="contact-right">Mobile: +91 90 86 421601</div>
+            <div class="contact-right">Mobile: +91 9086421601</div>
         </div>
         <div class="footer-website">www.travelshravel.com</div>
     </div>

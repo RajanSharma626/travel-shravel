@@ -275,6 +275,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/deliveries', [DeliveryController::class, 'index'])->name('deliveries.index');
         Route::get('/deliveries/{lead}/booking-file', [DeliveryController::class, 'bookingFile'])->name('deliveries.booking-file');
         Route::get('/deliveries/{lead}/download-voucher', [DeliveryController::class, 'downloadVoucher'])->name('deliveries.download-voucher');
+        Route::get('/deliveries/{lead}/download-accommodation-voucher/{accommodation}', [DeliveryController::class, 'downloadAccommodationVoucher'])->name('deliveries.download-accommodation-voucher');
     });
     Route::middleware('permission:view deliveries')->group(function () {
         Route::get('/leads/{lead}/deliveries', [DeliveryController::class, 'show'])->name('leads.deliveries.index');

@@ -374,10 +374,10 @@ class DeliveryController extends Controller
             $pdf->setPaper('A4', 'portrait');
             return $pdf->download('Service_Voucher_' . $lead->tsq . '.pdf');
         } elseif ($type === 'destination') {
-            // Generate destination voucher PDF
+            // Generate accommodation voucher PDF
             $pdf = Pdf::loadView('pdf.destination-voucher', compact('lead', 'logoBase64'));
             $pdf->setPaper('A4', 'portrait');
-            return $pdf->download('Destination_Voucher_' . $lead->tsq . '.pdf');
+            return $pdf->download('Accommodation_Voucher_' . $lead->tsq . '.pdf');
         } else {
             // For other types, return a simple response for now
             return response()->streamDownload(function () use ($lead, $type) {
@@ -389,6 +389,51 @@ class DeliveryController extends Controller
                 'Content-Type' => 'text/plain',
             ]);
         }
+    }
+
+    public function downloadAccommodationVoucher(Lead $lead, $accommodationId)
+    {
+        // Check if user has permission to view deliveries
+        if (!Auth::user()->hasAnyRole(['Admin', 'Delivery', 'Delivery Manager'])) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Load necessary relationships
+        $lead->load([
+            'service',
+            'destination',
+            'assignedUser',
+            'bookingDestinations',
+            'bookingArrivalDepartures',
+            'bookingItineraries',
+            'bookingAccommodations',
+            'operation'
+        ]);
+
+        // Find the specific accommodation
+        $accommodation = $lead->bookingAccommodations->find($accommodationId);
+        
+        if (!$accommodation) {
+            abort(404, 'Accommodation not found');
+        }
+
+        // Get logo path and encode to base64 for better PDF compatibility
+        $logoPath = public_path('dist/img/transparency Royal Blue 2-01.png');
+        $logoBase64 = null;
+        if (file_exists($logoPath)) {
+            $logoData = file_get_contents($logoPath);
+            $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
+        }
+
+        // Generate PDF filename: hotel location + TST no.
+        $location = $accommodation->location ?? 'Accommodation';
+        $locationSlug = str_replace(' ', '_', preg_replace('/[^a-zA-Z0-9\s]/', '', $location));
+        $filename = $locationSlug . '_' . $lead->tsq . '.pdf';
+        
+        // Generate accommodation voucher PDF with single accommodation
+        $pdf = Pdf::loadView('pdf.destination-voucher', compact('lead', 'logoBase64', 'accommodation'));
+        $pdf->setPaper('A4', 'portrait');
+        return $pdf->download($filename);
     }
 
     public function bookingFile(Lead $lead)
@@ -406,6 +451,7 @@ class DeliveryController extends Controller
             'delivery.files',
             'bookingDestinations',
             'bookingArrivalDepartures',
+            'bookingAccommodations',
             'bookingItineraries',
             'bookingFileRemarks.user',
             'histories.changedBy'

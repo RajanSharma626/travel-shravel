@@ -17,12 +17,32 @@
                                             </span>
                                         </span>
                                     </a>
-                                    <div>
+                                <div>
                                         <h1 class="mb-0">Booking File</h1>
                                         <p class="text-muted mb-0 small">TSQ: {{ $lead->tsq }}</p>
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
+                                    @php
+                                        $hasItineraryData = $lead->bookingItineraries && $lead->bookingItineraries->count() > 0;
+                                        $hasArrivalDepartureData = $lead->bookingArrivalDepartures && $lead->bookingArrivalDepartures->count() > 0;
+                                    @endphp
+                                    
+                                    <a href="{{ route('deliveries.download-voucher', ['lead' => $lead, 'type' => 'itinerary']) }}" 
+                                       class="btn btn-sm btn-outline-success {{ !$hasItineraryData ? 'disabled' : '' }}" 
+                                       target="_blank"
+                                       @if(!$hasItineraryData) onclick="return false;" style="pointer-events: none; opacity: 0.6;" @endif>
+                                        <i data-feather="download" class="me-1" style="width: 14px; height: 14px;"></i>
+                                        Itinerary
+                                    </a>
+                                    
+                                    <a href="{{ route('deliveries.download-voucher', ['lead' => $lead, 'type' => 'service-voucher']) }}" 
+                                       class="btn btn-sm btn-outline-success {{ !$hasArrivalDepartureData ? 'disabled' : '' }}" 
+                                       target="_blank"
+                                       @if(!$hasArrivalDepartureData) onclick="return false;" style="pointer-events: none; opacity: 0.6;" @endif>
+                                        <i data-feather="download" class="me-1" style="width: 14px; height: 14px;"></i>
+                                        Service
+                                    </a>
                                   
                                     @can('edit leads')
                                         <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
@@ -205,16 +225,6 @@
                                             <i data-feather="map-pin" class="me-1" style="width: 14px; height: 14px;"></i>
                                             Destination
                                         </h6>
-                                        @php
-                                            $hasDestinationData = $lead->bookingDestinations && $lead->bookingDestinations->count() > 0;
-                                        @endphp
-                                        <a href="{{ route('deliveries.download-voucher', ['lead' => $lead, 'type' => 'destination']) }}" 
-                                           class="btn btn-sm btn-outline-success {{ !$hasDestinationData ? 'disabled' : '' }}" 
-                                           target="_blank"
-                                           @if(!$hasDestinationData) onclick="return false;" style="pointer-events: none; opacity: 0.6;" @endif>
-                                            <i data-feather="download" class="me-1" style="width: 14px; height: 14px;"></i>
-                                            Download Voucher
-                                        </a>
                                     </div>
                                     <div class="table-responsive">
                                         <table class="table table-bordered table-sm mb-0">
@@ -274,6 +284,64 @@
                                     </div>
                                 </div>
 
+                                <!-- Accommodation Details Section (View Mode) -->
+                                <div class="mb-4 border rounded-3 p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                            <i data-feather="home" class="me-1" style="width: 14px; height: 14px;"></i>
+                                            Accommodation Details
+                                        </h6>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-sm mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th style="width: 12%;">Destination</th>
+                                                    <th style="width: 12%;">Location</th>
+                                                    <th style="width: 12%;">Stay At</th>
+                                                    <th style="width: 10%;">Check-in</th>
+                                                    <th style="width: 10%;">Check-out</th>
+                                                    <th style="width: 15%;">Room Type</th>
+                                                    <th style="width: 15%;">Meal Plan</th>
+                                                    <th style="width: 14%;" class="text-center">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if ($lead->bookingAccommodations && $lead->bookingAccommodations->count() > 0)
+                                                    @foreach ($lead->bookingAccommodations as $ba)
+                                                        <tr>
+                                                            <td>{{ $ba->destination }}</td>
+                                                            <td>{{ $ba->location }}</td>
+                                                            <td>{{ $ba->stay_at }}</td>
+                                                            <td>{{ $ba->checkin_date ? $ba->checkin_date->format('d/m/Y') : '' }}</td>
+                                                            <td>{{ $ba->checkout_date ? $ba->checkout_date->format('d/m/Y') : '' }}</td>
+                                                            <td>{{ $ba->room_type }}</td>
+                                                            <td>{{ $ba->meal_plan }}</td>
+                                                            <td class="text-center">
+                                                                <a href="{{ route('deliveries.download-accommodation-voucher', ['lead' => $lead, 'accommodation' => $ba->id]) }}" 
+                                                                   class="btn btn-sm btn-outline-success" 
+                                                                   target="_blank"
+                                                                   title="Download Accommodation Voucher">
+                                                                    <i data-feather="download" style="width: 16px; height: 16px;"></i>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                @else
+                                                    <tr>
+                                                        <td colspan="8" class="text-center text-muted py-4">
+                                                            <i data-feather="inbox"
+                                                                style="width: 24px; height: 24px; opacity: 0.5;"
+                                                                class="mb-2"></i>
+                                                            <div>No accommodation data available</div>
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
                                 <!-- Arrival/Departure Details Section (View Mode) -->
                                 <div class="mb-4 border rounded-3 p-3">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -281,16 +349,6 @@
                                             <i data-feather="navigation" class="me-1" style="width: 14px; height: 14px;"></i>
                                             Arrival/Departure Details
                                         </h6>
-                                        @php
-                                            $hasArrivalDepartureData = $lead->bookingArrivalDepartures && $lead->bookingArrivalDepartures->count() > 0;
-                                        @endphp
-                                        <a href="{{ route('deliveries.download-voucher', ['lead' => $lead, 'type' => 'service-voucher']) }}" 
-                                           class="btn btn-sm btn-outline-success {{ !$hasArrivalDepartureData ? 'disabled' : '' }}" 
-                                           target="_blank"
-                                           @if(!$hasArrivalDepartureData) onclick="return false;" style="pointer-events: none; opacity: 0.6;" @endif>
-                                            <i data-feather="download" class="me-1" style="width: 14px; height: 14px;"></i>
-                                            Download Voucher
-                                        </a>
                                     </div>
                                     <div class="table-responsive">
                                         <table class="table table-bordered table-sm mb-0">
@@ -347,8 +405,8 @@
                                                 @endif
                                             </tbody>
                                         </table>
-                                    </div>
-                                </div>
+                                            </div>
+                                            </div>
 
                                 <!-- Day-Wise Itinerary Section (View Mode) -->
                                 <div class="mb-4 border rounded-3 p-3" id="dayWiseItinerarySection">
@@ -357,16 +415,6 @@
                                             <i data-feather="calendar" class="me-1" style="width: 14px; height: 14px;"></i>
                                             Day-Wise Itinerary
                                         </h6>
-                                        @php
-                                            $hasItineraryData = $lead->bookingItineraries && $lead->bookingItineraries->count() > 0;
-                                        @endphp
-                                        <a href="{{ route('deliveries.download-voucher', ['lead' => $lead, 'type' => 'itinerary']) }}" 
-                                           class="btn btn-sm btn-outline-success {{ !$hasItineraryData ? 'disabled' : '' }}" 
-                                           target="_blank"
-                                           @if(!$hasItineraryData) onclick="return false;" style="pointer-events: none; opacity: 0.6;" @endif>
-                                            <i data-feather="download" class="me-1" style="width: 14px; height: 14px;"></i>
-                                            Download Voucher
-                                        </a>
                                     </div>
                                     <div class="table-responsive">
                                         <table class="table table-bordered table-sm mb-0">
@@ -407,9 +455,9 @@
                                                                             @foreach ($activities as $activity)
                                                                                 <div style="margin-bottom: 4px; padding-left: 0;">
                                                                                     <span style="margin-right: 8px;">•</span>{{ $activity }}
-                                                                                </div>
+                                            </div>
                                                                             @endforeach
-                                                                        </div>
+                                        </div>
                                                                     @else
                                                                         {{ $bi->activity_tour_description }}
                                                                     @endif
@@ -421,7 +469,7 @@
                                                             <td>{{ $bi->remarks }}</td>
                                                         </tr>
                                                     @endforeach
-                                                @else
+                                    @else
                                                     <tr>
                                                         <td colspan="6" class="text-center text-muted py-4">
                                                             <i data-feather="inbox"
@@ -430,7 +478,7 @@
                                                             <div>No itinerary data available</div>
                                                         </td>
                                                     </tr>
-                                                @endif
+                                    @endif
                                             </tbody>
                                         </table>
                                     </div>

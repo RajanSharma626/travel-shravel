@@ -19,6 +19,12 @@ class BookingAccommodation extends Model
         'room_type',
         'meal_plan',
         'booking_status',
+        'single_room',
+        'dbl_room',
+        'quad_room',
+        'eba',
+        'cwb',
+        'inf',
     ];
 
     protected $casts = [

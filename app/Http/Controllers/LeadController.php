@@ -831,6 +831,12 @@ class LeadController extends Controller
                         'room_type' => $accommodationData['room_type'] ?? null,
                         'meal_plan' => $accommodationData['meal_plan'] ?? null,
                         'booking_status' => $accommodationData['booking_status'] ?? 'Pending',
+                        'single_room' => $accommodationData['single_room'] ?? 0,
+                        'dbl_room' => $accommodationData['dbl_room'] ?? 0,
+                        'quad_room' => $accommodationData['quad_room'] ?? 0,
+                        'eba' => $accommodationData['eba'] ?? 0,
+                        'cwb' => $accommodationData['cwb'] ?? 0,
+                        'inf' => $accommodationData['inf'] ?? 0,
                     ]);
                 }
             }
@@ -1424,6 +1430,12 @@ class LeadController extends Controller
             'room_type' => 'nullable|string',
             'meal_plan' => 'nullable|string|in:EP,CP,MAP,AP,AI',
             'booking_status' => 'nullable|string|in:Pending,In Progress,Complete',
+            'single_room' => 'nullable|integer|min:0',
+            'dbl_room' => 'nullable|integer|min:0',
+            'quad_room' => 'nullable|integer|min:0',
+            'eba' => 'nullable|integer|min:0',
+            'cwb' => 'nullable|integer|min:0',
+            'inf' => 'nullable|integer|min:0',
         ]);
 
         // Database enum only allows: CP, MAP, AP, AI (not EP)
@@ -1442,6 +1454,12 @@ class LeadController extends Controller
             'room_type' => $validated['room_type'] ?? null,
             'meal_plan' => $mealPlan,
             'booking_status' => $validated['booking_status'] ?? 'Pending',
+            'single_room' => $validated['single_room'] ?? 0,
+            'dbl_room' => $validated['dbl_room'] ?? 0,
+            'quad_room' => $validated['quad_room'] ?? 0,
+            'eba' => $validated['eba'] ?? 0,
+            'cwb' => $validated['cwb'] ?? 0,
+            'inf' => $validated['inf'] ?? 0,
         ]);
 
         if ($request->expectsJson()) {
@@ -1480,6 +1498,12 @@ class LeadController extends Controller
             'room_type' => 'nullable|string',
             'meal_plan' => 'nullable|string|in:EP,CP,MAP,AP,AI',
             'booking_status' => 'nullable|string|in:Pending,In Progress,Complete',
+            'single_room' => 'nullable|integer|min:0',
+            'dbl_room' => 'nullable|integer|min:0',
+            'quad_room' => 'nullable|integer|min:0',
+            'eba' => 'nullable|integer|min:0',
+            'cwb' => 'nullable|integer|min:0',
+            'inf' => 'nullable|integer|min:0',
         ]);
 
         // Database enum only allows: CP, MAP, AP, AI (not EP)
@@ -1498,6 +1522,12 @@ class LeadController extends Controller
             'room_type' => $validated['room_type'] ?? null,
             'meal_plan' => $mealPlan,
             'booking_status' => $validated['booking_status'] ?? 'Pending',
+            'single_room' => $validated['single_room'] ?? 0,
+            'dbl_room' => $validated['dbl_room'] ?? 0,
+            'quad_room' => $validated['quad_room'] ?? 0,
+            'eba' => $validated['eba'] ?? 0,
+            'cwb' => $validated['cwb'] ?? 0,
+            'inf' => $validated['inf'] ?? 0,
         ]);
 
         if ($request->expectsJson()) {

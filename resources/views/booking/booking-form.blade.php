@@ -23,13 +23,13 @@
                                     </div>
                                 </div>
                                 @if(!isset($isCompletedTravel) || !$isCompletedTravel)
-                                    @can('edit leads')
-                                        <button type="button" class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal"
-                                            data-bs-target="#reassignLeadModal">
-                                            <i data-feather="user-check" class="me-1" style="width: 14px; height: 14px;"></i>
-                                            Re-assign
-                                        </button>
-                                    @endcan
+                                @can('edit leads')
+                                    <button type="button" class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal"
+                                        data-bs-target="#reassignLeadModal">
+                                        <i data-feather="user-check" class="me-1" style="width: 14px; height: 14px;"></i>
+                                        Re-assign
+                                    </button>
+                                @endcan
                                 @endif
                             </div>
                         </header>
@@ -679,6 +679,12 @@
                                                                                 data-checkout-date="{{ $ba->checkout_date ? $ba->checkout_date->format('Y-m-d') : '' }}"
                                                                                 data-room-type="{{ $ba->room_type }}"
                                                                                 data-meal-plan="{{ $ba->meal_plan }}"
+                                                                                data-single-room="{{ $ba->single_room ?? 0 }}"
+                                                                                data-dbl-room="{{ $ba->dbl_room ?? 0 }}"
+                                                                                data-quad-room="{{ $ba->quad_room ?? 0 }}"
+                                                                                data-eba="{{ $ba->eba ?? 0 }}"
+                                                                                data-cwb="{{ $ba->cwb ?? 0 }}"
+                                                                                data-inf="{{ $ba->inf ?? 0 }}"
                                                                                 data-bs-toggle="modal"
                                                                                 data-bs-target="#addAccommodationModal"
                                                                                 style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;">
@@ -1716,6 +1722,43 @@
                                     </select>
                                 </div>
                             </div>
+                            
+                            <!-- Room and Guest Details Section -->
+                            <div class="mt-4 pt-3 border-top">
+                                <h6 class="mb-3 text-muted small fw-semibold">Room and Guest Details</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Single Room</label>
+                                        <input type="number" class="form-control form-control-sm" id="modalSingleRoom"
+                                            name="single_room" placeholder="0" min="0" value="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">DBL Room</label>
+                                        <input type="number" class="form-control form-control-sm" id="modalDblRoom"
+                                            name="dbl_room" placeholder="0" min="0" value="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Quad Room</label>
+                                        <input type="number" class="form-control form-control-sm" id="modalQuadRoom"
+                                            name="quad_room" placeholder="0" min="0" value="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">EBA</label>
+                                        <input type="number" class="form-control form-control-sm" id="modalEba"
+                                            name="eba" placeholder="0" min="0" value="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">CWB</label>
+                                        <input type="number" class="form-control form-control-sm" id="modalCwb"
+                                            name="cwb" placeholder="0" min="0" value="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">INF</label>
+                                        <input type="number" class="form-control form-control-sm" id="modalInf"
+                                            name="inf" placeholder="0" min="0" value="0">
+                                    </div>
+                                </div>
+                            </div>
                             <div class="modal-footer mt-3">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                 <button type="submit" class="btn btn-primary" id="submitAccommodationModal">Add</button>
@@ -2350,6 +2393,12 @@
                             document.getElementById('modalCheckoutDate').value = editBtn.dataset.checkoutDate || '';
                             document.getElementById('modalRoomType').value = editBtn.dataset.roomType || '';
                             document.getElementById('modalMealPlan').value = editBtn.dataset.mealPlan || '';
+                            document.getElementById('modalSingleRoom').value = editBtn.dataset.singleRoom || '0';
+                            document.getElementById('modalDblRoom').value = editBtn.dataset.dblRoom || '0';
+                            document.getElementById('modalQuadRoom').value = editBtn.dataset.quadRoom || '0';
+                            document.getElementById('modalEba').value = editBtn.dataset.eba || '0';
+                            document.getElementById('modalCwb').value = editBtn.dataset.cwb || '0';
+                            document.getElementById('modalInf').value = editBtn.dataset.inf || '0';
 
                             // Trigger location load
                             const destSelect = document.getElementById('modalAccDestinationSelect');
