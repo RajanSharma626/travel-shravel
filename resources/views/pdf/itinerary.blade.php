@@ -345,10 +345,12 @@
             padding: 6px 8px !important;
             margin: 0;
         }
+
         .stay-cell strong {
             font-weight: 600;
             font-style: normal;
         }
+
         .stay-row-first-cell {
             padding: 6px 8px !important;
             margin: 0;
@@ -416,9 +418,11 @@
             padding: 0;
             border: none;
         }
+
         .guest-details-wrapper td:first-child {
             width: 50%;
         }
+
         .guest-details-wrapper td:nth-child(2),
         .guest-details-wrapper td:nth-child(3) {
             width: 25%;
@@ -556,7 +560,7 @@
                             <tr>
                                 <td class="label-cell">Name</td>
                                 <td class="name-cell">{{ $lead->salutation ?? '' }} {{ $lead->first_name }}
-                                        {{ $lead->last_name ?? '' }} x {{ $totalGuests }}</td>
+                                    {{ $lead->last_name ?? '' }} x {{ $totalGuests }}</td>
                             </tr>
                             <tr>
                                 <td class="label-cell">Travel Date</td>
@@ -661,9 +665,9 @@
             </tr>
         </table>
         <div class="trpl-note-outside">
-           
-                At meeting point, there would be a placard holder carrying a placard of your name or company's name.
-            
+
+            At meeting point, there would be a placard holder carrying a placard of your name or company's name.
+
         </div>
     </div>
 
@@ -743,6 +747,7 @@
                             $firstItinerary->day_and_date ?? '',
                             $dateMatches,
                         );
+                        
                         $dateStr = $dateMatch ? $dateMatches[1] : '';
                         $formattedDate = '';
                         if ($dateStr) {

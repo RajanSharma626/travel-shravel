@@ -224,8 +224,8 @@
                                         <h6 class="text-uppercase text-muted small fw-semibold mb-0">
                                             <i data-feather="map-pin" class="me-1" style="width: 14px; height: 14px;"></i>
                                             Destination
-                                        </h6>
-                                    </div>
+                                    </h6>
+                                        </div>
                                     <div class="table-responsive">
                                         <table class="table table-bordered table-sm mb-0">
                                             <thead class="table-light">
@@ -281,8 +281,8 @@
                                                 @endif
                                             </tbody>
                                         </table>
-                                    </div>
-                                </div>
+                                        </div>
+                                        </div>
 
                                 <!-- Accommodation Details Section (View Mode) -->
                                 <div class="mb-4 border rounded-3 p-3">
@@ -291,7 +291,7 @@
                                             <i data-feather="home" class="me-1" style="width: 14px; height: 14px;"></i>
                                             Accommodation Details
                                         </h6>
-                                    </div>
+                                        </div>
                                     <div class="table-responsive">
                                         <table class="table table-bordered table-sm mb-0">
                                             <thead class="table-light">
@@ -348,8 +348,8 @@
                                         <h6 class="text-uppercase text-muted small fw-semibold mb-0">
                                             <i data-feather="navigation" class="me-1" style="width: 14px; height: 14px;"></i>
                                             Arrival/Departure Details
-                                        </h6>
-                                    </div>
+                                    </h6>
+                                            </div>
                                     <div class="table-responsive">
                                         <table class="table table-bordered table-sm mb-0">
                                             <thead class="table-light">

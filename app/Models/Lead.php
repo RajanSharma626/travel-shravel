@@ -44,7 +44,12 @@ class Lead extends Model
         'reassigned_to',
         'selling_price',
         'booked_value',
-        'status'
+        'status',
+        'operations_stage',
+        'ticketing_stage',
+        'visa_stage',
+        'insurance_stage',
+        'delivery_stage'
     ];
 
     protected $casts = [
