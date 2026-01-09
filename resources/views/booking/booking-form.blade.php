@@ -29,7 +29,6 @@
                                         Re-assign
                                     </button>
                                 @endcan
-                                @endif
                             </div>
                         </header>
 
