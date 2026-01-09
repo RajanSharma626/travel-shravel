@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('leads', function (Blueprint $table) {
-            //
+            // This migration was already handled by the later migration
+            // Leaving empty to avoid conflicts
         });
     }
 

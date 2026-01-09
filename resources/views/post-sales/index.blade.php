@@ -65,6 +65,9 @@
                                         </thead>
                                         <tbody>
                                             @forelse ($leads as $lead)
+                                                @php
+                                                    $stageInfo = \App\Http\Controllers\Controller::getLeadStage($lead);
+                                                @endphp
                                                 <tr>
                                                     <td><strong>{{ $lead->tsq }}</strong></td>
                                                 <td>
@@ -74,9 +77,10 @@
                                                     </a>
                                                     </td>
                                                 <td>{{ $lead->primary_phone ?? $lead->phone }}</td>
+                                               
                                                 <td>
-                                                    <span class="badge bg-success text-white">
-                                                        Booked
+                                                    <span class="badge {{ $stageInfo['badge_class'] }}">
+                                                        {{ $stageInfo['stage'] }}
                                                     </span>
                                                 </td>
                                                 <td>
@@ -116,7 +120,7 @@
                                                                                 </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="7" class="text-center">No post sales found</td>
+                                                <td colspan="8" class="text-center">No post sales found</td>
                                             </tr>
                                         @endforelse
                                     </tbody>

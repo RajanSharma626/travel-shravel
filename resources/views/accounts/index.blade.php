@@ -70,6 +70,7 @@
                                             <th>Date of Return</th>
                                             <th>Sales Person</th>
                                             <th>Booking Type</th>
+                                            <th>Stage</th>
                                             <th>Remark</th>
                                             <th>Actions</th>
                                         </tr>
@@ -120,6 +121,14 @@
                                                 <td>{{ $lead->assigned_employee?->name ?? ($lead->assignedUser?->name ?? '-') }}
                                                 </td>
                                                 <td>{{ $bookingType }}</td>
+                                                @php
+                                                    $stageInfo = \App\Http\Controllers\Controller::getLeadStage($lead);
+                                                @endphp
+                                                <td>
+                                                    <span class="badge {{ $stageInfo['badge_class'] }}">
+                                                        {{ $stageInfo['stage'] }}
+                                                    </span>
+                                                </td>
                                                 <td>
                                                     @if ($lead->latest_booking_file_remark)
                                                         <div class="d-flex align-items-start">
@@ -153,7 +162,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="9" class="text-center">No accounts found</td>
+                                                <td colspan="10" class="text-center">No accounts found</td>
                                             </tr>
                                         @endforelse
                                     </tbody>

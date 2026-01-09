@@ -338,6 +338,11 @@ class DocumentController extends Controller
             $customerPaymentState = 'partial';
         }
 
+        // Get stage info for current user's department
+        $userDepartment = $this->getUserDepartment();
+        $stageInfo = $this->getDepartmentStages($userDepartment);
+        $currentStage = $lead->{$stageInfo['stage_key']} ?? 'Pending';
+
         return view('booking.booking-form', [
             'lead' => $lead,
             'employees' => $employees,
@@ -349,6 +354,8 @@ class DocumentController extends Controller
             'isPostSales' => $isPostSales,
             'customerPaymentState' => $customerPaymentState,
             'totalCustomerReceived' => $totalReceived,
+            'stageInfo' => $stageInfo,
+            'currentStage' => $currentStage,
         ]);
     }
 }

@@ -99,17 +99,14 @@
                                                 </a>
                                             </td>
                                             <td>{{ $lead->primary_phone ?? $lead->phone }}</td>
+                                          
+                                            @php
+                                                $stageInfo = \App\Http\Controllers\Controller::getLeadStage($lead);
+                                            @endphp
                                             <td>
-                                                @if ($deliveryStatus === 'Pending')
-                                                    <span class="badge bg-warning text-dark">Pending</span>
-                                                @elseif ($deliveryStatus === 'In_Process')
-                                                    <span class="badge bg-info text-white">In Process</span>
-                                                @elseif ($deliveryStatus === 'Delivered')
-                                                    <span class="badge bg-success text-white">Delivered</span>
-                                                @else
-                                                    <span
-                                                        class="badge bg-secondary text-white">{{ $deliveryStatus }}</span>
-                                                @endif
+                                                <span class="badge {{ $stageInfo['badge_class'] }}">
+                                                    {{ $stageInfo['stage'] }}
+                                                </span>
                                             </td>
                                             <td>
                                                 {{ $delivery && $delivery->assignedTo ? $delivery->assignedTo->name : 'Unassigned' }}
@@ -167,7 +164,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="10" class="text-center">No deliveries found</td>
+                                            <td colspan="11" class="text-center">No deliveries found</td>
                                         </tr>
                                     @endforelse
                                 </tbody>

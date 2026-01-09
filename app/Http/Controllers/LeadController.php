@@ -317,6 +317,11 @@ class LeadController extends Controller
         $role = $employee->role ?? $employee->getRoleNameAttribute();
         $isOpsDept = $role && in_array($role, ['Operation', 'Operation Manager']);
 
+        // Get stage info for current user's department
+        $userDepartment = $this->getUserDepartment();
+        $stageInfo = $this->getDepartmentStages($userDepartment);
+        $currentStage = $lead->{$stageInfo['stage_key']} ?? 'Pending';
+
         return view('booking.booking-form', [
             'lead' => $lead,
             'employees' => $employees,
@@ -325,6 +330,8 @@ class LeadController extends Controller
             'backUrl' => $backUrl,
             'vendorPayments' => $vendorPayments,
             'isOpsDept' => $isOpsDept,
+            'stageInfo' => $stageInfo,
+            'currentStage' => $currentStage,
             'customerPaymentState' => $customerPaymentState,
             'totalCustomerReceived' => $totalReceived,
         ]);
@@ -1610,6 +1617,44 @@ class LeadController extends Controller
     /**
      * Update an existing booking itinerary record
      */
+    public function updateStages(Request $request, Lead $lead)
+    {
+        $validated = $request->validate([
+            'stage' => 'required|string|max:255',
+        ]);
+
+        // Get user's department and determine which stage field to update
+        $userDepartment = $this->getUserDepartment();
+        $stageInfo = $this->getDepartmentStages($userDepartment);
+        $stageKey = $stageInfo['stage_key'];
+
+        // Validate that the stage is in the allowed list for this department
+        if (!in_array($validated['stage'], $stageInfo['stages'])) {
+            if ($request->expectsJson() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid stage for your department',
+                ], 422);
+            }
+            return redirect()->back()->with('error', 'Invalid stage for your department');
+        }
+
+        // Update the appropriate stage field
+        $lead->update([
+            $stageKey => $validated['stage']
+        ]);
+
+        if ($request->expectsJson() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Stage updated successfully!',
+                'stage' => $validated['stage']
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Stage updated successfully!');
+    }
+
     public function updateBookingItinerary(Request $request, Lead $lead, BookingItinerary $itinerary)
     {
         // Verify itinerary belongs to lead

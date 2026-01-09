@@ -133,7 +133,12 @@ class PaymentController extends Controller
         // Accounts department only sees customer section in read-only mode
         $isViewOnly = true;
 
-        return view('accounts.booking-file', compact('lead', 'users', 'employees', 'isViewOnly', 'accountSummaries', 'vendorPayments', 'customerPaymentState', 'totalReceived'));
+        // Get stage info for current user's department
+        $userDepartment = $this->getUserDepartment();
+        $stageInfo = $this->getDepartmentStages($userDepartment);
+        $currentStage = $lead->{$stageInfo['stage_key']} ?? 'Pending';
+
+        return view('accounts.booking-file', compact('lead', 'users', 'employees', 'isViewOnly', 'accountSummaries', 'vendorPayments', 'customerPaymentState', 'totalReceived', 'stageInfo', 'currentStage'));
     }
 
     public function show(Lead $lead)

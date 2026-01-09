@@ -461,7 +461,12 @@ class DeliveryController extends Controller
         $backUrl = route('deliveries.index');
         $isViewOnly = true; // Delivery booking file is view-only for all sections
 
-        return view('deliveries.booking-file', compact('lead', 'backUrl', 'isViewOnly', 'employees'));
+        // Get stage info for current user's department
+        $userDepartment = $this->getUserDepartment();
+        $stageInfo = $this->getDepartmentStages($userDepartment);
+        $currentStage = $lead->{$stageInfo['stage_key']} ?? 'Pending';
+
+        return view('deliveries.booking-file', compact('lead', 'backUrl', 'isViewOnly', 'employees', 'stageInfo', 'currentStage'));
     }
 
     public function store(Request $request, Lead $lead)

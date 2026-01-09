@@ -45,6 +45,8 @@ class Lead extends Model
         'selling_price',
         'booked_value',
         'status',
+        'sales_stage',
+        'post_sales_stage',
         'operations_stage',
         'ticketing_stage',
         'visa_stage',

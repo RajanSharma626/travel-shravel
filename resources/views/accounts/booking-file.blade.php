@@ -203,6 +203,27 @@
                                                 @endif
                                             </div>
                                         </div>
+                                        @php
+                                            $stageInfo = $stageInfo ?? null;
+                                            $currentStage = $currentStage ?? 'Pending';
+                                        @endphp
+                                        @if($stageInfo)
+                                        <div class="col-md-3">
+                                            <label class="form-label">Stage</label>
+                                            <div class="input-group input-group-sm">
+                                                <select name="stage" id="stageSelect" class="form-select form-control-sm">
+                                                    @foreach($stageInfo['stages'] as $stage)
+                                                        <option value="{{ $stage }}" {{ ($currentStage == $stage) ? 'selected' : '' }}>
+                                                            {{ $stage }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <button type="button" class="btn btn-primary btn-sm" id="updateStageBtn">
+                                                    Update
+                                                </button>
+                                            </div>
+                                        </div>
+                                        @endif
                                     </div>
                                 </div>
 
@@ -1104,6 +1125,58 @@ $userRemarks = $lead
                         document.getElementById('editCustomerPaymentForm').reset();
                         document.getElementById('customerPaymentNotes').value = '';
                         currentEditCustomerPaymentId = null;
+                    });
+                }
+
+                // Handle Stage Update Button
+                const updateStageBtn = document.getElementById('updateStageBtn');
+                const stageSelect = document.getElementById('stageSelect');
+
+                if (updateStageBtn && stageSelect) {
+                    updateStageBtn.addEventListener('click', async function() {
+                        const selectedStage = stageSelect.value;
+
+                        if (!selectedStage) {
+                            alert('Please select a stage');
+                            return;
+                        }
+
+                        const originalText = updateStageBtn.textContent;
+                        updateStageBtn.disabled = true;
+                        updateStageBtn.textContent = 'Updating...';
+
+                        try {
+                            const response = await fetch(
+                                '{{ route('leads.update-stage', $lead) }}', {
+                                    method: 'PUT',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                            'meta[name="csrf-token"]')?.content,
+                                        'Accept': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        stage: selectedStage
+                                    })
+                                });
+
+                            const result = await response.json();
+
+                            if (response.ok) {
+                                alert(result.message || 'Stage updated successfully!');
+                                // Optionally reload the page to reflect changes
+                                window.location.reload();
+                            } else {
+                                alert(result.message || 'Error updating stage');
+                                updateStageBtn.disabled = false;
+                                updateStageBtn.textContent = originalText;
+                            }
+                        } catch (error) {
+                            console.error('Error updating stage:', error);
+                            alert('An unexpected error occurred while updating stage');
+                            updateStageBtn.disabled = false;
+                            updateStageBtn.textContent = originalText;
+                        }
                     });
                 }
             });
