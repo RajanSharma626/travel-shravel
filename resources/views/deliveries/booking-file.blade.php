@@ -17,33 +17,36 @@
                                             </span>
                                         </span>
                                     </a>
-                                <div>
+                                    <div>
                                         <h1 class="mb-0">Booking File</h1>
                                         <p class="text-muted mb-0 small">TSQ: {{ $lead->tsq }}</p>
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
                                     @php
-                                        $hasItineraryData = $lead->bookingItineraries && $lead->bookingItineraries->count() > 0;
-                                        $hasArrivalDepartureData = $lead->bookingArrivalDepartures && $lead->bookingArrivalDepartures->count() > 0;
+                                        $hasItineraryData =
+                                            $lead->bookingItineraries && $lead->bookingItineraries->count() > 0;
+                                        $hasArrivalDepartureData =
+                                            $lead->bookingArrivalDepartures &&
+                                            $lead->bookingArrivalDepartures->count() > 0;
                                     @endphp
-                                    
-                                    <a href="{{ route('deliveries.download-voucher', ['lead' => $lead, 'type' => 'itinerary']) }}" 
-                                       class="btn btn-sm btn-outline-success {{ !$hasItineraryData ? 'disabled' : '' }}" 
-                                       target="_blank"
-                                       @if(!$hasItineraryData) onclick="return false;" style="pointer-events: none; opacity: 0.6;" @endif>
+
+                                    <a href="{{ route('deliveries.download-voucher', ['lead' => $lead, 'type' => 'itinerary']) }}"
+                                        class="btn btn-sm btn-outline-success {{ !$hasItineraryData ? 'disabled' : '' }}"
+                                        target="_blank"
+                                        @if (!$hasItineraryData) onclick="return false;" style="pointer-events: none; opacity: 0.6;" @endif>
                                         <i data-feather="download" class="me-1" style="width: 14px; height: 14px;"></i>
                                         Itinerary
                                     </a>
-                                    
-                                    <a href="{{ route('deliveries.download-voucher', ['lead' => $lead, 'type' => 'service-voucher']) }}" 
-                                       class="btn btn-sm btn-outline-success {{ !$hasArrivalDepartureData ? 'disabled' : '' }}" 
-                                       target="_blank"
-                                       @if(!$hasArrivalDepartureData) onclick="return false;" style="pointer-events: none; opacity: 0.6;" @endif>
+
+                                    <a href="{{ route('deliveries.download-voucher', ['lead' => $lead, 'type' => 'service-voucher']) }}"
+                                        class="btn btn-sm btn-outline-success {{ !$hasArrivalDepartureData ? 'disabled' : '' }}"
+                                        target="_blank"
+                                        @if (!$hasArrivalDepartureData) onclick="return false;" style="pointer-events: none; opacity: 0.6;" @endif>
                                         <i data-feather="download" class="me-1" style="width: 14px; height: 14px;"></i>
                                         Service
                                     </a>
-                                  
+
                                     @can('edit leads')
                                         <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
                                             data-bs-target="#reassignLeadModal">
@@ -189,64 +192,38 @@
                                             $stageInfo = $stageInfo ?? null;
                                             $currentStage = $currentStage ?? 'Pending';
                                         @endphp
-                                        @if($stageInfo)
-                                        <div class="col-md-3">
-                                            <label class="form-label">Stage</label>
-                                            <div class="input-group input-group-sm">
-                                                <select name="stage" id="stageSelect" class="form-select form-control-sm">
-                                                    @foreach($stageInfo['stages'] as $stage)
-                                                        <option value="{{ $stage }}" {{ ($currentStage == $stage) ? 'selected' : '' }}>
-                                                            {{ $stage }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                <button type="button" class="btn btn-primary btn-sm" id="updateStageBtn">
-                                                    Update
-                                                </button>
+                                        @if ($stageInfo)
+                                            <div class="col-md-3">
+                                                <label class="form-label">Stage</label>
+                                                <div class="input-group input-group-sm">
+                                                    <select name="stage" id="stageSelect"
+                                                        class="form-select form-control-sm">
+                                                        @foreach ($stageInfo['stages'] as $stage)
+                                                            <option value="{{ $stage }}"
+                                                                {{ $currentStage == $stage ? 'selected' : '' }}>
+                                                                {{ $stage }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    <button type="button" class="btn btn-primary btn-sm"
+                                                        id="updateStageBtn">
+                                                        Update
+                                                    </button>
+                                                </div>
                                             </div>
-                                        </div>
                                         @endif
                                     </div>
-                                </div>
-
-                                <!-- Remarks Section (Own Remarks Only) -->
-                                <div class="mb-4 border rounded-3 p-3">
-                                    <h6 class="text-uppercase text-muted small fw-semibold mb-3">
-                                        <i data-feather="message-circle" class="me-1" style="width: 14px; height: 14px;"></i>
-                                        My Remarks
-                                    </h6>
-                                    
-                                    <!-- Add Remark Form -->
-                                    <form id="addRemarkForm" method="POST" action="{{ route('leads.booking-file-remarks.store', $lead) }}">
-                                        <input type="hidden" name="department" value="Delivery">
-                                        @csrf
-                                        <div class="row g-3 align-items-end">
-                                            <div class="col-md-5">
-                                                <label class="form-label">Remark <span class="text-danger">*</span></label>
-                                                <textarea name="remark" class="form-control form-control-sm" rows="2" required placeholder="Enter your remark..."></textarea>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label class="form-label">Follow-up Date & Time</label>
-                                                <input type="datetime-local" name="follow_up_at" class="form-control form-control-sm">
-                                            </div>
-                                            <div class="col-md-3">
-                                                <button type="submit" class="btn btn-sm btn-primary w-100">
-                                                    <i data-feather="save" style="width: 14px; height: 14px;"></i>
-                                                    Add Remark
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </form>
                                 </div>
 
                                 <!-- Destination Section (View Mode) -->
                                 <div class="mb-4 border rounded-3 p-3">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                            <i data-feather="map-pin" class="me-1" style="width: 14px; height: 14px;"></i>
+                                            <i data-feather="map-pin" class="me-1"
+                                                style="width: 14px; height: 14px;"></i>
                                             Destination
-                                    </h6>
-                                        </div>
+                                        </h6>
+                                    </div>
                                     <div class="table-responsive">
                                         <table class="table table-bordered table-sm mb-0">
                                             <thead class="table-light">
@@ -302,8 +279,8 @@
                                                 @endif
                                             </tbody>
                                         </table>
-                                        </div>
-                                        </div>
+                                    </div>
+                                </div>
 
                                 <!-- Accommodation Details Section (View Mode) -->
                                 <div class="mb-4 border rounded-3 p-3">
@@ -312,7 +289,7 @@
                                             <i data-feather="home" class="me-1" style="width: 14px; height: 14px;"></i>
                                             Accommodation Details
                                         </h6>
-                                        </div>
+                                    </div>
                                     <div class="table-responsive">
                                         <table class="table table-bordered table-sm mb-0">
                                             <thead class="table-light">
@@ -334,16 +311,18 @@
                                                             <td>{{ $ba->destination }}</td>
                                                             <td>{{ $ba->location }}</td>
                                                             <td>{{ $ba->stay_at }}</td>
-                                                            <td>{{ $ba->checkin_date ? $ba->checkin_date->format('d/m/Y') : '' }}</td>
-                                                            <td>{{ $ba->checkout_date ? $ba->checkout_date->format('d/m/Y') : '' }}</td>
+                                                            <td>{{ $ba->checkin_date ? $ba->checkin_date->format('d/m/Y') : '' }}
+                                                            </td>
+                                                            <td>{{ $ba->checkout_date ? $ba->checkout_date->format('d/m/Y') : '' }}
+                                                            </td>
                                                             <td>{{ $ba->room_type }}</td>
                                                             <td>{{ $ba->meal_plan }}</td>
                                                             <td class="text-center">
-                                                                <a href="{{ route('deliveries.download-accommodation-voucher', ['lead' => $lead, 'accommodation' => $ba->id]) }}" 
-                                                                   class="btn btn-sm btn-outline-success" 
-                                                                   target="_blank"
-                                                                   title="Download Accommodation Voucher">
-                                                                    <i data-feather="download" style="width: 16px; height: 16px;"></i>
+                                                                <a href="{{ route('deliveries.download-accommodation-voucher', ['lead' => $lead, 'accommodation' => $ba->id]) }}"
+                                                                    class="btn btn-sm btn-outline-success" target="_blank"
+                                                                    title="Download Accommodation Voucher">
+                                                                    <i data-feather="download"
+                                                                        style="width: 16px; height: 16px;"></i>
                                                                 </a>
                                                             </td>
                                                         </tr>
@@ -367,12 +346,13 @@
                                 <div class="mb-4 border rounded-3 p-3">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                            <i data-feather="navigation" class="me-1" style="width: 14px; height: 14px;"></i>
+                                            <i data-feather="navigation" class="me-1"
+                                                style="width: 14px; height: 14px;"></i>
                                             Arrival/Departure Details
-                                    </h6>
-                                            </div>
+                                        </h6>
+                                    </div>
                                     <div class="table-responsive">
-                                        <table class="table table-bordered table-sm mb-0">
+                                        <table class="table table-bordered table-sm mb-0 text-center">
                                             <thead class="table-light">
                                                 <tr>
                                                     <th style="width: 12%;" rowspan="2">Mode</th>
@@ -426,14 +406,15 @@
                                                 @endif
                                             </tbody>
                                         </table>
-                                            </div>
-                                            </div>
+                                    </div>
+                                </div>
 
                                 <!-- Day-Wise Itinerary Section (View Mode) -->
                                 <div class="mb-4 border rounded-3 p-3" id="dayWiseItinerarySection">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                            <i data-feather="calendar" class="me-1" style="width: 14px; height: 14px;"></i>
+                                            <i data-feather="calendar" class="me-1"
+                                                style="width: 14px; height: 14px;"></i>
                                             Day-Wise Itinerary
                                         </h6>
                                     </div>
@@ -472,13 +453,16 @@
                                                                         );
                                                                     @endphp
                                                                     @if (count($activities) > 0)
-                                                                        <div class="mb-0" style="padding-left: 0; margin-bottom: 0;">
+                                                                        <div class="mb-0"
+                                                                            style="padding-left: 0; margin-bottom: 0;">
                                                                             @foreach ($activities as $activity)
-                                                                                <div style="margin-bottom: 4px; padding-left: 0;">
-                                                                                    <span style="margin-right: 8px;">•</span>{{ $activity }}
-                                            </div>
+                                                                                <div
+                                                                                    style="margin-bottom: 4px; padding-left: 0;">
+                                                                                    <span
+                                                                                        style="margin-right: 8px;">•</span>{{ $activity }}
+                                                                                </div>
                                                                             @endforeach
-                                        </div>
+                                                                        </div>
                                                                     @else
                                                                         {{ $bi->activity_tour_description }}
                                                                     @endif
@@ -490,7 +474,7 @@
                                                             <td>{{ $bi->remarks }}</td>
                                                         </tr>
                                                     @endforeach
-                                    @else
+                                                @else
                                                     <tr>
                                                         <td colspan="6" class="text-center text-muted py-4">
                                                             <i data-feather="inbox"
@@ -499,68 +483,13 @@
                                                             <div>No itinerary data available</div>
                                                         </td>
                                                     </tr>
-                                    @endif
+                                                @endif
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
 
-                                <!-- Remarks History Section -->
-                                <div class="mb-4 border rounded-3 p-3">
-                                    <h6 class="text-uppercase text-muted small fw-semibold mb-3">
-                                        <i data-feather="message-square" class="me-1" style="width: 14px; height: 14px;"></i>
-                                        Remarks History
-                                    </h6>
-                                    <div style="max-height: 400px; overflow-y: auto;">
-                                        @php
-                                            $lead->load('bookingFileRemarks.user');
-                                            $currentDepartment = 'Delivery';
-                                            // Check if user is admin
-                                            $isAdmin = Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Developer');
-                                            // If admin, show all remarks; otherwise, show only own remarks
-                                            $remarksQuery = $lead->bookingFileRemarks()->where('department', $currentDepartment);
-                                            if (!$isAdmin) {
-                                                $remarksQuery->where('user_id', Auth::id());
-                                            }
-                                            $allRemarks = $remarksQuery->orderBy('created_at', 'desc')->get();
-                                        @endphp
-                                        @if($allRemarks->count() > 0)
-                                            <div class="timeline">
-                                                @foreach($allRemarks as $remark)
-                                                    <div class="border rounded-3 p-3 mb-3 bg-white">
-                                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                                            <div class="d-flex align-items-start flex-grow-1">
-                                                                <div class="avatar avatar-rounded rounded-circle me-3 flex-shrink-0" style="background-color: #007d88; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                                                                    <span class="text-white fw-bold" style="font-size: 0.875rem;">
-                                                                        {{ strtoupper(substr($remark->user->name ?? 'U', 0, 1)) }}
-                                                                    </span>
-                                                                </div>
-                                                                <div class="flex-grow-1">
-                                                                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-                                                                        <strong class="text-dark">{{ $remark->user->name ?? 'Unknown' }}</strong>
-                                                                        @if ($remark->department)
-                                                                            <span class="badge bg-info">{{ $remark->department }}</span>
-                                                                        @endif
-                                                                        <small class="text-muted">{{ $remark->created_at->format('d M, Y h:i A') }}</small>
-                                                                        @if($remark->follow_up_at)
-                                                                            <span class="badge bg-danger">Follow-up: {{ $remark->follow_up_at->format('d M, Y h:i A') }}</span>
-                                                                        @endif
-                                                                    </div>
-                                                                    <p class="mb-0 text-dark" style="line-height: 1.6;">{{ $remark->remark }}</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @else
-                                            <p class="text-muted text-center mb-0 py-4">
-                                                <i data-feather="message-circle" class="me-2" style="width: 16px; height: 16px;"></i>
-                                                No remarks available.
-                                            </p>
-                                        @endif
-                                    </div>
-                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -571,119 +500,203 @@
     </div>
 
     @push('scripts')
-    <script>
-        $(document).ready(function() {
-            // Initialize feather icons
-            if (typeof feather !== 'undefined') {
-                feather.replace();
-            }
+        <script>
+            $(document).ready(function() {
+                // Initialize feather icons
+                if (typeof feather !== 'undefined') {
+                    feather.replace();
+                }
 
-            // Handle Stage Update Button
-            const updateStageBtn = document.getElementById('updateStageBtn');
-            const stageSelect = document.getElementById('stageSelect');
+                // Handle Stage Update Button
+                const updateStageBtn = document.getElementById('updateStageBtn');
+                const stageSelect = document.getElementById('stageSelect');
 
-            if (updateStageBtn && stageSelect) {
-                updateStageBtn.addEventListener('click', async function() {
-                    const selectedStage = stageSelect.value;
+                if (updateStageBtn && stageSelect) {
+                    updateStageBtn.addEventListener('click', async function() {
+                        const selectedStage = stageSelect.value;
 
-                    if (!selectedStage) {
-                        alert('Please select a stage');
-                        return;
-                    }
+                        if (!selectedStage) {
+                            alert('Please select a stage');
+                            return;
+                        }
 
-                    const originalText = updateStageBtn.textContent;
-                    updateStageBtn.disabled = true;
-                    updateStageBtn.textContent = 'Updating...';
+                        const originalText = updateStageBtn.textContent;
+                        updateStageBtn.disabled = true;
+                        updateStageBtn.textContent = 'Updating...';
 
-                    try {
-                        const response = await fetch(
-                            '{{ route('leads.update-stage', $lead) }}', {
-                                method: 'PUT',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector(
-                                        'meta[name="csrf-token"]')?.content,
-                                    'Accept': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    stage: selectedStage
-                                })
-                            });
+                        try {
+                            const response = await fetch(
+                                '{{ route('leads.update-stage', $lead) }}', {
+                                    method: 'PUT',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                            'meta[name="csrf-token"]')?.content,
+                                        'Accept': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        stage: selectedStage
+                                    })
+                                });
 
-                        const result = await response.json();
+                            const result = await response.json();
 
-                        if (response.ok) {
-                            alert(result.message || 'Stage updated successfully!');
-                            // Optionally reload the page to reflect changes
-                            window.location.reload();
-                        } else {
-                            alert(result.message || 'Error updating stage');
+                            if (response.ok) {
+                                alert(result.message || 'Stage updated successfully!');
+                                // Optionally reload the page to reflect changes
+                                window.location.reload();
+                            } else {
+                                alert(result.message || 'Error updating stage');
+                                updateStageBtn.disabled = false;
+                                updateStageBtn.textContent = originalText;
+                            }
+                        } catch (error) {
+                            console.error('Error updating stage:', error);
+                            alert('An unexpected error occurred while updating stage');
                             updateStageBtn.disabled = false;
                             updateStageBtn.textContent = originalText;
                         }
-                    } catch (error) {
-                        console.error('Error updating stage:', error);
-                        alert('An unexpected error occurred while updating stage');
-                        updateStageBtn.disabled = false;
-                        updateStageBtn.textContent = originalText;
-                    }
-                });
-            }
-        });
-    </script>
+                    });
+                }
+            });
+        </script>
 
-    @can('edit leads')
-        <!-- Re-assign Lead Modal -->
-        <div class="modal fade" id="reassignLeadModal" tabindex="-1" aria-labelledby="reassignLeadModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <form action="{{ route('leads.reassign', $lead) }}" method="POST">
-                        @csrf
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="reassignLeadModalLabel">Re-assign Lead</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label class="form-label">Assign To <span class="text-danger">*</span></label>
-                                <select name="reassigned_employee_id" class="form-select form-select-sm" required>
-                                    <option value="">-- Select Employee --</option>
-                                    @foreach ($employees as $employee)
-                                        @php
-                                            $matchingUser = \App\Models\User::where(
-                                                'email',
-                                                $employee->email,
-                                            )
-                                                ->orWhere('user_id', $employee->user_id)
-                                                ->first();
-                                            $isSelected = false;
-                                            if (
-                                                $lead->assigned_user_id &&
-                                                $matchingUser &&
-                                                $lead->assigned_user_id == $matchingUser->id
-                                            ) {
-                                                $isSelected = true;
-                                            }
-                                        @endphp
-                                        <option value="{{ $employee->id }}" data-user-id="{{ $matchingUser->id ?? '' }}"
-                                            {{ $isSelected ? 'selected' : '' }}>
-                                            {{ $employee->name }} @if ($employee->user_id)
-                                                ({{ $employee->user_id }})
-                                            @endif
-                                        </option>
-                                    @endforeach
-                                </select>
+        @can('edit leads')
+            <!-- Re-assign Lead Modal -->
+            <div class="modal fade" id="reassignLeadModal" tabindex="-1" aria-labelledby="reassignLeadModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <form action="{{ route('leads.reassign', $lead) }}" method="POST">
+                            @csrf
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="reassignLeadModalLabel">Re-assign Lead</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-sm btn-primary">Save</button>
-                        </div>
-                    </form>
+                            <div class="modal-body">
+                                <h6 class="text-uppercase text-muted small fw-semibold mb-3">
+                                    <i data-feather="users" class="me-1" style="width: 14px; height: 14px;"></i>
+                                    Department Assignee
+                                </h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Sales</label>
+                                        <select name="reassigned_employee_id" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach ($employees as $emp)
+                                                @php
+                                                    $matchingUser = \App\Models\User::where('email', $emp->email)
+                                                        ->orWhere('user_id', $emp->user_id)
+                                                        ->first();
+                                                    $isSelected = false;
+                                                    if (
+                                                        $lead->assigned_user_id &&
+                                                        $matchingUser &&
+                                                        $lead->assigned_user_id == $matchingUser->id
+                                                    ) {
+                                                        $isSelected = true;
+                                                    }
+                                                @endphp
+                                                <option value="{{ $emp->id }}" {{ $isSelected ? 'selected' : '' }}>
+                                                    {{ $emp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Post Sales</label>
+                                        <select name="post_sales_user_id" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach ($employees as $emp)
+                                                <option value="{{ $emp->id }}"
+                                                    {{ isset($lead->post_sales_user_id) && $lead->post_sales_user_id == $emp->id ? 'selected' : '' }}>
+                                                    {{ $emp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Operations</label>
+                                        <select name="operations_user_id" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach ($employees as $emp)
+                                                <option value="{{ $emp->id }}"
+                                                    {{ isset($lead->operations_user_id) && $lead->operations_user_id == $emp->id ? 'selected' : '' }}>
+                                                    {{ $emp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Ticketing</label>
+                                        <select name="ticketing_user_id" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach ($employees as $emp)
+                                                <option value="{{ $emp->id }}"
+                                                    {{ isset($lead->ticketing_user_id) && $lead->ticketing_user_id == $emp->id ? 'selected' : '' }}>
+                                                    {{ $emp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Visa</label>
+                                        <select name="visa_user_id" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach ($employees as $emp)
+                                                <option value="{{ $emp->id }}"
+                                                    {{ isset($lead->visa_user_id) && $lead->visa_user_id == $emp->id ? 'selected' : '' }}>
+                                                    {{ $emp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Insurance</label>
+                                        <select name="insurance_user_id" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach ($employees as $emp)
+                                                <option value="{{ $emp->id }}"
+                                                    {{ isset($lead->insurance_user_id) && $lead->insurance_user_id == $emp->id ? 'selected' : '' }}>
+                                                    {{ $emp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Accountant</label>
+                                        <select name="accountant_user_id" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach ($employees as $emp)
+                                                <option value="{{ $emp->id }}"
+                                                    {{ isset($lead->accountant_user_id) && $lead->accountant_user_id == $emp->id ? 'selected' : '' }}>
+                                                    {{ $emp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Delivery</label>
+                                        <select name="delivery_user_id" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach ($employees as $emp)
+                                                <option value="{{ $emp->id }}"
+                                                    {{ isset($lead->delivery_user_id) && $lead->delivery_user_id == $emp->id ? 'selected' : '' }}>
+                                                    {{ $emp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-    @endcan
+        @endcan
     @endpush
 @endsection

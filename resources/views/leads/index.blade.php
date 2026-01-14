@@ -3,7 +3,7 @@
 @section('content')
 @php
     $canEditLeads = Auth::user()->can('edit leads') || Auth::user()->hasRole('Customer Care') || Auth::user()->department === 'Customer Care';
-    $canDeleteLeads = Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Developer');
+    $canDeleteLeads = Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Developer') || Auth::user()->department === 'Admin';
 @endphp
     <!-- Toast Container -->
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
@@ -44,13 +44,33 @@
 
                                 <form method="GET" action="{{ route($indexRoute ?? 'leads.index') }}" class="row g-3 mb-4"
                                     id="leadFiltersForm">
-                                    <div class="col-md-4 col-lg-3">
+                                    <div class="col-md-3 col-lg-2">
                                         <label for="status" class="form-label">Status</label>
                                         <select name="status" id="status" class="form-select form-select-sm">
                                             <option value="">-- All --</option>
                                             @foreach ($statuses as $key => $label)
                                                 <option value="{{ $key }}" @selected(($filters['status'] ?? '') === $key)>
                                                     {{ $label }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 col-lg-2">
+                                        <label for="service_id" class="form-label">Service</label>
+                                        <select name="service_id" id="service_id" class="form-select form-select-sm">
+                                            <option value="">-- All --</option>
+                                            @foreach ($services as $service)
+                                                <option value="{{ $service->id }}" @selected(($filters['service_id'] ?? '') == $service->id)>
+                                                    {{ $service->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 col-lg-2">
+                                        <label for="destination_id" class="form-label">Destination</label>
+                                        <select name="destination_id" id="destination_id" class="form-select form-select-sm">
+                                            <option value="">-- All --</option>
+                                            @foreach ($destinations as $destination)
+                                                <option value="{{ $destination->id }}" @selected(($filters['destination_id'] ?? '') == $destination->id)>
+                                                    {{ $destination->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -65,12 +85,12 @@
                                                     class="ri-search-line me-1"></i> Filter</button>
                                         </div>
                                     </div>
-                                    <div class="col-md-4 col-lg-3 align-self-end">
+                                    <div class="col-md-3 col-lg-2 align-self-end">
                                         <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="modal"
                                             data-bs-target="#addLeadModal">+ Add Lead</button>
                                     </div>
-                                    @if ($filters['status'] || $filters['search'])
-                                        <div class="col-md-3 col-lg-2 align-self-end ms-auto">
+                                    @if ($filters['status'] || $filters['search'] || $filters['service_id'] || $filters['destination_id'])
+                                        <div class="col-md-3 col-lg-1 align-self-end ms-auto">
                                             <a href="{{ route($indexRoute ?? 'leads.index') }}"
                                                 class="btn btn-outline-danger w-100 btn-sm">Clear
                                                 Filters</a>
@@ -116,8 +136,10 @@
                                             <th>Ref No.</th>
                                             <th>Customer Name</th>
                                             <th>Phone</th>
+                                            <th>Service</th>
+                                            <th>Destination</th>
                                             <th>Status</th>
-                                            <th>Last Remark</th>
+                                            <th>Remark</th>
                                             <th>Created On</th>
                                             <th>Actions</th>
                                         </tr>
@@ -141,6 +163,8 @@
                                                     </a>
                                                 </td>
                                                 <td>{{ $lead->primary_phone ?? $lead->phone }}</td>
+                                                <td>{{ $lead->service ? $lead->service->name : '-' }}</td>
+                                                <td>{{ $lead->destination ? $lead->destination->name : '-' }}</td>
                                                 <td>
                                                     @php
                                                         $statusColors = [
@@ -162,20 +186,20 @@
                                                     @if ($lead->latest_remark)
                                                         <div class="text-truncate" style="max-width: 200px;"
                                                             title="{{ $lead->latest_remark->remark }}">
-                                                            {{ Str::limit($lead->latest_remark->remark, 50) }}
+                                                            {{ Str::limit($lead->latest_remark->remark, 40) }}
                                                         </div>
                                                         <small class="text-muted">
                                                             by
                                                             {{ $lead->latest_remark->employee?->name ?? ($lead->latest_remark->user?->name ?? 'N/A') }}
                                                             @if ($lead->latest_remark->created_at)
-                                                                - {{ $lead->latest_remark->created_at->format('d M, Y') }}
+                                                                - {{ $lead->latest_remark->created_at->format('d M, y') }}
                                                             @endif
                                                         </small>
                                                     @else
                                                         <span class="text-muted">No remarks yet</span>
                                                     @endif
                                                 </td>
-                                                <td>{{ $lead->created_at->format('d M, Y') }}</td>
+                                                <td>{{ $lead->created_at->format('d M, y') }}</td>
                                                 <td>
                                                     @php
                                                         $employee = Auth::user();
@@ -276,7 +300,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="{{ $canEditLeads ? 8 : 7 }}"
+                                                <td colspan="{{ $canEditLeads ? 10 : 9 }}"
                                                     class="text-center">No leads found</td>
                                             </tr>
                                         @endforelse
@@ -516,12 +540,12 @@
                         </div>
 
                         <div class="mb-4 border rounded-3 p-3">
-                            <h6 class="text-uppercase text-muted small fw-semibold mb-3">Assignment</h6>
+                            <h6 class="text-uppercase text-muted small fw-semibold mb-3">Assignee</h6>
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Assign To</label>
                                     <select name="assigned_user_id" class="form-select form-select-sm">
-                                        <option value="">-- Select Employee --</option>
+                                        <option value="">-- Select Responsible Person --</option>
                                         @foreach ($employees as $employee)
                                             <option value="{{ $employee->id }}" data-user-id="{{ $employee->id }}"
                                                 data-user-email="{{ $employee->email ?? '' }}"
@@ -702,7 +726,7 @@
 
                         <!-- Assignment -->
                         <div class="mb-4 border rounded-3 p-3">
-                            <h6 class="text-uppercase text-muted small fw-semibold mb-3">Assignment</h6>
+                            <h6 class="text-uppercase text-muted small fw-semibold mb-3">Assignee</h6>
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Assign To</label>

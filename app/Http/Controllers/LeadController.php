@@ -6,13 +6,10 @@ use App\Models\Destination;
 use App\Models\Lead;
 use App\Models\Service;
 use App\Models\User;
+
 use App\Models\LeadHistory;
 use App\Models\LeadRemark;
 use App\Models\VendorPayment;
-use App\Models\BookingArrivalDeparture;
-use App\Models\BookingDestination;
-use App\Models\BookingAccommodation;
-use App\Models\BookingItinerary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -43,22 +40,14 @@ class LeadController extends Controller
     {
         $employee = Auth::user();
         $role = $employee->role ?? $employee->getRoleNameAttribute();
-
+        
         if (!$role) {
             return false;
         }
-
-        $nonSalesDepartments = [
-            'Operation',
-            'Operation Manager',
-            'Delivery',
-            'Delivery Manager',
-            'Post Sales',
-            'Post Sales Manager',
-            'Accounts',
-            'Accounts Manager'
-        ];
-
+        
+        $nonSalesDepartments = ['Operation', 'Operation Manager', 'Delivery', 'Delivery Manager', 
+                                'Post Sales', 'Post Sales Manager', 'Accounts', 'Accounts Manager'];
+        
         return in_array($role, $nonSalesDepartments);
     }
 
@@ -78,45 +67,41 @@ class LeadController extends Controller
         $filters = [
             'status' => $request->input('status'),
             'search' => $request->input('search'),
+            'service_id' => $request->input('service_id'),
+            'destination_id' => $request->input('destination_id'),
         ];
 
         $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'remarks' => function ($q) {
             $q->orderBy('created_at', 'desc')->limit(1);
         }])->orderBy('created_at', 'desc');
 
-        $currentUser = Auth::user();
-        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer');
-        $userRole = $currentUser->role ?? $currentUser->getRoleNameAttribute();
-        $userDepartment = $currentUser->department;
+        // Default to 'booked' status if no status filter is provided
+        if (empty($filters['status'])) {
+            $leadsQuery->where('status', 'booked');
+            $filters['status'] = 'booked';
+        }
 
-        // Filter leads based on user role
-        if ($isAdmin) {
-            // Admin/Developer: Show all leads assigned to Sales users
-            $salesUserIds = User::where(function ($query) {
-                $query->where('department', 'Sales')
-                    ->orWhere('role', 'Sales')
-                    ->orWhere('role', 'Sales Manager');
-            })->pluck('id');
-            
-            $leadsQuery->whereIn('assigned_user_id', $salesUserIds);
-        } elseif ($userRole === 'Sales' || $userDepartment === 'Sales' || $userRole === 'Sales Manager') {
-            // Sales users: Show only their own assigned leads
-            $userId = $this->getCurrentUserId();
-            if ($userId) {
-                $leadsQuery->where('assigned_user_id', $userId);
-            }
-        } else {
-            // Other users: Use existing logic (filter by assigned user if not admin/manager)
+        // Filter by assigned user if not admin/manager
         if (!$this->canSeeAllLeads()) {
             $userId = $this->getCurrentUserId();
             if ($userId) {
-                $leadsQuery->where('assigned_user_id', $userId);
-                }
+                $leadsQuery->where(function ($query) use ($userId) {
+                    $query->where('assigned_user_id', $userId)
+                        ->orWhere('reassigned_to', $userId);
+                });
             }
         }
 
         if (!empty($filters['status'])) {
             $leadsQuery->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['service_id'])) {
+            $leadsQuery->where('service_id', $filters['service_id']);
+        }
+
+        if (!empty($filters['destination_id'])) {
+            $leadsQuery->where('destination_id', $filters['destination_id']);
         }
 
         if (!empty($filters['search'])) {
@@ -168,40 +153,18 @@ class LeadController extends Controller
         // Only show booked leads
         $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'remarks' => function ($q) {
             $q->orderBy('created_at', 'desc')->limit(1);
-        }, 'bookingFileRemarks' => function ($q) {
-            $q->orderBy('created_at', 'desc')->limit(1)->with('user');
         }])
             ->where('status', 'booked')
             ->orderBy('created_at', 'desc');
 
-        $currentUser = Auth::user();
-        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer');
-        $userRole = $currentUser->role ?? $currentUser->getRoleNameAttribute();
-        $userDepartment = $currentUser->department;
-
-        // Filter booking files based on user role
-        if ($isAdmin) {
-            // Admin/Developer: Show all booked leads assigned to Sales users
-            $salesUserIds = User::where(function ($query) {
-                $query->where('department', 'Sales')
-                    ->orWhere('role', 'Sales')
-                    ->orWhere('role', 'Sales Manager');
-            })->pluck('id');
-            
-            $leadsQuery->whereIn('assigned_user_id', $salesUserIds);
-        } elseif ($userRole === 'Sales' || $userDepartment === 'Sales' || $userRole === 'Sales Manager') {
-            // Sales users: Show only their own assigned booking files
-            $userId = $this->getCurrentUserId();
-            if ($userId) {
-                $leadsQuery->where('assigned_user_id', $userId);
-            }
-        } else {
-            // Other users: Use existing logic (filter by assigned user if not admin/manager)
+        // Filter by assigned user if not admin/manager
         if (!$this->canSeeAllLeads()) {
             $userId = $this->getCurrentUserId();
             if ($userId) {
-                $leadsQuery->where('assigned_user_id', $userId);
-                }
+                $leadsQuery->where(function ($query) use ($userId) {
+                    $query->where('assigned_user_id', $userId)
+                        ->orWhere('reassigned_to', $userId);
+                });
             }
         }
 
@@ -225,10 +188,9 @@ class LeadController extends Controller
         $leads = $leadsQuery->paginate(25);
         $leads->appends($request->query());
 
-        // Add latest remark and booking file remark to each lead
+        // Add latest remark to each lead
         $leads->getCollection()->transform(function ($lead) {
             $lead->latest_remark = $lead->remarks->first();
-            $lead->latest_booking_file_remark = $lead->bookingFileRemarks->first();
             return $lead;
         });
 
@@ -261,21 +223,28 @@ class LeadController extends Controller
             'bookingArrivalDepartures',
             'bookingAccommodations',
             'bookingItineraries',
-            'vendorPayments'
+            'vendorPayments',
+            'postSalesUser',
+            'operationsUser',
+            'ticketingUser',
+            'visaUser',
+            'insuranceUser',
+            'accountantUser',
+            'deliveryUser'
         ]);
 
         $employees = User::whereNotNull('user_id')->orderBy('name')->get();
         $destinations = \App\Models\Destination::with('locations')->orderBy('name')->get();
-
+        
         // Check if user is from non-Sales department (Operation, Delivery, Post Sales, Accounts)
         // These users should only view booking file in read-only mode
         $isViewOnly = $this->isNonSalesDepartment();
-
+        
         // Determine back URL based on employee department and referrer
         $backUrl = route('bookings.index');
         $employee = Auth::user();
         $role = $employee->role ?? $employee->getRoleNameAttribute();
-
+        
         // Check referrer or user department to determine back URL
         $referrer = request()->header('referer');
         if ($role && in_array($role, ['Operation', 'Operation Manager'])) {
@@ -311,16 +280,11 @@ class LeadController extends Controller
         } else {
             $customerPaymentState = 'partial';   // partially received
         }
-
+        
         // Check if employee is from Ops department
         $employee = Auth::user();
         $role = $employee->role ?? $employee->getRoleNameAttribute();
         $isOpsDept = $role && in_array($role, ['Operation', 'Operation Manager']);
-
-        // Get stage info for current user's department
-        $userDepartment = $this->getUserDepartment();
-        $stageInfo = $this->getDepartmentStages($userDepartment);
-        $currentStage = $lead->{$stageInfo['stage_key']} ?? 'Pending';
 
         return view('booking.booking-form', [
             'lead' => $lead,
@@ -330,8 +294,6 @@ class LeadController extends Controller
             'backUrl' => $backUrl,
             'vendorPayments' => $vendorPayments,
             'isOpsDept' => $isOpsDept,
-            'stageInfo' => $stageInfo,
-            'currentStage' => $currentStage,
             'customerPaymentState' => $customerPaymentState,
             'totalCustomerReceived' => $totalReceived,
         ]);
@@ -378,14 +340,14 @@ class LeadController extends Controller
         $data['children_2_5'] = $data['children_2_5'] ?? 0;
         $data['children_6_11'] = $data['children_6_11'] ?? 0;
         $data['children'] = ($data['children_2_5'] ?? 0) + ($data['children_6_11'] ?? 0);
-
+        
         // Map employee ID to user ID
         if (!empty($data['assigned_employee_id'])) {
             $employee = User::find($data['assigned_employee_id']);
             if ($employee && $employee->user_id) {
-                // Try to find user by user_id or email
-                $user = User::where('email', $employee->email)
-                    ->orWhere('user_id', $employee->user_id)
+                // Try to find user by user_id or login_work_email
+                $user = User::where('email', $employee->login_work_email)
+                    ->orWhere('email', $employee->user_id)
                     ->first();
                 if ($user) {
                     $data['assigned_user_id'] = $user->id;
@@ -477,8 +439,8 @@ class LeadController extends Controller
                     'follow_up_at' => $nextFollowUpRemark->follow_up_at ? $nextFollowUpRemark->follow_up_at->format('Y-m-d H:i:s') : null,
                     'follow_up_date' => $nextFollowUpRemark->follow_up_at ? $nextFollowUpRemark->follow_up_at->format('d M, Y') : null,
                     'follow_up_time' => $nextFollowUpRemark->follow_up_at ? $nextFollowUpRemark->follow_up_at->format('h:i A') : null,
-                    'remark' =>
-                    strlen($nextFollowUpRemark->remark) > 120 ? substr($nextFollowUpRemark->remark, 0, 120) . '...' : $nextFollowUpRemark->remark,
+                    'remark' => 
+                        strlen($nextFollowUpRemark->remark) > 120 ? substr($nextFollowUpRemark->remark, 0, 120) . '...' : $nextFollowUpRemark->remark,
                 ];
             }
 
@@ -573,7 +535,14 @@ class LeadController extends Controller
             $request->has('booking_surface_transports') ||
             $request->has('booking_sea_transports') ||
             $request->has('booking_accommodations') ||
-            $request->has('booking_itineraries');
+            $request->has('booking_itineraries') ||
+        $request->has('post_sales_user_id') ||
+        $request->has('operations_user_id') ||
+        $request->has('ticketing_user_id') ||
+        $request->has('visa_user_id') ||
+        $request->has('insurance_user_id') ||
+        $request->has('accountant_user_id') ||
+        $request->has('delivery_user_id');
 
         if ($isBookingForm) {
             // For booking form, validate and update reassigned_to, selling_price and booking-related fields
@@ -581,6 +550,13 @@ class LeadController extends Controller
                 'reassigned_employee_id' => 'nullable|exists:users,id',
                 'reassigned_to' => 'nullable|exists:users,id', // Keep for backward compatibility
                 'selling_price' => 'nullable|numeric|min:0',
+                'post_sales_user_id' => 'nullable|exists:users,id',
+                'operations_user_id' => 'nullable|exists:users,id',
+                'ticketing_user_id' => 'nullable|exists:users,id',
+                'visa_user_id' => 'nullable|exists:users,id',
+                'insurance_user_id' => 'nullable|exists:users,id',
+                'accountant_user_id' => 'nullable|exists:users,id',
+                'delivery_user_id' => 'nullable|exists:users,id',
             ]);
 
             // Map employee ID to user ID if provided
@@ -588,8 +564,8 @@ class LeadController extends Controller
             if (!empty($validated['reassigned_employee_id'])) {
                 $employee = User::find($validated['reassigned_employee_id']);
                 if ($employee && $employee->user_id) {
-                    $user = User::where('email', $employee->email)
-                        ->orWhere('user_id', $employee->user_id)
+                    $user = User::where('email', $employee->login_work_email)
+                        ->orWhere('email', $employee->user_id)
                         ->first();
                     if ($user) {
                         $userId = $user->id;
@@ -607,6 +583,23 @@ class LeadController extends Controller
             if (isset($validated['selling_price'])) {
                 $updateData['selling_price'] = $validated['selling_price'];
             }
+
+            // Add department assignments to updateData
+            $deptFields = [
+                'post_sales_user_id',
+                'operations_user_id',
+                'ticketing_user_id',
+                'visa_user_id',
+                'insurance_user_id',
+                'accountant_user_id',
+                'delivery_user_id'
+            ];
+            foreach ($deptFields as $field) {
+                if ($request->has($field)) {
+                    $updateData[$field] = $validated[$field];
+                }
+            }
+
             if (!empty($updateData)) {
                 $lead->update($updateData);
             }
@@ -651,13 +644,13 @@ class LeadController extends Controller
                 if ($assignedEmployee && $assignedEmployee->user_id) {
                     // Find or create user record for database compatibility
                     $user = User::where('user_id', $assignedEmployee->user_id)
-                        ->orWhere('email', $assignedEmployee->email)
+                        ->orWhere('email', $assignedEmployee->login_work_email)
                         ->first();
                     if (!$user) {
                         // Create user record if it doesn't exist
                         $user = User::create([
                             'name' => $assignedEmployee->name,
-                            'email' => $assignedEmployee->email ?? $assignedEmployee->user_id . '@travelshravel.com',
+                            'email' => $assignedEmployee->login_work_email ?? $assignedEmployee->user_id . '@travelshravel.com',
                             'password' => $assignedEmployee->password,
                             'user_id' => $assignedEmployee->user_id,
                             'role' => $assignedEmployee->role ?? 'Sales',
@@ -675,8 +668,8 @@ class LeadController extends Controller
             if (!empty($validated['reassigned_employee_id'])) {
                 $employee = User::find($validated['reassigned_employee_id']);
                 if ($employee && $employee->user_id) {
-                    $user = User::where('email', $employee->email)
-                        ->orWhere('user_id', $employee->user_id)
+                    $user = User::where('email', $employee->login_work_email)
+                        ->orWhere('email', $employee->user_id)
                         ->first();
                     if ($user) {
                         $validated['reassigned_to'] = $user->id;
@@ -838,12 +831,6 @@ class LeadController extends Controller
                         'room_type' => $accommodationData['room_type'] ?? null,
                         'meal_plan' => $accommodationData['meal_plan'] ?? null,
                         'booking_status' => $accommodationData['booking_status'] ?? 'Pending',
-                        'single_room' => $accommodationData['single_room'] ?? 0,
-                        'dbl_room' => $accommodationData['dbl_room'] ?? 0,
-                        'quad_room' => $accommodationData['quad_room'] ?? 0,
-                        'eba' => $accommodationData['eba'] ?? 0,
-                        'cwb' => $accommodationData['cwb'] ?? 0,
-                        'inf' => $accommodationData['inf'] ?? 0,
                     ]);
                 }
             }
@@ -898,7 +885,7 @@ class LeadController extends Controller
 
         // Set booked_by and booked_on if status is changing to booked
         if ($validated['status'] === 'booked' && $oldStatus !== 'booked') {
-            $updateData['booked_by'] = $this->getCurrentUserId();
+                $updateData['booked_by'] = $this->getCurrentUserId();
             $updateData['booked_on'] = now();
         }
 
@@ -917,13 +904,13 @@ class LeadController extends Controller
         ]);
 
         $userId = null;
-
+        
         // If employee_id is provided, map it to user_id
         if (!empty($validated['assigned_employee_id'])) {
             $employee = User::find($validated['assigned_employee_id']);
             if ($employee && $employee->user_id) {
-                $user = User::where('email', $employee->email)
-                    ->orWhere('user_id', $employee->user_id)
+                $user = User::where('email', $employee->login_work_email)
+                    ->orWhere('email', $employee->user_id)
                     ->first();
                 if ($user) {
                     $userId = $user->id;
@@ -961,45 +948,58 @@ class LeadController extends Controller
     {
         $validated = $request->validate([
             'reassigned_employee_id' => 'nullable|exists:users,id',
-            'reassigned_user_id' => 'nullable|exists:users,id',
-            'assigned_employee_id' => 'nullable|exists:users,id',
             'reassigned_to' => 'nullable|exists:users,id', // Keep for backward compatibility
+            'post_sales_user_id' => 'nullable|exists:users,id',
+            'operations_user_id' => 'nullable|exists:users,id',
+            'ticketing_user_id' => 'nullable|exists:users,id',
+            'visa_user_id' => 'nullable|exists:users,id',
+            'insurance_user_id' => 'nullable|exists:users,id',
+            'accountant_user_id' => 'nullable|exists:users,id',
+            'delivery_user_id' => 'nullable|exists:users,id',
         ]);
 
+        $updateData = [];
         $userId = null;
 
         // If employee_id is provided, map it to user_id
-        if (!empty($validated['reassigned_employee_id']) || !empty($validated['assigned_employee_id'])) {
-            $employeeId = $validated['reassigned_employee_id'] ?? $validated['assigned_employee_id'];
-            $employee = User::find($employeeId);
+        if (!empty($validated['reassigned_employee_id'])) {
+            $employee = User::find($validated['reassigned_employee_id']);
             if ($employee && $employee->user_id) {
-                $user = User::where('email', $employee->email)
-                    ->orWhere('user_id', $employee->user_id)
+                $user = User::where('email', $employee->login_work_email)
+                    ->orWhere('email', $employee->user_id)
                     ->first();
                 if ($user) {
                     $userId = $user->id;
                 }
+            } else {
+                // If it's a simple User model with no complex mapping needed
+                $userId = $validated['reassigned_employee_id'];
             }
-        } elseif (!empty($validated['reassigned_user_id'])) {
-            // If user_id is provided directly
-            $userId = $validated['reassigned_user_id'];
         } elseif (!empty($validated['reassigned_to'])) {
             // Backward compatibility: if user_id is provided directly
             $userId = $validated['reassigned_to'];
         }
 
-        if (!$userId) {
-            return redirect()->back()->with('error', 'Invalid employee or user selected.');
+        if ($userId) {
+            $updateData['reassigned_to'] = $userId;
         }
 
-        // Update assigned_user_id instead of reassigned_to
-        $oldAssignedUser = $lead->assignedUser;
-        $lead->update([
-            'assigned_user_id' => $userId,
-        ]);
-        $newAssignedUser = $lead->fresh()->assignedUser;
+        // Add department assignments to update data
+        if ($request->has('post_sales_user_id')) $updateData['post_sales_user_id'] = $validated['post_sales_user_id'];
+        if ($request->has('operations_user_id')) $updateData['operations_user_id'] = $validated['operations_user_id'];
+        if ($request->has('ticketing_user_id')) $updateData['ticketing_user_id'] = $validated['ticketing_user_id'];
+        if ($request->has('visa_user_id')) $updateData['visa_user_id'] = $validated['visa_user_id'];
+        if ($request->has('insurance_user_id')) $updateData['insurance_user_id'] = $validated['insurance_user_id'];
+        if ($request->has('accountant_user_id')) $updateData['accountant_user_id'] = $validated['accountant_user_id'];
+        if ($request->has('delivery_user_id')) $updateData['delivery_user_id'] = $validated['delivery_user_id'];
 
-        return redirect()->back()->with('success', 'Lead reassigned successfully!');
+        if (empty($updateData)) {
+            return redirect()->back()->with('error', 'No changes provided.');
+        }
+
+        $lead->update($updateData);
+
+        return redirect()->back()->with('success', 'Lead reassigned and departments updated successfully!');
     }
 
     public function bulkAssign(Request $request)
@@ -1013,13 +1013,13 @@ class LeadController extends Controller
 
         $leadIds = $validated['lead_ids'];
         $userId = null;
-
+        
         // If employee_id is provided, map it to user_id
         if (!empty($validated['assigned_employee_id'])) {
             $employee = User::find($validated['assigned_employee_id']);
             if ($employee && $employee->user_id) {
-                $user = User::where('email', $employee->email)
-                    ->orWhere('user_id', $employee->user_id)
+                $user = User::where('email', $employee->login_work_email)
+                    ->orWhere('email', $employee->user_id)
                     ->first();
                 if ($user) {
                     $userId = $user->id;
@@ -1089,39 +1089,29 @@ class LeadController extends Controller
             'pending_amount' => $validated['purchase_cost'],
         ]);
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Vendor payment added successfully',
-                'vendor_payment' => $vendorPayment,
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Vendor payment added successfully');
+        return response()->json([
+            'success' => true,
+            'message' => 'Vendor payment added successfully',
+            'vendor_payment' => $vendorPayment,
+        ]);
     }
 
     public function updateVendorPayment(Request $request, Lead $lead, VendorPayment $vendorPayment)
     {
         // Verify vendor payment belongs to lead
         if ($vendorPayment->lead_id !== $lead->id) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Vendor payment not found',
-                ], 404);
-            }
-            return redirect()->back()->with('error', 'Vendor payment not found');
+            return response()->json([
+                'success' => false,
+                'message' => 'Vendor payment not found',
+            ], 404);
         }
 
         // Only Operations team (or Admin) should update via this endpoint
         if (! $request->user()->hasAnyRole(['Admin', 'Operation', 'Operation Manager'])) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized',
-                ], 403);
-            }
-            return redirect()->back()->with('error', 'Unauthorized');
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 403);
         }
 
         $validated = $request->validate([
@@ -1144,15 +1134,11 @@ class LeadController extends Controller
             'pending_amount' => $validated['purchase_cost'] - ($vendorPayment->paid_amount ?? 0),
         ]);
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Vendor payment updated successfully',
-                'vendor_payment' => $vendorPayment->fresh(),
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Vendor payment updated successfully');
+        return response()->json([
+            'success' => true,
+            'message' => 'Vendor payment updated successfully',
+            'vendor_payment' => $vendorPayment->fresh(),
+        ]);
     }
 
     public function destroyVendorPayment(Request $request, Lead $lead, VendorPayment $vendorPayment)
@@ -1171,561 +1157,5 @@ class LeadController extends Controller
             'success' => true,
             'message' => 'Vendor payment deleted successfully',
         ]);
-    }
-
-    /**
-     * Store a new arrival/departure record
-     */
-    public function storeBookingArrivalDeparture(Request $request, Lead $lead)
-    {
-        $validated = $request->validate([
-            'mode' => 'required|string|max:255',
-            'info' => 'nullable|string|max:255',
-            'from_city' => 'required|string|max:255',
-            'to_city' => 'required|string|max:255',
-            'departure_date' => 'required|date',
-            'departure_time' => 'nullable|string|max:255',
-            'arrival_date' => 'required|date',
-            'arrival_time' => 'nullable|string|max:255',
-        ]);
-
-        $arrivalDeparture = $lead->bookingArrivalDepartures()->create([
-            'mode' => $validated['mode'],
-            'info' => $validated['info'] ?? null,
-            'from_city' => $validated['from_city'],
-            'to_city' => $validated['to_city'],
-            'departure_date' => $validated['departure_date'],
-            'departure_time' => $validated['departure_time'] ?? null,
-            'arrival_date' => $validated['arrival_date'],
-            'arrival_time' => $validated['arrival_time'] ?? null,
-        ]);
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Arrival/Departure added successfully',
-                'arrival_departure' => $arrivalDeparture,
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Arrival/Departure added successfully');
-    }
-
-    /**
-     * Update an existing arrival/departure record
-     */
-    public function updateBookingArrivalDeparture(Request $request, Lead $lead, BookingArrivalDeparture $arrivalDeparture)
-    {
-        // Verify arrival/departure belongs to lead
-        if ($arrivalDeparture->lead_id !== $lead->id) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Arrival/Departure record not found',
-                ], 404);
-            }
-            return redirect()->back()->with('error', 'Arrival/Departure record not found');
-        }
-
-        $validated = $request->validate([
-            'mode' => 'required|string|max:255',
-            'info' => 'nullable|string|max:255',
-            'from_city' => 'required|string|max:255',
-            'to_city' => 'required|string|max:255',
-            'departure_date' => 'required|date',
-            'departure_time' => 'nullable|string|max:255',
-            'arrival_date' => 'required|date',
-            'arrival_time' => 'nullable|string|max:255',
-        ]);
-
-        $arrivalDeparture->update([
-            'mode' => $validated['mode'],
-            'info' => $validated['info'] ?? null,
-            'from_city' => $validated['from_city'],
-            'to_city' => $validated['to_city'],
-            'departure_date' => $validated['departure_date'],
-            'departure_time' => $validated['departure_time'] ?? null,
-            'arrival_date' => $validated['arrival_date'],
-            'arrival_time' => $validated['arrival_time'] ?? null,
-        ]);
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Arrival/Departure updated successfully',
-                'arrival_departure' => $arrivalDeparture->fresh(),
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Arrival/Departure updated successfully');
-    }
-
-    /**
-     * Delete an arrival/departure record
-     */
-    public function destroyBookingArrivalDeparture(Request $request, Lead $lead, BookingArrivalDeparture $arrivalDeparture)
-    {
-        // Verify arrival/departure belongs to lead
-        if ($arrivalDeparture->lead_id !== $lead->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Arrival/Departure record not found',
-            ], 404);
-        }
-
-        $arrivalDeparture->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Arrival/Departure deleted successfully',
-        ]);
-    }
-
-    /**
-     * Store a new booking destination record
-     */
-    public function storeBookingDestination(Request $request, Lead $lead)
-    {
-        // Handle both form data and JSON
-        $serviceType = $request->input('service_type');
-        $onlyHotel = ($serviceType === 'only_hotel') ? 1 : 0;
-        $onlyTT = ($serviceType === 'only_tt') ? 1 : 0;
-        $hotelTT = ($serviceType === 'hotel_tt') ? 1 : 0;
-
-        $validated = $request->validate([
-            'destination' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
-            'service_type' => 'nullable|string|in:only_hotel,only_tt,hotel_tt',
-            'only_hotel' => 'nullable|integer|in:0,1',
-            'only_tt' => 'nullable|integer|in:0,1',
-            'hotel_tt' => 'nullable|integer|in:0,1',
-            'from_date' => 'required|date',
-            'to_date' => 'required|date',
-        ]);
-
-        // Use service_type if provided, otherwise use individual flags
-        $finalOnlyHotel = $serviceType === 'only_hotel' ? 1 : ($validated['only_hotel'] ?? 0);
-        $finalOnlyTT = $serviceType === 'only_tt' ? 1 : ($validated['only_tt'] ?? 0);
-        $finalHotelTT = $serviceType === 'hotel_tt' ? 1 : ($validated['hotel_tt'] ?? 0);
-
-        // Calculate number of days
-        $fromDate = new \DateTime($validated['from_date']);
-        $toDate = new \DateTime($validated['to_date']);
-        $diff = $fromDate->diff($toDate);
-        $noOfDays = $diff->days;
-
-        $bookingDestination = $lead->bookingDestinations()->create([
-            'destination' => $validated['destination'],
-            'location' => $validated['location'],
-            'only_hotel' => (bool)$finalOnlyHotel,
-            'only_tt' => (bool)$finalOnlyTT,
-            'hotel_tt' => (bool)$finalHotelTT,
-            'from_date' => $validated['from_date'],
-            'to_date' => $validated['to_date'],
-            'no_of_days' => $noOfDays,
-        ]);
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Destination added successfully',
-                'booking_destination' => $bookingDestination,
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Destination added successfully');
-    }
-
-    /**
-     * Update an existing booking destination record
-     */
-    public function updateBookingDestination(Request $request, Lead $lead, BookingDestination $bookingDestination)
-    {
-        // Verify booking destination belongs to lead
-        if ($bookingDestination->lead_id !== $lead->id) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Booking destination not found',
-                ], 404);
-            }
-            return redirect()->back()->with('error', 'Booking destination not found');
-        }
-
-        // Handle both form data and JSON
-        $serviceType = $request->input('service_type');
-        $onlyHotel = ($serviceType === 'only_hotel') ? 1 : 0;
-        $onlyTT = ($serviceType === 'only_tt') ? 1 : 0;
-        $hotelTT = ($serviceType === 'hotel_tt') ? 1 : 0;
-
-        $validated = $request->validate([
-            'destination' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
-            'service_type' => 'nullable|string|in:only_hotel,only_tt,hotel_tt',
-            'only_hotel' => 'nullable|integer|in:0,1',
-            'only_tt' => 'nullable|integer|in:0,1',
-            'hotel_tt' => 'nullable|integer|in:0,1',
-            'from_date' => 'required|date',
-            'to_date' => 'required|date',
-        ]);
-
-        // Use service_type if provided, otherwise use individual flags
-        $finalOnlyHotel = $serviceType === 'only_hotel' ? 1 : ($validated['only_hotel'] ?? 0);
-        $finalOnlyTT = $serviceType === 'only_tt' ? 1 : ($validated['only_tt'] ?? 0);
-        $finalHotelTT = $serviceType === 'hotel_tt' ? 1 : ($validated['hotel_tt'] ?? 0);
-
-        // Calculate number of days
-        $fromDate = new \DateTime($validated['from_date']);
-        $toDate = new \DateTime($validated['to_date']);
-        $diff = $fromDate->diff($toDate);
-        $noOfDays = $diff->days;
-
-        $bookingDestination->update([
-            'destination' => $validated['destination'],
-            'location' => $validated['location'],
-            'only_hotel' => (bool)$finalOnlyHotel,
-            'only_tt' => (bool)$finalOnlyTT,
-            'hotel_tt' => (bool)$finalHotelTT,
-            'from_date' => $validated['from_date'],
-            'to_date' => $validated['to_date'],
-            'no_of_days' => $noOfDays,
-        ]);
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Destination updated successfully',
-                'booking_destination' => $bookingDestination->fresh(),
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Destination updated successfully');
-    }
-
-    /**
-     * Delete a booking destination record
-     */
-    public function destroyBookingDestination(Request $request, Lead $lead, BookingDestination $bookingDestination)
-    {
-        // Verify booking destination belongs to lead
-        if ($bookingDestination->lead_id !== $lead->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Booking destination not found',
-            ], 404);
-        }
-
-        $bookingDestination->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Destination deleted successfully',
-        ]);
-    }
-
-    /**
-     * Store a new booking accommodation record
-     */
-    public function storeBookingAccommodation(Request $request, Lead $lead)
-    {
-        $validated = $request->validate([
-            'destination' => 'nullable|string|max:255',
-            'location' => 'nullable|string|max:255',
-            'stay_at' => 'nullable|string|max:255',
-            'checkin_date' => 'nullable|date',
-            'checkout_date' => 'nullable|date',
-            'room_type' => 'nullable|string',
-            'meal_plan' => 'nullable|string|in:EP,CP,MAP,AP,AI',
-            'booking_status' => 'nullable|string|in:Pending,In Progress,Complete',
-            'single_room' => 'nullable|integer|min:0',
-            'dbl_room' => 'nullable|integer|min:0',
-            'quad_room' => 'nullable|integer|min:0',
-            'eba' => 'nullable|integer|min:0',
-            'cwb' => 'nullable|integer|min:0',
-            'inf' => 'nullable|integer|min:0',
-        ]);
-
-        // Database enum only allows: CP, MAP, AP, AI (not EP)
-        // Set EP to null since it's not in the database enum
-        $mealPlan = $validated['meal_plan'] ?? null;
-        if ($mealPlan === 'EP') {
-            $mealPlan = null;
-        }
-
-        $accommodation = $lead->bookingAccommodations()->create([
-            'destination' => $validated['destination'] ?? null,
-            'location' => $validated['location'] ?? null,
-            'stay_at' => $validated['stay_at'] ?? null,
-            'checkin_date' => $validated['checkin_date'] ?? null,
-            'checkout_date' => $validated['checkout_date'] ?? null,
-            'room_type' => $validated['room_type'] ?? null,
-            'meal_plan' => $mealPlan,
-            'booking_status' => $validated['booking_status'] ?? 'Pending',
-            'single_room' => $validated['single_room'] ?? 0,
-            'dbl_room' => $validated['dbl_room'] ?? 0,
-            'quad_room' => $validated['quad_room'] ?? 0,
-            'eba' => $validated['eba'] ?? 0,
-            'cwb' => $validated['cwb'] ?? 0,
-            'inf' => $validated['inf'] ?? 0,
-        ]);
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Accommodation added successfully',
-                'accommodation' => $accommodation,
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Accommodation added successfully');
-    }
-
-    /**
-     * Update an existing booking accommodation record
-     */
-    public function updateBookingAccommodation(Request $request, Lead $lead, BookingAccommodation $accommodation)
-    {
-        // Verify accommodation belongs to lead
-        if ($accommodation->lead_id !== $lead->id) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Accommodation not found',
-                ], 404);
-            }
-            return redirect()->back()->with('error', 'Accommodation not found');
-        }
-
-        $validated = $request->validate([
-            'destination' => 'nullable|string|max:255',
-            'location' => 'nullable|string|max:255',
-            'stay_at' => 'nullable|string|max:255',
-            'checkin_date' => 'nullable|date',
-            'checkout_date' => 'nullable|date',
-            'room_type' => 'nullable|string',
-            'meal_plan' => 'nullable|string|in:EP,CP,MAP,AP,AI',
-            'booking_status' => 'nullable|string|in:Pending,In Progress,Complete',
-            'single_room' => 'nullable|integer|min:0',
-            'dbl_room' => 'nullable|integer|min:0',
-            'quad_room' => 'nullable|integer|min:0',
-            'eba' => 'nullable|integer|min:0',
-            'cwb' => 'nullable|integer|min:0',
-            'inf' => 'nullable|integer|min:0',
-        ]);
-
-        // Database enum only allows: CP, MAP, AP, AI (not EP)
-        // Set EP to null since it's not in the database enum
-        $mealPlan = $validated['meal_plan'] ?? null;
-        if ($mealPlan === 'EP') {
-            $mealPlan = null;
-        }
-
-        $accommodation->update([
-            'destination' => $validated['destination'] ?? null,
-            'location' => $validated['location'] ?? null,
-            'stay_at' => $validated['stay_at'] ?? null,
-            'checkin_date' => $validated['checkin_date'] ?? null,
-            'checkout_date' => $validated['checkout_date'] ?? null,
-            'room_type' => $validated['room_type'] ?? null,
-            'meal_plan' => $mealPlan,
-            'booking_status' => $validated['booking_status'] ?? 'Pending',
-            'single_room' => $validated['single_room'] ?? 0,
-            'dbl_room' => $validated['dbl_room'] ?? 0,
-            'quad_room' => $validated['quad_room'] ?? 0,
-            'eba' => $validated['eba'] ?? 0,
-            'cwb' => $validated['cwb'] ?? 0,
-            'inf' => $validated['inf'] ?? 0,
-        ]);
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Accommodation updated successfully',
-                'accommodation' => $accommodation->fresh(),
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Accommodation updated successfully');
-    }
-
-    /**
-     * Delete a booking accommodation record
-     */
-    public function destroyBookingAccommodation(Request $request, Lead $lead, BookingAccommodation $accommodation)
-    {
-        // Verify accommodation belongs to lead
-        if ($accommodation->lead_id !== $lead->id) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Accommodation not found',
-                ], 404);
-            }
-            return redirect()->back()->with('error', 'Accommodation not found');
-        }
-
-        $accommodation->delete();
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Accommodation deleted successfully',
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Accommodation deleted successfully');
-    }
-
-    /**
-     * Store a new booking itinerary record
-     */
-    public function storeBookingItinerary(Request $request, Lead $lead)
-    {
-        $validated = $request->validate([
-            'day_and_date' => 'nullable|string|max:255',
-            'time' => 'nullable|string',
-            'service_type' => 'nullable|string|max:255',
-            'location' => 'nullable|string|max:255',
-            'activity_tour_description' => 'nullable|string',
-            'stay_at' => 'nullable|string|max:255',
-            'sure' => 'nullable|string|in:Y,N',
-            'remarks' => 'nullable|string',
-        ]);
-
-        $itinerary = $lead->bookingItineraries()->create([
-            'day_and_date' => $validated['day_and_date'] ?? null,
-            'time' => $validated['time'] ?? null,
-            'service_type' => $validated['service_type'] ?? null,
-            'location' => $validated['location'] ?? null,
-            'activity_tour_description' => $validated['activity_tour_description'] ?? null,
-            'stay_at' => $validated['stay_at'] ?? null,
-            'sure' => $validated['sure'] ?? null,
-            'remarks' => $validated['remarks'] ?? null,
-        ]);
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Itinerary added successfully',
-                'itinerary' => $itinerary,
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Itinerary added successfully');
-    }
-
-    /**
-     * Update an existing booking itinerary record
-     */
-    public function updateStages(Request $request, Lead $lead)
-    {
-        $validated = $request->validate([
-            'stage' => 'required|string|max:255',
-        ]);
-
-        // Get user's department and determine which stage field to update
-        $userDepartment = $this->getUserDepartment();
-        $stageInfo = $this->getDepartmentStages($userDepartment);
-        $stageKey = $stageInfo['stage_key'];
-
-        // Validate that the stage is in the allowed list for this department
-        if (!in_array($validated['stage'], $stageInfo['stages'])) {
-            if ($request->expectsJson() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid stage for your department',
-                ], 422);
-            }
-            return redirect()->back()->with('error', 'Invalid stage for your department');
-        }
-
-        // Update the appropriate stage field
-        $lead->update([
-            $stageKey => $validated['stage']
-        ]);
-
-        if ($request->expectsJson() || $request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Stage updated successfully!',
-                'stage' => $validated['stage']
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Stage updated successfully!');
-    }
-
-    public function updateBookingItinerary(Request $request, Lead $lead, BookingItinerary $itinerary)
-    {
-        // Verify itinerary belongs to lead
-        if ($itinerary->lead_id !== $lead->id) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Itinerary not found',
-                ], 404);
-            }
-            return redirect()->back()->with('error', 'Itinerary not found');
-        }
-
-        $validated = $request->validate([
-            'day_and_date' => 'nullable|string|max:255',
-            'time' => 'nullable|string',
-            'service_type' => 'nullable|string|max:255',
-            'location' => 'nullable|string|max:255',
-            'activity_tour_description' => 'nullable|string',
-            'stay_at' => 'nullable|string|max:255',
-            'sure' => 'nullable|string|in:Y,N',
-            'remarks' => 'nullable|string',
-        ]);
-
-        $itinerary->update([
-            'day_and_date' => $validated['day_and_date'] ?? null,
-            'time' => $validated['time'] ?? null,
-            'service_type' => $validated['service_type'] ?? null,
-            'location' => $validated['location'] ?? null,
-            'activity_tour_description' => $validated['activity_tour_description'] ?? null,
-            'stay_at' => $validated['stay_at'] ?? null,
-            'sure' => $validated['sure'] ?? null,
-            'remarks' => $validated['remarks'] ?? null,
-        ]);
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Itinerary updated successfully',
-                'itinerary' => $itinerary->fresh(),
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Itinerary updated successfully');
-    }
-
-    /**
-     * Delete a booking itinerary record
-     */
-    public function destroyBookingItinerary(Request $request, Lead $lead, BookingItinerary $itinerary)
-    {
-        // Verify itinerary belongs to lead
-        if ($itinerary->lead_id !== $lead->id) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Itinerary not found',
-                ], 404);
-            }
-            return redirect()->back()->with('error', 'Itinerary not found');
-        }
-
-        $itinerary->delete();
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Itinerary deleted successfully',
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Itinerary deleted successfully');
     }
 }

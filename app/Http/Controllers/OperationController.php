@@ -26,7 +26,7 @@ class OperationController extends Controller
             ->orderBy('created_at', 'desc');
 
         $currentUser = Auth::user();
-        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer');
+        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer') || $currentUser->department === 'Admin';
         $userRole = $currentUser->role ?? $currentUser->getRoleNameAttribute();
         $userDepartment = $currentUser->department;
 
@@ -89,6 +89,15 @@ class OperationController extends Controller
         $employees = User::whereNotNull('user_id')->orderBy('name')->get();
 
         return view('operations.index', compact('leads', 'filters', 'services', 'destinations', 'employees'));
+    }
+
+    /**
+     * Operations leads (unique operations leads URL)
+     */
+    public function operationsLeads(Request $request)
+    {
+        // Reuse the global leads listing for consistent behavior
+        return app(\App\Http\Controllers\LeadController::class)->index($request);
     }
 
     public function store(Request $request, Lead $lead)
@@ -234,5 +243,316 @@ class OperationController extends Controller
             'stageInfo' => $stageInfo,
             'currentStage' => $currentStage,
         ]);
+    }
+
+    /**
+     * Ticketing index - separate tab and booking file
+     */
+    public function ticketingIndex(Request $request)
+    {
+        $currentUser = Auth::user();
+        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer') || $currentUser->department === 'Admin';
+        $userDepartment = $currentUser->department;
+
+        // Only Admin or Ticketing users may access
+        if (! $isAdmin && ! in_array($userDepartment, ['Ticketing'])) {
+            return redirect()->back()->with('error', 'Unauthorized');
+        }
+
+        // Reuse index logic but restrict to Ticketing assignments
+        $filters = ['search' => $request->input('search')];
+        $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'operation', 'remarks' => function ($q) {
+            $q->orderBy('created_at', 'desc')->limit(1);
+        }, 'bookingFileRemarks' => function ($q) {
+            $q->orderBy('created_at', 'desc')->limit(1)->with('user');
+        }])
+            ->where('status', 'booked')
+            ->orderBy('created_at', 'desc');
+
+        if ($isAdmin) {
+            $userIds = User::where('department', 'Ticketing')->pluck('id');
+            $leadsQuery->whereIn('assigned_user_id', $userIds);
+        } else {
+            $leadsQuery->where('assigned_user_id', $this->getCurrentUserId());
+        }
+
+        if (!empty($filters['search'])) {
+            $searchTerm = trim($filters['search']);
+            $likeTerm = '%' . $searchTerm . '%';
+            $leadsQuery->where(function ($query) use ($likeTerm) {
+                $query->where('customer_name', 'like', $likeTerm)
+                    ->orWhere('first_name', 'like', $likeTerm)
+                    ->orWhere('last_name', 'like', $likeTerm)
+                    ->orWhere('phone', 'like', $likeTerm)
+                    ->orWhere('primary_phone', 'like', $likeTerm)
+                    ->orWhere('secondary_phone', 'like', $likeTerm)
+                    ->orWhere('other_phone', 'like', $likeTerm)
+                    ->orWhere('tsq', 'like', $likeTerm)
+                    ->orWhere('tsq_number', 'like', $likeTerm);
+            });
+        }
+
+        $leads = $leadsQuery->paginate(25);
+        $leads->appends($request->query());
+
+        $leads->getCollection()->transform(function ($lead) {
+            $lead->latest_remark = $lead->remarks->first();
+            $lead->latest_booking_file_remark = $lead->bookingFileRemarks->first();
+            return $lead;
+        });
+
+        $services = \App\Models\Service::orderBy('name')->get();
+        $destinations = \App\Models\Destination::orderBy('name')->get();
+        $employees = User::whereNotNull('user_id')->orderBy('name')->get();
+
+        return view('operations.index', compact('leads', 'filters', 'services', 'destinations', 'employees'));
+    }
+
+    /**
+     * Ticketing leads (show all leads to viewers)
+     */
+    public function ticketingLeads(Request $request)
+    {
+        return app(\App\Http\Controllers\LeadController::class)->index($request);
+    }
+
+    public function ticketingBookingFile(Lead $lead)
+    {
+        // allow Admin or Ticketing users
+        $currentUser = Auth::user();
+        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer') || $currentUser->department === 'Admin';
+        $userDepartment = $currentUser->department;
+        if (! $isAdmin && $userDepartment !== 'Ticketing') {
+            return redirect()->back()->with('error', 'Unauthorized');
+        }
+
+        $data = $this->bookingFileCommonData($lead, route('ticketing.index'), true);
+        return view('booking.booking-form', $data);
+    }
+
+    /**
+     * Visa index & booking file
+     */
+    public function visaIndex(Request $request)
+    {
+        $currentUser = Auth::user();
+        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer') || $currentUser->department === 'Admin';
+        $userDepartment = $currentUser->department;
+
+        if (! $isAdmin && $userDepartment !== 'Visa') {
+            return redirect()->back()->with('error', 'Unauthorized');
+        }
+
+        $filters = ['search' => $request->input('search')];
+        $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'operation', 'remarks' => function ($q) {
+            $q->orderBy('created_at', 'desc')->limit(1);
+        }, 'bookingFileRemarks' => function ($q) {
+            $q->orderBy('created_at', 'desc')->limit(1)->with('user');
+        }])
+            ->where('status', 'booked')
+            ->orderBy('created_at', 'desc');
+
+        if ($isAdmin) {
+            $userIds = User::where('department', 'Visa')->pluck('id');
+            $leadsQuery->whereIn('assigned_user_id', $userIds);
+        } else {
+            $leadsQuery->where('assigned_user_id', $this->getCurrentUserId());
+        }
+
+        if (!empty($filters['search'])) {
+            $searchTerm = trim($filters['search']);
+            $likeTerm = '%' . $searchTerm . '%';
+            $leadsQuery->where(function ($query) use ($likeTerm) {
+                $query->where('customer_name', 'like', $likeTerm)
+                    ->orWhere('first_name', 'like', $likeTerm)
+                    ->orWhere('last_name', 'like', $likeTerm)
+                    ->orWhere('phone', 'like', $likeTerm)
+                    ->orWhere('primary_phone', 'like', $likeTerm)
+                    ->orWhere('secondary_phone', 'like', $likeTerm)
+                    ->orWhere('other_phone', 'like', $likeTerm)
+                    ->orWhere('tsq', 'like', $likeTerm)
+                    ->orWhere('tsq_number', 'like', $likeTerm);
+            });
+        }
+
+        $leads = $leadsQuery->paginate(25);
+        $leads->appends($request->query());
+
+        $leads->getCollection()->transform(function ($lead) {
+            $lead->latest_remark = $lead->remarks->first();
+            $lead->latest_booking_file_remark = $lead->bookingFileRemarks->first();
+            return $lead;
+        });
+
+        $services = \App\Models\Service::orderBy('name')->get();
+        $destinations = \App\Models\Destination::orderBy('name')->get();
+        $employees = User::whereNotNull('user_id')->orderBy('name')->get();
+
+        return view('operations.index', compact('leads', 'filters', 'services', 'destinations', 'employees'));
+    }
+
+    /**
+     * Visa leads (show all leads)
+     */
+    public function visaLeads(Request $request)
+    {
+        // reuse ticketingLeads logic
+        return $this->ticketingLeads($request);
+    }
+
+    public function visaBookingFile(Lead $lead)
+    {
+        $currentUser = Auth::user();
+        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer') || $currentUser->department === 'Admin';
+        $userDepartment = $currentUser->department;
+        if (! $isAdmin && $userDepartment !== 'Visa') {
+            return redirect()->back()->with('error', 'Unauthorized');
+        }
+
+        $data = $this->bookingFileCommonData($lead, route('visa.index'), true);
+        return view('booking.booking-form', $data);
+    }
+
+    /**
+     * Insurance index & booking file
+     */
+    public function insuranceIndex(Request $request)
+    {
+        $currentUser = Auth::user();
+        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer') || $currentUser->department === 'Admin';
+        $userDepartment = $currentUser->department;
+
+        if (! $isAdmin && $userDepartment !== 'Insurance') {
+            return redirect()->back()->with('error', 'Unauthorized');
+        }
+
+        $filters = ['search' => $request->input('search')];
+        $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'operation', 'remarks' => function ($q) {
+            $q->orderBy('created_at', 'desc')->limit(1);
+        }, 'bookingFileRemarks' => function ($q) {
+            $q->orderBy('created_at', 'desc')->limit(1)->with('user');
+        }])
+            ->where('status', 'booked')
+            ->orderBy('created_at', 'desc');
+
+        if ($isAdmin) {
+            $userIds = User::where('department', 'Insurance')->pluck('id');
+            $leadsQuery->whereIn('assigned_user_id', $userIds);
+        } else {
+            $leadsQuery->where('assigned_user_id', $this->getCurrentUserId());
+        }
+
+        if (!empty($filters['search'])) {
+            $searchTerm = trim($filters['search']);
+            $likeTerm = '%' . $searchTerm . '%';
+            $leadsQuery->where(function ($query) use ($likeTerm) {
+                $query->where('customer_name', 'like', $likeTerm)
+                    ->orWhere('first_name', 'like', $likeTerm)
+                    ->orWhere('last_name', 'like', $likeTerm)
+                    ->orWhere('phone', 'like', $likeTerm)
+                    ->orWhere('primary_phone', 'like', $likeTerm)
+                    ->orWhere('secondary_phone', 'like', $likeTerm)
+                    ->orWhere('other_phone', 'like', $likeTerm)
+                    ->orWhere('tsq', 'like', $likeTerm)
+                    ->orWhere('tsq_number', 'like', $likeTerm);
+            });
+        }
+
+        $leads = $leadsQuery->paginate(25);
+        $leads->appends($request->query());
+
+        $leads->getCollection()->transform(function ($lead) {
+            $lead->latest_remark = $lead->remarks->first();
+            $lead->latest_booking_file_remark = $lead->bookingFileRemarks->first();
+            return $lead;
+        });
+
+        $services = \App\Models\Service::orderBy('name')->get();
+        $destinations = \App\Models\Destination::orderBy('name')->get();
+        $employees = User::whereNotNull('user_id')->orderBy('name')->get();
+
+        return view('operations.index', compact('leads', 'filters', 'services', 'destinations', 'employees'));
+    }
+
+    /**
+     * Insurance leads (show all leads)
+     */
+    public function insuranceLeads(Request $request)
+    {
+        return $this->ticketingLeads($request);
+    }
+
+    public function insuranceBookingFile(Lead $lead)
+    {
+        $currentUser = Auth::user();
+        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer') || $currentUser->department === 'Admin';
+        $userDepartment = $currentUser->department;
+        if (! $isAdmin && $userDepartment !== 'Insurance') {
+            return redirect()->back()->with('error', 'Unauthorized');
+        }
+
+        $data = $this->bookingFileCommonData($lead, route('insurance.index'), true);
+        return view('booking.booking-form', $data);
+    }
+
+    /**
+     * Helper to assemble booking file data for department-specific booking files.
+     */
+    protected function bookingFileCommonData(Lead $lead, $backUrl, $isDeptBooking = false)
+    {
+        $lead->load([
+            'service',
+            'destination',
+            'assignedUser',
+            'createdBy',
+            'bookedBy',
+            'reassignedTo',
+            'costComponents',
+            'payments',
+            'bookingDestinations',
+            'bookingArrivalDepartures',
+            'bookingAccommodations',
+            'bookingItineraries',
+            'vendorPayments',
+            'operation',
+            'bookingFileRemarks.user',
+            'histories.changedBy'
+        ]);
+
+        $employees = User::whereNotNull('user_id')->orderBy('name')->get();
+        $destinations = \App\Models\Destination::with('locations')->orderBy('name')->get();
+        
+        $isViewOnly = false;
+        $isOpsDept = $isDeptBooking ? true : false;
+
+        $vendorPayments = $lead->vendorPayments;
+
+        $totalReceived = $lead->payments->where('status', 'received')->sum('amount');
+        $sellingPrice = $lead->selling_price ?? 0;
+        if ($sellingPrice <= 0 || $totalReceived <= 0) {
+            $customerPaymentState = 'none';
+        } elseif ($totalReceived >= $sellingPrice) {
+            $customerPaymentState = 'full';
+        } else {
+            $customerPaymentState = 'partial';
+        }
+
+        $userDepartment = $this->getUserDepartment();
+        $stageInfo = $this->getDepartmentStages($userDepartment);
+        $currentStage = $lead->{$stageInfo['stage_key']} ?? 'Pending';
+
+        return [
+            'lead' => $lead,
+            'employees' => $employees,
+            'destinations' => $destinations,
+            'isViewOnly' => $isViewOnly,
+            'backUrl' => $backUrl,
+            'vendorPayments' => $vendorPayments,
+            'isOpsDept' => $isOpsDept,
+            'customerPaymentState' => $customerPaymentState,
+            'totalCustomerReceived' => $totalReceived,
+            'stageInfo' => $stageInfo,
+            'currentStage' => $currentStage,
+        ];
     }
 }

@@ -27,7 +27,7 @@ class DocumentController extends Controller
             ->orderBy('created_at', 'desc');
 
         $currentUser = Auth::user();
-        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer');
+        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer') || $currentUser->department === 'Admin';
         $userRole = $currentUser->role ?? $currentUser->getRoleNameAttribute();
         $userDepartment = $currentUser->department;
 
@@ -82,6 +82,15 @@ class DocumentController extends Controller
         $employees = User::whereNotNull('user_id')->orderBy('name')->get();
 
         return view('post-sales.index', compact('leads', 'filters', 'services', 'destinations', 'employees'));
+    }
+
+    /**
+     * Post Sales leads (show all leads)
+     */
+    public function postSalesLeads(Request $request)
+    {
+        // Reuse LeadController@index so department leads show the same leads view
+        return app(\App\Http\Controllers\LeadController::class)->index($request);
     }
 
     public function show(Lead $lead)

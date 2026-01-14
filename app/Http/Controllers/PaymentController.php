@@ -8,7 +8,6 @@ use App\Models\CostComponent;
 use App\Models\ProfitLog;
 use App\Models\AccountSummary;
 use App\Models\VendorPayment;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
@@ -24,35 +23,11 @@ class PaymentController extends Controller
             'payment_status' => $request->input('payment_status'),
         ];
 
-        // Show booked leads with payment and cost information for Accounts team
+        // Show all leads with payment and cost information for Accounts team
         $leadsQuery = Lead::with(['service', 'destination', 'assignedUser', 'payments', 'costComponents', 'operation', 'bookingDestinations', 'remarks' => function ($q) {
             $q->orderBy('created_at', 'desc')->limit(1);
         }])
-            ->where('status', 'booked')
             ->orderBy('created_at', 'desc');
-
-        $currentUser = Auth::user();
-        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer');
-        $userRole = $currentUser->role ?? $currentUser->getRoleNameAttribute();
-        $userDepartment = $currentUser->department;
-
-        // Filter booking files based on user role
-        if ($isAdmin) {
-            // Admin/Developer: Show all booked leads assigned to Accounts users
-            $accountsUserIds = User::where(function ($query) {
-                $query->where('department', 'Accounts')
-                    ->orWhere('role', 'Accounts')
-                    ->orWhere('role', 'Accounts Manager');
-            })->pluck('id');
-            
-            $leadsQuery->whereIn('assigned_user_id', $accountsUserIds);
-        } elseif ($userRole === 'Accounts' || $userDepartment === 'Accounts' || $userRole === 'Accounts Manager') {
-            // Accounts users: Show only their own assigned booking files
-            $userId = $this->getCurrentUserId();
-            if ($userId) {
-                $leadsQuery->where('assigned_user_id', $userId);
-            }
-        }
 
         // Search filter
         if (!empty($filters['search'])) {
@@ -111,13 +86,10 @@ class PaymentController extends Controller
             'reassignedTo',
             'payments',
             'accountSummaries',
-            'vendorPayments',
-            'bookingFileRemarks.user',
-            'histories.changedBy'
+            'vendorPayments'
         ]);
 
         $users = \App\Models\User::orderBy('name')->get();
-        $employees = User::whereNotNull('user_id')->orderBy('name')->get();
         $accountSummaries = $lead->accountSummaries;
         $vendorPayments = $lead->vendorPayments;
         $totalReceived = $lead->payments->where('status', 'received')->sum('amount');
@@ -133,12 +105,7 @@ class PaymentController extends Controller
         // Accounts department only sees customer section in read-only mode
         $isViewOnly = true;
 
-        // Get stage info for current user's department
-        $userDepartment = $this->getUserDepartment();
-        $stageInfo = $this->getDepartmentStages($userDepartment);
-        $currentStage = $lead->{$stageInfo['stage_key']} ?? 'Pending';
-
-        return view('accounts.booking-file', compact('lead', 'users', 'employees', 'isViewOnly', 'accountSummaries', 'vendorPayments', 'customerPaymentState', 'totalReceived', 'stageInfo', 'currentStage'));
+        return view('accounts.booking-file', compact('lead', 'users', 'isViewOnly', 'accountSummaries', 'vendorPayments', 'customerPaymentState', 'totalReceived'));
     }
 
     public function show(Lead $lead)
@@ -151,7 +118,7 @@ class PaymentController extends Controller
     {
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0',
-            'method' => 'required|in:Cash,UPI,NEFT,RTGS,WIB,Online,Cheque',
+            'method' => 'required|in:cash,bank_transfer,cheque,card,online',
             'payment_date' => 'required|date',
             'due_date' => 'nullable|date',
             'reference' => 'nullable|string|max:255',
@@ -246,7 +213,7 @@ class PaymentController extends Controller
         
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0',
-            'method' => 'required|in:Cash,UPI,NEFT,RTGS,WIB,Online,Cheque',
+            'method' => 'required|in:cash,bank_transfer,cheque,card,online',
             'payment_date' => 'required|date',
             'due_date' => 'nullable|date',
             'reference' => 'nullable|string|max:255',
@@ -334,12 +301,11 @@ class PaymentController extends Controller
     {
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0',
-            'method' => 'required|in:Cash,UPI,NEFT,RTGS,WIB,Online,Cheque',
+            'method' => 'required|in:cash,bank_transfer,cheque,card,online',
             'payment_date' => 'required|date',
             'due_date' => 'nullable|date',
             'reference' => 'nullable|string|max:255',
             'status' => 'required|in:pending,received,refunded',
-            'notes' => 'nullable|string',
         ]);
 
         $payment->update($validated);
@@ -482,9 +448,8 @@ class PaymentController extends Controller
             'payment_mode' => 'nullable|string|max:255',
             'ref_no' => 'nullable|string|max:255',
             'remarks' => 'nullable|string',
-            'paid_on' => 'nullable|date',
-            // Accounts may set status to Paid or Pending
-            'status' => 'required|string|in:Paid,Pending',
+            // Accounts may only set status to Paid here
+            'status' => 'required|string|in:Paid',
         ]);
 
         // Calculate pending amount if not provided

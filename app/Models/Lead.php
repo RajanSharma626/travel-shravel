@@ -51,7 +51,14 @@ class Lead extends Model
         'ticketing_stage',
         'visa_stage',
         'insurance_stage',
-        'delivery_stage'
+        'delivery_stage',
+        'post_sales_user_id',
+        'operations_user_id',
+        'ticketing_user_id',
+        'visa_user_id',
+        'insurance_user_id',
+        'accountant_user_id',
+        'delivery_user_id'
     ];
 
     protected $casts = [
@@ -106,6 +113,41 @@ class Lead extends Model
     public function reassignedTo()
     {
         return $this->belongsTo(User::class, 'reassigned_to');
+    }
+
+    public function postSalesUser()
+    {
+        return $this->belongsTo(User::class, 'post_sales_user_id');
+    }
+
+    public function operationsUser()
+    {
+        return $this->belongsTo(User::class, 'operations_user_id');
+    }
+
+    public function ticketingUser()
+    {
+        return $this->belongsTo(User::class, 'ticketing_user_id');
+    }
+
+    public function visaUser()
+    {
+        return $this->belongsTo(User::class, 'visa_user_id');
+    }
+
+    public function insuranceUser()
+    {
+        return $this->belongsTo(User::class, 'insurance_user_id');
+    }
+
+    public function accountantUser()
+    {
+        return $this->belongsTo(User::class, 'accountant_user_id');
+    }
+
+    public function deliveryUser()
+    {
+        return $this->belongsTo(User::class, 'delivery_user_id');
     }
 
     public function histories()

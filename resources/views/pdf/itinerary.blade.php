@@ -695,7 +695,7 @@
                         </td>
                         <td>{{ $accommodation->room_type ?? 'N/A' }}</td>
                         <td style="text-align: center;">1</td>
-                        <td>{{ $accommodation->booking_status ?? 'N/A' }}</td>
+                        <td>{{ $accommodation->confirmation_no ?? 'N/A' }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -741,7 +741,7 @@
                     @php
                         $firstItinerary = $dayItineraries[0];
 
-                        // Extract date from day_and_date
+                        // Extract date from day_and_date (use first entry's date if present)
                         $dateMatch = preg_match(
                             '/(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/',
                             $firstItinerary->day_and_date ?? '',
@@ -764,59 +764,67 @@
                             }
                         }
 
-                        // Determine time label
-                        $timeStr = $firstItinerary->time
-                            ? \Carbon\Carbon::parse($firstItinerary->time)->format('H:i')
-                            : '';
-                        $timeLabel = 'Schedule';
-                        if (
-                            stripos($firstItinerary->day_and_date ?? '', 'depart') !== false ||
-                            stripos($firstItinerary->day_and_date ?? '', 'departure') !== false
-                        ) {
-                            $timeLabel = 'Depart';
-                        } elseif (
-                            stripos($firstItinerary->day_and_date ?? '', 'pick-up') !== false ||
-                            stripos($firstItinerary->day_and_date ?? '', 'pickup') !== false
-                        ) {
-                            $timeLabel = 'Pick-up';
-                        } elseif ($timeStr) {
-                            $timeLabel = $timeStr . ' Hours';
+                        // Build time labels for all entries of the day (unique)
+                        $timeLabels = [];
+                        foreach ($dayItineraries as $dit) {
+                            $tStr = $dit->time ? \Carbon\Carbon::parse($dit->time)->format('H:i') : '';
+                            $tLabel = 'Schedule';
+                            if (
+                                stripos($dit->day_and_date ?? '', 'depart') !== false ||
+                                stripos($dit->day_and_date ?? '', 'departure') !== false
+                            ) {
+                                $tLabel = 'Depart';
+                            } elseif (
+                                stripos($dit->day_and_date ?? '', 'pick-up') !== false ||
+                                stripos($dit->day_and_date ?? '', 'pickup') !== false
+                            ) {
+                                $tLabel = 'Pick-up';
+                            } elseif ($tStr) {
+                                $tLabel = $tStr . ' Hours';
+                            }
+                            if (!in_array($tLabel, $timeLabels)) {
+                                $timeLabels[] = $tLabel;
+                            }
                         }
                     @endphp
 
                     <tr>
                         <td class="day-cell">
                             <div class="day-number">Day {{ $dayNumber }}</div>
-                            <span class="time-label">{{ $timeLabel }}</span>
+                            @foreach ($timeLabels as $tl)
+                                <div class="time-label">{{ $tl }}</div>
+                            @endforeach
                         </td>
                         <td class="schedule-cell">
                             <div class="schedule-content">
                                 @foreach ($dayItineraries as $itinerary)
-                                    @if ($itinerary->location)
-                                        <strong>{{ $itinerary->location }}</strong><br>
-                                    @endif
-                                    @if ($itinerary->activity_tour_description)
-                                        @php
-                                            $activities = array_filter(
-                                                array_map(
-                                                    'trim',
-                                                    explode(
-                                                        "\n",
-                                                        str_replace(
-                                                            ["\r\n", "\r"],
+                                    <div style="margin-bottom:8px;">
+                                        @if ($itinerary->location)
+                                            <strong>{{ $itinerary->location }}</strong><br>
+                                        @endif
+                                        @if ($itinerary->activity_tour_description)
+                                            @php
+                                                $activities = array_filter(
+                                                    array_map(
+                                                        'trim',
+                                                        explode(
                                                             "\n",
-                                                            $itinerary->activity_tour_description,
+                                                            str_replace(
+                                                                ["\r\n", "\r"],
+                                                                "\n",
+                                                                $itinerary->activity_tour_description,
+                                                            ),
                                                         ),
                                                     ),
-                                                ),
-                                            );
-                                        @endphp
-                                        @foreach ($activities as $activity)
-                                            @if (!empty($activity))
-                                                <div class="activity-item">{{ $activity }}</div>
-                                            @endif
-                                        @endforeach
-                                    @endif
+                                                );
+                                            @endphp
+                                            @foreach ($activities as $activity)
+                                                @if (!empty($activity))
+                                                    <div class="activity-item">{{ $activity }}</div>
+                                                @endif
+                                            @endforeach
+                                        @endif
+                                    </div>
                                 @endforeach
                             </div>
                         </td>

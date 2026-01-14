@@ -14,7 +14,7 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->hasRole('Admin')) {
+        if (Auth::check() && (Auth::user()->hasRole('Admin') || Auth::user()->department === 'Admin')) {
             // User model now handles this
             return $next($request);
         }

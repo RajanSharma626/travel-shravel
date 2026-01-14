@@ -8,12 +8,6 @@
             <div class="contactapp-wrap">
                 <div class="contactapp-content">
                     <div class="contactapp-detail-wrap">
-                        <header class="contact-header">
-                            <div class="w-100 align-items-center justify-content-between d-flex contactapp-title link-dark">
-                                <h1>Services</h1>
-                            </div>
-                        </header>
-
                         <div class="contact-body">
                             <div data-simplebar class="nicescroll-bar">
                                 <!-- Alerts -->

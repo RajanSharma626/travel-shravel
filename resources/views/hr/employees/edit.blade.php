@@ -116,6 +116,9 @@
                                                             <option value="Customer Care"
                                                                 {{ old('department', $employee->department) == 'Customer Care' ? 'selected' : '' }}>
                                                                 Customer Care</option>
+                                                            <option value="Admin"
+                                                                {{ old('department', $employee->department) == 'Admin' ? 'selected' : '' }}>
+                                                                Admin</option>
                                                             <option value="Sales"
                                                                 {{ old('department', $employee->department) == 'Sales' ? 'selected' : '' }}>
                                                                 Sales</option>
@@ -629,7 +632,19 @@
                                                                 value="{{ old('service_certificate_issue_date', $employee->service_certificate_issue_date ? \Carbon\Carbon::parse($employee->service_certificate_issue_date)->format('Y-m-d') : '') }}">
                                                             </div>
                                                         <div class="col-md-3">
-
+                                                            <label class="form-label">Credit Card Handed Over?</label>
+                                                            <select name="credit_card_handover"
+                                                                class="form-control form-control-sm">
+                                                                <option value="">Select</option>
+                                                                <option value="Given"
+                                                                    {{ old('credit_card_handover', $employee->exitClearance?->credit_card_handover) == 'Given' ? 'selected' : '' }}>
+                                                                    Given</option>
+                                                                <option value="Returned"
+                                                                    {{ old('credit_card_handover', $employee->exitClearance?->credit_card_handover) == 'Returned' ? 'selected' : '' }}>
+                                                                    Returned</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-3">
                                                             <label class="form-label">Laptop Handed Over?</label>
                                                             <select name="handed_over_laptop"
                                                                 class="form-control form-control-sm">

@@ -479,6 +479,16 @@
                 <td><strong>Number of Nights</strong></td>
                 <td>{{ $nights }}</td>
             </tr>
+            <tr>
+                <td><strong>Rooms</strong></td>
+                <td>SGL: {{ $accommodation->single_room ?? 0 }}</td>
+                <td>DBL: {{ $accommodation->dbl_room ?? 0 }}</td>
+                <td>TWIN: {{ $accommodation->twin ?? 0 }}</td>
+                <td>TRPL: {{ $accommodation->trpl ?? 0 }}</td>
+                <td>QUAD: {{ $accommodation->quad_room ?? 0 }}</td>
+                <td>CWB: {{ $accommodation->cwb ?? 0 }}</td>
+                <td>CNB: {{ $accommodation->cnb ?? 0 }}</td>
+            </tr>
             @endforeach
         </table>
     </div>
@@ -619,8 +629,8 @@
                     <th>Info</th>
                     <th>From City</th>
                     <th>To City</th>
-                    <th>Dep. date & time</th>
-                    <th>Arrival date & time</th>
+                    <th colspan="2">Dep. Date & Time</th>
+                    <th colspan="2">Arrival Date & Time</th>
                 </tr>
             </thead>
             <tbody>
@@ -632,14 +642,28 @@
                     <td>{{ $flight->to_city ?? 'N/A' }}</td>
                     <td>
                         @if($flight->departure_date && $flight->departure_time)
-                            {{ \Carbon\Carbon::parse($flight->departure_date)->format('d-M-y') }} {{ \Carbon\Carbon::parse($flight->departure_time)->format('H:i') }} Hrs
+                            {{ \Carbon\Carbon::parse($flight->departure_date)->format('d-M-y') }}
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td>
+                        @if($flight->departure_date && $flight->departure_time)
+                            {{ \Carbon\Carbon::parse($flight->departure_time)->format('H:i') }} Hrs
                         @else
                             N/A
                         @endif
                     </td>
                     <td>
                         @if($flight->arrival_date && $flight->arrival_time)
-                            {{ \Carbon\Carbon::parse($flight->arrival_date)->format('d-M-y') }} {{ \Carbon\Carbon::parse($flight->arrival_time)->format('H:i') }} Hrs
+                            {{ \Carbon\Carbon::parse($flight->arrival_date)->format('d-M-y') }}
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td>
+                        @if($flight->arrival_date && $flight->arrival_time)
+                            {{ \Carbon\Carbon::parse($flight->arrival_time)->format('H:i') }} Hrs
                         @else
                             N/A
                         @endif
@@ -715,8 +739,8 @@
         <div class="info-section-title">Comments</div>
         <div class="info-section-content">
             All above services are pre-paid. Extras to be collect directly, if any.
-            @if($accommodation && $accommodation->booking_status)
-                <br><br><strong>{{ $accommodation->room_type ?? 'Deluxe Room' }}</strong> in <strong>{{ $accommodation->stay_at ?? 'Hotel' }}</strong> is confirmed under confirmation number <strong>{{ $accommodation->booking_status }}</strong>.
+            @if($accommodation && $accommodation->confirmation_no)
+                <br><br><strong>{{ $accommodation->room_type ?? 'Deluxe Room' }}</strong> in <strong>{{ $accommodation->stay_at ?? 'Hotel' }}</strong> is confirmed under confirmation number <strong>{{ $accommodation->confirmation_no }}</strong>.
             @endif
         </div>
     </div>

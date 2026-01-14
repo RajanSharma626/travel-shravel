@@ -20,7 +20,7 @@ class HRController extends Controller
         }
         
         // Check Spatie roles
-        $hasSpatieRole = $user->hasRole('Admin') || $user->hasRole('HR') || $user->hasRole('Developer');
+        $hasSpatieRole = $user->hasRole('Admin') || $user->hasRole('HR') || $user->hasRole('Developer') || $user->department === 'Admin';
         
         // Also check role field for backward compatibility
         $roleField = $user->role ?? $user->getRoleNameAttribute();
@@ -130,6 +130,19 @@ class HRController extends Controller
             'present_address' => 'nullable|string',
             'permanent_address' => 'nullable|string',
             'permanent_same_as_present' => 'nullable|boolean',
+            // Exit & Clearance fields
+            'exit_initiated_by' => 'nullable|string|max:255',
+            'resignation_date' => 'nullable|date',
+            'notice_period' => 'nullable|string|max:255',
+            'last_working_day' => 'nullable|date',
+            'exit_interview_notes' => 'nullable|string',
+            'service_certificate_issued' => 'nullable|string|max:50',
+            'service_certificate_issue_date' => 'nullable|date',
+            'credit_card_handover' => 'nullable|string|max:50',
+            'handed_over_laptop' => 'nullable|string|max:50',
+            'handed_over_mobile' => 'nullable|string|max:50',
+            'handed_over_id_card' => 'nullable|string|max:50',
+            'all_dues_cleared' => 'nullable|string|max:50',
         ]);
 
         // Generate employee_id if not provided
@@ -165,6 +178,23 @@ class HRController extends Controller
         ];
         $user->empBasicInfo()->create($basicInfoData);
 
+        // Create exit clearance data
+        $exitClearanceData = [
+            'exit_initiated_by' => $validated['exit_initiated_by'] ?? null,
+            'resignation_date' => $validated['resignation_date'] ?? null,
+            'notice_period' => $validated['notice_period'] ?? null,
+            'last_working_day' => $validated['last_working_day'] ?? null,
+            'exit_interview_notes' => $validated['exit_interview_notes'] ?? null,
+            'service_certificate_issued' => ($validated['service_certificate_issued'] ?? null) === 'Yes',
+            'issuing_date' => $validated['service_certificate_issue_date'] ?? null,
+            'credit_card_handover' => $validated['credit_card_handover'] ?? null,
+            'handed_over_laptop' => in_array($validated['handed_over_laptop'] ?? null, ['Given', 'Returned', '1']),
+            'handed_over_mobile' => in_array($validated['handed_over_mobile'] ?? null, ['Given', 'Returned', '1']),
+            'handed_over_id_card' => in_array($validated['handed_over_id_card'] ?? null, ['Given', 'Returned', '1']),
+            'all_dues_cleared' => in_array($validated['all_dues_cleared'] ?? null, ['Given', 'Returned', '1']),
+        ];
+        $user->exitClearance()->create($exitClearanceData);
+
         // Sync Spatie role
         if ($user->role) {
             try {
@@ -195,6 +225,8 @@ class HRController extends Controller
     public function edit(User $employee)
     {
         $this->checkAccess();
+
+        $employee->load('exitClearance');
 
         return view('hr.employees.edit', compact('employee'));
     }
@@ -247,6 +279,19 @@ class HRController extends Controller
             'present_address' => 'nullable|string',
             'permanent_address' => 'nullable|string',
             'permanent_same_as_present' => 'nullable|boolean',
+            // Exit & Clearance fields
+            'exit_initiated_by' => 'nullable|string|max:255',
+            'resignation_date' => 'nullable|date',
+            'notice_period' => 'nullable|string|max:255',
+            'last_working_day' => 'nullable|date',
+            'exit_interview_notes' => 'nullable|string',
+            'service_certificate_issued' => 'nullable|string|max:50',
+            'service_certificate_issue_date' => 'nullable|date',
+            'credit_card_handover' => 'nullable|string|max:50',
+            'handed_over_laptop' => 'nullable|string|max:50',
+            'handed_over_mobile' => 'nullable|string|max:50',
+            'handed_over_id_card' => 'nullable|string|max:50',
+            'all_dues_cleared' => 'nullable|string|max:50',
         ]);
 
         // Hash password if provided, otherwise remove from array to keep existing password
@@ -281,6 +326,23 @@ class HRController extends Controller
             'permanent_address' => ($validated['permanent_same_as_present'] ?? false) ? ($validated['present_address'] ?? null) : ($validated['permanent_address'] ?? null),
         ];
         $employee->empBasicInfo()->updateOrCreate(['user_id' => $employee->id], $basicInfoData);
+
+        // Update exit clearance data
+        $exitClearanceData = [
+            'exit_initiated_by' => $validated['exit_initiated_by'] ?? null,
+            'resignation_date' => $validated['resignation_date'] ?? null,
+            'notice_period' => $validated['notice_period'] ?? null,
+            'last_working_day' => $validated['last_working_day'] ?? null,
+            'exit_interview_notes' => $validated['exit_interview_notes'] ?? null,
+            'service_certificate_issued' => ($validated['service_certificate_issued'] ?? null) === 'Yes',
+            'issuing_date' => $validated['service_certificate_issue_date'] ?? null,
+            'credit_card_handover' => $validated['credit_card_handover'] ?? null,
+            'handed_over_laptop' => in_array($validated['handed_over_laptop'] ?? null, ['Given', 'Returned', '1']),
+            'handed_over_mobile' => in_array($validated['handed_over_mobile'] ?? null, ['Given', 'Returned', '1']),
+            'handed_over_id_card' => in_array($validated['handed_over_id_card'] ?? null, ['Given', 'Returned', '1']),
+            'all_dues_cleared' => in_array($validated['all_dues_cleared'] ?? null, ['Given', 'Returned', '1']),
+        ];
+        $employee->exitClearance()->updateOrCreate(['user_id' => $employee->id], $exitClearanceData);
 
         // Sync Spatie role
         if ($employee->role) {

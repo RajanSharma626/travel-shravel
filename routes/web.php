@@ -189,6 +189,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/api/accounts/dashboard', [PaymentController::class, 'dashboard'])->name('api.accounts.dashboard');
         Route::get('/api/accounts/leads', [PaymentController::class, 'leads'])->name('api.accounts.leads');
         Route::get('/api/accounts/export', [PaymentController::class, 'export'])->name('api.accounts.export');
+        Route::get('/accounts/leads', [PaymentController::class, 'accountsLeads'])->name('accounts.leads');
     });
     Route::middleware('permission:create payments')->group(function () {
         Route::post('/accounts/{lead}/account-summary', [PaymentController::class, 'storeAccountSummary'])->name('accounts.account-summary.store');
@@ -236,6 +237,17 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     Route::middleware('permission:view operations')->group(function () {
         Route::get('/operations', [OperationController::class, 'index'])->name('operations.index');
         Route::get('/operations/{lead}/booking-file', [OperationController::class, 'bookingFile'])->name('operations.booking-file');
+        Route::get('/operations/leads', [OperationController::class, 'operationsLeads'])->name('operations.leads');
+        // Department-specific booking files (Ticketing / Visa / Insurance)
+        Route::get('/ticketing', [OperationController::class, 'ticketingIndex'])->name('ticketing.index');
+        Route::get('/ticketing/{lead}/booking-file', [OperationController::class, 'ticketingBookingFile'])->name('ticketing.booking-file');
+        Route::get('/ticketing/leads', [OperationController::class, 'ticketingLeads'])->name('ticketing.leads');
+        Route::get('/visa', [OperationController::class, 'visaIndex'])->name('visa.index');
+        Route::get('/visa/{lead}/booking-file', [OperationController::class, 'visaBookingFile'])->name('visa.booking-file');
+        Route::get('/visa/leads', [OperationController::class, 'visaLeads'])->name('visa.leads');
+        Route::get('/insurance', [OperationController::class, 'insuranceIndex'])->name('insurance.index');
+        Route::get('/insurance/{lead}/booking-file', [OperationController::class, 'insuranceBookingFile'])->name('insurance.booking-file');
+        Route::get('/insurance/leads', [OperationController::class, 'insuranceLeads'])->name('insurance.leads');
     });
     Route::middleware('permission:create operations')->group(function () {
         Route::post('/leads/{lead}/operations', [OperationController::class, 'store'])->name('leads.operations.store');
@@ -252,6 +264,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
     Route::middleware('permission:view documents')->group(function () {
         Route::get('/post-sales', [DocumentController::class, 'index'])->name('post-sales.index');
         Route::get('/post-sales/{lead}/booking-file', [DocumentController::class, 'bookingFile'])->name('post-sales.booking-file');
+        Route::get('/post-sales/leads', [DocumentController::class, 'postSalesLeads'])->name('post-sales.leads');
         Route::get('/leads/{lead}/documents', [DocumentController::class, 'show'])->name('leads.documents.index');
         Route::get('/leads/{lead}/documents/{document}/download', [DocumentController::class, 'download'])->name('leads.documents.download');
     });
@@ -276,6 +289,7 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::get('/deliveries/{lead}/booking-file', [DeliveryController::class, 'bookingFile'])->name('deliveries.booking-file');
         Route::get('/deliveries/{lead}/download-voucher', [DeliveryController::class, 'downloadVoucher'])->name('deliveries.download-voucher');
         Route::get('/deliveries/{lead}/download-accommodation-voucher/{accommodation}', [DeliveryController::class, 'downloadAccommodationVoucher'])->name('deliveries.download-accommodation-voucher');
+        Route::get('/deliveries/leads', [DeliveryController::class, 'deliveriesLeads'])->name('deliveries.leads');
     });
     Route::middleware('permission:view deliveries')->group(function () {
         Route::get('/leads/{lead}/deliveries', [DeliveryController::class, 'show'])->name('leads.deliveries.index');

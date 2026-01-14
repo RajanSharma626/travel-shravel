@@ -93,7 +93,7 @@
                                         <tr data-lead-id="{{ $lead->id }}">
                                             <td><strong>{{ $lead->tsq }}</strong></td>
                                             <td>
-                                                <a href="{{ route('bookings.form', $lead) }}"
+                                                <a href="{{ route('deliveries.booking-file', $lead) }}"
                                                     class="text-primary text-decoration-none fw-semibold">
                                                     {{ $lead->customer_name }}
                                                 </a>
@@ -109,7 +109,7 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                {{ $delivery && $delivery->assignedTo ? $delivery->assignedTo->name : 'Unassigned' }}
+                                                {{ $lead->assignedUser ? $lead->assignedUser->name : 'Unassigned' }}
                                             </td>
                                             <td>
                                                 @if ($delivery && $delivery->delivery_method)

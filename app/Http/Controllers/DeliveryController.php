@@ -47,7 +47,7 @@ class DeliveryController extends Controller
             ->orderBy('created_at', 'desc');
 
         $currentUser = Auth::user();
-        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer');
+        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer') || $currentUser->department === 'Admin';
         $userRole = $currentUser->role ?? $currentUser->getRoleNameAttribute();
         $userDepartment = $currentUser->department;
 
@@ -288,7 +288,7 @@ class DeliveryController extends Controller
      */
     public function export(Request $request)
     {
-        if (!$request->user()->hasRole('Admin')) {
+        if (!($request->user()->hasRole('Admin') || $request->user()->department === 'Admin')) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -467,6 +467,15 @@ class DeliveryController extends Controller
         $currentStage = $lead->{$stageInfo['stage_key']} ?? 'Pending';
 
         return view('deliveries.booking-file', compact('lead', 'backUrl', 'isViewOnly', 'employees', 'stageInfo', 'currentStage'));
+    }
+
+    /**
+     * Deliveries leads (show all leads)
+     */
+    public function deliveriesLeads(Request $request)
+    {
+        // Reuse the global leads listing
+        return app(\App\Http\Controllers\LeadController::class)->index($request);
     }
 
     public function store(Request $request, Lead $lead)

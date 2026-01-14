@@ -24,7 +24,7 @@ class PermissionMiddleware
         $employee = Auth::user();
 
         // Admin has all permissions
-        if ($employee->hasRole('Admin') || $employee->hasRole('Developer')) {
+        if ($employee->hasRole('Admin') || $employee->hasRole('Developer') || $employee->department === 'Admin') {
             return $next($request);
         }
 

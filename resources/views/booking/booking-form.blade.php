@@ -197,7 +197,7 @@
                                             @endphp
                                             <div class="col-md-3">
                                                 <label class="form-label">Sales Cost</label>
-                                                @if ($isViewOnly || ($isOpsDept ?? false))
+                                                @if ($isViewOnly)
                                                     <div class="input-group input-group-sm">
                                                         <input type="text"
                                                             value="{{ $lead->selling_price ? number_format($lead->selling_price, 2) : '0.00' }}"
@@ -212,850 +212,668 @@
                                                         @endif
                                                     </div>
                                                 @else
-                                                    <div class="input-group input-group-sm">
-                                                        <input type="number" id="salesCostInput" name="selling_price"
-                                                            value="{{ old('selling_price', $lead->selling_price ?? 0) }}"
-                                                            class="form-control form-control-sm" step="0.01"
-                                                            min="0" placeholder="0.00">
-                                                        <button type="button" class="btn btn-primary btn-sm"
-                                                            id="updateSalesCostBtn">
-                                                            Update
-                                                        </button>
-                                                    </div>
+                                                    <input type="number" name="selling_price"
+                                                        value="{{ old('selling_price', $lead->selling_price ?? 0) }}"
+                                                        class="form-control form-control-sm" step="0.01"
+                                                        min="0" placeholder="0.00">
                                                 @endif
                                             </div>
-                                            @php
-                                                $stageInfo = $stageInfo ?? null;
-                                                $currentStage = $currentStage ?? 'Pending';
-                                            @endphp
-                                            @if($stageInfo)
-                                            <div class="col-md-3">
-                                                <label class="form-label">Stage</label>
-                                                <div class="input-group input-group-sm">
-                                                    <select name="stage" id="stageSelect" class="form-select form-control-sm">
-                                                        @foreach($stageInfo['stages'] as $stage)
-                                                            <option value="{{ $stage }}" {{ ($currentStage == $stage) ? 'selected' : '' }}>
-                                                                {{ $stage }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                    <button type="button" class="btn btn-primary btn-sm" id="updateStageBtn">
-                                                        Update
+                                        </div>
+                                    </div>
+
+
+
+                                    <!-- Destination Section -->
+                                    @if (!($isPostSales ?? false))
+                                        <div class="mb-4 border rounded-3 p-3 bg-light">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                    <i data-feather="map-pin" class="me-1"
+                                                        style="width: 14px; height: 14px;"></i>
+                                                    Destination
+                                                </h6>
+                                                @if (!$isViewOnly)
+                                                    <button type="button" class="btn btn-sm btn-primary"
+                                                        data-bs-toggle="modal" data-bs-target="#addDestinationModal">
+                                                        <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                        Add
                                                     </button>
-                                                </div>
+                                                @endif
                                             </div>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </form>
-
-                                <!-- Remarks Section (Own Remarks Only) -->
-                                <div class="mb-4 border rounded-3 p-3">
-                                    <h6 class="text-uppercase text-muted small fw-semibold mb-3">
-                                        <i data-feather="message-circle" class="me-1"
-                                            style="width: 14px; height: 14px;"></i>
-                                        My Remarks
-                                    </h6>
-
-                                    <!-- Add Remark Form -->
-                                    <form id="addRemarkForm" method="POST"
-                                        action="{{ route('leads.booking-file-remarks.store', $lead) }}">
-                                        <input type="hidden" name="department"
-                                            value="{{ $isOpsDept ?? false ? 'Operations' : ($isPostSales ?? false ? 'Post Sales' : 'Sales') }}">
-                                        @csrf
-                                        <div class="row g-3 align-items-end">
-                                            <div class="col-md-5">
-                                                <label class="form-label">Remark <span
-                                                        class="text-danger">*</span></label>
-                                                <textarea name="remark" class="form-control form-control-sm" rows="2" required
-                                                    placeholder="Enter your remark..."></textarea>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label class="form-label">Follow-up Date & Time</label>
-                                                <input type="datetime-local" name="follow_up_at"
-                                                    class="form-control form-control-sm">
-                                            </div>
-                                            <div class="col-md-3">
-                                                <button type="submit" class="btn btn-sm btn-primary w-100">
-                                                    <i data-feather="save" style="width: 14px; height: 14px;"></i>
-                                                    Add Remark
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-
-                                <!-- Destination Section -->
-                                @if (!($isPostSales ?? false))
-                                    <div class="mb-4 border rounded-3 p-3 bg-light">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                <i data-feather="map-pin" class="me-1"
-                                                    style="width: 14px; height: 14px;"></i>
-                                                Destination
-                                            </h6>
-                                            @if (!$isViewOnly)
-                                                <button type="button" class="btn btn-sm btn-primary"
-                                                    data-bs-toggle="modal" data-bs-target="#addDestinationModal">
-                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
-                                                    Add
-                                                </button>
-                                            @endif
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-sm mb-0" id="destinationTable">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th style="width: 15%;">Destination</th>
-                                                        <th style="width: 15%;">Location</th>
-                                                        <th style="width: 12%;" class="text-center">Only Hotel</th>
-                                                        <th style="width: 12%;" class="text-center">Only TT</th>
-                                                        <th style="width: 12%;" class="text-center">Hotel + TT</th>
-                                                        <th style="width: 10%;">From Date</th>
-                                                        <th style="width: 10%;">To Date</th>
-                                                        @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
-                                                            <th style="width: 10%;" class="text-center">Action</th>
-                                                        @endif
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="destinationTableBody">
-                                                    @if ($lead->bookingDestinations && $lead->bookingDestinations->count() > 0)
-                                                        @foreach ($lead->bookingDestinations as $index => $bd)
-                                                            <tr class="destination-data-row"
-                                                                data-destination-id="{{ $bd->id }}"
-                                                                data-row-index="{{ $index }}">
-                                                                <td>{{ $bd->destination }}</td>
-                                                                <td>{{ $bd->location }}</td>
-                                                                <td class="text-center">
-                                                                    @if ($bd->only_hotel)
-                                                                        <i data-feather="check"
-                                                                            style="width: 16px; height: 16px; color: #28a745;"></i>
-                                                                    @endif
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    @if ($bd->only_tt)
-                                                                        <i data-feather="check"
-                                                                            style="width: 16px; height: 16px; color: #28a745;"></i>
-                                                                    @endif
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    @if ($bd->hotel_tt)
-                                                                        <i data-feather="check"
-                                                                            style="width: 16px; height: 16px; color: #28a745;"></i>
-                                                                    @endif
-                                                                </td>
-                                                                <td>{{ $bd->from_date ? $bd->from_date->format('d/m/Y') : '' }}
-                                                                </td>
-                                                                <td>{{ $bd->to_date ? $bd->to_date->format('d/m/Y') : '' }}
-                                                                </td>
-                                                                @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-sm mb-0" id="destinationTable">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th style="width: 15%;">Destination</th>
+                                                            <th style="width: 15%;">Location</th>
+                                                            <th style="width: 12%;" class="text-center">Only Hotel</th>
+                                                            <th style="width: 12%;" class="text-center">Only TT</th>
+                                                            <th style="width: 12%;" class="text-center">Hotel + TT</th>
+                                                            <th style="width: 10%;">From Date</th>
+                                                            <th style="width: 10%;">To Date</th>
+                                                            @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                <th style="width: 10%;" class="text-center">Action</th>
+                                                            @endif
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="destinationTableBody">
+                                                        @if ($lead->bookingDestinations && $lead->bookingDestinations->count() > 0)
+                                                            @foreach ($lead->bookingDestinations as $index => $bd)
+                                                                <tr class="destination-data-row"
+                                                                    data-destination-id="{{ $bd->id }}"
+                                                                    data-row-index="{{ $index }}">
+                                                                    <td>{{ $bd->destination }}</td>
+                                                                    <td>{{ $bd->location }}</td>
                                                                     <td class="text-center">
-                                                                        @if (!$isViewOnly)
-                                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                width="16" height="16"
-                                                                                viewBox="0 0 24 24" fill="none"
-                                                                                stroke="currentColor" stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                class="editDestinationRow"
-                                                                                data-id="{{ $bd->id }}"
-                                                                                data-destination="{{ $bd->destination }}"
-                                                                                data-location="{{ $bd->location }}"
-                                                                                data-only-hotel="{{ $bd->only_hotel ? 1 : 0 }}"
-                                                                                data-only-tt="{{ $bd->only_tt ? 1 : 0 }}"
-                                                                                data-hotel-tt="{{ $bd->hotel_tt ? 1 : 0 }}"
-                                                                                data-from-date="{{ $bd->from_date ? $bd->from_date->format('Y-m-d') : '' }}"
-                                                                                data-to-date="{{ $bd->to_date ? $bd->to_date->format('Y-m-d') : '' }}"
-                                                                                data-bs-toggle="modal"
-                                                                                data-bs-target="#addDestinationModal"
-                                                                                style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;">
-                                                                                <path
-                                                                                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
-                                                                                </path>
-                                                                                <path
-                                                                                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
-                                                                                </path>
-                                                                            </svg>
-                                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                width="16" height="16"
-                                                                                viewBox="0 0 24 24" fill="none"
-                                                                                stroke="currentColor" stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                class="removeDestinationRow"
-                                                                                data-id="{{ $bd->id }}"
-                                                                                style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;">
-                                                                                <polyline points="3 6 5 6 21 6">
-                                                                                </polyline>
-                                                                                <path
-                                                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                                                                </path>
-                                                                            </svg>
+                                                                        @if ($bd->only_hotel)
+                                                                            <i data-feather="check"
+                                                                                style="width: 16px; height: 16px; color: #28a745;"></i>
                                                                         @endif
                                                                     </td>
-                                                                @endif
-                                                            </tr>
-                                                        @endforeach
-                                                    @else
-                                                        <tr>
-                                                            <td colspan="{{ !($isViewOnly && ($isOpsDept || ($isPostSales ?? false))) ? '8' : '7' }}"
-                                                                class="text-center text-muted py-4">
-                                                                <i data-feather="inbox"
-                                                                    style="width: 24px; height: 24px; opacity: 0.5;"
-                                                                    class="mb-2"></i>
-                                                                <div>No destination data available</div>
-                                                            </td>
-                                                        </tr>
-                                                    @endif
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                @endif
-
-                                {{-- Customer Payments (Post Sales editable, others view-only via accounts booking file) --}}
-                                @if ($isPostSales ?? false)
-                                    <div class="mb-4 border rounded-3 p-3">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                <i data-feather="credit-card" class="me-1"
-                                                    style="width: 14px; height: 14px;"></i>
-                                                Customer Payments (Post Sales → Accounts)
-                                            </h6>
-                                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                                data-bs-target="#postSalesAddPaymentModal">
-                                                <i data-feather="plus" style="width: 14px; height: 14px;"></i>
-                                                Add Payment
-                                            </button>
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-sm mb-0" id="customerPaymentsTable">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th>Amount</th>
-                                                        <th>Method</th>
-                                                        <th>Paid On</th>
-                                                        <th>Due Date</th>
-                                                        <th>Transaction ID</th>
-                                                        <th>Status</th>
-                                                        <th class="text-center">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @php
-                                                        $payments = $lead->payments ?? collect();
-                                                    @endphp
-                                                    @if ($payments->count() > 0)
-                                                        @foreach ($payments as $payment)
-                                                            <tr>
-                                                                <td>₹{{ number_format($payment->amount, 2) }}</td>
-                                                                <td>{{ ucfirst(str_replace('_', ' ', $payment->method)) }}
-                                                                </td>
-                                                                <td>{{ $payment->payment_date ? $payment->payment_date->format('d/m/Y') : '-' }}
-                                                                </td>
-                                                                <td>{{ $payment->due_date ? $payment->due_date->format('d/m/Y') : '-' }}
-                                                                </td>
-                                                                <td>{{ $payment->reference ?? '-' }}</td>
-                                                                <td>
-                                                                    @php
-                                                                        $statusColor =
-                                                                            $payment->status === 'received'
-                                                                                ? 'success'
-                                                                                : ($payment->status === 'refunded'
-                                                                                    ? 'secondary'
-                                                                                    : 'warning');
-                                                                    @endphp
-                                                                    <span class="badge bg-{{ $statusColor }}">
-                                                                        {{ ucfirst($payment->status) }}
-                                                                    </span>
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    <i data-feather="edit"
-                                                                        class="post-sales-edit-payment-btn"
-                                                                        data-payment-id="{{ $payment->id }}"
-                                                                        data-amount="{{ $payment->amount }}"
-                                                                        data-method="{{ $payment->method }}"
-                                                                        data-payment-date="{{ $payment->payment_date ? $payment->payment_date->format('Y-m-d') : '' }}"
-                                                                        data-due-date="{{ $payment->due_date ? $payment->due_date->format('Y-m-d') : '' }}"
-                                                                        data-reference="{{ $payment->reference }}"
-                                                                        data-status="{{ $payment->status }}"
-                                                                        data-bs-toggle="modal"
-                                                                        data-bs-target="#postSalesAddPaymentModal"
-                                                                        style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
-                                                                    <button type="button"
-                                                                        class="border-0 bg-transparent p-0 m-0 delete-customer-payment-btn"
-                                                                        data-payment-id="{{ $payment->id }}"
-                                                                        title="Delete Payment">
-                                                                        <i data-feather="trash-2"
-                                                                            style="width: 16px; height: 16px; color: #dc3545; cursor: pointer; pointer-events: none;"></i>
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
-                                                        @endforeach
-                                                    @else
-                                                        <tr>
-                                                            <td colspan="7" class="text-center text-muted py-3">No
-                                                                customer payments recorded</td>
-                                                        </tr>
-                                                    @endif
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                @endif
-                                <!-- Arrival/Departure Details Section -->
-                                @if (!($isPostSales ?? false))
-                                    <div class="mb-4 border rounded-3 p-3">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                <i data-feather="navigation" class="me-1"
-                                                    style="width: 14px; height: 14px;"></i>
-                                                Arrival/Departure Details
-                                            </h6>
-                                            @if (!$isViewOnly)
-                                                <button type="button" class="btn btn-sm btn-primary"
-                                                    data-bs-toggle="modal" data-bs-target="#addArrivalDepartureModal">
-                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
-                                                    Add
-                                                </button>
-                                            @endif
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-sm mb-0" id="arrivalDepartureTable">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th style="width: 12%;" rowspan="2">Mode</th>
-                                                        <th style="width: 15%;" rowspan="2">Info</th>
-                                                        <th style="width: 12%;" rowspan="2">From City</th>
-                                                        <th style="width: 12%;" rowspan="2">To City</th>
-                                                        <th colspan="2" style="width: 18%;">Dep Date & Time</th>
-                                                        <th colspan="2" style="width: 18%;">Arrival Date & Time
-                                                        </th>
-                                                        @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
-                                                            <th style="width: 13%;" rowspan="2" class="text-center">
-                                                                Action</th>
-                                                        @endif
-                                                    </tr>
-
-                                                </thead>
-                                                <tbody id="arrivalDepartureTableBody">
-                                                    @php
-                                                        $allTransports = $lead->bookingArrivalDepartures ?? collect();
-                                                    @endphp
-                                                    @if ($allTransports && $allTransports->count() > 0)
-                                                        @foreach ($allTransports as $index => $transport)
-                                                            <tr class="arrival-departure-data-row"
-                                                                data-transport-id="{{ $transport->id }}"
-                                                                data-row-index="{{ $index }}">
-                                                                <td>{{ $transport->mode }}</td>
-                                                                <td>{{ $transport->info }}</td>
-                                                                <td>{{ $transport->from_city }}</td>
-                                                                <td>{{ $transport->to_city ?? '' }}</td>
-                                                                <td>
-                                                                    {{ $transport->departure_date ? ($transport->departure_date instanceof \DateTime ? $transport->departure_date->format('d/m/Y') : date('d/m/Y', strtotime($transport->departure_date))) : '' }}
-                                                                </td>
-                                                                <td>
-                                                                    {{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}
-                                                                </td>
-                                                                <td>
-                                                                    {{ $transport->arrival_date ? ($transport->arrival_date instanceof \DateTime ? $transport->arrival_date->format('d/m/Y') : date('d/m/Y', strtotime($transport->arrival_date))) : '' }}
-                                                                </td>
-                                                                <td>
-                                                                    {{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}
-                                                                </td>
-                                                                @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
                                                                     <td class="text-center">
-                                                                        @if (!$isViewOnly)
-                                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                width="16" height="16"
-                                                                                viewBox="0 0 24 24" fill="none"
-                                                                                stroke="currentColor" stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                class="editArrivalDepartureRow"
-                                                                                data-id="{{ $transport->id }}"
-                                                                                data-mode="{{ $transport->mode }}"
-                                                                                data-info="{{ $transport->info }}"
-                                                                                data-from-city="{{ $transport->from_city }}"
-                                                                                data-to-city="{{ $transport->to_city }}"
-                                                                                data-departure-date="{{ $transport->departure_date ? $transport->departure_date->format('Y-m-d') : '' }}"
-                                                                                data-departure-time="{{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}"
-                                                                                data-arrival-date="{{ $transport->arrival_date ? $transport->arrival_date->format('Y-m-d') : '' }}"
-                                                                                data-arrival-time="{{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}"
-                                                                                data-bs-toggle="modal"
-                                                                                data-bs-target="#addArrivalDepartureModal"
-                                                                                style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;">
-                                                                                <path
-                                                                                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
-                                                                                </path>
-                                                                                <path
-                                                                                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
-                                                                                </path>
-                                                                            </svg>
-                                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                width="16" height="16"
-                                                                                viewBox="0 0 24 24" fill="none"
-                                                                                stroke="currentColor" stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                class="removeArrivalDepartureRow"
-                                                                                data-id="{{ $transport->id }}"
-                                                                                style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;">
-                                                                                <polyline points="3 6 5 6 21 6">
-                                                                                </polyline>
-                                                                                <path
-                                                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                                                                </path>
-                                                                            </svg>
+                                                                        @if ($bd->only_tt)
+                                                                            <i data-feather="check"
+                                                                                style="width: 16px; height: 16px; color: #28a745;"></i>
                                                                         @endif
                                                                     </td>
-                                                                @endif
-                                                            </tr>
-                                                        @endforeach
-                                                    @else
-                                                        <tr>
-                                                            <td colspan="{{ !($isViewOnly && ($isOpsDept || ($isPostSales ?? false))) ? '9' : '8' }}"
-                                                                class="text-center text-muted py-4">
-                                                                <i data-feather="inbox"
-                                                                    style="width: 24px; height: 24px; opacity: 0.5;"
-                                                                    class="mb-2"></i>
-                                                                <div>No arrival/departure data available</div>
-                                                            </td>
-                                                        </tr>
-                                                    @endif
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                @endif
-
-                                <!-- Accommodation Details Section -->
-                                @if (!($isPostSales ?? false))
-                                    <div class="mb-4 border rounded-3 p-3 bg-light">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                <i data-feather="home" class="me-1"
-                                                    style="width: 14px; height: 14px;"></i>
-                                                Accommodation Details
-                                            </h6>
-                                            @if (!$isViewOnly)
-                                                <button type="button" class="btn btn-sm btn-primary"
-                                                    data-bs-toggle="modal" data-bs-target="#addAccommodationModal">
-                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
-                                                    Add
-                                                </button>
-                                            @endif
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-sm mb-0" id="accommodationTable">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th style="width: 12%;">Destination</th>
-                                                        <th style="width: 12%;">Location</th>
-                                                        <th style="width: 12%;">Stay At</th>
-                                                        <th style="width: 12%;">Check-in</th>
-                                                        <th style="width: 12%;">Check-out</th>
-                                                        <th style="width: 12%;">Room Type</th>
-                                                        <th style="width: 12%;">Meal Plan</th>
-                                                        @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
-                                                            <th style="width: 4%;" class="text-center">Action</th>
-                                                        @endif
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="accommodationTableBody">
-                                                    @if ($lead->bookingAccommodations && $lead->bookingAccommodations->count() > 0)
-                                                        @foreach ($lead->bookingAccommodations as $index => $ba)
-                                                            <tr class="accommodation-data-row"
-                                                                data-row-index="{{ $index }}">
-                                                                <td>{{ $ba->destination }}</td>
-                                                                <td>{{ $ba->location }}</td>
-                                                                <td>{{ $ba->stay_at }}</td>
-                                                                <td>{{ $ba->checkin_date ? $ba->checkin_date->format('d/m/Y') : '' }}
-                                                                </td>
-                                                                <td>{{ $ba->checkout_date ? $ba->checkout_date->format('d/m/Y') : '' }}
-                                                                </td>
-                                                                <td>{{ $ba->room_type }}</td>
-                                                                <td>{{ $ba->meal_plan }}</td>
-                                                                @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
                                                                     <td class="text-center">
-                                                                        @if (!$isViewOnly)
-                                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                width="16" height="16"
-                                                                                viewBox="0 0 24 24" fill="none"
-                                                                                stroke="currentColor" stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                class="editAccommodationRow"
-                                                                                data-accommodation-id="{{ $ba->id }}"
-                                                                                data-destination="{{ $ba->destination }}"
-                                                                                data-location="{{ $ba->location }}"
-                                                                                data-stay-at="{{ $ba->stay_at }}"
-                                                                                data-checkin-date="{{ $ba->checkin_date ? $ba->checkin_date->format('Y-m-d') : '' }}"
-                                                                                data-checkout-date="{{ $ba->checkout_date ? $ba->checkout_date->format('Y-m-d') : '' }}"
-                                                                                data-room-type="{{ $ba->room_type }}"
-                                                                                data-meal-plan="{{ $ba->meal_plan }}"
-                                                                                data-single-room="{{ $ba->single_room ?? 0 }}"
-                                                                                data-dbl-room="{{ $ba->dbl_room ?? 0 }}"
-                                                                                data-quad-room="{{ $ba->quad_room ?? 0 }}"
-                                                                                data-eba="{{ $ba->eba ?? 0 }}"
-                                                                                data-cwb="{{ $ba->cwb ?? 0 }}"
-                                                                                data-inf="{{ $ba->inf ?? 0 }}"
-                                                                                data-bs-toggle="modal"
-                                                                                data-bs-target="#addAccommodationModal"
-                                                                                style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;">
-                                                                                <path
-                                                                                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
-                                                                                </path>
-                                                                                <path
-                                                                                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
-                                                                                </path>
-                                                                            </svg>
-                                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                width="16" height="16"
-                                                                                viewBox="0 0 24 24" fill="none"
-                                                                                stroke="currentColor" stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                class="removeAccommodationRow"
-                                                                                data-accommodation-id="{{ $ba->id }}"
-                                                                                style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;">
-                                                                                <polyline points="3 6 5 6 21 6">
-                                                                                </polyline>
-                                                                                <path
-                                                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                                                                </path>
-                                                                            </svg>
+                                                                        @if ($bd->hotel_tt)
+                                                                            <i data-feather="check"
+                                                                                style="width: 16px; height: 16px; color: #28a745;"></i>
                                                                         @endif
                                                                     </td>
-                                                                @endif
-                                                            </tr>
-                                                        @endforeach
-                                                    @else
-                                                        <tr>
-                                                            <td colspan="{{ !($isViewOnly && ($isOpsDept || ($isPostSales ?? false))) ? '8' : '7' }}"
-                                                                class="text-center text-muted py-4">
-                                                                <i data-feather="inbox"
-                                                                    style="width: 24px; height: 24px; opacity: 0.5;"
-                                                                    class="mb-2"></i>
-                                                                <div>No accommodation data available</div>
-                                                            </td>
-                                                        </tr>
-                                                    @endif
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                @endif
-
-                                <!-- Day-Wise Itinerary Section -->
-                                @if (!($isPostSales ?? false))
-                                    <div class="mb-4 border rounded-3 p-3" id="dayWiseItinerarySection"
-                                        style="display: none;">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                <i data-feather="calendar" class="me-1"
-                                                    style="width: 14px; height: 14px;"></i>
-                                                Day-Wise Itinerary
-                                            </h6>
-                                            @if (!$isViewOnly)
-                                                <button type="button" class="btn btn-sm btn-primary"
-                                                    data-bs-toggle="modal" data-bs-target="#addItineraryModal">
-                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
-                                                    Add
-                                                </button>
-                                            @endif
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-sm mb-0" id="itineraryTable">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th style="width: 12%;">Day & Date</th>
-                                                        <th style="width: 8%;">Time</th>
-                                                        <th style="width: 10%;">Location</th>
-                                                        <th style="width: 20%;">Activity/Tour Description</th>
-                                                        <th style="width: 10%;">Stay at</th>
-                                                        <th style="width: 15%;">Remarks</th>
-                                                        @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
-                                                            <th style="width: 7%;" class="text-center">Action</th>
+                                                                    <td>{{ $bd->from_date ? $bd->from_date->format('d/m/Y') : '' }}
+                                                                    </td>
+                                                                    <td>{{ $bd->to_date ? $bd->to_date->format('d/m/Y') : '' }}
+                                                                    </td>
+                                                                    @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                        <td class="text-center">
+                                                                            @if (!$isViewOnly)
+                                                                                <input type="hidden"
+                                                                                    name="booking_destinations[{{ $index }}][id]"
+                                                                                    value="{{ $bd->id }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_destinations[{{ $index }}][destination]"
+                                                                                    value="{{ $bd->destination }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_destinations[{{ $index }}][location]"
+                                                                                    value="{{ $bd->location }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_destinations[{{ $index }}][only_hotel]"
+                                                                                    value="{{ $bd->only_hotel ? '1' : '0' }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_destinations[{{ $index }}][only_tt]"
+                                                                                    value="{{ $bd->only_tt ? '1' : '0' }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_destinations[{{ $index }}][hotel_tt]"
+                                                                                    value="{{ $bd->hotel_tt ? '1' : '0' }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_destinations[{{ $index }}][from_date]"
+                                                                                    value="{{ $bd->from_date ? $bd->from_date->format('Y-m-d') : '' }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_destinations[{{ $index }}][to_date]"
+                                                                                    value="{{ $bd->to_date ? $bd->to_date->format('Y-m-d') : '' }}">
+                                                                                <i data-feather="edit"
+                                                                                    class="editDestinationRow"
+                                                                                    data-destination-id="{{ $bd->id }}"
+                                                                                    data-bs-toggle="modal"
+                                                                                    data-bs-target="#addDestinationModal"
+                                                                                    style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
+                                                                                <i data-feather="trash-2"
+                                                                                    class="removeDestinationRow"
+                                                                                    style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                                                                            @endif
+                                                                        </td>
+                                                                    @endif
+                                                                </tr>
+                                                            @endforeach
                                                         @endif
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="itineraryTableBody">
-                                                    @if ($lead->bookingItineraries && $lead->bookingItineraries->count() > 0)
-                                                        @foreach ($lead->bookingItineraries as $index => $bi)
-                                                            <tr class="itinerary-data-row"
-                                                                data-row-index="{{ $index }}">
-                                                                <td>{{ $bi->day_and_date }}</td>
-                                                                <td>{{ $bi->time ? substr($bi->time, 0, 5) : '' }}
-                                                                </td>
-                                                                <td>{{ $bi->location }}</td>
-                                                                <td>
-                                                                    @if ($bi->activity_tour_description)
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    {{-- Customer Payments (Post Sales editable, others view-only via accounts booking file) --}}
+                                    @if ($isPostSales ?? false)
+                                        <div class="mb-4 border rounded-3 p-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                    <i data-feather="credit-card" class="me-1"
+                                                        style="width: 14px; height: 14px;"></i>
+                                                    Customer Payments (Post Sales → Accounts)
+                                                </h6>
+                                                <button type="button" class="btn btn-sm btn-primary"
+                                                    data-bs-toggle="modal" data-bs-target="#postSalesAddPaymentModal">
+                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                    Add Payment
+                                                </button>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-sm mb-0"
+                                                    id="customerPaymentsTable">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>Amount</th>
+                                                            <th>Method</th>
+                                                            <th>Paid On</th>
+                                                            <th>Due Date</th>
+                                                            <th>Transaction ID</th>
+                                                            <th>Status</th>
+                                                            <th class="text-center">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @php
+                                                            $payments = $lead->payments ?? collect();
+                                                        @endphp
+                                                        @if ($payments->count() > 0)
+                                                            @foreach ($payments as $payment)
+                                                                <tr>
+                                                                    <td>₹{{ number_format($payment->amount, 2) }}</td>
+                                                                    <td>{{ ucfirst(str_replace('_', ' ', $payment->method)) }}
+                                                                    </td>
+                                                                    <td>{{ $payment->payment_date ? $payment->payment_date->format('d/m/Y') : '-' }}
+                                                                    </td>
+                                                                    <td>{{ $payment->due_date ? $payment->due_date->format('d/m/Y') : '-' }}
+                                                                    </td>
+                                                                    <td>{{ $payment->reference ?? '-' }}</td>
+                                                                    <td>
                                                                         @php
-                                                                            // Handle different line break formats (Windows \r\n, Unix \n, Mac \r)
-                                                                            $text = str_replace(
-                                                                                ["\r\n", "\r"],
-                                                                                "\n",
-                                                                                $bi->activity_tour_description,
-                                                                            );
-                                                                            $activities = array_filter(
-                                                                                array_map('trim', explode("\n", $text)),
-                                                                                function ($item) {
-                                                                                    return !empty($item);
-                                                                                },
-                                                                            );
+                                                                            $statusColor =
+                                                                                $payment->status === 'received'
+                                                                                    ? 'success'
+                                                                                    : ($payment->status === 'refunded'
+                                                                                        ? 'secondary'
+                                                                                        : 'warning');
                                                                         @endphp
-                                                                        @if (count($activities) > 0)
-                                                                            <div class="mb-0"
-                                                                                style="padding-left: 0; margin-bottom: 0;">
-                                                                                @foreach ($activities as $activity)
-                                                                                    <div
-                                                                                        style="margin-bottom: 4px; padding-left: 0;">
-                                                                                        <span
-                                                                                            style="margin-right: 8px;">•</span>{{ $activity }}
-                                                                                    </div>
-                                                                                @endforeach
-                                                                            </div>
-                                                                        @else
-                                                                            {{ $bi->activity_tour_description }}
-                                                                        @endif
-                                                                    @else
-                                                                        -
-                                                                    @endif
-                                                                </td>
-                                                                <td>{{ $bi->stay_at }}</td>
-                                                                <td>{{ $bi->remarks }}</td>
-                                                                @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
-                                                                    <td class="text-center">
-                                                                        @if (!$isViewOnly)
-                                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                width="16" height="16"
-                                                                                viewBox="0 0 24 24" fill="none"
-                                                                                stroke="currentColor" stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                class="editItineraryRow"
-                                                                                data-itinerary-id="{{ $bi->id }}"
-                                                                                data-day-date="{{ $bi->day_and_date }}"
-                                                                                data-time="{{ $bi->time ? substr($bi->time, 0, 5) : '' }}"
-                                                                                data-location="{{ $bi->location }}"
-                                                                                data-activity="{{ $bi->activity_tour_description }}"
-                                                                                data-stay-at="{{ $bi->stay_at }}"
-                                                                                data-remarks="{{ $bi->remarks }}"
-                                                                                data-bs-toggle="modal"
-                                                                                data-bs-target="#addItineraryModal"
-                                                                                style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;">
-                                                                                <path
-                                                                                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
-                                                                                </path>
-                                                                                <path
-                                                                                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
-                                                                                </path>
-                                                                            </svg>
-                                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                width="16" height="16"
-                                                                                viewBox="0 0 24 24" fill="none"
-                                                                                stroke="currentColor" stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                class="removeItineraryRow"
-                                                                                data-itinerary-id="{{ $bi->id }}"
-                                                                                style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;">
-                                                                                <polyline points="3 6 5 6 21 6">
-                                                                                </polyline>
-                                                                                <path
-                                                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                                                                </path>
-                                                                            </svg>
-                                                                        @endif
+                                                                        <span class="badge bg-{{ $statusColor }}">
+                                                                            {{ ucfirst($payment->status) }}
+                                                                        </span>
                                                                     </td>
-                                                                @endif
+                                                                    <td class="text-center">
+                                                                        <i data-feather="edit"
+                                                                            class="post-sales-edit-payment-btn"
+                                                                            data-payment-id="{{ $payment->id }}"
+                                                                            data-amount="{{ $payment->amount }}"
+                                                                            data-method="{{ $payment->method }}"
+                                                                            data-payment-date="{{ $payment->payment_date ? $payment->payment_date->format('Y-m-d') : '' }}"
+                                                                            data-due-date="{{ $payment->due_date ? $payment->due_date->format('Y-m-d') : '' }}"
+                                                                            data-reference="{{ $payment->reference }}"
+                                                                            data-status="{{ $payment->status }}"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#postSalesAddPaymentModal"
+                                                                            style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
+                                                                        <button type="button"
+                                                                            class="border-0 bg-transparent p-0 m-0 delete-customer-payment-btn"
+                                                                            data-payment-id="{{ $payment->id }}"
+                                                                            title="Delete Payment">
+                                                                            <i data-feather="trash-2"
+                                                                                style="width: 16px; height: 16px; color: #dc3545; cursor: pointer; pointer-events: none;"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        @else
+                                                            <tr>
+                                                                <td colspan="7" class="text-center text-muted py-3">No
+                                                                    customer payments recorded</td>
                                                             </tr>
-                                                        @endforeach
-                                                    @else
-                                                        <tr>
-                                                            <td colspan="{{ !($isViewOnly && ($isOpsDept || ($isPostSales ?? false))) ? '7' : '6' }}"
-                                                                class="text-center text-muted py-4">
-                                                                <i data-feather="inbox"
-                                                                    style="width: 24px; height: 24px; opacity: 0.5;"
-                                                                    class="mb-2"></i>
-                                                                <div>No itinerary data available</div>
-                                                            </td>
-                                                        </tr>
-                                                    @endif
-                                                </tbody>
-                                            </table>
+                                                        @endif
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
-                                    </div>
-                                @endif
+                                    @endif
+                                    <!-- Arrival/Departure Details Section -->
+                                    @if (!($isPostSales ?? false))
+                                        <div class="mb-4 border rounded-3 p-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                    <i data-feather="navigation" class="me-1"
+                                                        style="width: 14px; height: 14px;"></i>
+                                                    Arrival/Departure Details
+                                                </h6>
+                                                @if (!$isViewOnly)
+                                                    <button type="button" class="btn btn-sm btn-primary"
+                                                        data-bs-toggle="modal" data-bs-target="#addArrivalDepartureModal">
+                                                        <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                        Add
+                                                    </button>
+                                                @endif
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-sm mb-0"
+                                                    id="arrivalDepartureTable">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th style="width: 12%;" rowspan="2">Mode</th>
+                                                            <th style="width: 15%;" rowspan="2">Info</th>
+                                                            <th style="width: 12%;" rowspan="2">From City</th>
+                                                            <th style="width: 12%;" rowspan="2">To City</th>
+                                                            <th colspan="2" style="width: 18%;">Dep Date & Time</th>
+                                                            <th colspan="2" style="width: 18%;">Arrival Date & Time
+                                                            </th>
+                                                            @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                <th style="width: 13%;" rowspan="2"
+                                                                    class="text-center">Action</th>
+                                                            @endif
+                                                        </tr>
 
-                                <!-- Traveller Document Details (Post Sales editable, Operations view-only) -->
-                                @if (($isPostSales ?? false) || ($isOpsDept ?? false))
-                                    <div class="mb-4 border rounded-3 p-3">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                <i data-feather="clipboard" class="me-1"
-                                                    style="width: 14px; height: 14px;"></i>
-                                                Traveller Document Details
-                                            </h6>
-                                            @if (!($isOpsDept ?? false))
+                                                    </thead>
+                                                    <tbody id="arrivalDepartureTableBody">
+                                                        @php
+                                                            $allTransports =
+                                                                $lead->bookingArrivalDepartures ?? collect();
+                                                        @endphp
+                                                        @if ($allTransports && $allTransports->count() > 0)
+                                                            @foreach ($allTransports as $index => $transport)
+                                                                <tr class="arrival-departure-data-row"
+                                                                    data-transport-id="{{ $transport->id }}"
+                                                                    data-row-index="{{ $index }}">
+                                                                    <td>{{ $transport->mode }}</td>
+                                                                    <td>{{ $transport->info }}</td>
+                                                                    <td>{{ $transport->from_city }}</td>
+                                                                    <td>{{ $transport->to_city ?? '' }}</td>
+                                                                    <td>
+                                                                        {{ $transport->departure_date ? ($transport->departure_date instanceof \DateTime ? $transport->departure_date->format('d/m/Y') : date('d/m/Y', strtotime($transport->departure_date))) : '' }}
+                                                                    </td>
+                                                                    <td>
+                                                                        {{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}
+                                                                    </td>
+                                                                    <td>
+                                                                        {{ $transport->arrival_date ? ($transport->arrival_date instanceof \DateTime ? $transport->arrival_date->format('d/m/Y') : date('d/m/Y', strtotime($transport->arrival_date))) : '' }}
+                                                                    </td>
+                                                                    <td>
+                                                                        {{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}
+                                                                    </td>
+                                                                    @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                        <td class="text-center">
+                                                                            @if (!$isViewOnly)
+                                                                                <input type="hidden"
+                                                                                    name="arrival_departure[{{ $index }}][id]"
+                                                                                    value="{{ $transport->id }}">
+                                                                                <input type="hidden"
+                                                                                    name="arrival_departure[{{ $index }}][mode]"
+                                                                                    value="{{ $transport->mode }}">
+                                                                                <input type="hidden"
+                                                                                    name="arrival_departure[{{ $index }}][info]"
+                                                                                    value="{{ $transport->info }}">
+                                                                                <input type="hidden"
+                                                                                    name="arrival_departure[{{ $index }}][from_city]"
+                                                                                    value="{{ $transport->from_city }}">
+                                                                                <input type="hidden"
+                                                                                    name="arrival_departure[{{ $index }}][to_city]"
+                                                                                    value="{{ $transport->to_city ?? '' }}">
+                                                                                <input type="hidden"
+                                                                                    name="arrival_departure[{{ $index }}][departure_date]"
+                                                                                    value="{{ $transport->departure_date ? ($transport->departure_date instanceof \DateTime ? $transport->departure_date->format('Y-m-d') : $transport->departure_date) : '' }}">
+                                                                                <input type="hidden"
+                                                                                    name="arrival_departure[{{ $index }}][departure_time]"
+                                                                                    value="{{ $transport->departure_time ? substr($transport->departure_time, 0, 5) : '' }}">
+                                                                                <input type="hidden"
+                                                                                    name="arrival_departure[{{ $index }}][arrival_date]"
+                                                                                    value="{{ $transport->arrival_date ? ($transport->arrival_date instanceof \DateTime ? $transport->arrival_date->format('Y-m-d') : $transport->arrival_date) : '' }}">
+                                                                                <input type="hidden"
+                                                                                    name="arrival_departure[{{ $index }}][arrival_time]"
+                                                                                    value="{{ $transport->arrival_time ? substr($transport->arrival_time, 0, 5) : '' }}">
+                                                                                <i data-feather="edit"
+                                                                                    class="editArrivalDepartureRow"
+                                                                                    data-transport-id="{{ $transport->id }}"
+                                                                                    data-bs-toggle="modal"
+                                                                                    data-bs-target="#addArrivalDepartureModal"
+                                                                                    style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
+                                                                                <i data-feather="trash-2"
+                                                                                    class="removeArrivalDepartureRow"
+                                                                                    style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                                                                            @endif
+                                                                        </td>
+                                                                    @endif
+                                                                </tr>
+                                                            @endforeach
+                                                        @endif
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    <!-- Accommodation Details Section -->
+                                    @if (!($isPostSales ?? false))
+                                        <div class="mb-4 border rounded-3 p-3 bg-light">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                    <i data-feather="home" class="me-1"
+                                                        style="width: 14px; height: 14px;"></i>
+                                                    Accommodation Details
+                                                </h6>
+                                                @if (!$isViewOnly)
+                                                    <button type="button" class="btn btn-sm btn-primary"
+                                                        data-bs-toggle="modal" data-bs-target="#addAccommodationModal">
+                                                        <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                        Add
+                                                    </button>
+                                                @endif
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-sm mb-0" id="accommodationTable">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th style="width: 12%;">Destination</th>
+                                                            <th style="width: 12%;">Location</th>
+                                                            <th style="width: 12%;">Stay At</th>
+                                                            <th style="width: 12%;">Check-in (Date)</th>
+                                                            <th style="width: 12%;">Check-out (Date)</th>
+                                                            <th style="width: 12%;">Room Type</th>
+                                                            <th style="width: 12%;">Meal Plan</th>
+                                                            @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                <th style="width: 4%;" class="text-center">Action</th>
+                                                            @endif
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="accommodationTableBody">
+                                                        @if ($lead->bookingAccommodations && $lead->bookingAccommodations->count() > 0)
+                                                            @foreach ($lead->bookingAccommodations as $index => $ba)
+                                                                <tr class="accommodation-data-row"
+                                                                    data-row-index="{{ $index }}">
+                                                                    <td>{{ $ba->destination }}</td>
+                                                                    <td>{{ $ba->location }}</td>
+                                                                    <td>{{ $ba->stay_at }}</td>
+                                                                    <td>{{ $ba->checkin_date ? $ba->checkin_date->format('d/m/Y') : '' }}
+                                                                    </td>
+                                                                    <td>{{ $ba->checkout_date ? $ba->checkout_date->format('d/m/Y') : '' }}
+                                                                    </td>
+                                                                    <td>{{ $ba->room_type }}</td>
+                                                                    <td>{{ $ba->meal_plan }}</td>
+                                                                    @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                        <td class="text-center">
+                                                                            @if (!$isViewOnly)
+                                                                                <input type="hidden"
+                                                                                    name="booking_accommodations[{{ $index }}][id]"
+                                                                                    value="{{ $ba->id }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_accommodations[{{ $index }}][destination]"
+                                                                                    value="{{ $ba->destination }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_accommodations[{{ $index }}][location]"
+                                                                                    value="{{ $ba->location }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_accommodations[{{ $index }}][stay_at]"
+                                                                                    value="{{ $ba->stay_at }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_accommodations[{{ $index }}][checkin_date]"
+                                                                                    value="{{ $ba->checkin_date ? $ba->checkin_date->format('Y-m-d') : '' }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_accommodations[{{ $index }}][checkout_date]"
+                                                                                    value="{{ $ba->checkout_date ? $ba->checkout_date->format('Y-m-d') : '' }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_accommodations[{{ $index }}][room_type]"
+                                                                                    value="{{ $ba->room_type }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_accommodations[{{ $index }}][meal_plan]"
+                                                                                    value="{{ $ba->meal_plan }}">
+                                                                                <i data-feather="edit"
+                                                                                    class="editAccommodationRow"
+                                                                                    data-accommodation-id="{{ $ba->id }}"
+                                                                                    data-bs-toggle="modal"
+                                                                                    data-bs-target="#addAccommodationModal"
+                                                                                    style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
+                                                                                <i data-feather="trash-2"
+                                                                                    class="removeAccommodationRow"
+                                                                                    style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                                                                            @endif
+                                                                        </td>
+                                                                    @endif
+                                                                </tr>
+                                                            @endforeach
+                                                        @endif
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    <!-- Day-Wise Itinerary Section -->
+                                    @if (!($isPostSales ?? false))
+                                        <div class="mb-4 border rounded-3 p-3" id="dayWiseItinerarySection"
+                                            style="display: none;">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                    <i data-feather="calendar" class="me-1"
+                                                        style="width: 14px; height: 14px;"></i>
+                                                    Day-Wise Itinerary
+                                                </h6>
+                                                @if (!$isViewOnly)
+                                                    <button type="button" class="btn btn-sm btn-primary"
+                                                        data-bs-toggle="modal" data-bs-target="#addItineraryModal">
+                                                        <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                        Add
+                                                    </button>
+                                                @endif
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-sm mb-0" id="itineraryTable">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th style="width: 12%;">Day & Date</th>
+                                                            <th style="width: 8%;">Time</th>
+                                                            <th style="width: 10%;">Location</th>
+                                                            <th style="width: 20%;">Activity/Tour Description</th>
+                                                            <th style="width: 10%;">Stay at</th>
+                                                            <th style="width: 15%;">Remarks</th>
+                                                            @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                <th style="width: 7%;" class="text-center">Action</th>
+                                                            @endif
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="itineraryTableBody">
+                                                        @if ($lead->bookingItineraries && $lead->bookingItineraries->count() > 0)
+                                                            @foreach ($lead->bookingItineraries as $index => $bi)
+                                                                <tr class="itinerary-data-row"
+                                                                    data-row-index="{{ $index }}">
+                                                                    <td>{{ $bi->day_and_date }}</td>
+                                                                    <td>{{ $bi->time ? substr($bi->time, 0, 5) : '' }}
+                                                                    </td>
+                                                                    <td>{{ $bi->location }}</td>
+                                                                    <td>{{ $bi->activity_tour_description }}</td>
+                                                                    <td>{{ $bi->stay_at }}</td>
+                                                                    <td>{{ $bi->remarks }}</td>
+                                                                    @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                        <td class="text-center">
+                                                                            @if (!$isViewOnly)
+                                                                                <input type="hidden"
+                                                                                    name="booking_itineraries[{{ $index }}][id]"
+                                                                                    value="{{ $bi->id }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_itineraries[{{ $index }}][day_and_date]"
+                                                                                    value="{{ $bi->day_and_date }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_itineraries[{{ $index }}][time]"
+                                                                                    value="{{ $bi->time ? substr($bi->time, 0, 5) : '' }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_itineraries[{{ $index }}][location]"
+                                                                                    value="{{ $bi->location }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_itineraries[{{ $index }}][activity_tour_description]"
+                                                                                    value="{{ $bi->activity_tour_description }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_itineraries[{{ $index }}][stay_at]"
+                                                                                    value="{{ $bi->stay_at }}">
+                                                                                <input type="hidden"
+                                                                                    name="booking_itineraries[{{ $index }}][remarks]"
+                                                                                    value="{{ $bi->remarks }}">
+                                                                                <i data-feather="edit"
+                                                                                    class="editItineraryRow"
+                                                                                    data-itinerary-id="{{ $bi->id }}"
+                                                                                    data-bs-toggle="modal"
+                                                                                    data-bs-target="#addItineraryModal"
+                                                                                    style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
+                                                                                <i data-feather="trash-2"
+                                                                                    class="removeItineraryRow"
+                                                                                    style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                                                                            @endif
+                                                                        </td>
+                                                                    @endif
+                                                                </tr>
+                                                            @endforeach
+                                                        @endif
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    <!-- Traveller Document Details (Post Sales Only) -->
+                                    @if ($isPostSales ?? false)
+                                        <div class="mb-4 border rounded-3 p-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                    <i data-feather="clipboard" class="me-1"
+                                                        style="width: 14px; height: 14px;"></i>
+                                                    Traveller Document Details
+                                                </h6>
                                                 <button type="button" id="openTravellerDocModalBtn"
                                                     class="btn btn-sm btn-primary" data-bs-toggle="modal"
                                                     data-bs-target="#travellerDocumentModal">
                                                     <i data-feather="plus" style="width: 14px; height: 14px;"></i>
                                                     Add
                                                 </button>
-                                            @endif
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-sm mb-0" id="travellerDocumentTable">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th style="width: 5%;">Sr. No.</th>
-                                                        <th style="width: 25%;">Full Name</th>
-                                                        <th style="width: 10%;">Contact No.</th>
-                                                        <th style="width: 15%;">Doc Type</th>
-                                                        <th style="width: 18%;">Doc No.</th>
-                                                        <th style="width: 10%;">Nationality</th>
-                                                        <th style="width: 8%;">DOB</th>
-                                                        <th style="width: 10%;">Place of Issue</th>
-                                                        <th style="width: 10%;">Expiry</th>
-                                                        <th style="width: 12%;">Remark</th>
-                                                        <th style="width: 10%;">Status</th>
-                                                        @if (!($isOpsDept ?? false))
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-sm mb-0"
+                                                    id="travellerDocumentTable">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th style="width: 5%;">Sr. No.</th>
+                                                            <th style="width: 8%;">Salutation</th>
+                                                            <th style="width: 12%;">First Name</th>
+                                                            <th style="width: 12%;">Last Name</th>
+                                                            <th style="width: 15%;">Doc Type</th>
+                                                            <th style="width: 10%;">Status</th>
+                                                            <th style="width: 18%;">Doc No.</th>
+                                                            <th style="width: 10%;">Nationality</th>
+                                                            <th style="width: 8%;">DOB</th>
+                                                            <th style="width: 10%;">Place of Issue</th>
+                                                            <th style="width: 10%;">Expiry</th>
+                                                            <th style="width: 12%;">Remark</th>
                                                             <th style="width: 8%;" class="text-center">Action</th>
-                                                        @endif
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="travellerDocumentTableBody">
-                                                    @php
-                                                        $travellerDocs = $lead->travellerDocuments ?? collect();
-                                                    @endphp
-                                                    @forelse($travellerDocs as $index => $doc)
-                                                        <tr data-row-type="{{ $doc->doc_type }}">
-                                                            <td>{{ $index + 1 }}</td>
-                                                            <td>
-                                                                @php
-                                                                    $fullName = trim(
-                                                                        ($doc->salutation
-                                                                            ? $doc->salutation . ' '
-                                                                            : '') .
-                                                                            ($doc->first_name ?? '') .
-                                                                            ($doc->last_name
-                                                                                ? ' ' . $doc->last_name
-                                                                                : ''),
-                                                                    );
-                                                                @endphp
-                                                                {{ $fullName ?: '-' }}
-                                                            </td>
-                                                            <td>{{ $doc->contact_no ?? '-' }}</td>
-                                                            <td>
-                                                                @switch($doc->doc_type)
-                                                                    @case('passport')
-                                                                        Passport
-                                                                    @break
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="travellerDocumentTableBody">
+                                                        @php
+                                                            $travellerDocs = $lead->travellerDocuments ?? collect();
+                                                        @endphp
+                                                        @forelse($travellerDocs as $index => $doc)
+                                                            <tr data-row-type="{{ $doc->doc_type }}">
+                                                                <td>{{ $index + 1 }}</td>
+                                                                <td>{{ $doc->salutation ?? '-' }}</td>
+                                                                <td>{{ $doc->first_name }}</td>
+                                                                <td>{{ $doc->last_name }}</td>
+                                                                <td>
+                                                                    @switch($doc->doc_type)
+                                                                        @case('passport')
+                                                                            Passport
+                                                                        @break
 
-                                                                    @case('aadhar_card')
-                                                                        Aadhar Card
-                                                                    @break
+                                                                        @case('aadhar_card')
+                                                                            Aadhar Card
+                                                                        @break
 
-                                                                    @case('pan_card')
-                                                                        PAN Card
-                                                                    @break
+                                                                        @case('pan_card')
+                                                                            PAN Card
+                                                                        @break
 
-                                                                    @case('visa')
-                                                                        Visa
-                                                                    @break
+                                                                        @case('visa')
+                                                                            Visa
+                                                                        @break
 
-                                                                    @case('voter_id')
-                                                                        Voter ID
-                                                                    @break
+                                                                        @case('voter_id')
+                                                                            Voter ID
+                                                                        @break
 
-                                                                    @case('driving_license')
-                                                                        Driving License
-                                                                    @break
+                                                                        @case('driving_license')
+                                                                            Driving License
+                                                                        @break
 
-                                                                    @case('govt_id')
-                                                                        Govt. ID
-                                                                    @break
+                                                                        @case('govt_id')
+                                                                            Govt. ID
+                                                                        @break
 
-                                                                    @case('school_id')
-                                                                        School ID
-                                                                    @break
+                                                                        @case('school_id')
+                                                                            School ID
+                                                                        @break
 
-                                                                    @case('birth_certificate')
-                                                                        Birth Certificate
-                                                                    @break
+                                                                        @case('birth_certificate')
+                                                                            Birth Certificate
+                                                                        @break
 
-                                                                    @case('marriage_certificate')
-                                                                        Marriage Certificate
-                                                                    @break
+                                                                        @case('marriage_certificate')
+                                                                            Marriage Certificate
+                                                                        @break
 
-                                                                    @case('photos')
-                                                                        Photos
-                                                                    @break
+                                                                        @case('photos')
+                                                                            Photos
+                                                                        @break
 
-                                                                    @case('insurance')
-                                                                        Insurance
-                                                                    @break
+                                                                        @case('insurance')
+                                                                            Insurance
+                                                                        @break
 
-                                                                    @case('other_document')
-                                                                        Other Document
-                                                                    @break
+                                                                        @case('other_document')
+                                                                            Other Document
+                                                                        @break
 
-                                                                    @default
-                                                                        {{ ucfirst(str_replace('_', ' ', $doc->doc_type)) }}
-                                                                @endswitch
-                                                            </td>
-
-                                                            <td>{{ $doc->doc_no ?? '-' }}</td>
-                                                            <td>
-                                                                @if ($doc->doc_type === 'passport')
-                                                                    {{ $doc->nationality }}
-                                                                @endif
-                                                            </td>
-                                                            <td>
-                                                                @if ($doc->doc_type === 'passport' && $doc->dob)
-                                                                    {{ $doc->dob->format('d/m/Y') }}
-                                                                @endif
-                                                            </td>
-                                                            <td>
-                                                                @if ($doc->doc_type === 'passport')
-                                                                    {{ $doc->place_of_issue }}
-                                                                @endif
-                                                            </td>
-                                                            <td>
-                                                                @if ($doc->doc_type === 'passport' && $doc->date_of_expiry)
-                                                                    {{ $doc->date_of_expiry->format('d/m/Y') }}
-                                                                @endif
-                                                            </td>
-                                                            <td>
-                                                                {{ $doc->remark ?? '-' }}
-                                                            </td>
-                                                            <td>
-                                                                @php
-                                                                    $status = strtolower($doc->status ?? '');
-                                                                    $badgeClass = 'secondary';
-                                                                    $statusLabel = ucfirst(
-                                                                        str_replace('_', ' ', $status),
-                                                                    );
-                                                                    if ($status === 'received') {
-                                                                        $badgeClass = 'success';
-                                                                    } elseif ($status === 'pending') {
-                                                                        $badgeClass = 'warning';
-                                                                    } elseif ($status === 'not_required') {
+                                                                        @default
+                                                                            {{ ucfirst(str_replace('_', ' ', $doc->doc_type)) }}
+                                                                    @endswitch
+                                                                </td>
+                                                                <td>
+                                                                    @php
+                                                                        $status = strtolower($doc->status ?? '');
                                                                         $badgeClass = 'secondary';
-                                                                    } elseif ($status === 'required_again') {
-                                                                        $badgeClass = 'danger';
-                                                                    }
-                                                                @endphp
-                                                                @if ($status)
-                                                                    <span class="badge bg-{{ $badgeClass }}">
-                                                                        {{ $statusLabel }}
-                                                                    </span>
-                                                                @endif
-                                                            </td>
-                                                            @if (!($isOpsDept ?? false))
+                                                                        $statusLabel = ucfirst(
+                                                                            str_replace('_', ' ', $status),
+                                                                        );
+                                                                        if ($status === 'received') {
+                                                                            $badgeClass = 'success';
+                                                                        } elseif ($status === 'pending') {
+                                                                            $badgeClass = 'warning';
+                                                                        } elseif ($status === 'not_required') {
+                                                                            $badgeClass = 'secondary';
+                                                                        } elseif ($status === 'required_again') {
+                                                                            $badgeClass = 'danger';
+                                                                        }
+                                                                    @endphp
+                                                                    @if ($status)
+                                                                        <span class="badge bg-{{ $badgeClass }}">
+                                                                            {{ $statusLabel }}
+                                                                        </span>
+                                                                    @endif
+                                                                </td>
+                                                                <td>{{ $doc->doc_no }}</td>
+                                                                <td>
+                                                                    @if ($doc->doc_type === 'passport')
+                                                                        {{ $doc->nationality }}
+                                                                    @endif
+                                                                </td>
+                                                                <td>
+                                                                    @if ($doc->doc_type === 'passport' && $doc->dob)
+                                                                        {{ $doc->dob->format('d/m/Y') }}
+                                                                    @endif
+                                                                </td>
+                                                                <td>
+                                                                    @if ($doc->doc_type === 'passport')
+                                                                        {{ $doc->place_of_issue }}
+                                                                    @endif
+                                                                </td>
+                                                                <td>
+                                                                    @if ($doc->doc_type === 'passport' && $doc->date_of_expiry)
+                                                                        {{ $doc->date_of_expiry->format('d/m/Y') }}
+                                                                    @endif
+                                                                </td>
+                                                                <td>
+                                                                    {{ $doc->remark ?? '-' }}
+                                                                </td>
                                                                 <td class="text-center text-nowrap">
                                                                     <button type="button"
                                                                         class="btn btn-link p-0 me-1 traveller-doc-edit"
@@ -1065,7 +883,6 @@
                                                                         data-salutation="{{ $doc->salutation ?? '' }}"
                                                                         data-first-name="{{ $doc->first_name }}"
                                                                         data-last-name="{{ $doc->last_name }}"
-                                                                        data-contact-no="{{ $doc->contact_no ?? '' }}"
                                                                         data-doc-type="{{ $doc->doc_type }}"
                                                                         data-status="{{ $doc->status }}"
                                                                         data-doc-no="{{ $doc->doc_no }}"
@@ -1084,211 +901,256 @@
                                                                             style="width: 16px; height: 16px;"></i>
                                                                     </button>
                                                                 </td>
-                                                            @endif
-                                                        </tr>
-                                                        @empty
-                                                            <tr>
-                                                                <td colspan="{{ $isOpsDept ?? false ? '11' : '12' }}"
-                                                                    class="text-center text-muted py-3">
-                                                                    No traveller document details added yet.
-                                                                </td>
                                                             </tr>
-                                                        @endforelse
-                                                    </tbody>
-                                                </table>
+                                                            @empty
+                                                                <tr>
+                                                                    <td colspan="11" class="text-center text-muted py-3">
+                                                                        No traveller document details added yet.
+                                                                    </td>
+                                                                </tr>
+                                                            @endforelse
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
-                                        </div>
-                                    @endif
 
-                                    <!-- Vendor Payments Section (Ops Only) -->
-                                    @if ($isOpsDept ?? false)
-                                        <div class="mb-4 border rounded-3 p-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <div>
+                                            <!-- Document Checklist Summary Section (Post Sales Only) -->
+                                            <div class="mb-4 border rounded-3 p-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
                                                     <h6 class="text-uppercase text-muted small fw-semibold mb-0">
-                                                        <i data-feather="dollar-sign" class="me-1"
+                                                        <i data-feather="file-text" class="me-1"
                                                             style="width: 14px; height: 14px;"></i>
-                                                        Vendor Payments (Ops → Accounts)
+                                                        Document Checklist Summary (Across Entire Booking)
                                                     </h6>
                                                 </div>
-                                                {{-- Ops can always edit Vendor Payments, even in view-only mode --}}
-                                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                                    data-bs-target="#addVendorPaymentModal">
-                                                    <i data-feather="plus" style="width: 14px; height: 14px;"></i>
-                                                    Add
-                                                </button>
-                                            </div>
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered table-sm mb-0" id="vendorPaymentsTable">
-                                                    <thead class="table-light">
-                                                        <tr>
-                                                            <th>Vendor Code/Name</th>
-                                                            <th>Booking Type</th>
-                                                            <th>Location</th>
-                                                            <th>Purchase Cost</th>
-                                                            <th>Due Date</th>
-                                                            @if (!($isOpsDept ?? false) && !($isPostSales ?? false))
-                                                                <th style="background-color: #fff3cd;">Paid</th>
-                                                                <th style="background-color: #fff3cd;">Pending</th>
-                                                                <th style="background-color: #fff3cd;">Payment Mode</th>
-                                                                <th style="background-color: #fff3cd;">Ref. No.</th>
-                                                                <th style="background-color: #fff3cd;">Remarks</th>
-                                                            @else
-                                                                <th>Status</th>
-                                                            @endif
-                                                            <th class="text-center">Action</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="vendorPaymentsTableBody">
-                                                        @if (isset($vendorPayments) && $vendorPayments->count() > 0)
-                                                            @foreach ($vendorPayments as $vp)
-                                                                <tr data-vendor-payment-id="{{ $vp->id }}"
-                                                                    data-vendor-code="{{ $vp->vendor_code ?? '' }}"
-                                                                    data-booking-type="{{ $vp->booking_type ?? '' }}"
-                                                                    data-location="{{ $vp->location ?? '' }}"
-                                                                    data-purchase-cost="{{ $vp->purchase_cost ?? 0 }}"
-                                                                    data-due-date="{{ $vp->due_date ? $vp->due_date->format('Y-m-d') : '' }}"
-                                                                    data-status="{{ $vp->status ?? 'Pending' }}">
-                                                                    <td>{{ $vp->vendor_code ?? '-' }}</td>
-                                                                    <td>{{ $vp->booking_type ?? '-' }}</td>
-                                                                    <td>{{ $vp->location ?? '-' }}</td>
-                                                                    <td>{{ $vp->purchase_cost ? number_format($vp->purchase_cost, 2) : '-' }}
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered table-sm mb-0">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th>Document Type</th>
+                                                                <th class="text-center">Total Required</th>
+                                                                <th class="text-center">Received</th>
+                                                                <th class="text-center">Pending</th>
+                                                                <th class="text-center">Issues Found</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @php
+                                                                $travellerDocs = $lead->travellerDocuments ?? collect();
+                                                                $documentTypes = [
+                                                                    'passport' => 'Passports',
+                                                                    'visa' => 'Visa',
+                                                                    'pan_card' => 'Pan Card',
+                                                                    'voter_id' => 'Voter ID',
+                                                                    'driving_license' => 'Driving License',
+                                                                    'govt_id' => 'Govt. ID',
+                                                                    'school_id' => 'School ID',
+                                                                    'birth_certificate' => 'Birth Certificate',
+                                                                    'marriage_certificate' => 'Marriage Certificate',
+                                                                    'aadhar_card' => 'Aadhar',
+                                                                    'photos' => 'Photos',
+                                                                    'insurance' => 'Insurance',
+                                                                ];
+
+                                                                // Group documents by type and calculate counts
+                                                                $docCounts = [];
+                                                                foreach ($documentTypes as $docType => $docLabel) {
+                                                                    $docsOfType = $travellerDocs->where(
+                                                                        'doc_type',
+                                                                        $docType,
+                                                                    );
+                                                                    $totalRequired = $docsOfType->count();
+                                                                    $received = $docsOfType
+                                                                        ->where('status', 'received')
+                                                                        ->count();
+                                                                    $pending = $docsOfType
+                                                                        ->where('status', 'pending')
+                                                                        ->count();
+                                                                    $issuesFound = $docsOfType
+                                                                        ->where('status', 'required_again')
+                                                                        ->count();
+
+                                                                    // Get remarks for documents that are not received
+                                                                    $notReceivedDocs = $docsOfType
+                                                                        ->where('status', '!=', 'received')
+                                                                        ->whereNotNull('remark')
+                                                                        ->where('remark', '!=', '');
+                                                                    $remarks = $notReceivedDocs
+                                                                        ->pluck('remark')
+                                                                        ->filter()
+                                                                        ->unique()
+                                                                        ->values();
+
+                                                                    $docCounts[$docType] = [
+                                                                        'label' => $docLabel,
+                                                                        'total_required' => $totalRequired,
+                                                                        'received' => $received,
+                                                                        'pending' => $pending,
+                                                                        'issues_found' => $issuesFound,
+                                                                        'remarks' => $remarks,
+                                                                    ];
+                                                                }
+                                                            @endphp
+                                                            @foreach ($docCounts as $docType => $counts)
+                                                                <tr>
+                                                                    <td>{{ $counts['label'] }}</td>
+                                                                    <td class="text-center">{{ $counts['total_required'] }}
                                                                     </td>
-                                                                    <td>{{ $vp->due_date ? $vp->due_date->format('d/m/Y') : '-' }}
-                                                                    </td>
-                                                                    @if (!($isOpsDept ?? false) && !($isPostSales ?? false))
-                                                                        <td style="background-color: #fff3cd;">
-                                                                            {{ $vp->paid_amount ? number_format($vp->paid_amount, 2) : '-' }}
-                                                                        </td>
-                                                                        <td style="background-color: #fff3cd;">
-                                                                            {{ $vp->pending_amount ? number_format($vp->pending_amount, 2) : '-' }}
-                                                                        </td>
-                                                                        <td style="background-color: #fff3cd;">
-                                                                            {{ $vp->payment_mode ?? '-' }}</td>
-                                                                        <td style="background-color: #fff3cd;">
-                                                                            {{ $vp->ref_no ?? '-' }}</td>
-                                                                        <td style="background-color: #fff3cd;">
-                                                                            {{ $vp->remarks ?? '-' }}</td>
-                                                                    @else
-                                                                        <td>
-                                                                            <span
-                                                                                class="badge bg-{{ $vp->status == 'Paid' ? 'success' : ($vp->status == 'Pending' ? 'warning' : 'secondary') }}">
-                                                                                {{ $vp->status ?? 'Pending' }}
-                                                                            </span>
-                                                                        </td>
-                                                                    @endif
+                                                                    <td class="text-center">{{ $counts['received'] }}</td>
+                                                                    <td class="text-center">{{ $counts['pending'] }}</td>
                                                                     <td class="text-center">
-                                                                        {{-- Ops can always edit/delete Vendor Payments, even in view-only mode --}}
-                                                                        <button type="button"
-                                                                            class="btn btn-sm btn-outline-primary edit-vendor-payment-btn"
-                                                                            data-vendor-payment-id="{{ $vp->id }}"
-                                                                            data-bs-toggle="modal"
-                                                                            data-bs-target="#addVendorPaymentModal">
-                                                                            <i data-feather="edit"
-                                                                                style="width: 14px; height: 14px;"></i>
-                                                                        </button>
-                                                                        <button type="button"
-                                                                            class="btn btn-sm btn-outline-danger delete-vendor-payment-btn"
-                                                                            data-vendor-payment-id="{{ $vp->id }}">
-                                                                            <i data-feather="trash-2"
-                                                                                style="width: 14px; height: 14px;"></i>
-                                                                        </button>
+                                                                        @if ($counts['remarks']->isNotEmpty())
+                                                                            <div class="text-start"
+                                                                                style="max-width: 200px; font-size: 0.85rem;">
+                                                                                @foreach ($counts['remarks'] as $remark)
+                                                                                    <div class="mb-1">{{ $remark }}
+                                                                                    </div>
+                                                                                @endforeach
+                                                                            </div>
+                                                                        @elseif($counts['issues_found'] > 0)
+                                                                            {{ $counts['issues_found'] }} incorrect
+                                                                        @else
+                                                                            0
+                                                                        @endif
                                                                     </td>
                                                                 </tr>
                                                             @endforeach
-                                                        @else
-                                                            <tr>
-                                                                <td colspan="{{ $isViewOnly && $isOpsDept ? '7' : '11' }}"
-                                                                    class="text-center text-muted py-4">No vendor payments
-                                                                    found</td>
-                                                            </tr>
-                                                        @endif
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    @endif
-
-                                    
-
-
-                                    <!-- History Section (Remark History) -->
-                                    <div class="mb-4 border rounded-3 p-3">
-                                        <h6 class="text-uppercase text-muted small fw-semibold mb-3">
-                                            <i data-feather="clock" class="me-1" style="width: 14px; height: 14px;"></i>
-                                            History
-                                        </h6>
-                                        <div style="max-height: 400px; overflow-y: auto;">
-                                            @php
-                                                $lead->load('bookingFileRemarks.user');
-                                                $currentDepartment = Auth::user()->department ?? 'Sales';
-                                                if ($isOpsDept ?? false) {
-                                                    $currentDepartment = 'Operations';
-                                                } elseif ($isPostSales ?? false) {
-                                                    $currentDepartment = 'Post Sales';
-                                                }
-                                                // Check if user is admin
-                                                $isAdmin =
-                                                    Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Developer');
-                                                // If admin, show all remarks; otherwise, show only own remarks
-                                                $remarksQuery = $lead
-                                                    ->bookingFileRemarks()
-                                                    ->where('department', $currentDepartment);
-                                                if (!$isAdmin) {
-                                                    $remarksQuery->where('user_id', Auth::id());
-                                                }
-                                                $allRemarks = $remarksQuery->orderBy('created_at', 'desc')->get();
-                                            @endphp
-                                            @if ($allRemarks->count() > 0)
-                                                <div class="timeline">
-                                                    @foreach ($allRemarks as $remark)
-                                                        <div class="border rounded-3 p-3 mb-3 bg-white">
-                                                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                                                <div class="d-flex align-items-start flex-grow-1">
-                                                                    <div class="avatar avatar-rounded rounded-circle me-3 flex-shrink-0"
-                                                                        style="background-color: #007d88; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                                                                        <span class="text-white fw-bold"
-                                                                            style="font-size: 0.875rem;">
-                                                                            {{ strtoupper(substr($remark->user->name ?? 'U', 0, 1)) }}
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="flex-grow-1">
-                                                                        <div class="d-flex align-items-center gap-2 mb-1">
-                                                                            <strong
-                                                                                class="text-dark">{{ $remark->user->name ?? 'Unknown' }}</strong>
-                                                                            <small
-                                                                                class="text-muted">{{ $remark->created_at->format('d M, Y h:i A') }}</small>
-                                                                            @if ($remark->follow_up_at)
-                                                                                <span class="badge bg-danger">Follow-up:
-                                                                                    {{ $remark->follow_up_at->format('d M, Y h:i A') }}</span>
-                                                                            @endif
-                                                                        </div>
-                                                                        <p class="mb-0 text-dark" style="line-height: 1.6;">
-                                                                            {{ $remark->remark }}</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
+                                                        </tbody>
+                                                    </table>
                                                 </div>
-                                            @else
-                                                <p class="text-muted text-center mb-0 py-4">
-                                                    <i data-feather="message-circle" class="me-2"
-                                                        style="width: 16px; height: 16px;"></i>
-                                                    No remarks available.
-                                                </p>
-                                            @endif
-                                        </div>
-                                    </div>
+                                            </div>
+                                        @endif
+
+                                        <!-- Vendor Payments Section (Ops Only) -->
+                                        @if ($isOpsDept ?? false)
+                                            <div class="mb-4 border rounded-3 p-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <div>
+                                                        <h6 class="text-uppercase text-muted small fw-semibold mb-0">
+                                                            <i data-feather="dollar-sign" class="me-1"
+                                                                style="width: 14px; height: 14px;"></i>
+                                                            Vendor Payments (Ops → Accounts)
+                                                        </h6>
+                                                    </div>
+                                                    {{-- Ops can always edit Vendor Payments, even in view-only mode --}}
+                                                    <button type="button" class="btn btn-sm btn-primary"
+                                                        data-bs-toggle="modal" data-bs-target="#addVendorPaymentModal">
+                                                        <i data-feather="plus" style="width: 14px; height: 14px;"></i>
+                                                        Add
+                                                    </button>
+                                                </div>
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered table-sm mb-0"
+                                                        id="vendorPaymentsTable">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th>Vendor Code/Name</th>
+                                                                <th>Booking Type</th>
+                                                                <th>Location</th>
+                                                                <th>Purchase Cost</th>
+                                                                <th>Due Date</th>
+                                                                @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                    <th style="background-color: #fff3cd;">Paid</th>
+                                                                    <th style="background-color: #fff3cd;">Pending</th>
+                                                                    <th style="background-color: #fff3cd;">Payment Mode</th>
+                                                                    <th style="background-color: #fff3cd;">Ref. No.</th>
+                                                                    <th style="background-color: #fff3cd;">Remarks</th>
+                                                                @else
+                                                                    <th>Status</th>
+                                                                @endif
+                                                                <th class="text-center">Action</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="vendorPaymentsTableBody">
+                                                            @if (isset($vendorPayments) && $vendorPayments->count() > 0)
+                                                                @foreach ($vendorPayments as $vp)
+                                                                    <tr data-vendor-payment-id="{{ $vp->id }}"
+                                                                        data-vendor-code="{{ $vp->vendor_code ?? '' }}"
+                                                                        data-booking-type="{{ $vp->booking_type ?? '' }}"
+                                                                        data-location="{{ $vp->location ?? '' }}"
+                                                                        data-purchase-cost="{{ $vp->purchase_cost ?? 0 }}"
+                                                                        data-due-date="{{ $vp->due_date ? $vp->due_date->format('Y-m-d') : '' }}"
+                                                                        data-status="{{ $vp->status ?? 'Pending' }}">
+                                                                        <td>{{ $vp->vendor_code ?? '-' }}</td>
+                                                                        <td>{{ $vp->booking_type ?? '-' }}</td>
+                                                                        <td>{{ $vp->location ?? '-' }}</td>
+                                                                        <td>{{ $vp->purchase_cost ? number_format($vp->purchase_cost, 2) : '-' }}
+                                                                        </td>
+                                                                        <td>{{ $vp->due_date ? $vp->due_date->format('d/m/Y') : '-' }}
+                                                                        </td>
+                                                                        @if (!($isViewOnly && ($isOpsDept || ($isPostSales ?? false))))
+                                                                            <td style="background-color: #fff3cd;">
+                                                                                {{ $vp->paid_amount ? number_format($vp->paid_amount, 2) : '-' }}
+                                                                            </td>
+                                                                            <td style="background-color: #fff3cd;">
+                                                                                {{ $vp->pending_amount ? number_format($vp->pending_amount, 2) : '-' }}
+                                                                            </td>
+                                                                            <td style="background-color: #fff3cd;">
+                                                                                {{ $vp->payment_mode ?? '-' }}</td>
+                                                                            <td style="background-color: #fff3cd;">
+                                                                                {{ $vp->ref_no ?? '-' }}</td>
+                                                                            <td style="background-color: #fff3cd;">
+                                                                                {{ $vp->remarks ?? '-' }}</td>
+                                                                        @else
+                                                                            <td>
+                                                                                <span
+                                                                                    class="badge bg-{{ $vp->status == 'Paid' ? 'success' : ($vp->status == 'Pending' ? 'warning' : 'secondary') }}">
+                                                                                    {{ $vp->status ?? 'Pending' }}
+                                                                                </span>
+                                                                            </td>
+                                                                        @endif
+                                                                        <td class="text-center">
+                                                                            {{-- Ops can always edit/delete Vendor Payments, even in view-only mode --}}
+                                                                            <button type="button"
+                                                                                class="btn btn-sm btn-outline-primary edit-vendor-payment-btn"
+                                                                                data-vendor-payment-id="{{ $vp->id }}"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#addVendorPaymentModal">
+                                                                                <i data-feather="edit"
+                                                                                    style="width: 14px; height: 14px;"></i>
+                                                                            </button>
+                                                                            <button type="button"
+                                                                                class="btn btn-sm btn-outline-danger delete-vendor-payment-btn"
+                                                                                data-vendor-payment-id="{{ $vp->id }}">
+                                                                                <i data-feather="trash-2"
+                                                                                    style="width: 14px; height: 14px;"></i>
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                @endforeach
+                                                            @else
+                                                                <tr>
+                                                                    <td colspan="{{ $isViewOnly && $isOpsDept ? '7' : '11' }}"
+                                                                        class="text-center text-muted py-4">No vendor payments
+                                                                        found</td>
+                                                                </tr>
+                                                            @endif
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        @if (!$isViewOnly)
+                                            <div class="d-flex justify-content-end gap-2 mb-4">
+                                                <a href="{{ $backUrl ?? route('bookings.index') }}"
+                                                    class="btn btn-light border">Cancel</a>
+                                                <button type="submit" class="btn btn-primary">Save Booking File</button>
+                                            </div>
+                                        @else
+                                            <div class="d-flex justify-content-end gap-2 mb-4">
+                                                <a href="{{ $backUrl ?? route('bookings.index') }}"
+                                                    class="btn btn-light border">Back</a>
+                                            </div>
+                                        @endif
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            @include('layouts.footer')
         </div>
-
 
         @can('edit leads')
             <!-- Re-assign Lead Modal -->
@@ -1303,35 +1165,122 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <div class="mb-3">
-                                    <label class="form-label">Assign To <span class="text-danger">*</span></label>
-                                    <select name="reassigned_employee_id" class="form-select form-select-sm" required>
-                                        <option value="">-- Select Employee --</option>
-                                        @foreach ($employees as $employee)
-                                            @php
-                                                $matchingUser = \App\Models\User::where(
-                                                    'email',
-                                                    $employee->login_work_email,
-                                                )
-                                                    ->orWhere('email', $employee->user_id)
-                                                    ->first();
-                                                $isSelected = false;
-                                                if (
-                                                    $lead->assigned_user_id &&
-                                                    $matchingUser &&
-                                                    $lead->assigned_user_id == $matchingUser->id
-                                                ) {
-                                                    $isSelected = true;
-                                                }
-                                            @endphp
-                                            <option value="{{ $employee->id }}" data-user-id="{{ $matchingUser->id ?? '' }}"
-                                                {{ $isSelected ? 'selected' : '' }}>
-                                                {{ $employee->name }} @if ($employee->user_id)
-                                                    ({{ $employee->user_id }})
-                                                @endif
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                <h6 class="text-uppercase text-muted small fw-semibold mb-3">
+                                    <i data-feather="users" class="me-1" style="width: 14px; height: 14px;"></i>
+                                    Department Assignee
+                                </h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Sales</label>
+                                        <select name="reassigned_employee_id" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach ($employees as $emp)
+                                                @php
+                                                    $matchingUser = \App\Models\User::where(
+                                                        'email',
+                                                        $emp->login_work_email,
+                                                    )
+                                                        ->orWhere('email', $emp->user_id)
+                                                        ->first();
+                                                    $isSelected = false;
+                                                    if (
+                                                        $lead->reassigned_to &&
+                                                        $matchingUser &&
+                                                        $lead->reassigned_to == $matchingUser->id
+                                                    ) {
+                                                        $isSelected = true;
+                                                    }
+                                                @endphp
+                                                <option value="{{ $emp->id }}" {{ $isSelected ? 'selected' : '' }}>
+                                                    {{ $emp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Post Sales</label>
+                                        <select name="post_sales_user_id" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach ($employees as $emp)
+                                                <option value="{{ $emp->id }}"
+                                                    {{ isset($lead->post_sales_user_id) && $lead->post_sales_user_id == $emp->id ? 'selected' : '' }}>
+                                                    {{ $emp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Operations</label>
+                                        <select name="operations_user_id" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach ($employees as $emp)
+                                                <option value="{{ $emp->id }}"
+                                                    {{ isset($lead->operations_user_id) && $lead->operations_user_id == $emp->id ? 'selected' : '' }}>
+                                                    {{ $emp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Ticketing</label>
+                                        <select name="ticketing_user_id" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach ($employees as $emp)
+                                                <option value="{{ $emp->id }}"
+                                                    {{ isset($lead->ticketing_user_id) && $lead->ticketing_user_id == $emp->id ? 'selected' : '' }}>
+                                                    {{ $emp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Visa</label>
+                                        <select name="visa_user_id" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach ($employees as $emp)
+                                                <option value="{{ $emp->id }}"
+                                                    {{ isset($lead->visa_user_id) && $lead->visa_user_id == $emp->id ? 'selected' : '' }}>
+                                                    {{ $emp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Insurance</label>
+                                        <select name="insurance_user_id" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach ($employees as $emp)
+                                                <option value="{{ $emp->id }}"
+                                                    {{ isset($lead->insurance_user_id) && $lead->insurance_user_id == $emp->id ? 'selected' : '' }}>
+                                                    {{ $emp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Accountant</label>
+                                        <select name="accountant_user_id" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach ($employees as $emp)
+                                                <option value="{{ $emp->id }}"
+                                                    {{ isset($lead->accountant_user_id) && $lead->accountant_user_id == $emp->id ? 'selected' : '' }}>
+                                                    {{ $emp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Delivery</label>
+                                        <select name="delivery_user_id" class="form-select form-select-sm">
+                                            <option value="">-- Select --</option>
+                                            @foreach ($employees as $emp)
+                                                <option value="{{ $emp->id }}"
+                                                    {{ isset($lead->delivery_user_id) && $lead->delivery_user_id == $emp->id ? 'selected' : '' }}>
+                                                    {{ $emp->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -1382,11 +1331,6 @@
                                         <input type="text" class="form-control form-control-sm" name="last_name">
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label">Traveller Contact No.</label>
-                                        <input type="text" class="form-control form-control-sm" name="contact_no"
-                                            placeholder="Enter contact number">
-                                    </div>
-                                    <div class="col-md-4">
                                         <label class="form-label">Document Type</label>
                                         <select class="form-select form-select-sm" name="document_type"
                                             id="travellerDocumentType" required>
@@ -1416,14 +1360,9 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label">Doc No.</label>
+                                        <label class="form-label">Document Details</label>
                                         <input type="text" class="form-control form-control-sm" name="document_details"
                                             placeholder="Passport No. / Aadhar No. / PAN No. / Other">
-                                    </div>
-                                    <div class="col-md-4" id="dobFieldContainer" style="display: none;">
-                                        <label class="form-label">DOB</label>
-                                        <input type="date" class="form-control form-control-sm" name="dob"
-                                            id="travellerDobField">
                                     </div>
                                     <div class="col-md-12">
                                         <label class="form-label">Remark</label>
@@ -1434,15 +1373,19 @@
                                 <hr class="my-3">
                                 <div id="passportExtraFields">
                                     <div class="row g-3">
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="form-label">Nationality</label>
                                             <input type="text" class="form-control form-control-sm" name="nationality">
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
+                                            <label class="form-label">DOB</label>
+                                            <input type="date" class="form-control form-control-sm" name="dob">
+                                        </div>
+                                        <div class="col-md-3">
                                             <label class="form-label">Place of Issue</label>
                                             <input type="text" class="form-control form-control-sm" name="place_of_issue">
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="form-label">Date of Expiry</label>
                                             <input type="date" class="form-control form-control-sm" name="date_of_expiry">
                                         </div>
@@ -1484,7 +1427,6 @@
                                 <div class="mb-3">
                                     <label class="form-label">Payment Method <span class="text-danger">*</span></label>
                                     <select name="method" class="form-select form-select-sm" required>
-                                        <option value="">-- Select --</option>
                                         <option value="Cash">Cash</option>
                                         <option value="UPI">UPI</option>
                                         <option value="NEFT">NEFT</option>
@@ -1492,6 +1434,7 @@
                                         <option value="WIB">WIB</option>
                                         <option value="Online">Online</option>
                                         <option value="Cheque">Cheque</option>
+                                        <option value="Other">Other</option>
                                     </select>
                                 </div>
                                 <div class="mb-3">
@@ -1510,20 +1453,11 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Status <span class="text-danger">*</span></label>
-                                    <select name="status_display" class="form-select form-select-sm"
-                                        {{ $isPostSales ?? false ? 'disabled' : 'required' }}>
+                                    <select name="status" class="form-select form-select-sm" required>
                                         <option value="pending">Pending</option>
                                         <option value="received">Received</option>
                                         <option value="refunded">Refunded</option>
                                     </select>
-                                    @if ($isPostSales ?? false)
-                                        <input type="hidden" name="status" id="hiddenPaymentStatus" value="pending">
-                                    @else
-                                        {{-- If not post sales, we need the select to have the name "status" --}}
-                                        <script>
-                                            document.currentScript.previousElementSibling.previousElementSibling.name = "status";
-                                        </script>
-                                    @endif
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -1547,15 +1481,10 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="addDestinationForm" action="{{ route('leads.booking-destinations.store', $lead) }}"
-                            method="POST">
-                            @csrf
-                            <input type="hidden" name="_method" id="destinationFormMethod" value="POST">
-                            <input type="hidden" name="booking_destination_id" id="bookingDestinationId" value="">
+                        <form id="addDestinationForm">
                             <div class="mb-3">
                                 <label class="form-label">Destination <span class="text-danger">*</span></label>
-                                <select class="form-select form-select-sm" id="modalDestinationSelect" name="destination"
-                                    required>
+                                <select class="form-select form-select-sm" id="modalDestinationSelect" required>
                                     <option value="">-- Select Destination --</option>
                                     @foreach ($destinations as $dest)
                                         <option value="{{ $dest->name }}" data-destination-id="{{ $dest->id }}">
@@ -1565,49 +1494,46 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Location <span class="text-danger">*</span></label>
-                                <select class="form-select form-select-sm" id="modalLocationSelect" name="location" required>
+                                <select class="form-select form-select-sm" id="modalLocationSelect" required>
                                     <option value="">-- Select Location --</option>
                                 </select>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Service Type <span class="text-danger">*</span></label>
-                                <div class="btn-group w-100" role="group" aria-label="Service Type">
-                                    <input type="radio" class="btn-check" name="service_type" id="modalOnlyHotel"
-                                        value="only_hotel" autocomplete="off" required>
-                                    <label class="btn btn-outline-primary btn-sm" for="modalOnlyHotel">Only Hotel</label>
-
-                                    <input type="radio" class="btn-check" name="service_type" id="modalOnlyTT"
-                                        value="only_tt" autocomplete="off" required>
-                                    <label class="btn btn-outline-primary btn-sm" for="modalOnlyTT">Only TT</label>
-
-                                    <input type="radio" class="btn-check" name="service_type" id="modalHotelTT"
-                                        value="hotel_tt" autocomplete="off" required>
-                                    <label class="btn btn-outline-primary btn-sm" for="modalHotelTT">Hotel + TT</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="modalOnlyHotel">
+                                    <label class="form-check-label" for="modalOnlyHotel">Only Hotel</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="modalOnlyTT">
+                                    <label class="form-check-label" for="modalOnlyTT">Only TT</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="modalHotelTT">
+                                    <label class="form-check-label" for="modalHotelTT">Hotel + TT</label>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">From Date <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control form-control-sm" id="modalFromDate"
-                                    name="from_date" required>
+                                <input type="date" class="form-control form-control-sm" id="modalFromDate" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">To Date <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control form-control-sm" id="modalToDate"
-                                    name="to_date" required>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary" id="submitDestinationModal">Add</button>
+                                <input type="date" class="form-control form-control-sm" id="modalToDate" required>
                             </div>
                         </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="submitDestinationModal">Add</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Add Arrival/Departure Modal -->
-        <div class="modal fade" id="addArrivalDepartureModal" tabindex="-1"
-            aria-labelledby="addArrivalDepartureModalLabel" aria-hidden="true">
+        <div class="modal fade" id="addArrivalDepartureModal" tabindex="-1" aria-labelledby="addArrivalDepartureModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -1615,19 +1541,11 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="addArrivalDepartureForm"
-                            action="{{ route('leads.booking-arrival-departure.store', $lead) }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="_method" id="arrivalDepartureFormMethod" value="POST">
-                            <input type="hidden" name="arrival_departure_id" id="arrivalDepartureId" value="">
-                            <input type="hidden" name="departure_date" id="hiddenDepartureDate" value="">
-                            <input type="hidden" name="departure_time" id="hiddenDepartureTime" value="">
-                            <input type="hidden" name="arrival_date" id="hiddenArrivalDate" value="">
-                            <input type="hidden" name="arrival_time" id="hiddenArrivalTime" value="">
+                        <form id="addArrivalDepartureForm">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Mode <span class="text-danger">*</span></label>
-                                    <select class="form-select form-select-sm" id="modalMode" name="mode" required>
+                                    <select class="form-select form-select-sm" id="modalMode" required>
                                         <option value="By Air">By Air</option>
                                         <option value="By Surface">By Surface</option>
                                         <option value="By Sea">By Sea</option>
@@ -1636,23 +1554,22 @@
                                 <div class="col-md-6">
                                     <label class="form-label">Info</label>
                                     <input type="text" class="form-control form-control-sm" id="modalInfo"
-                                        name="info" placeholder="Info">
+                                        placeholder="Info">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">From City <span class="text-danger">*</span></label>
+                                    <label class="form-label">From City</label>
                                     <input type="text" class="form-control form-control-sm" id="modalFromCity"
-                                        name="from_city" placeholder="From City" required>
+                                        placeholder="From City">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">To City <span class="text-danger">*</span></label>
+                                    <label class="form-label">To City</label>
                                     <input type="text" class="form-control form-control-sm" id="modalToCity"
-                                        name="to_city" placeholder="To City" required>
+                                        placeholder="To City">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Departure Date & Time <span
-                                            class="text-danger">*</span></label>
-                                    <input type="datetime-local" class="form-control form-control-sm"
-                                        id="modalDepartureAt" required>
+                                    <label class="form-label">Departure Date & Time <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" class="form-control form-control-sm" id="modalDepartureAt"
+                                        required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Arrival Date & Time <span class="text-danger">*</span></label>
@@ -1660,12 +1577,11 @@
                                         required>
                                 </div>
                             </div>
-                            <div class="modal-footer mt-3">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary"
-                                    id="submitArrivalDepartureModal">Add</button>
-                            </div>
                         </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="submitArrivalDepartureModal">Add</button>
                     </div>
                 </div>
             </div>
@@ -1681,16 +1597,11 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="addAccommodationForm" action="{{ route('leads.booking-accommodations.store', $lead) }}"
-                            method="POST">
-                            @csrf
-                            <input type="hidden" name="_method" id="accommodationFormMethod" value="POST">
-                            <input type="hidden" name="accommodation_id" id="accommodationId" value="">
+                        <form id="addAccommodationForm">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Destination</label>
-                                    <select class="form-select form-select-sm" id="modalAccDestinationSelect"
-                                        name="destination">
+                                    <select class="form-select form-select-sm" id="modalAccDestinationSelect">
                                         <option value="">-- Select Destination --</option>
                                         @foreach ($destinations as $dest)
                                             <option value="{{ $dest->name }}"
@@ -1700,36 +1611,32 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Location</label>
-                                    <select class="form-select form-select-sm" id="modalAccLocationSelect"
-                                        name="location">
+                                    <select class="form-select form-select-sm" id="modalAccLocationSelect">
                                         <option value="">-- Select Location --</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Stay At</label>
                                     <input type="text" class="form-control form-control-sm" id="modalStayAt"
-                                        name="stay_at" placeholder="Stay At">
+                                        placeholder="Stay At">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Check-in Date</label>
-                                    <input type="date" class="form-control form-control-sm" id="modalCheckinDate"
-                                        name="checkin_date">
+                                    <input type="date" class="form-control form-control-sm" id="modalCheckinDate">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Check-out Date</label>
-                                    <input type="date" class="form-control form-control-sm" id="modalCheckoutDate"
-                                        name="checkout_date">
+                                    <input type="date" class="form-control form-control-sm" id="modalCheckoutDate">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Room Type</label>
                                     <input type="text" class="form-control form-control-sm" id="modalRoomType"
-                                        name="room_type" placeholder="Room Type">
+                                        placeholder="Room Type">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Meal Plan</label>
-                                    <select class="form-select form-select-sm" id="modalMealPlan" name="meal_plan">
+                                    <select class="form-select form-select-sm" id="modalMealPlan">
                                         <option value="">-- Select --</option>
-                                        <option value="EP">EP</option>
                                         <option value="CP">CP</option>
                                         <option value="MAP">MAP</option>
                                         <option value="AP">AP</option>
@@ -1737,48 +1644,11 @@
                                     </select>
                                 </div>
                             </div>
-                            
-                            <!-- Room and Guest Details Section -->
-                            <div class="mt-4 pt-3 border-top">
-                                <h6 class="mb-3 text-muted small fw-semibold">Room and Guest Details</h6>
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <label class="form-label">Single Room</label>
-                                        <input type="number" class="form-control form-control-sm" id="modalSingleRoom"
-                                            name="single_room" placeholder="0" min="0" value="0">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">DBL Room</label>
-                                        <input type="number" class="form-control form-control-sm" id="modalDblRoom"
-                                            name="dbl_room" placeholder="0" min="0" value="0">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Quad Room</label>
-                                        <input type="number" class="form-control form-control-sm" id="modalQuadRoom"
-                                            name="quad_room" placeholder="0" min="0" value="0">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">EBA</label>
-                                        <input type="number" class="form-control form-control-sm" id="modalEba"
-                                            name="eba" placeholder="0" min="0" value="0">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">CWB</label>
-                                        <input type="number" class="form-control form-control-sm" id="modalCwb"
-                                            name="cwb" placeholder="0" min="0" value="0">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">INF</label>
-                                        <input type="number" class="form-control form-control-sm" id="modalInf"
-                                            name="inf" placeholder="0" min="0" value="0">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer mt-3">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary" id="submitAccommodationModal">Add</button>
-                            </div>
                         </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="submitAccommodationModal">Add</button>
                     </div>
                 </div>
             </div>
@@ -1794,50 +1664,42 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="addItineraryForm" action="{{ route('leads.booking-itineraries.store', $lead) }}"
-                            method="POST">
-                            @csrf
-                            <input type="hidden" name="_method" id="itineraryFormMethod" value="POST">
-                            <input type="hidden" name="itinerary_id" id="itineraryId" value="">
+                        <form id="addItineraryForm">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Day & Date</label>
                                     <input type="text" class="form-control form-control-sm" id="modalDayDate"
-                                        name="day_and_date" placeholder="Day & Date">
+                                        placeholder="Day & Date">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Time</label>
-                                    <input type="time" class="form-control form-control-sm" id="modalItineraryTime"
-                                        name="time">
+                                    <input type="time" class="form-control form-control-sm" id="modalItineraryTime">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Location</label>
                                     <input type="text" class="form-control form-control-sm" id="modalItineraryLocation"
-                                        name="location" placeholder="Location">
+                                        placeholder="Location">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Stay At</label>
                                     <input type="text" class="form-control form-control-sm" id="modalItineraryStayAt"
-                                        name="stay_at" placeholder="Stay at">
+                                        placeholder="Stay at">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label">Activity/Tour Description</label>
-                                    <textarea class="form-control form-control-sm" id="modalActivity" name="activity_tour_description"
-                                        rows="5" placeholder="Enter each activity on a new line (press Enter for list items)"></textarea>
-                                    <small class="text-muted">Each line will be displayed as a list item in the itinerary
-                                        table.</small>
+                                    <textarea class="form-control form-control-sm" id="modalActivity" rows="3"
+                                        placeholder="Activity/Tour Description"></textarea>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label">Remarks</label>
-                                    <textarea class="form-control form-control-sm" id="modalRemarks" name="remarks" rows="3"
-                                        placeholder="Remarks"></textarea>
+                                    <textarea class="form-control form-control-sm" id="modalRemarks" rows="3" placeholder="Remarks"></textarea>
                                 </div>
                             </div>
-                            <div class="modal-footer mt-3">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary" id="submitItineraryModal">Add</button>
-                            </div>
                         </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="submitItineraryModal">Add</button>
                     </div>
                 </div>
             </div>
@@ -1855,10 +1717,8 @@
                                 aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form id="addVendorPaymentForm" action="{{ route('bookings.vendor-payment.store', $lead) }}"
-                                method="POST">
+                            <form id="addVendorPaymentForm">
                                 @csrf
-                                <input type="hidden" name="_method" id="vendorPaymentFormMethod" value="POST">
                                 <input type="hidden" id="vendorPaymentId" name="vendor_payment_id" value="">
                                 <div class="row g-3">
                                     <div class="col-md-6">
@@ -1901,13 +1761,11 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="modal-footer mt-3">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary"
-                                        id="submitVendorPaymentModal">Save</button>
-                                </div>
                             </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" id="submitVendorPaymentModal">Save</button>
                         </div>
                     </div>
                 </div>
@@ -1918,9 +1776,8 @@
             <script>
                 $(document).ready(function() {
                     // Disable all form inputs if in view-only mode
-                    // EXCEPT the stage dropdown which should always be editable
                     @if ($isViewOnly)
-                        $('#bookingFileForm').find('input, select, textarea').not('[readonly]').not('#stageSelect').prop('disabled', true).css({
+                        $('#bookingFileForm').find('input, select, textarea').not('[readonly]').prop('disabled', true).css({
                             'background-color': '#f8f9fa',
                             'cursor': 'not-allowed'
                         });
@@ -1928,8 +1785,10 @@
                         $('#bookingFileForm').find('input[type="checkbox"]').prop('disabled', true);
                     @endif
 
-                    // Don't call feather.replace() globally - let init.js handle it
-                    // We'll only ensure specific sections (like accommodation) are properly initialized
+                    // Initialize Feather icons
+                    if (typeof feather !== 'undefined') {
+                        feather.replace();
+                    }
 
                     // Function to calculate and update profit
                     function updateBookingProfit() {
@@ -1960,11 +1819,10 @@
                     let destinationRowIndex = {{ $lead->bookingDestinations ? $lead->bookingDestinations->count() : 0 }};
 
                     // Function to load locations for input row destination
-                    // Function to load locations for the modal destination dropdown
-                    function loadLocationsForModal(destinationSelect) {
-                        const locationSelect = document.getElementById('modalLocationSelect');
-                        const selectedOption = destinationSelect.options[destinationSelect.selectedIndex];
-                        const destinationId = selectedOption?.getAttribute('data-destination-id');
+                    function loadLocationsForInputRow(destinationSelect) {
+                        const locationSelect = document.querySelector('.location-select-input');
+                        const destinationId = destinationSelect.options[destinationSelect.selectedIndex]?.getAttribute(
+                            'data-destination-id');
 
                         if (locationSelect) {
                             locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
@@ -1992,10 +1850,10 @@
                                             option.textContent = location.name;
                                             locationSelect.appendChild(option);
                                         });
-
                                         // If a location is pending selection (editing), set it now
                                         if (typeof editingLocationValue !== 'undefined' && editingLocationValue) {
                                             locationSelect.value = editingLocationValue;
+                                            // Do not clear here in case another handler needs it; handlers will clear when used
                                         }
                                         locationSelect.disabled = false;
                                         const submitBtn = document.getElementById('submitDestinationModal');
@@ -2014,93 +1872,209 @@
                         }
                     }
 
-                    // Attach change listener to modal destination dropdown
-                    document.getElementById('modalDestinationSelect')?.addEventListener('change', function() {
-                        loadLocationsForModal(this);
-                    });
 
-                    // Destination management variables
-                    let editingDestinationRow = null;
-                    let editingLocationValue = null;
+                    // Function to add destination from modal form
+                    function addDestinationFromModal() {
+                        const destination = document.getElementById('modalDestinationSelect').value;
+                        const location = document.getElementById('modalLocationSelect').value;
+                        const onlyHotel = document.getElementById('modalOnlyHotel').checked;
+                        const onlyTT = document.getElementById('modalOnlyTT').checked;
+                        const hotelTT = document.getElementById('modalHotelTT').checked;
+                        const fromDate = document.getElementById('modalFromDate').value;
+                        const toDate = document.getElementById('modalToDate').value;
 
-                    // Reset modal for New Destination
-                    // Reset form when modal is opened for adding
-                    document.querySelector('[data-bs-target="#addDestinationModal"]')?.addEventListener('click',
-                        function() {
-                            if (this.id === 'submitDestinationModal') return; // Ignore submit click
-                            editingDestinationRow = null;
+                        // Validation
+                        if (!destination || !location || !fromDate || !toDate) {
+                            alert('Please fill in all required fields (Destination, Location, From Date, To Date)');
+                            return false;
+                        }
 
-                            // Reset form action and method for add
-                            const form = document.getElementById('addDestinationForm');
-                            form.action = `{{ route('leads.booking-destinations.store', $lead) }}`;
-                            document.getElementById('destinationFormMethod').value = 'POST';
-                            document.getElementById('bookingDestinationId').value = '';
+                        if (!onlyHotel && !onlyTT && !hotelTT) {
+                            alert('Please select at least one service type (Only Hotel, Only TT, or Hotel + TT)');
+                            return false;
+                        }
 
-                            document.getElementById('addDestinationModalLabel').textContent = 'Add Destination';
+                        // Format dates for display
+                        const formatDate = (dateStr) => {
+                            if (!dateStr) return '';
+                            const date = new Date(dateStr);
+                            const day = String(date.getDate()).padStart(2, '0');
+                            const month = String(date.getMonth() + 1).padStart(2, '0');
+                            const year = date.getFullYear();
+                            return `${day}/${month}/${year}`;
+                        };
+
+                        // Create new data row
+                        const tbody = document.getElementById('destinationTableBody');
+                        const newRow = document.createElement('tr');
+                        newRow.className = 'destination-data-row';
+                        newRow.setAttribute('data-row-index', destinationRowIndex);
+
+                        // Build service type checkmarks
+                        let onlyHotelMark = onlyHotel ?
+                            '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
+                        let onlyTTMark = onlyTT ?
+                            '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
+                        let hotelTTMark = hotelTT ?
+                            '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' : '';
+
+                        newRow.innerHTML = `
+                        <td>${destination}</td>
+                        <td>${location}</td>
+                        <td class="text-center">${onlyHotelMark}</td>
+                        <td class="text-center">${onlyTTMark}</td>
+                        <td class="text-center">${hotelTTMark}</td>
+                        <td>${formatDate(fromDate)}</td>
+                        <td>${formatDate(toDate)}</td>
+                        <td class="text-center">
+                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][destination]" value="${destination}">
+                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][location]" value="${location}">
+                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][only_hotel]" value="${onlyHotel ? '1' : '0'}">
+                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][only_tt]" value="${onlyTT ? '1' : '0'}">
+                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][hotel_tt]" value="${hotelTT ? '1' : '0'}">
+                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][from_date]" value="${fromDate}">
+                            <input type="hidden" name="booking_destinations[${destinationRowIndex}][to_date]" value="${toDate}">
+                            <i data-feather="edit" class="editDestinationRow" data-bs-toggle="modal" data-bs-target="#addDestinationModal" style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
+                            <i data-feather="trash-2" class="removeDestinationRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                        </td>
+                    `;
+
+                        tbody.appendChild(newRow);
+
+                        // Re-initialize Feather icons
+                        if (typeof feather !== 'undefined') {
+                            feather.replace();
+                        }
+
+                        destinationRowIndex++;
+
+                        // Check itinerary visibility
+                        checkItineraryVisibility();
+
+                        return true;
+                    }
+
+                    // Handle modal form submission
+                    document.getElementById('submitDestinationModal')?.addEventListener('click', function() {
+                        // Only add a new destination if we're NOT editing an existing row
+                        if (!editingDestinationRow && addDestinationFromModal()) {
+                            // Close modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById(
+                                'addDestinationModal'));
+                            if (modal) {
+                                modal.hide();
+                            }
+
+                            // Clear modal form
                             document.getElementById('addDestinationForm').reset();
                             document.getElementById('modalLocationSelect').innerHTML =
                                 '<option value="">-- Select Location --</option>';
-                            document.getElementById('submitDestinationModal').textContent = 'Add';
-                        });
-
-                    // Reset form when modal is closed
-                    document.getElementById('addDestinationModal')?.addEventListener('hidden.bs.modal', function() {
-                        editingDestinationRow = null;
-                        const form = document.getElementById('addDestinationForm');
-                        form.action = `{{ route('leads.booking-destinations.store', $lead) }}`;
-                        document.getElementById('destinationFormMethod').value = 'POST';
-                        document.getElementById('bookingDestinationId').value = '';
-                        document.getElementById('addDestinationModalLabel').textContent = 'Add Destination';
-                        document.getElementById('submitDestinationModal').textContent = 'Add';
+                        }
+                        // If we were editing a row, the other handler will perform the update
                     });
 
-                    // Edit Handler (UI side)
+                    // Handle destination select change in modal to load locations
+                    document.getElementById('modalDestinationSelect')?.addEventListener('change', function() {
+                        const destinationId = this.options[this.selectedIndex].dataset.destinationId;
+                        const locationSelect = document.getElementById('modalLocationSelect');
+
+                        if (locationSelect) {
+                            locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
+
+                            if (destinationId) {
+                                locationSelect.disabled = true;
+                                locationSelect.innerHTML = '<option value="">Loading locations...</option>';
+                                const submitBtn = document.getElementById('submitDestinationModal');
+                                if (submitBtn) submitBtn.disabled = true;
+
+                                fetch(`/api/destinations/${destinationId}/locations`, {
+                                        method: 'GET',
+                                        headers: {
+                                            'X-Requested-With': 'XMLHttpRequest',
+                                            'Accept': 'application/json',
+                                        },
+                                        credentials: 'same-origin'
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        locationSelect.innerHTML =
+                                            '<option value="">-- Select Location --</option>';
+                                        data.forEach(location => {
+                                            const option = document.createElement('option');
+                                            option.value = location.name;
+                                            option.textContent = location.name;
+                                            locationSelect.appendChild(option);
+                                        });
+                                        // If editing, pick the stored location now and clear the stored value
+                                        if (typeof editingLocationValue !== 'undefined' &&
+                                            editingLocationValue) {
+                                            locationSelect.value = editingLocationValue;
+                                            editingLocationValue = null;
+                                        }
+                                        locationSelect.disabled = false;
+                                        const submitBtn = document.getElementById('submitDestinationModal');
+                                        if (submitBtn) submitBtn.disabled = false;
+                                    })
+                                    .catch(error => {
+                                        console.error('Error loading locations:', error);
+                                        locationSelect.innerHTML =
+                                            '<option value="">Error loading locations</option>';
+                                        locationSelect.disabled = false;
+                                        const submitBtn = document.getElementById('submitDestinationModal');
+                                        if (submitBtn) submitBtn.disabled = false;
+                                    });
+                            } else {
+                                locationSelect.disabled = false;
+                            }
+                        }
+                    });
+
+                    // Handle service type checkboxes mutual exclusivity in modal
+                    const modalServiceTypeCheckboxes = ['modalOnlyHotel', 'modalOnlyTT', 'modalHotelTT'];
+                    modalServiceTypeCheckboxes.forEach(id => {
+                        document.getElementById(id)?.addEventListener('change', function() {
+                            if (this.checked) {
+                                modalServiceTypeCheckboxes.forEach(otherId => {
+                                    if (otherId !== id) {
+                                        document.getElementById(otherId).checked = false;
+                                    }
+                                });
+                            }
+                        });
+                    });
+
+                    // Edit destination row handler
+                    let editingDestinationRow = null;
+                    // When editing a row we store the location to set after locations are loaded
+                    let editingLocationValue = null;
                     document.addEventListener('click', function(e) {
                         if (e.target.closest('.editDestinationRow')) {
-                            const icon = e.target.closest('.editDestinationRow');
-                            const row = icon.closest('tr');
+                            const row = e.target.closest('tr');
                             editingDestinationRow = row;
 
-                            // Get data from attributes
-                            const dbId = icon.dataset.id;
-                            const destination = icon.dataset.destination;
-                            const location = icon.dataset.location;
-                            const onlyHotel = icon.dataset.onlyHotel === '1';
-                            const onlyTT = icon.dataset.onlyTt === '1';
-                            const hotelTT = icon.dataset.hotelTt === '1';
+                            // Get row data
+                            const destination = row.querySelector('td:nth-child(1)').textContent.trim();
+                            const location = row.querySelector('td:nth-child(2)').textContent.trim();
+                            const onlyHotel = row.querySelector('td:nth-child(3)').querySelector('i') !== null;
+                            const onlyTT = row.querySelector('td:nth-child(4)').querySelector('i') !== null;
+                            const hotelTT = row.querySelector('td:nth-child(5)').querySelector('i') !== null;
+                            const fromDate = row.querySelector('input[name*="[from_date]"]')?.value || '';
+                            const toDate = row.querySelector('input[name*="[to_date]"]')?.value || '';
 
-                            const fromDate = icon.dataset.fromDate || '';
-                            const toDate = icon.dataset.toDate || '';
-
-                            // Update form action and method for edit
-                            const form = document.getElementById('addDestinationForm');
-                            form.action = `{{ route('leads.booking-destinations.update', [$lead, ':id']) }}`
-                                .replace(':id', dbId);
-                            document.getElementById('destinationFormMethod').value = 'PUT';
-                            document.getElementById('bookingDestinationId').value = dbId;
-
-                            // Populate modal
+                            // Populate modal (set destination, and defer location until options load)
                             document.getElementById('modalDestinationSelect').value = destination;
+                            // store the location value so we can set it after locations are fetched
                             editingLocationValue = location;
-
-                            // Uncheck all first
-                            document.getElementById('modalOnlyHotel').checked = false;
-                            document.getElementById('modalOnlyTT').checked = false;
-                            document.getElementById('modalHotelTT').checked = false;
-
-                            // Check the correct radio button
-                            if (onlyHotel) document.getElementById('modalOnlyHotel').checked = true;
-                            if (onlyTT) document.getElementById('modalOnlyTT').checked = true;
-                            if (hotelTT) document.getElementById('modalHotelTT').checked = true;
-
+                            document.getElementById('modalOnlyHotel').checked = onlyHotel;
+                            document.getElementById('modalOnlyTT').checked = onlyTT;
+                            document.getElementById('modalHotelTT').checked = hotelTT;
                             document.getElementById('modalFromDate').value = fromDate;
                             document.getElementById('modalToDate').value = toDate;
 
-                            // Change modal title & button
+                            // Change modal title
                             document.getElementById('addDestinationModalLabel').textContent = 'Edit Destination';
-                            document.getElementById('submitDestinationModal').textContent = 'Update';
 
-                            // Trigger location load
+                            // Trigger location change if destination exists
                             const destinationSelect = document.getElementById('modalDestinationSelect');
                             if (destinationSelect.value) {
                                 destinationSelect.dispatchEvent(new Event('change'));
@@ -2108,41 +2082,119 @@
                         }
                     });
 
-                    // Delete Handler (AJAX)
-                    document.addEventListener('click', async function(e) {
-                        if (e.target.closest('.removeDestinationRow')) {
-                            const icon = e.target.closest('.removeDestinationRow');
-                            const dbId = icon.dataset.id;
+                    // Update submit handler to handle edit
+                    const originalSubmitDestination = document.getElementById('submitDestinationModal');
+                    if (originalSubmitDestination) {
+                        originalSubmitDestination.addEventListener('click', function() {
+                            if (editingDestinationRow) {
+                                // Update existing row
+                                const row = editingDestinationRow;
+                                const destination = document.getElementById('modalDestinationSelect').value;
+                                const location = document.getElementById('modalLocationSelect').value;
+                                const onlyHotel = document.getElementById('modalOnlyHotel').checked;
+                                const onlyTT = document.getElementById('modalOnlyTT').checked;
+                                const hotelTT = document.getElementById('modalHotelTT').checked;
+                                const fromDate = document.getElementById('modalFromDate').value;
+                                const toDate = document.getElementById('modalToDate').value;
 
-                            if (!dbId) {
-                                e.target.closest('tr').remove();
+                                if (!destination || !location || !fromDate || !toDate) {
+                                    alert('Please fill in all required fields');
+                                    return;
+                                }
+
+                                const formatDate = (dateStr) => {
+                                    if (!dateStr) return '';
+                                    const date = new Date(dateStr);
+                                    const day = String(date.getDate()).padStart(2, '0');
+                                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                                    const year = date.getFullYear();
+                                    return `${day}/${month}/${year}`;
+                                };
+
+                                // Update row content
+                                row.querySelector('td:nth-child(1)').textContent = destination;
+                                row.querySelector('td:nth-child(2)').textContent = location;
+                                row.querySelector('td:nth-child(3)').innerHTML = onlyHotel ?
+                                    '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' :
+                                    '';
+                                row.querySelector('td:nth-child(4)').innerHTML = onlyTT ?
+                                    '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' :
+                                    '';
+                                row.querySelector('td:nth-child(5)').innerHTML = hotelTT ?
+                                    '<i data-feather="check" style="width: 16px; height: 16px; color: #28a745;"></i>' :
+                                    '';
+                                row.querySelector('td:nth-child(6)').textContent = formatDate(fromDate);
+                                row.querySelector('td:nth-child(7)').textContent = formatDate(toDate);
+
+                                // Update hidden inputs
+                                row.querySelector('input[name*="[destination]"]').value = destination;
+                                row.querySelector('input[name*="[location]"]').value = location;
+                                row.querySelector('input[name*="[only_hotel]"]').value = onlyHotel ? '1' : '0';
+                                row.querySelector('input[name*="[only_tt]"]').value = onlyTT ? '1' : '0';
+                                row.querySelector('input[name*="[hotel_tt]"]').value = hotelTT ? '1' : '0';
+                                row.querySelector('input[name*="[from_date]"]').value = fromDate;
+                                row.querySelector('input[name*="[to_date]"]').value = toDate;
+
+                                // Re-initialize Feather icons
+                                if (typeof feather !== 'undefined') {
+                                    feather.replace();
+                                }
+
+                                editingDestinationRow = null;
+                                editingLocationValue = null;
+                                document.getElementById('addDestinationModalLabel').textContent = 'Add Destination';
+                                const modal = bootstrap.Modal.getInstance(document.getElementById(
+                                    'addDestinationModal'));
+                                if (modal) modal.hide();
+                                document.getElementById('addDestinationForm').reset();
+                            } else {
+                                // Original add functionality
+                                if (addDestinationFromModal()) {
+                                    const modal = bootstrap.Modal.getInstance(document.getElementById(
+                                        'addDestinationModal'));
+                                    if (modal) modal.hide();
+                                    document.getElementById('addDestinationForm').reset();
+                                }
+                                editingLocationValue = null;
+                            }
+                        });
+                    }
+
+                    // Reset editing state when modal is closed
+                    document.getElementById('addDestinationModal')?.addEventListener('hidden.bs.modal', function() {
+                        editingDestinationRow = null;
+                        editingLocationValue = null;
+                        document.getElementById('addDestinationModalLabel').textContent = 'Add Destination';
+                        const locationSelect = document.getElementById('modalLocationSelect');
+                        if (locationSelect) {
+                            locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
+                        }
+                        const form = document.getElementById('addDestinationForm');
+                        if (form) form.reset();
+                    });
+
+                    // Reset arrival/departure modal edit state when closed
+                    document.getElementById('addArrivalDepartureModal')?.addEventListener('hidden.bs.modal', function() {
+                        editingArrivalDepartureRow = null;
+                        document.getElementById('addArrivalDepartureModalLabel').textContent =
+                            'Add Arrival/Departure';
+                        const submitBtn = document.getElementById('submitArrivalDepartureModal');
+                        if (submitBtn) submitBtn.textContent = 'Add';
+                        const form = document.getElementById('addArrivalDepartureForm');
+                        if (form) form.reset();
+                    });
+
+                    // Remove destination row handler (using event delegation)
+                    document.addEventListener('click', function(e) {
+                        if (e.target.closest('.removeDestinationRow')) {
+                            if (!confirm('Are you sure you want to delete this destination row?')) {
                                 return;
                             }
+                            const row = e.target.closest('tr');
+                            row.remove();
 
-                            if (!confirm('Are you sure you want to remove this destination?')) return;
-
-                            try {
-                                const response = await fetch(
-                                    `{{ route('leads.booking-destinations.destroy', [$lead, ':id']) }}`
-                                    .replace(':id', dbId), {
-                                        method: 'DELETE',
-                                        headers: {
-                                            'X-CSRF-TOKEN': document.querySelector(
-                                                'meta[name="csrf-token"]')?.content,
-                                            'Accept': 'application/json'
-                                        }
-                                    });
-
-                                if (response.ok) {
-                                    window.location.reload();
-                                } else {
-                                    const result = await response.json();
-                                    alert(result.message || 'Error removing destination');
-                                }
-                            } catch (error) {
-                                console.error('Error removing destination:', error);
-                                alert('An unexpected error occurred');
-                            }
+                            // Check itinerary visibility after removing destination row
+                            checkItineraryVisibility();
                         }
                     });
 
@@ -2164,165 +2216,191 @@
                         return `${day}/${month}/${year}`;
                     }
 
-                    // Arrival/Departure AJAX Logic
-                    let editingArrivalDepartureId = null;
-
-                    // Reset modal for new entry
-                    document.getElementById('addArrivalDepartureModal')?.addEventListener('show.bs.modal', function(e) {
-                        const button = e.relatedTarget;
-                        if (!button || !button.classList.contains('editArrivalDepartureRow')) {
-                            editingArrivalDepartureId = null;
-
-                            // Reset form action and method for add
-                            const form = document.getElementById('addArrivalDepartureForm');
-                            form.action = `{{ route('leads.booking-arrival-departure.store', $lead) }}`;
-                            document.getElementById('arrivalDepartureFormMethod').value = 'POST';
-                            document.getElementById('arrivalDepartureId').value = '';
-
-                            document.getElementById('addArrivalDepartureForm').reset();
-                            document.getElementById('addArrivalDepartureModalLabel').textContent =
-                                'Add Arrival/Departure';
-                            document.getElementById('submitArrivalDepartureModal').textContent = 'Add';
-                        }
-                    });
-
-                    // Edit Handler - Populate Modal
-                    document.addEventListener('click', function(e) {
-                        const editBtn = e.target.closest('.editArrivalDepartureRow');
-                        if (editBtn) {
-                            const dbId = editBtn.dataset.id;
-                            editingArrivalDepartureId = dbId;
-
-                            // Update form action and method for edit
-                            const form = document.getElementById('addArrivalDepartureForm');
-                            form.action = `{{ route('leads.booking-arrival-departure.update', [$lead, ':id']) }}`
-                                .replace(':id', dbId);
-                            document.getElementById('arrivalDepartureFormMethod').value = 'PUT';
-                            document.getElementById('arrivalDepartureId').value = dbId;
-
-                            document.getElementById('addArrivalDepartureModalLabel').textContent =
-                                'Edit Arrival/Departure';
-                            document.getElementById('submitArrivalDepartureModal').textContent = 'Update';
-
-                            // Populate modal fields from data attributes
-                            document.getElementById('modalMode').value = editBtn.dataset.mode || 'By Air';
-                            document.getElementById('modalInfo').value = editBtn.dataset.info || '';
-                            document.getElementById('modalFromCity').value = editBtn.dataset.fromCity || '';
-                            document.getElementById('modalToCity').value = editBtn.dataset.toCity || '';
-
-                            // Handle datetime-local values (YYYY-MM-DDTHH:MM)
-                            const depDate = editBtn.dataset.departureDate || '';
-                            const depTime = editBtn.dataset.departureTime || '';
-                            if (depDate && depTime) {
-                                document.getElementById('modalDepartureAt').value = `${depDate}T${depTime}`;
-                            }
-
-                            const arrDate = editBtn.dataset.arrivalDate || '';
-                            const arrTime = editBtn.dataset.arrivalTime || '';
-                            if (arrDate && arrTime) {
-                                document.getElementById('modalArrivalAt').value = `${arrDate}T${arrTime}`;
-                            }
-                        }
-                    });
-
-                    // Handle form submission - split datetime-local into date and time
-                    document.getElementById('addArrivalDepartureForm')?.addEventListener('submit', function(e) {
-                        const departureAt = document.getElementById('modalDepartureAt').value;
+                    // Function to add arrival/departure from modal
+                    function addArrivalDepartureFromModal() {
+                        const mode = document.getElementById('modalMode').value;
+                        const info = document.getElementById('modalInfo').value;
+                        const fromCity = document.getElementById('modalFromCity').value;
+                        const toCity = document.getElementById('modalToCity').value;
+                        const departureAt = document.getElementById('modalDepartureAt').value; // e.g. 2025-12-31T15:30
                         const arrivalAt = document.getElementById('modalArrivalAt').value;
 
-                        if (!departureAt || !arrivalAt) {
-                            e.preventDefault();
-                            alert('Please fill in all required fields');
-                            return;
+                        // Validation
+                        if (!mode || !fromCity || !toCity || !departureAt || !arrivalAt) {
+                            alert(
+                                'Please fill in all required fields (Mode, From City, To City, Departure Date & Time, Arrival Date & Time)'
+                            );
+                            return false;
                         }
 
-                        // Split datetime-local into date and time for backend
-                        const depParts = departureAt.split('T');
-                        const arrParts = arrivalAt.split('T');
+                        // Split datetime-local into date and time parts
+                        const [departureDate, departureTimeFull] = departureAt.split('T');
+                        const departureTime = departureTimeFull ? departureTimeFull.substr(0, 5) : '';
+                        const [arrivalDate, arrivalTimeFull] = arrivalAt.split('T');
+                        const arrivalTime = arrivalTimeFull ? arrivalTimeFull.substr(0, 5) : '';
 
-                        // Populate hidden fields
-                        document.getElementById('hiddenDepartureDate').value = depParts[0] || '';
-                        document.getElementById('hiddenDepartureTime').value = depParts[1] || '';
-                        document.getElementById('hiddenArrivalDate').value = arrParts[0] || '';
-                        document.getElementById('hiddenArrivalTime').value = arrParts[1] || '';
-                    });
+                        // Create new data row
+                        const tbody = document.getElementById('arrivalDepartureTableBody');
+                        const newRow = document.createElement('tr');
+                        newRow.className = 'arrival-departure-data-row';
+                        newRow.setAttribute('data-row-index', arrivalDepartureRowIndex);
 
-                    // Reset form when modal is closed
-                    document.getElementById('addArrivalDepartureModal')?.addEventListener('hidden.bs.modal', function() {
-                        editingArrivalDepartureId = null;
-                        const form = document.getElementById('addArrivalDepartureForm');
-                        form.action = `{{ route('leads.booking-arrival-departure.store', $lead) }}`;
-                        document.getElementById('arrivalDepartureFormMethod').value = 'POST';
-                        document.getElementById('arrivalDepartureId').value = '';
-                        document.getElementById('addArrivalDepartureModalLabel').textContent =
-                            'Add Arrival/Departure';
-                        document.getElementById('submitArrivalDepartureModal').textContent = 'Add';
-                    });
+                        const depDateDisplay = formatDateDisplay(departureDate);
+                        const arrDateDisplay = formatDateDisplay(arrivalDate);
+                        const depTimeDisplay = departureTime ? departureTime : '';
+                        const arrTimeDisplay = arrivalTime ? arrivalTime : '';
 
-                    // Delete Handler
-                    document.addEventListener('click', async function(e) {
-                        const deleteBtn = e.target.closest('.removeArrivalDepartureRow');
-                        if (deleteBtn) {
-                            const dbId = deleteBtn.dataset.id;
-                            if (!dbId) {
-                                deleteBtn.closest('tr').remove();
-                                return;
+                        newRow.innerHTML = `
+                        <td>${mode}</td>
+                        <td>${info}</td>
+                        <td>${fromCity}</td>
+                        <td>${toCity}</td>
+                        <td>${depDateDisplay}</td>
+                        <td>${depTimeDisplay}</td>
+                        <td>${arrDateDisplay}</td>
+                        <td>${arrTimeDisplay}</td>
+                        <td class="text-center">
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][mode]" value="${mode}">
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][info]" value="${info}">
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][from_city]" value="${fromCity}">
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][to_city]" value="${toCity}">
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][departure_date]" value="${departureDate}">
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][departure_time]" value="${departureTime}">
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][arrival_date]" value="${arrivalDate}">
+                            <input type="hidden" name="arrival_departure[${arrivalDepartureRowIndex}][arrival_time]" value="${arrivalTime}">
+                            <i data-feather="edit" class="editArrivalDepartureRow" data-bs-toggle="modal" data-bs-target="#addArrivalDepartureModal" style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
+                            <i data-feather="trash-2" class="removeArrivalDepartureRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                        </td>
+                    `;
+
+                        // If we are editing an existing row, replace its contents
+                        if (editingArrivalDepartureRow) {
+                            const row = editingArrivalDepartureRow;
+                            const rowIndex = row.getAttribute('data-row-index') || row.dataset.rowIndex || '';
+                            row.innerHTML = `
+                            <td>${mode}</td>
+                            <td>${info}</td>
+                            <td>${fromCity}</td>
+                            <td>${toCity}</td>
+                            <td>${depDateDisplay}</td>
+                            <td>${depTimeDisplay}</td>
+                            <td>${arrDateDisplay}</td>
+                            <td>${arrTimeDisplay}</td>
+                            <td class="text-center">
+                                <input type="hidden" name="arrival_departure[${rowIndex}][mode]" value="${mode}">
+                                <input type="hidden" name="arrival_departure[${rowIndex}][info]" value="${info}">
+                                <input type="hidden" name="arrival_departure[${rowIndex}][from_city]" value="${fromCity}">
+                                <input type="hidden" name="arrival_departure[${rowIndex}][to_city]" value="${toCity}">
+                                <input type="hidden" name="arrival_departure[${rowIndex}][departure_date]" value="${departureDate}">
+                                <input type="hidden" name="arrival_departure[${rowIndex}][departure_time]" value="${departureTime}">
+                                <input type="hidden" name="arrival_departure[${rowIndex}][arrival_date]" value="${arrivalDate}">
+                                <input type="hidden" name="arrival_departure[${rowIndex}][arrival_time]" value="${arrivalTime}">
+                                <i data-feather="edit" class="editArrivalDepartureRow" data-bs-toggle="modal" data-bs-target="#addArrivalDepartureModal" style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
+                                <i data-feather="trash-2" class="removeArrivalDepartureRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                            </td>
+                        `;
+
+                            // Re-initialize Feather icons
+                            if (typeof feather !== 'undefined') {
+                                feather.replace();
                             }
 
-                            if (!confirm('Are you sure you want to remove this arrival/departure entry?'))
-                                return;
+                            // Reset edit state
+                            editingArrivalDepartureRow = null;
+                            document.getElementById('addArrivalDepartureModalLabel').textContent = 'Add Arrival/Departure';
+                            const submitBtn = document.getElementById('submitArrivalDepartureModal');
+                            if (submitBtn) submitBtn.textContent = 'Add';
 
-                            try {
-                                const response = await fetch(
-                                    `{{ route('leads.booking-arrival-departure.destroy', [$lead, ':id']) }}`
-                                    .replace(':id', dbId), {
-                                        method: 'DELETE',
-                                        headers: {
-                                            'X-CSRF-TOKEN': document.querySelector(
-                                                'meta[name="csrf-token"]')?.content,
-                                            'Accept': 'application/json'
-                                        }
-                                    });
+                            return true;
+                        }
 
-                                if (response.ok) {
-                                    window.location.reload();
-                                } else {
-                                    const result = await response.json();
-                                    alert(result.message || 'Error removing entry');
-                                }
-                            } catch (error) {
-                                console.error('Error removing arrival/departure:', error);
-                                alert('An unexpected error occurred');
+                        // Otherwise append as new row
+                        tbody.appendChild(newRow);
+
+                        // Re-initialize Feather icons
+                        if (typeof feather !== 'undefined') {
+                            feather.replace();
+                        }
+
+                        arrivalDepartureRowIndex++;
+                        return true;
+                    }
+
+                    // Handle modal form submission
+                    document.getElementById('submitArrivalDepartureModal')?.addEventListener('click', function() {
+                        if (addArrivalDepartureFromModal()) {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById(
+                                'addArrivalDepartureModal'));
+                            if (modal) {
+                                modal.hide();
                             }
+                            document.getElementById('addArrivalDepartureForm').reset();
                         }
                     });
 
-                    // Accommodation AJAX Logic
-                    let editingAccommodationId = null;
+                    // Remove arrival/departure row handler
+                    document.addEventListener('click', function(e) {
+                        if (e.target.closest('.removeArrivalDepartureRow')) {
+                            if (!confirm('Are you sure you want to delete this arrival/departure row?')) {
+                                return;
+                            }
+                            const row = e.target.closest('tr');
+                            row.remove();
+                        }
+
+                        // Edit arrival/departure row handler
+                        if (e.target.closest('.editArrivalDepartureRow')) {
+                            const row = e.target.closest('tr');
+                            editingArrivalDepartureRow = row;
+
+                            // Get row data
+                            const mode = row.querySelector('td:nth-child(1)').textContent.trim();
+                            const info = row.querySelector('td:nth-child(2)').textContent.trim();
+                            const fromCity = row.querySelector('td:nth-child(3)').textContent.trim();
+                            const toCity = row.querySelector('td:nth-child(4)').textContent.trim();
+
+                            const departureDateHidden = row.querySelector('input[name*="[departure_date]"]')
+                                ?.value || '';
+                            const departureTimeHidden = row.querySelector('input[name*="[departure_time]"]')
+                                ?.value || '';
+                            const arrivalDateHidden = row.querySelector('input[name*="[arrival_date]"]')?.value ||
+                                '';
+                            const arrivalTimeHidden = row.querySelector('input[name*="[arrival_time]"]')?.value ||
+                                '';
+
+                            // Populate modal fields
+                            document.getElementById('modalMode').value = mode;
+                            document.getElementById('modalInfo').value = info;
+                            document.getElementById('modalFromCity').value = fromCity;
+                            document.getElementById('modalToCity').value = toCity;
+
+                            const departureAt = departureDateHidden ? (departureTimeHidden ?
+                                `${departureDateHidden}T${departureTimeHidden}` : `${departureDateHidden}T00:00`
+                            ) : '';
+                            const arrivalAt = arrivalDateHidden ? (arrivalTimeHidden ?
+                                `${arrivalDateHidden}T${arrivalTimeHidden}` : `${arrivalDateHidden}T00:00`) : '';
+
+                            document.getElementById('modalDepartureAt').value = departureAt;
+                            document.getElementById('modalArrivalAt').value = arrivalAt;
+
+                            // Change modal title and button text
+                            document.getElementById('addArrivalDepartureModalLabel').textContent =
+                                'Edit Arrival/Departure';
+                            const submitBtn = document.getElementById('submitArrivalDepartureModal');
+                            if (submitBtn) submitBtn.textContent = 'Save';
+                        }
+                    });
+
+                    // Accommodation table management
+                    let accommodationRowIndex =
+                        {{ $lead->bookingAccommodations ? $lead->bookingAccommodations->count() : 0 }};
+
+                    // Track if we are editing an existing accommodation row
+                    let editingAccommodationRow = null;
+                    // When editing, store the location to set after locations are loaded
                     let editingAccLocationValue = null;
 
-                    // Reset modal for new entry
-                    document.getElementById('addAccommodationModal')?.addEventListener('show.bs.modal', function(e) {
-                        const button = e.relatedTarget;
-                        if (!button || !button.classList.contains('editAccommodationRow')) {
-                            editingAccommodationId = null;
-                            editingAccLocationValue = null;
-
-                            // Reset form action and method for add
-                            const form = document.getElementById('addAccommodationForm');
-                            form.action = `{{ route('leads.booking-accommodations.store', $lead) }}`;
-                            document.getElementById('accommodationFormMethod').value = 'POST';
-                            document.getElementById('accommodationId').value = '';
-
-                            document.getElementById('addAccommodationForm').reset();
-                            document.getElementById('addAccommodationModalLabel').textContent = 'Add Accommodation';
-                            document.getElementById('submitAccommodationModal').textContent = 'Add';
-                            document.getElementById('modalAccLocationSelect').innerHTML =
-                                '<option value="">-- Select Location --</option>';
-                        }
-                    });
-
-                    // Function to load locations for accommodation modal
+                    // Function to load locations for accommodation modal when a destination is selected
                     function loadAccLocationsForDestination(destinationSelect) {
                         const locationSelect = document.getElementById('modalAccLocationSelect');
                         const destinationId = destinationSelect.options[destinationSelect.selectedIndex]?.getAttribute(
@@ -2330,37 +2408,33 @@
 
                         if (locationSelect) {
                             locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
+
                             if (destinationId) {
                                 locationSelect.disabled = true;
-                                locationSelect.innerHTML = '<option value="">Loading...</option>';
+                                locationSelect.innerHTML = '<option value="">Loading locations...</option>';
+                                const submitBtn = document.getElementById('submitAccommodationModal');
+                                if (submitBtn) submitBtn.disabled = true;
+
                                 fetch(`/api/destinations/${destinationId}/locations`, {
+                                        method: 'GET',
                                         headers: {
+                                            'X-Requested-With': 'XMLHttpRequest',
                                             'Accept': 'application/json',
-                                            'X-Requested-With': 'XMLHttpRequest'
-                                        }
+                                        },
+                                        credentials: 'same-origin'
                                     })
-                                    .then(response => {
-                                        if (!response.ok) throw new Error('Network response was not ok');
-                                        return response.json();
-                                    })
+                                    .then(response => response.json())
                                     .then(data => {
                                         locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
-                                        data.forEach(loc => {
+                                        data.forEach(location => {
                                             const option = document.createElement('option');
-                                            option.value = loc.name;
-                                            option.textContent = loc.name;
+                                            option.value = location.name;
+                                            option.textContent = location.name;
                                             locationSelect.appendChild(option);
                                         });
-                                        if (editingAccLocationValue) {
+                                        // If a location is pending selection (editing), set it now and clear stored value
+                                        if (typeof editingAccLocationValue !== 'undefined' && editingAccLocationValue) {
                                             locationSelect.value = editingAccLocationValue;
-                                            // Fallback if value property didn't match (e.g. whitespace)
-                                            if (locationSelect.value !== editingAccLocationValue) {
-                                                Array.from(locationSelect.options).forEach(opt => {
-                                                    if (opt.value.trim() === editingAccLocationValue.trim()) {
-                                                        locationSelect.value = opt.value;
-                                                    }
-                                                });
-                                            }
                                             editingAccLocationValue = null;
                                         }
                                         locationSelect.disabled = false;
@@ -2374,307 +2448,393 @@
                                         const submitBtn = document.getElementById('submitAccommodationModal');
                                         if (submitBtn) submitBtn.disabled = false;
                                     });
+                            } else {
+                                locationSelect.disabled = false;
                             }
                         }
                     }
 
-                    document.getElementById('modalAccDestinationSelect')?.addEventListener('change', function() {
-                        loadAccLocationsForDestination(this);
+                    // Function to add accommodation from modal
+                    function addAccommodationFromModal() {
+                        const destination = document.getElementById('modalAccDestinationSelect').value;
+                        const location = document.getElementById('modalAccLocationSelect').value;
+                        const stayAt = document.getElementById('modalStayAt').value;
+                        const checkinDate = document.getElementById('modalCheckinDate').value;
+                        const checkoutDate = document.getElementById('modalCheckoutDate').value;
+                        const roomType = document.getElementById('modalRoomType').value;
+                        const mealPlan = document.getElementById('modalMealPlan').value;
+
+                        // Validation
+                        if (!destination || !location || !stayAt || !checkinDate || !checkoutDate) {
+                            alert(
+                                'Please fill in all required fields (Destination, Location, Stay At, Check-in Date, Check-out Date)'
+                            );
+                            return false;
+                        }
+
+                        // Create new data row
+                        const tbody = document.getElementById('accommodationTableBody');
+                        const newRow = document.createElement('tr');
+                        newRow.className = 'accommodation-data-row';
+                        newRow.setAttribute('data-row-index', accommodationRowIndex);
+
+                        newRow.innerHTML = `
+                        <td>${destination}</td>
+                        <td>${location}</td>
+                        <td>${stayAt}</td>
+                        <td>${formatDateDisplay(checkinDate)}</td>
+                        <td>${formatDateDisplay(checkoutDate)}</td>
+                        <td>${roomType}</td>
+                        <td>${mealPlan}</td>
+                        <td class="text-center">
+                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][destination]" value="${destination}">
+                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][location]" value="${location}">
+                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][stay_at]" value="${stayAt}">
+                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][checkin_date]" value="${checkinDate}">
+                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][checkout_date]" value="${checkoutDate}">
+                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][room_type]" value="${roomType}">
+                            <input type="hidden" name="booking_accommodations[${accommodationRowIndex}][meal_plan]" value="${mealPlan}">
+                            <i data-feather="edit" class="editAccommodationRow" data-bs-toggle="modal" data-bs-target="#addAccommodationModal" style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
+                            <i data-feather="trash-2" class="removeAccommodationRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                        </td>
+                    `;
+
+                        // If we are editing an existing row, replace its contents
+                        if (editingAccommodationRow) {
+                            const row = editingAccommodationRow;
+                            const rowIndex = row.getAttribute('data-row-index') || row.dataset.rowIndex || '';
+                            row.innerHTML = `
+                            <td>${destination}</td>
+                            <td>${location}</td>
+                            <td>${stayAt}</td>
+                            <td>${formatDateDisplay(checkinDate)}</td>
+                            <td>${formatDateDisplay(checkoutDate)}</td>
+                            <td>${roomType}</td>
+                            <td>${mealPlan}</td>
+                            <td class="text-center">
+                                <input type="hidden" name="booking_accommodations[${rowIndex}][destination]" value="${destination}">
+                                <input type="hidden" name="booking_accommodations[${rowIndex}][location]" value="${location}">
+                                <input type="hidden" name="booking_accommodations[${rowIndex}][stay_at]" value="${stayAt}">
+                                <input type="hidden" name="booking_accommodations[${rowIndex}][checkin_date]" value="${checkinDate}">
+                                <input type="hidden" name="booking_accommodations[${rowIndex}][checkout_date]" value="${checkoutDate}">
+                                <input type="hidden" name="booking_accommodations[${rowIndex}][room_type]" value="${roomType}">
+                                <input type="hidden" name="booking_accommodations[${rowIndex}][meal_plan]" value="${mealPlan}">
+                                <i data-feather="edit" class="editAccommodationRow" data-bs-toggle="modal" data-bs-target="#addAccommodationModal" style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
+                                <i data-feather="trash-2" class="removeAccommodationRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                            </td>
+                        `;
+
+                            // Re-initialize Feather icons
+                            if (typeof feather !== 'undefined') {
+                                feather.replace();
+                            }
+
+                            // Reset edit state
+                            editingAccommodationRow = null;
+                            document.getElementById('addAccommodationModalLabel').textContent = 'Add Accommodation';
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('addAccommodationModal'));
+                            if (modal) modal.hide();
+                            document.getElementById('addAccommodationForm').reset();
+
+                            return true;
+                        }
+
+                        // Otherwise append as new row
+                        tbody.appendChild(newRow);
+
+                        // Re-initialize Feather icons
+                        if (typeof feather !== 'undefined') {
+                            feather.replace();
+                        }
+
+                        accommodationRowIndex++;
+                        return true;
+                    }
+
+                    // Handle modal form submission
+                    document.getElementById('submitAccommodationModal')?.addEventListener('click', function() {
+                        if (addAccommodationFromModal()) {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById(
+                                'addAccommodationModal'));
+                            if (modal) {
+                                modal.hide();
+                            }
+                            document.getElementById('addAccommodationForm').reset();
+                        }
                     });
 
-                    // Edit Handler - Populate Modal
+                    // Remove accommodation row handler and Edit handler
                     document.addEventListener('click', function(e) {
-                        const editBtn = e.target.closest('.editAccommodationRow');
-                        if (editBtn) {
-                            const dbId = editBtn.dataset.accommodationId;
-                            editingAccommodationId = dbId;
+                        if (e.target.closest('.removeAccommodationRow')) {
+                            if (!confirm('Are you sure you want to delete this accommodation row?')) {
+                                return;
+                            }
+                            const row = e.target.closest('tr');
+                            row.remove();
+                        }
 
-                            // Update form action and method for edit
-                            const form = document.getElementById('addAccommodationForm');
-                            form.action = `{{ route('leads.booking-accommodations.update', [$lead, ':id']) }}`
-                                .replace(':id', dbId);
-                            document.getElementById('accommodationFormMethod').value = 'PUT';
-                            document.getElementById('accommodationId').value = dbId;
+                        // Edit accommodation row handler
+                        if (e.target.closest('.editAccommodationRow')) {
+                            const row = e.target.closest('tr');
+                            editingAccommodationRow = row;
 
+                            // Get row data
+                            const destination = row.querySelector('td:nth-child(1)').textContent.trim();
+                            const location = row.querySelector('td:nth-child(2)').textContent.trim();
+                            const stayAt = row.querySelector('td:nth-child(3)').textContent.trim();
+                            const checkinDateHidden = row.querySelector('input[name*="[checkin_date]"]')?.value ||
+                                '';
+                            const checkoutDateHidden = row.querySelector('input[name*="[checkout_date]"]')?.value ||
+                                '';
+                            const roomType = row.querySelector('td:nth-child(6)').textContent.trim();
+                            const mealPlan = row.querySelector('td:nth-child(7)').textContent.trim();
+
+                            // Populate modal
+                            const destinationSelect = document.getElementById('modalAccDestinationSelect');
+                            if (destinationSelect) {
+                                destinationSelect.value = destination;
+                                // store the location value so we can set it after locations are fetched
+                                editingAccLocationValue = location;
+                                // Trigger location change to load options
+                                destinationSelect.dispatchEvent(new Event('change'));
+                            }
+
+                            document.getElementById('modalStayAt').value = stayAt;
+                            document.getElementById('modalCheckinDate').value = checkinDateHidden;
+                            document.getElementById('modalCheckoutDate').value = checkoutDateHidden;
+                            document.getElementById('modalRoomType').value = roomType;
+                            document.getElementById('modalMealPlan').value = mealPlan;
+
+                            // Change modal title
                             document.getElementById('addAccommodationModalLabel').textContent =
                                 'Edit Accommodation';
-                            document.getElementById('submitAccommodationModal').textContent = 'Update';
-
-                            // Populate fields
-                            document.getElementById('modalAccDestinationSelect').value = editBtn.dataset
-                                .destination;
-                            editingAccLocationValue = editBtn.dataset.location;
-                            document.getElementById('modalStayAt').value = editBtn.dataset.stayAt || '';
-                            document.getElementById('modalCheckinDate').value = editBtn.dataset.checkinDate || '';
-                            document.getElementById('modalCheckoutDate').value = editBtn.dataset.checkoutDate || '';
-                            document.getElementById('modalRoomType').value = editBtn.dataset.roomType || '';
-                            document.getElementById('modalMealPlan').value = editBtn.dataset.mealPlan || '';
-                            document.getElementById('modalSingleRoom').value = editBtn.dataset.singleRoom || '0';
-                            document.getElementById('modalDblRoom').value = editBtn.dataset.dblRoom || '0';
-                            document.getElementById('modalQuadRoom').value = editBtn.dataset.quadRoom || '0';
-                            document.getElementById('modalEba').value = editBtn.dataset.eba || '0';
-                            document.getElementById('modalCwb').value = editBtn.dataset.cwb || '0';
-                            document.getElementById('modalInf').value = editBtn.dataset.inf || '0';
-
-                            // Trigger location load
-                            const destSelect = document.getElementById('modalAccDestinationSelect');
-                            destSelect.dispatchEvent(new Event('change'));
+                            const submitBtn = document.getElementById('submitAccommodationModal');
+                            if (submitBtn) submitBtn.textContent = 'Save';
                         }
                     });
 
-                    // Reset form when modal is closed
-                    document.getElementById('addAccommodationModal')?.addEventListener('hidden.bs.modal', function() {
-                        editingAccommodationId = null;
-                        editingAccLocationValue = null;
-                        const form = document.getElementById('addAccommodationForm');
-                        form.action = `{{ route('leads.booking-accommodations.store', $lead) }}`;
-                        document.getElementById('accommodationFormMethod').value = 'POST';
-                        document.getElementById('accommodationId').value = '';
-                        document.getElementById('addAccommodationModalLabel').textContent = 'Add Accommodation';
-                        document.getElementById('submitAccommodationModal').textContent = 'Add';
-                    });
+                    // Handle destination change in accommodation modal to load locations
+                    document.getElementById('modalAccDestinationSelect')?.addEventListener('change', function() {
+                        const destinationId = this.options[this.selectedIndex].dataset.destinationId;
+                        const locationSelect = document.getElementById('modalAccLocationSelect');
 
-                    // Delete Handler
-                    document.addEventListener('click', async function(e) {
-                        const deleteBtn = e.target.closest('.removeAccommodationRow');
-                        if (deleteBtn) {
-                            const dbId = deleteBtn.dataset.accommodationId;
-                            if (!dbId) {
-                                deleteBtn.closest('tr').remove();
-                                return;
-                            }
+                        if (locationSelect) {
+                            locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
 
-                            if (!confirm('Are you sure you want to remove this accommodation?')) return;
+                            if (destinationId) {
+                                locationSelect.disabled = true;
+                                locationSelect.innerHTML = '<option value="">Loading locations...</option>';
+                                const submitBtn = document.getElementById('submitAccommodationModal');
+                                if (submitBtn) submitBtn.disabled = true;
 
-                            try {
-                                const response = await fetch(
-                                    `{{ route('leads.booking-accommodations.destroy', [$lead, ':id']) }}`
-                                    .replace(':id', dbId), {
-                                        method: 'DELETE',
+                                fetch(`/api/destinations/${destinationId}/locations`, {
+                                        method: 'GET',
                                         headers: {
-                                            'X-CSRF-TOKEN': document.querySelector(
-                                                'meta[name="csrf-token"]')?.content,
-                                            'Accept': 'application/json'
+                                            'X-Requested-With': 'XMLHttpRequest',
+                                            'Accept': 'application/json',
+                                        },
+                                        credentials: 'same-origin'
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        locationSelect.innerHTML =
+                                            '<option value="">-- Select Location --</option>';
+                                        data.forEach(location => {
+                                            const option = document.createElement('option');
+                                            option.value = location.name;
+                                            option.textContent = location.name;
+                                            locationSelect.appendChild(option);
+                                        });
+                                        // If editing, pick the stored location now and clear the stored value
+                                        if (typeof editingAccLocationValue !== 'undefined' &&
+                                            editingAccLocationValue) {
+                                            locationSelect.value = editingAccLocationValue;
+                                            editingAccLocationValue = null;
                                         }
+                                        locationSelect.disabled = false;
+                                        const submitBtn = document.getElementById('submitAccommodationModal');
+                                        if (submitBtn) submitBtn.disabled = false;
+                                    })
+                                    .catch(error => {
+                                        console.error('Error loading locations:', error);
+                                        locationSelect.innerHTML =
+                                            '<option value="">Error loading locations</option>';
+                                        locationSelect.disabled = false;
+                                        const submitBtn = document.getElementById('submitAccommodationModal');
+                                        if (submitBtn) submitBtn.disabled = false;
                                     });
-
-                                if (response.ok) {
-                                    window.location.reload();
-                                } else {
-                                    const result = await response.json();
-                                    alert(result.message || 'Error removing accommodation');
-                                }
-                            } catch (error) {
-                                console.error('Error removing accommodation:', error);
-                                alert('An unexpected error occurred');
+                            } else {
+                                locationSelect.disabled = false;
                             }
                         }
                     });
 
-
-                    // Itinerary AJAX Logic
-                    let editingItineraryId = null;
-
-                    // Function to add bullet points to activity textarea
-                    function formatActivityWithBullets(text) {
-                        if (!text || !text.trim()) return '• ';
-                        // Split by line breaks and add bullet points
-                        const lines = text.split(/\r?\n/);
-                        const formatted = lines.map(line => {
-                            const trimmed = line.trim();
-                            // Remove existing bullet points if any
-                            const cleaned = trimmed.replace(/^[•\-\*]\s*/, '');
-                            return cleaned ? `• ${cleaned}` : '';
-                        }).filter(line => line);
-                        return formatted.length > 0 ? formatted.join('\n') : '• ';
-                    }
-
-                    // Function to remove bullet points (for storage)
-                    function removeBulletsFromText(text) {
-                        if (!text) return '';
-                        return text.split(/\r?\n/).map(line => {
-                            return line.replace(/^[•\-\*]\s*/, '').trim();
-                        }).filter(line => line).join('\n');
-                    }
-
-                    // Handle Enter key in Activity textarea to add bullet points
-                    const modalActivity = document.getElementById('modalActivity');
-                    if (modalActivity) {
-                        // Add bullet point on first focus if empty
-                        modalActivity.addEventListener('focus', function() {
-                            if (this.value.trim() === '') {
-                                this.value = '• ';
-                            }
-                        });
-
-                        // Handle Enter key to add bullet point on new line
-                        modalActivity.addEventListener('keydown', function(e) {
-                            if (e.key === 'Enter') {
-                                e.preventDefault();
-                                const start = this.selectionStart;
-                                const end = this.selectionEnd;
-                                const text = this.value;
-
-                                // Get current line
-                                const beforeCursor = text.substring(0, start);
-                                const afterCursor = text.substring(end);
-                                const lines = beforeCursor.split('\n');
-                                const currentLine = lines[lines.length - 1];
-
-                                // Remove bullet from current line if it's empty or just has bullet
-                                let newText;
-                                if (currentLine.trim() === '' || currentLine.trim() === '•') {
-                                    // Remove empty bullet line and add new one
-                                    const beforeLines = lines.slice(0, -1).join('\n');
-                                    newText = (beforeLines ? beforeLines + '\n' : '') + '• ' + afterCursor;
-                                } else {
-                                    // Add new line with bullet
-                                    newText = beforeCursor + '\n• ' + afterCursor;
-                                }
-
-                                this.value = newText;
-
-                                // Set cursor position after the bullet
-                                const newCursorPos = start + (newText.length - text.length);
-                                this.setSelectionRange(newCursorPos, newCursorPos);
-                            }
-                        });
-
-                        // Format existing text when modal opens (if it doesn't have bullets) - only for new entries
-                        document.getElementById('addItineraryModal')?.addEventListener('shown.bs.modal', function(e) {
-                            // Only format if this is not an edit (check if editingItineraryId is null)
-                            if (!editingItineraryId) {
-                                const activityText = modalActivity.value;
-                                if (activityText && !activityText.includes('•')) {
-                                    // Only format if there are line breaks but no bullets
-                                    if (activityText.includes('\n')) {
-                                        modalActivity.value = formatActivityWithBullets(activityText);
-                                    } else if (activityText.trim() && !activityText.startsWith('•')) {
-                                        modalActivity.value = '• ' + activityText.trim();
-                                    }
-                                }
-                            }
-                        });
-                    }
-
-                    // Reset modal for new entry
-                    document.getElementById('addItineraryModal')?.addEventListener('show.bs.modal', function(e) {
-                        const button = e.relatedTarget;
-                        if (!button || !button.classList.contains('editItineraryRow')) {
-                            editingItineraryId = null;
-
-                            // Reset form action and method for add
-                            const form = document.getElementById('addItineraryForm');
-                            form.action = `{{ route('leads.booking-itineraries.store', $lead) }}`;
-                            document.getElementById('itineraryFormMethod').value = 'POST';
-                            document.getElementById('itineraryId').value = '';
-
-                            document.getElementById('addItineraryForm').reset();
-                            document.getElementById('addItineraryModalLabel').textContent =
-                                'Add Day-Wise Itinerary';
-                            document.getElementById('submitItineraryModal').textContent = 'Add';
-
-                            // Pre-fill Day & Date based on existing data
-                            const itineraryRows = document.querySelectorAll(
-                                '#itineraryTableBody .itinerary-data-row');
-                            const nextDayNumber = itineraryRows.length + 1;
-                            document.getElementById('modalDayDate').value = `Day ${nextDayNumber}`;
-
-                            // Initialize with bullet point
-                            if (modalActivity) {
-                                modalActivity.value = '• ';
-                            }
+                    // Reset editing state when accommodation modal is closed
+                    document.getElementById('addAccommodationModal')?.addEventListener('hidden.bs.modal', function() {
+                        editingAccommodationRow = null;
+                        editingAccLocationValue = null;
+                        document.getElementById('addAccommodationModalLabel').textContent = 'Add Accommodation';
+                        const submitBtn = document.getElementById('submitAccommodationModal');
+                        if (submitBtn) submitBtn.textContent = 'Add';
+                        const locationSelect = document.getElementById('modalAccLocationSelect');
+                        if (locationSelect) {
+                            locationSelect.innerHTML = '<option value="">-- Select Location --</option>';
                         }
+                        const form = document.getElementById('addAccommodationForm');
+                        if (form) form.reset();
                     });
 
-                    // Edit Handler - Populate Modal
+                    // Itinerary table management
+                    let itineraryRowIndex = {{ $lead->bookingItineraries ? $lead->bookingItineraries->count() : 0 }};
+
+                    // Function to add itinerary from modal
+                    function addItineraryFromModal() {
+                        const dayDate = document.getElementById('modalDayDate').value;
+                        const time = document.getElementById('modalItineraryTime').value;
+                        const location = document.getElementById('modalItineraryLocation').value;
+                        const activity = document.getElementById('modalActivity').value;
+                        const stayAt = document.getElementById('modalItineraryStayAt').value;
+                        const remarks = document.getElementById('modalRemarks').value;
+
+                        // Validation
+                        if (!dayDate || !location || !activity) {
+                            alert('Please fill in all required fields (Day & Date, Location, Activity/Tour Description)');
+                            return false;
+                        }
+
+                        // Create new data row
+                        const tbody = document.getElementById('itineraryTableBody');
+                        const newRow = document.createElement('tr');
+                        newRow.className = 'itinerary-data-row';
+                        newRow.setAttribute('data-row-index', itineraryRowIndex);
+
+                        newRow.innerHTML = `
+                        <td>${dayDate}</td>
+                        <td>${time || ''}</td>
+                        <td>${location}</td>
+                        <td>${activity}</td>
+                        <td>${stayAt || ''}</td>
+                        <td>${remarks || ''}</td>
+                        <td class="text-center">
+                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][day_and_date]" value="${dayDate}">
+                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][time]" value="${time}">
+                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][location]" value="${location}">
+                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][activity_tour_description]" value="${activity}">
+                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][stay_at]" value="${stayAt}">
+                            <input type="hidden" name="booking_itineraries[${itineraryRowIndex}][remarks]" value="${remarks}">
+                            <i data-feather="edit" class="editItineraryRow" data-bs-toggle="modal" data-bs-target="#addItineraryModal" style="width: 16px; height: 16px; color: #0d6efd; cursor: pointer; margin-right: 8px;"></i>
+                            <i data-feather="trash-2" class="removeItineraryRow" style="width: 16px; height: 16px; color: #dc3545; cursor: pointer;"></i>
+                        </td>
+                    `;
+
+                        tbody.appendChild(newRow);
+
+                        // Re-initialize Feather icons
+                        if (typeof feather !== 'undefined') {
+                            feather.replace();
+                        }
+
+                        itineraryRowIndex++;
+                        return true;
+                    }
+
+                    // Edit itinerary row handler
+                    let editingItineraryRow = null;
                     document.addEventListener('click', function(e) {
-                        const editBtn = e.target.closest('.editItineraryRow');
-                        if (editBtn) {
-                            const dbId = editBtn.dataset.itineraryId;
-                            editingItineraryId = dbId;
+                        if (e.target.closest('.editItineraryRow')) {
+                            const row = e.target.closest('tr');
+                            editingItineraryRow = row;
 
-                            // Update form action and method for edit
-                            const form = document.getElementById('addItineraryForm');
-                            form.action = `{{ route('leads.booking-itineraries.update', [$lead, ':id']) }}`
-                                .replace(':id', dbId);
-                            document.getElementById('itineraryFormMethod').value = 'PUT';
-                            document.getElementById('itineraryId').value = dbId;
+                            // Get row data
+                            const dayDate = row.querySelector('td:nth-child(1)').textContent.trim();
+                            const time = row.querySelector('td:nth-child(2)').textContent.trim();
+                            const location = row.querySelector('td:nth-child(3)').textContent.trim();
+                            const activity = row.querySelector('td:nth-child(4)').textContent.trim();
+                            const stayAt = row.querySelector('td:nth-child(5)').textContent.trim();
+                            const remarks = row.querySelector('td:nth-child(6)').textContent.trim();
 
+                            // Populate modal
+                            document.getElementById('modalDayDate').value = dayDate;
+                            document.getElementById('modalItineraryTime').value = time;
+                            document.getElementById('modalItineraryLocation').value = location;
+                            document.getElementById('modalActivity').value = activity;
+                            document.getElementById('modalItineraryStayAt').value = stayAt;
+                            document.getElementById('modalRemarks').value = remarks;
+
+                            // Change modal title
                             document.getElementById('addItineraryModalLabel').textContent =
                                 'Edit Day-Wise Itinerary';
-                            document.getElementById('submitItineraryModal').textContent = 'Update';
-
-                            // Populate fields
-                            document.getElementById('modalDayDate').value = editBtn.dataset.dayDate || '';
-                            document.getElementById('modalItineraryTime').value = editBtn.dataset.time || '';
-                            document.getElementById('modalItineraryLocation').value = editBtn.dataset.location ||
-                            '';
-
-                            // Handle activity with list format - add bullet points for display
-                            const activityText = editBtn.dataset.activity || '';
-                            // Format with bullet points for the textarea
-                            const formattedActivity = formatActivityWithBullets(activityText);
-                            document.getElementById('modalActivity').value = formattedActivity || '• ';
-
-                            document.getElementById('modalItineraryStayAt').value = editBtn.dataset.stayAt || '';
-                            document.getElementById('modalRemarks').value = editBtn.dataset.remarks || '';
                         }
                     });
 
-                    // Handle form submission - remove bullet points before submit
-                    document.getElementById('addItineraryForm')?.addEventListener('submit', function(e) {
-                        // Remove bullet points from activity text before saving
-                        const activityText = document.getElementById('modalActivity').value;
-                        const cleanActivityText = removeBulletsFromText(activityText);
-                        document.getElementById('modalActivity').value = cleanActivityText;
-                    });
+                    // Handle modal form submission
+                    document.getElementById('submitItineraryModal')?.addEventListener('click', function() {
+                        if (editingItineraryRow) {
+                            // Update existing row
+                            const row = editingItineraryRow;
+                            const dayDate = document.getElementById('modalDayDate').value;
+                            const time = document.getElementById('modalItineraryTime').value;
+                            const location = document.getElementById('modalItineraryLocation').value;
+                            const activity = document.getElementById('modalActivity').value;
+                            const stayAt = document.getElementById('modalItineraryStayAt').value;
+                            const remarks = document.getElementById('modalRemarks').value;
 
-                    // Reset form when modal is closed
-                    document.getElementById('addItineraryModal')?.addEventListener('hidden.bs.modal', function() {
-                        editingItineraryId = null;
-                        const form = document.getElementById('addItineraryForm');
-                        form.action = `{{ route('leads.booking-itineraries.store', $lead) }}`;
-                        document.getElementById('itineraryFormMethod').value = 'POST';
-                        document.getElementById('itineraryId').value = '';
-                        document.getElementById('addItineraryModalLabel').textContent = 'Add Day-Wise Itinerary';
-                        document.getElementById('submitItineraryModal').textContent = 'Add';
-                    });
-
-                    // Delete Handler
-                    document.addEventListener('click', async function(e) {
-                        const deleteBtn = e.target.closest('.removeItineraryRow');
-                        if (deleteBtn) {
-                            const dbId = deleteBtn.dataset.itineraryId;
-                            if (!dbId) {
-                                deleteBtn.closest('tr').remove();
+                            if (!dayDate || !location || !activity) {
+                                alert(
+                                    'Please fill in all required fields (Day & Date, Location, Activity/Tour Description)'
+                                );
                                 return;
                             }
 
-                            if (!confirm('Are you sure you want to remove this itinerary entry?')) return;
+                            // Update row content
+                            row.querySelector('td:nth-child(1)').textContent = dayDate;
+                            row.querySelector('td:nth-child(2)').textContent = time || '';
+                            row.querySelector('td:nth-child(3)').textContent = location;
+                            row.querySelector('td:nth-child(4)').textContent = activity;
+                            row.querySelector('td:nth-child(5)').textContent = stayAt || '';
+                            row.querySelector('td:nth-child(6)').textContent = remarks || '';
 
-                            try {
-                                const response = await fetch(
-                                    `{{ route('leads.booking-itineraries.destroy', [$lead, ':id']) }}`
-                                    .replace(':id', dbId), {
-                                        method: 'DELETE',
-                                        headers: {
-                                            'X-CSRF-TOKEN': document.querySelector(
-                                                'meta[name="csrf-token"]')?.content,
-                                            'Accept': 'application/json'
-                                        }
-                                    });
+                            // Update hidden inputs
+                            row.querySelector('input[name*="[day_and_date]"]').value = dayDate;
+                            row.querySelector('input[name*="[time]"]').value = time || '';
+                            row.querySelector('input[name*="[location]"]').value = location;
+                            row.querySelector('input[name*="[activity_tour_description]"]').value = activity;
+                            row.querySelector('input[name*="[stay_at]"]').value = stayAt || '';
+                            row.querySelector('input[name*="[remarks]"]').value = remarks || '';
 
-                                if (response.ok) {
-                                    window.location.reload();
-                                } else {
-                                    const result = await response.json();
-                                    alert(result.message || 'Error removing itinerary entry');
+                            editingItineraryRow = null;
+                            document.getElementById('addItineraryModalLabel').textContent =
+                                'Add Day-Wise Itinerary';
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('addItineraryModal'));
+                            if (modal) modal.hide();
+                            document.getElementById('addItineraryForm').reset();
+                        } else {
+                            // Original add functionality
+                            if (addItineraryFromModal()) {
+                                const modal = bootstrap.Modal.getInstance(document.getElementById(
+                                    'addItineraryModal'));
+                                if (modal) {
+                                    modal.hide();
                                 }
-                            } catch (error) {
-                                console.error('Error removing itinerary:', error);
-                                alert('An unexpected error occurred');
+                                document.getElementById('addItineraryForm').reset();
                             }
+                        }
+                    });
+
+                    // Reset editing state when modal is closed
+                    document.getElementById('addItineraryModal')?.addEventListener('hidden.bs.modal', function() {
+                        editingItineraryRow = null;
+                        document.getElementById('addItineraryModalLabel').textContent = 'Add Day-Wise Itinerary';
+                    });
+
+                    // Remove itinerary row handler
+                    document.addEventListener('click', function(e) {
+                        if (e.target.closest('.removeItineraryRow')) {
+                            if (!confirm('Are you sure you want to delete this itinerary row?')) {
+                                return;
+                            }
+                            const row = e.target.closest('tr');
+                            row.remove();
                         }
                     });
 
@@ -2688,52 +2848,23 @@
                         }
 
                         let shouldShow = false;
-                        const destinationRows = destinationTableBody.querySelectorAll(
-                            '.destination-data-row, tr[data-row-index]');
+                        const destinationRows = destinationTableBody.querySelectorAll('.destination-data-row');
 
                         destinationRows.forEach(row => {
-                            const cells = row.querySelectorAll('td');
-                            if (cells.length >= 5) {
-                                // Column 2 is Only Hotel, Column 3 is Only TT, Column 4 is Hotel + TT (0-indexed)
-                                // Check for check icons or checked state
-                                const onlyTTCell = cells[3];
-                                const hotelTTCell = cells[4];
+                            const onlyTTInput = row.querySelector('input[name*="[only_tt]"]');
+                            const hotelTTInput = row.querySelector('input[name*="[hotel_tt]"]');
 
-                                // Check if there's a check icon or if the cell contains checked content
-                                const onlyTTIcon = onlyTTCell?.querySelector(
-                                    'i[data-feather="check"], .feather-check, svg.feather-check');
-                                const hotelTTIcon = hotelTTCell?.querySelector(
-                                    'i[data-feather="check"], .feather-check, svg.feather-check');
-
-                                // Also check for text content indicating checked state or any non-empty content
-                                const onlyTTText = onlyTTCell?.textContent?.trim();
-                                const hotelTTText = hotelTTCell?.textContent?.trim();
-
-                                // Check if cell has any indication of being selected (icon, checkmark, or non-empty)
-                                if (onlyTTIcon || hotelTTIcon) {
-                                    shouldShow = true;
-                                } else if (onlyTTText && onlyTTText !== '-' && onlyTTText.length > 0) {
-                                    // If there's any content in the cell (not just empty or dash), consider it selected
-                                    shouldShow = true;
-                                } else if (hotelTTText && hotelTTText !== '-' && hotelTTText.length > 0) {
-                                    shouldShow = true;
-                                }
-                            }
-                        });
-
-                        // Also check if there are existing itinerary entries - if so, always show the section
-                        const itineraryTbody = document.getElementById('itineraryTableBody');
-                        if (itineraryTbody) {
-                            const existingItineraryRows = itineraryTbody.querySelectorAll('tr[data-row-index]');
-                            if (existingItineraryRows.length > 0) {
+                            if ((onlyTTInput && onlyTTInput.value === '1') || (hotelTTInput && hotelTTInput
+                                    .value === '1')) {
                                 shouldShow = true;
                             }
-                        }
+                        });
 
                         // Show/hide itinerary section
                         if (shouldShow) {
                             itinerarySection.style.display = '';
-                            // Icons will be handled by init.js or our accommodation icon handler
+
+                            // Input row is always present, no need to add default row
                         } else {
                             itinerarySection.style.display = 'none';
                         }
@@ -2748,9 +2879,6 @@
                             // This is handled in addDestinationFromInput function
                         });
                     });
-
-                    // Icons are now directly embedded as SVG in the template, so no JavaScript replacement needed
-                    // This eliminates all feather icon replacement conflicts and delays
 
                     // Check itinerary visibility on page load
                     checkItineraryVisibility();
@@ -2781,52 +2909,25 @@
 
                         const paymentId = editBtn.getAttribute('data-payment-id');
                         const amount = editBtn.getAttribute('data-amount') || '';
-                        let method = editBtn.getAttribute('data-method') || '';
+                        const method = editBtn.getAttribute('data-method') || 'cash';
                         const paymentDate = editBtn.getAttribute('data-payment-date') || '';
                         const dueDate = editBtn.getAttribute('data-due-date') || '';
                         const reference = editBtn.getAttribute('data-reference') || '';
                         const status = editBtn.getAttribute('data-status') || 'pending';
 
-                        // Map old database values to new dropdown values
-                        const methodMap = {
-                            'Cash': 'Cash',
-                            'UPI': 'UPI',
-                            'NEFT': 'NEFT',
-                            'RTGS': 'RTGS',
-                            'WIB': 'WIB',
-                            'Online': 'Online',
-                            'Cheque': 'Cheque'
-                        };
-
-
-                        // Update form action to use update route
-                        form.action = '{{ route('leads.payments.update', [$lead->id, ':id']) }}'.replace(':id',
-                            paymentId);
+                        form.action = '{{ route('leads.payments.store', $lead->id) }}'.replace('/payments',
+                            '/payments/' + paymentId);
                         const methodInput = document.getElementById('postSalesPaymentFormMethod');
                         if (methodInput) {
                             methodInput.value = 'PUT';
                         }
 
                         form.querySelector('input[name=\"amount\"]').value = amount;
-                        const methodSelect = form.querySelector('select[name=\"method\"]');
-                        if (methodSelect) {
-                            methodSelect.value = method;
-                        }
+                        form.querySelector('select[name=\"method\"]').value = method;
                         form.querySelector('input[name=\"payment_date\"]').value = paymentDate;
                         form.querySelector('input[name=\"due_date\"]').value = dueDate;
                         form.querySelector('input[name=\"reference\"]').value = reference;
-                        const statusSelect = form.querySelector(
-                            'select[class*="form-select"]'
-                        ); // Use class selector as name might be status or status_display
-                        if (statusSelect) {
-                            statusSelect.value = status;
-                        }
-
-                        // Update hidden status input if it exists (for Post Sales)
-                        const hiddenStatus = document.getElementById('hiddenPaymentStatus');
-                        if (hiddenStatus) {
-                            hiddenStatus.value = status;
-                        }
+                        form.querySelector('select[name=\"status\"]').value = status;
 
                         const modalTitle = document.getElementById('postSalesAddPaymentModalLabel');
                         if (modalTitle) {
@@ -2849,19 +2950,11 @@
                         if (modalTitle) {
                             modalTitle.textContent = 'Add Customer Payment';
                         }
-
-                        // Reset hidden status to pending
-                        const hiddenStatus = document.getElementById('hiddenPaymentStatus');
-                        if (hiddenStatus) {
-                            hiddenStatus.value = 'pending';
-                        }
                     });
 
                     // Traveller Document Details: toggle passport extra fields
                     const travellerDocTypeSelect = document.getElementById('travellerDocumentType');
                     const passportExtraFields = document.getElementById('passportExtraFields');
-                    const dobFieldContainer = document.getElementById('dobFieldContainer');
-
                     if (travellerDocTypeSelect && passportExtraFields) {
                         const togglePassportFields = () => {
                             if (travellerDocTypeSelect.value === 'passport') {
@@ -2873,28 +2966,6 @@
                         travellerDocTypeSelect.addEventListener('change', togglePassportFields);
                         // Initialize on load
                         togglePassportFields();
-                    }
-
-                    // Traveller Document Details: toggle DOB field (hide for visa, marriage_certificate, photos, insurance)
-                    if (travellerDocTypeSelect && dobFieldContainer) {
-                        const toggleDobField = () => {
-                            const docType = travellerDocTypeSelect.value;
-                            const excludedTypes = ['visa', 'marriage_certificate', 'photos', 'insurance'];
-
-                            if (docType && !excludedTypes.includes(docType)) {
-                                dobFieldContainer.style.display = '';
-                            } else {
-                                dobFieldContainer.style.display = 'none';
-                                // Clear DOB value when hidden
-                                const dobField = document.getElementById('travellerDobField');
-                                if (dobField) {
-                                    dobField.value = '';
-                                }
-                            }
-                        };
-                        travellerDocTypeSelect.addEventListener('change', toggleDobField);
-                        // Initialize on load
-                        toggleDobField();
                     }
 
                     // Traveller Document Details: hide / show Nationality/DOB/Place/Expiry columns if any Passport rows exist
@@ -2915,8 +2986,7 @@
                             }
                         });
 
-                        // Column indices: 0=Sr.No, 1=Full Name, 2=Contact No, 3=Doc Type, 4=Doc No, 5=Nationality, 6=DOB, 7=Place of Issue, 8=Expiry
-                        const colsToToggle = [5, 6, 7, 8]; // Nationality, DOB, Place of Issue, Date of Expiry
+                        const colsToToggle = [6, 7, 8, 9]; // Nationality, DOB, Place of Issue, Date of Expiry
                         colsToToggle.forEach(idx => {
                             if (headerCells[idx]) {
                                 headerCells[idx].style.display = hasPassport ? '' : 'none';
@@ -3006,8 +3076,6 @@
                             'data-first-name') || '';
                         form.querySelector('input[name=\"last_name\"]').value = editIcon.getAttribute(
                             'data-last-name') || '';
-                        form.querySelector('input[name=\"contact_no\"]').value = editIcon.getAttribute(
-                            'data-contact-no') || '';
 
                         const docTypeSelect = form.querySelector('select[name=\"document_type\"]');
                         const statusSelect = form.querySelector('select[name=\"status\"]');
@@ -3028,11 +3096,7 @@
                             'data-doc-no') || '';
                         form.querySelector('input[name=\"nationality\"]').value = editIcon.getAttribute(
                             'data-nationality') || '';
-                        // Populate DOB in main form field
-                        const dobField = document.getElementById('travellerDobField');
-                        if (dobField) {
-                            dobField.value = editIcon.getAttribute('data-dob') || '';
-                        }
+                        form.querySelector('input[name=\"dob\"]').value = editIcon.getAttribute('data-dob') || '';
                         form.querySelector('input[name=\"place_of_issue\"]').value = editIcon.getAttribute(
                             'data-place-of-issue') || '';
                         form.querySelector('input[name=\"date_of_expiry\"]').value = editIcon.getAttribute(
@@ -3052,110 +3116,132 @@
                         }
                     });
 
-                    // Handle form submission (Direct submit enabled)
+                    // Handle form submission
                     const bookingFileForm = document.getElementById('bookingFileForm');
+                    if (bookingFileForm) {
+                        bookingFileForm.addEventListener('submit', function(e) {
+                            e.preventDefault();
 
-                    // Handle Sales Cost Update Button
-                    const updateSalesCostBtn = document.getElementById('updateSalesCostBtn');
-                    const salesCostInput = document.getElementById('salesCostInput');
+                            // Convert form to FormData to properly handle arrays
+                            const formData = new FormData(bookingFileForm);
+                            const submitButton = bookingFileForm.querySelector('button[type="submit"]');
+                            const originalButtonText = submitButton.textContent;
 
-                    if (updateSalesCostBtn && salesCostInput) {
-                        updateSalesCostBtn.addEventListener('click', async function() {
-                            const salesCost = parseFloat(salesCostInput.value);
+                            // Disable submit button and show loading
+                            submitButton.disabled = true;
+                            submitButton.textContent = 'Saving...';
 
-                            if (isNaN(salesCost) || salesCost < 0) {
-                                alert('Please enter a valid sales cost (must be 0 or greater)');
-                                return;
+                            // Convert FormData to object for JSON submission
+                            const data = {};
+                            for (let [key, value] of formData.entries()) {
+                                if (key.includes('[') && key.includes(']')) {
+                                    // Handle array notation like booking_destinations[0][destination]
+                                    const matches = key.match(/^(.+?)\[(\d+)\]\[(.+?)\]$/);
+                                    if (matches) {
+                                        const [, arrayName, index, field] = matches;
+                                        if (!data[arrayName]) data[arrayName] = {};
+                                        if (!data[arrayName][index]) data[arrayName][index] = {};
+                                        data[arrayName][index][field] = value;
+                                    } else {
+                                        // Handle simple array notation
+                                        const arrayMatch = key.match(/^(.+?)\[(\d+)\]$/);
+                                        if (arrayMatch) {
+                                            const [, arrayName, index] = arrayMatch;
+                                            if (!data[arrayName]) data[arrayName] = {};
+                                            data[arrayName][index] = value;
+                                        } else {
+                                            data[key] = value;
+                                        }
+                                    }
+                                } else {
+                                    data[key] = value;
+                                }
                             }
 
-                            const originalText = updateSalesCostBtn.textContent;
-                            updateSalesCostBtn.disabled = true;
-                            updateSalesCostBtn.textContent = 'Updating...';
+                            // Convert nested objects to arrays for Laravel
+                            if (data.booking_destinations) {
+                                data.booking_destinations = Object.values(data.booking_destinations);
+                            }
+                            if (data.booking_flights) {
+                                data.booking_flights = Object.values(data.booking_flights);
+                            }
+                            if (data.booking_surface_transports) {
+                                data.booking_surface_transports = Object.values(data.booking_surface_transports);
+                            }
+                            if (data.booking_sea_transports) {
+                                data.booking_sea_transports = Object.values(data.booking_sea_transports);
+                            }
+                            if (data.booking_accommodations) {
+                                data.booking_accommodations = Object.values(data.booking_accommodations);
+                            }
+                            if (data.booking_itineraries) {
+                                data.booking_itineraries = Object.values(data.booking_itineraries);
+                            }
 
-                            try {
-                                const response = await fetch(
-                                    '{{ route('leads.update-sales-cost', $lead) }}', {
-                                        method: 'PUT',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                            'X-CSRF-TOKEN': document.querySelector(
-                                                'meta[name="csrf-token"]')?.content,
-                                            'Accept': 'application/json'
-                                        },
-                                        body: JSON.stringify({
-                                            selling_price: salesCost
-                                        })
+                            fetch(bookingFileForm.action, {
+                                    method: 'PUT',
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                            ?.content || formData.get('_token'),
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(data)
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        return response.json().then(data => {
+                                            throw new Error(data.message || 'An error occurred');
+                                        });
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    // Show success message
+                                    const alertDiv = document.createElement('div');
+                                    alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                                    alertDiv.setAttribute('role', 'alert');
+                                    alertDiv.innerHTML = `
+                                    <strong>Success!</strong> Booking file saved successfully!
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                `;
+                                    bookingFileForm.insertBefore(alertDiv, bookingFileForm.firstChild);
+
+                                    // Scroll to top
+                                    window.scrollTo({
+                                        top: 0,
+                                        behavior: 'smooth'
                                     });
 
-                                const result = await response.json();
+                                    // Auto-hide alert after 3 seconds
+                                    setTimeout(() => {
+                                        alertDiv.remove();
+                                    }, 3000);
+                                })
+                                .catch(error => {
+                                    console.error('Error saving booking file:', error);
 
-                                if (response.ok) {
-                                    alert(result.message || 'Sales cost updated successfully!');
-                                    // Optionally reload the page to reflect changes
-                                    window.location.reload();
-                                } else {
-                                    alert(result.message || 'Error updating sales cost');
-                                    updateSalesCostBtn.disabled = false;
-                                    updateSalesCostBtn.textContent = originalText;
-                                }
-                            } catch (error) {
-                                console.error('Error updating sales cost:', error);
-                                alert('An unexpected error occurred while updating sales cost');
-                                updateSalesCostBtn.disabled = false;
-                                updateSalesCostBtn.textContent = originalText;
-                            }
-                        });
-                    }
+                                    // Show error message
+                                    const alertDiv = document.createElement('div');
+                                    alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                                    alertDiv.setAttribute('role', 'alert');
+                                    alertDiv.innerHTML = `
+                                    <strong>Error!</strong> ${error.message || 'Unable to save booking file.'}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                `;
+                                    bookingFileForm.insertBefore(alertDiv, bookingFileForm.firstChild);
 
-                    // Handle Stage Update Button
-                    const updateStageBtn = document.getElementById('updateStageBtn');
-                    const stageSelect = document.getElementById('stageSelect');
-
-                    if (updateStageBtn && stageSelect) {
-                        updateStageBtn.addEventListener('click', async function() {
-                            const selectedStage = stageSelect.value;
-
-                            if (!selectedStage) {
-                                alert('Please select a stage');
-                                return;
-                            }
-
-                            const originalText = updateStageBtn.textContent;
-                            updateStageBtn.disabled = true;
-                            updateStageBtn.textContent = 'Updating...';
-
-                            try {
-                                const response = await fetch(
-                                    '{{ route('leads.update-stage', $lead) }}', {
-                                        method: 'PUT',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                            'X-CSRF-TOKEN': document.querySelector(
-                                                'meta[name="csrf-token"]')?.content,
-                                            'Accept': 'application/json'
-                                        },
-                                        body: JSON.stringify({
-                                            stage: selectedStage
-                                        })
+                                    // Scroll to top
+                                    window.scrollTo({
+                                        top: 0,
+                                        behavior: 'smooth'
                                     });
-
-                                const result = await response.json();
-
-                                if (response.ok) {
-                                    alert(result.message || 'Stage updated successfully!');
-                                    // Optionally reload the page to reflect changes
-                                    window.location.reload();
-                                } else {
-                                    alert(result.message || 'Error updating stage');
-                                    updateStageBtn.disabled = false;
-                                    updateStageBtn.textContent = originalText;
-                                }
-                            } catch (error) {
-                                console.error('Error updating stage:', error);
-                                alert('An unexpected error occurred while updating stage');
-                                updateStageBtn.disabled = false;
-                                updateStageBtn.textContent = originalText;
-                            }
+                                })
+                                .finally(() => {
+                                    // Re-enable submit button
+                                    submitButton.disabled = false;
+                                    submitButton.textContent = originalButtonText;
+                                });
                         });
                     }
                 });
@@ -3166,11 +3252,8 @@
 
                     // Reset vendor payment modal
                     function resetVendorPaymentModal() {
-                        const form = document.getElementById('addVendorPaymentForm');
-                        form.action = `{{ route('bookings.vendor-payment.store', $lead) }}`;
-                        document.getElementById('vendorPaymentFormMethod').value = 'POST';
-                        document.getElementById('vendorPaymentId').value = '';
                         document.getElementById('addVendorPaymentForm').reset();
+                        document.getElementById('vendorPaymentId').value = '';
                         document.getElementById('addVendorPaymentModalLabel').textContent = 'Add Vendor Payment';
                         currentEditVendorPaymentId = null;
                     }
@@ -3191,14 +3274,7 @@
                             const row = btn.closest('tr');
 
                             currentEditVendorPaymentId = vendorPaymentId;
-
-                            // Update form action and method for edit
-                            const form = document.getElementById('addVendorPaymentForm');
-                            form.action = `{{ route('bookings.vendor-payment.update', [$lead, ':id']) }}`.replace(':id',
-                                vendorPaymentId);
-                            document.getElementById('vendorPaymentFormMethod').value = 'PUT';
                             document.getElementById('vendorPaymentId').value = vendorPaymentId;
-
                             document.getElementById('addVendorPaymentModalLabel').textContent = 'Edit Vendor Payment';
 
                             // Populate form from data attributes
@@ -3210,6 +3286,7 @@
                             document.getElementById('modalStatus').value = row.dataset.status || 'Pending';
                         }
                     });
+
 
                     // Handle delete vendor payment button click
                     document.addEventListener('click', function(e) {
@@ -3232,7 +3309,14 @@
                                 .then(response => response.json())
                                 .then(data => {
                                     if (data.success) {
-                                        window.location.reload();
+                                        const row = btn.closest('tr');
+                                        row.remove();
+                                        // Check if table is empty
+                                        const tbody = document.getElementById('vendorPaymentsTableBody');
+                                        if (tbody && tbody.querySelectorAll('tr').length === 0) {
+                                            tbody.innerHTML =
+                                                '<tr><td colspan="11" class="text-center text-muted py-4">No vendor payments found</td></tr>';
+                                        }
                                     } else {
                                         alert(data.message || 'Failed to delete vendor payment');
                                     }
@@ -3244,15 +3328,53 @@
                         }
                     });
 
-                    // Reset form when modal is closed
-                    addVendorPaymentModal?.addEventListener('hidden.bs.modal', function() {
-                        currentEditVendorPaymentId = null;
-                        const form = document.getElementById('addVendorPaymentForm');
-                        form.action = `{{ route('bookings.vendor-payment.store', $lead) }}`;
-                        document.getElementById('vendorPaymentFormMethod').value = 'POST';
-                        document.getElementById('vendorPaymentId').value = '';
-                        document.getElementById('addVendorPaymentModalLabel').textContent = 'Add Vendor Payment';
-                    });
+                    // Handle vendor payment form submission
+                    const submitVendorPaymentBtn = document.getElementById('submitVendorPaymentModal');
+                    if (submitVendorPaymentBtn) {
+                        submitVendorPaymentBtn.addEventListener('click', function() {
+                            const form = document.getElementById('addVendorPaymentForm');
+                            const formData = new FormData(form);
+                            const vendorPaymentId = document.getElementById('vendorPaymentId').value;
+                            const leadId = {{ $lead->id }};
+
+                            let url = `/bookings/${leadId}/vendor-payment`;
+                            let method = 'POST';
+
+                            if (vendorPaymentId) {
+                                url = `/bookings/${leadId}/vendor-payment/${vendorPaymentId}`;
+                                method = 'PUT';
+                                formData.append('_method', 'PUT');
+                            }
+
+                            fetch(url, {
+                                    method: method,
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                            'content'),
+                                        'Accept': 'application/json',
+                                    },
+                                    body: formData
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        // Close modal
+                                        const modal = bootstrap.Modal.getInstance(addVendorPaymentModal);
+                                        if (modal) {
+                                            modal.hide();
+                                        }
+                                        // Reload page to show updated data
+                                        window.location.reload();
+                                    } else {
+                                        alert(data.message || 'Failed to save vendor payment');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    alert('An error occurred while saving vendor payment');
+                                });
+                        });
+                    }
                 @endif
 
 
