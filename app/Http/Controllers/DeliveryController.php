@@ -53,19 +53,13 @@ class DeliveryController extends Controller
 
         // Filter booking files based on user role
         if ($isAdmin) {
-            // Admin/Developer: Show all booked leads assigned to Delivery users
-            $deliveryUserIds = User::where(function ($query) {
-                $query->where('department', 'Delivery')
-                    ->orWhere('role', 'Delivery')
-                    ->orWhere('role', 'Delivery Manager');
-            })->pluck('id');
-            
-            $leadsQuery->whereIn('assigned_user_id', $deliveryUserIds);
+            // Admin/Developer: Show all booked leads that have Delivery users assigned
+            $leadsQuery->whereNotNull('delivery_user_id');
         } elseif ($userRole === 'Delivery' || $userDepartment === 'Delivery' || $userRole === 'Delivery Manager') {
-            // Delivery users: Show only their own assigned booking files
+            // Delivery users: Show only booking files where they are assigned in delivery_user_id
             $userId = $this->getCurrentUserId();
             if ($userId) {
-                $leadsQuery->where('assigned_user_id', $userId);
+                $leadsQuery->where('delivery_user_id', $userId);
             }
         }
 

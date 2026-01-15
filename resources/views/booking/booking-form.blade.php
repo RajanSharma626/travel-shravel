@@ -1156,7 +1156,7 @@
             <!-- Re-assign Lead Modal -->
             <div class="modal fade" id="reassignLeadModal" tabindex="-1" aria-labelledby="reassignLeadModalLabel"
                 aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content">
                         <form action="{{ route('leads.reassign', $lead) }}" method="POST">
                             @csrf
@@ -1176,17 +1176,11 @@
                                             <option value="">-- Select --</option>
                                             @foreach ($employees as $emp)
                                                 @php
-                                                    $matchingUser = \App\Models\User::where(
-                                                        'email',
-                                                        $emp->login_work_email,
-                                                    )
-                                                        ->orWhere('email', $emp->user_id)
-                                                        ->first();
+                                                    // Check if this employee matches the currently assigned user
                                                     $isSelected = false;
                                                     if (
-                                                        $lead->reassigned_to &&
-                                                        $matchingUser &&
-                                                        $lead->reassigned_to == $matchingUser->id
+                                                        $lead->assigned_user_id &&
+                                                        $lead->assigned_user_id == $emp->id
                                                     ) {
                                                         $isSelected = true;
                                                     }
@@ -1292,6 +1286,59 @@
                 </div>
             </div>
         @endcan
+
+        <script>
+            // Disable the current user's own department dropdown in re-assign modal
+            document.addEventListener('DOMContentLoaded', function() {
+                const currentUserDepartment =
+                    '{{ Auth::user()->department ?? Auth::user()->getRoleNameAttribute() }}';
+                const currentUserId = {{ Auth::id() }};
+                const isAdmin =
+                    {{ Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Developer') ? 'true' : 'false' }};
+
+                // Don't disable any dropdowns for Admin users
+                if (isAdmin) {
+                    return;
+                }
+
+                // Map department names to their corresponding select elements
+                const departmentSelects = {
+                    'Sales': 'select[name="reassigned_employee_id"]',
+                    'Post Sales': 'select[name="post_sales_user_id"]',
+                    'Post Sales Manager': 'select[name="post_sales_user_id"]',
+                    'Operation': 'select[name="operations_user_id"]',
+                    'Operation Manager': 'select[name="operations_user_id"]',
+                    'Ticketing': 'select[name="ticketing_user_id"]',
+                    'Visa': 'select[name="visa_user_id"]',
+                    'Insurance': 'select[name="insurance_user_id"]',
+                    'Accounts': 'select[name="accountant_user_id"]',
+                    'Accounts Manager': 'select[name="accountant_user_id"]',
+                    'Delivery': 'select[name="delivery_user_id"]',
+                    'Delivery Manager': 'select[name="delivery_user_id"]'
+                };
+
+                // Get the selector for current user's department
+                const selectorToDisable = departmentSelects[currentUserDepartment];
+
+                if (selectorToDisable) {
+                    const selectElement = document.querySelector(selectorToDisable);
+                    if (selectElement) {
+                        selectElement.disabled = true;
+                        selectElement.style.backgroundColor = '#e9ecef';
+                        selectElement.style.cursor = 'not-allowed';
+
+                        // Add a note below the disabled dropdown
+                        const parentDiv = selectElement.closest('.col-md-6');
+                        if (parentDiv && !parentDiv.querySelector('.user-note')) {
+                            const note = document.createElement('small');
+                            note.className = 'text-muted user-note';
+                            note.textContent = 'You cannot change your own assignee';
+                            parentDiv.appendChild(note);
+                        }
+                    }
+                }
+            });
+        </script>
 
         @if ($isPostSales ?? false)
             <!-- Traveller Document Details Modal -->

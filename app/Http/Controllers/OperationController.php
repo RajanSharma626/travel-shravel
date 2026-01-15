@@ -32,27 +32,13 @@ class OperationController extends Controller
 
         // Filter booking files based on user role
         if ($isAdmin) {
-            // Admin/Developer: Show all booked leads assigned to Operation, Ticketing, Cruise, Visa, Insurance department users
-            $opsDepartmentUserIds = User::where(function ($query) {
-                $query->where('department', 'Operation')
-                    ->orWhere('department', 'Ticketing')
-                    ->orWhere('department', 'Cruise')
-                    ->orWhere('department', 'Visa')
-                    ->orWhere('department', 'Insurance')
-                    ->orWhere('role', 'Operation')
-                    ->orWhere('role', 'Operation Manager')
-                    ->orWhere('role', 'Ticketing')
-                    ->orWhere('role', 'Cruise')
-                    ->orWhere('role', 'Visa')
-                    ->orWhere('role', 'Insurance');
-            })->pluck('id');
-            
-            $leadsQuery->whereIn('assigned_user_id', $opsDepartmentUserIds);
+            // Admin/Developer: Show all booked leads that have Operations users assigned
+            $leadsQuery->whereNotNull('operations_user_id');
         } else {
-            // Operation/Ticketing/Cruise/Visa/Insurance users: Show only their own assigned booking files
+            // Operations users: Show only booking files where they are assigned in operations_user_id
             $userId = $this->getCurrentUserId();
             if ($userId) {
-                $leadsQuery->where('assigned_user_id', $userId);
+                $leadsQuery->where('operations_user_id', $userId);
             }
         }
 
@@ -270,10 +256,9 @@ class OperationController extends Controller
             ->orderBy('created_at', 'desc');
 
         if ($isAdmin) {
-            $userIds = User::where('department', 'Ticketing')->pluck('id');
-            $leadsQuery->whereIn('assigned_user_id', $userIds);
+            $leadsQuery->whereNotNull('ticketing_user_id');
         } else {
-            $leadsQuery->where('assigned_user_id', $this->getCurrentUserId());
+            $leadsQuery->where('ticketing_user_id', $this->getCurrentUserId());
         }
 
         if (!empty($filters['search'])) {
@@ -353,10 +338,9 @@ class OperationController extends Controller
             ->orderBy('created_at', 'desc');
 
         if ($isAdmin) {
-            $userIds = User::where('department', 'Visa')->pluck('id');
-            $leadsQuery->whereIn('assigned_user_id', $userIds);
+            $leadsQuery->whereNotNull('visa_user_id');
         } else {
-            $leadsQuery->where('assigned_user_id', $this->getCurrentUserId());
+            $leadsQuery->where('visa_user_id', $this->getCurrentUserId());
         }
 
         if (!empty($filters['search'])) {
@@ -436,10 +420,9 @@ class OperationController extends Controller
             ->orderBy('created_at', 'desc');
 
         if ($isAdmin) {
-            $userIds = User::where('department', 'Insurance')->pluck('id');
-            $leadsQuery->whereIn('assigned_user_id', $userIds);
+            $leadsQuery->whereNotNull('insurance_user_id');
         } else {
-            $leadsQuery->where('assigned_user_id', $this->getCurrentUserId());
+            $leadsQuery->where('insurance_user_id', $this->getCurrentUserId());
         }
 
         if (!empty($filters['search'])) {

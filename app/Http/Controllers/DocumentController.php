@@ -33,19 +33,13 @@ class DocumentController extends Controller
 
         // Filter booking files based on user role
         if ($isAdmin) {
-            // Admin/Developer: Show all booked leads assigned to Post Sales users
-            $postSalesUserIds = User::where(function ($query) {
-                $query->where('department', 'Post Sales')
-                    ->orWhere('role', 'Post Sales')
-                    ->orWhere('role', 'Post Sales Manager');
-            })->pluck('id');
-            
-            $leadsQuery->whereIn('assigned_user_id', $postSalesUserIds);
+            // Admin/Developer: Show all booked leads that have Post Sales users assigned
+            $leadsQuery->whereNotNull('post_sales_user_id');
         } elseif ($userRole === 'Post Sales' || $userDepartment === 'Post Sales' || $userRole === 'Post Sales Manager') {
-            // Post Sales users: Show only their own assigned booking files
+            // Post Sales users: Show only booking files where they are assigned in post_sales_user_id
             $userId = $this->getCurrentUserId();
             if ($userId) {
-                $leadsQuery->where('assigned_user_id', $userId);
+                $leadsQuery->where('post_sales_user_id', $userId);
             }
         }
 

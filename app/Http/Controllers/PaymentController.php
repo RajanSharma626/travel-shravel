@@ -29,6 +29,23 @@ class PaymentController extends Controller
         }])
             ->orderBy('created_at', 'desc');
 
+        $currentUser = Auth::user();
+        $isAdmin = $currentUser->hasRole('Admin') || $currentUser->hasRole('Developer') || $currentUser->department === 'Admin';
+        $userRole = $currentUser->role ?? $currentUser->getRoleNameAttribute();
+        $userDepartment = $currentUser->department;
+
+        // Filter booking files based on user role
+        if ($isAdmin) {
+            // Admin/Developer: Show all booked leads that have Accountant users assigned
+            $leadsQuery->whereNotNull('accountant_user_id');
+        } elseif ($userRole === 'Accounts' || $userDepartment === 'Accounts' || $userRole === 'Accounts Manager') {
+            // Accounts users: Show only booking files where they are assigned in accountant_user_id
+            $userId = $this->getCurrentUserId();
+            if ($userId) {
+                $leadsQuery->where('accountant_user_id', $userId);
+            }
+        }
+
         // Search filter
         if (!empty($filters['search'])) {
             $searchTerm = trim($filters['search']);
