@@ -134,7 +134,10 @@
                             </li>
 
                             @php
-                                $isAdmin = Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Developer') || Auth::user()->department === 'Admin';
+                                $isAdmin =
+                                    Auth::user()->hasRole('Admin') ||
+                                    Auth::user()->hasRole('Developer') ||
+                                    Auth::user()->department === 'Admin';
                                 $isCustomerCare =
                                     Auth::user()->hasRole('Customer Care') ||
                                     Auth::user()->department === 'Customer Care';
@@ -210,7 +213,8 @@
                                 <li class="nav-item {{ $isPostBookingsActive ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('post-sales.index') }}">
                                         <span class="nav-icon-wrap">
-                                            <span class="svg-icon"><i data-feather="check-circle" class="small"></i></span>
+                                            <span class="svg-icon"><i data-feather="check-circle"
+                                                    class="small"></i></span>
                                         </span>
                                         <span class="nav-link-text">Post Sales</span>
                                     </a>
@@ -230,7 +234,8 @@
                                 <li class="nav-item {{ $isOpsActive ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('operations.index') }}">
                                         <span class="nav-icon-wrap">
-                                            <span class="svg-icon"><i data-feather="settings" class="small"></i></span>
+                                            <span class="svg-icon"><i data-feather="settings"
+                                                    class="small"></i></span>
                                         </span>
                                         <span class="nav-link-text">Operations</span>
                                     </a>
@@ -245,7 +250,8 @@
                                 <li class="nav-item {{ $isTicketBookingsActive ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('ticketing.index') }}">
                                         <span class="nav-icon-wrap">
-                                            <span class="svg-icon"><i data-feather="airplay" class="small"></i></span>
+                                            <span class="svg-icon"><i data-feather="airplay"
+                                                    class="small"></i></span>
                                         </span>
                                         <span class="nav-link-text">Ticketing</span>
                                     </a>
@@ -260,7 +266,8 @@
                                 <li class="nav-item {{ $isVisaBookingsActive ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('visa.index') }}">
                                         <span class="nav-icon-wrap">
-                                            <span class="svg-icon"><i data-feather="file-text" class="small"></i></span>
+                                            <span class="svg-icon"><i data-feather="file-text"
+                                                    class="small"></i></span>
                                         </span>
                                         <span class="nav-link-text">Visa</span>
                                     </a>
@@ -275,7 +282,8 @@
                                 <li class="nav-item {{ $isInsBookingsActive ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('insurance.index') }}">
                                         <span class="nav-icon-wrap">
-                                            <span class="svg-icon"><i data-feather="shield" class="small"></i></span>
+                                            <span class="svg-icon"><i data-feather="shield"
+                                                    class="small"></i></span>
                                         </span>
                                         <span class="nav-link-text">Insurance</span>
                                     </a>
@@ -297,7 +305,8 @@
                                 <li class="nav-item {{ $isAccBookingsActive ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('accounts.index') }}">
                                         <span class="nav-icon-wrap">
-                                            <span class="svg-icon"><i data-feather="credit-card" class="small"></i></span>
+                                            <span class="svg-icon"><i data-feather="credit-card"
+                                                    class="small"></i></span>
                                         </span>
                                         <span class="nav-link-text">Accounts</span>
                                     </a>
@@ -359,6 +368,18 @@
                                         </span>
                                     </span>
                                     <span class="nav-link-text">Destinations</span>
+                                </a>
+                            </li>
+
+                            <!-- Hotels - Visible to all users -->
+                            <li class="nav-item mb-2 {{ request()->is('hotels*') ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ route('hotels.index') }}">
+                                    <span class="nav-icon-wrap">
+                                        <span class="svg-icon">
+                                            <i data-feather="home" class="small"></i>
+                                        </span>
+                                    </span>
+                                    <span class="nav-link-text">Hotels</span>
                                 </a>
                             </li>
 
@@ -547,7 +568,7 @@
                 if (parentSubmenu.length) {
                     parentSubmenu.addClass('show');
                     parentSubmenu.prev('.nav-link[data-bs-toggle="collapse"]').attr('aria-expanded',
-                    'true');
+                        'true');
                 }
             });
 

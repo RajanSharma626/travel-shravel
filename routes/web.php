@@ -75,6 +75,16 @@ Route::middleware(['auth', 'check.active'])->group(function () {
         Route::delete('/destinations/{destination}', [DestinationController::class, 'destroy'])->name('destinations.destroy');
         Route::get('/destinations/{destination}', [DestinationController::class, 'show'])->name('destinations.show');
 
+    // Hotels - Accessible to all authenticated users
+        Route::get('/hotels', [\App\Http\Controllers\HotelController::class, 'index'])->name('hotels.index');
+        Route::get('/hotels/create', [\App\Http\Controllers\HotelController::class, 'create'])->name('hotels.create');
+        Route::post('/hotels', [\App\Http\Controllers\HotelController::class, 'store'])->name('hotels.store');
+        Route::get('/hotels/{hotel}/edit', [\App\Http\Controllers\HotelController::class, 'edit'])->name('hotels.edit');
+        Route::put('/hotels/{hotel}', [\App\Http\Controllers\HotelController::class, 'update'])->name('hotels.update');
+        Route::delete('/hotels/{hotel}', [\App\Http\Controllers\HotelController::class, 'destroy'])->name('hotels.destroy');
+        Route::get('/hotels/{hotel}', [\App\Http\Controllers\HotelController::class, 'show'])->name('hotels.show');
+
+
     // Customer Care Routes
     Route::prefix('customer-care')->name('customer-care.')->middleware(['auth', 'check.active'])->group(function () {
         Route::get('/leads', [\App\Http\Controllers\CustomerCareController::class, 'index'])->name('leads.index');
@@ -314,6 +324,10 @@ Route::middleware(['auth', 'check.active'])->group(function () {
 
     // Destination API Routes
     Route::get('/api/destinations/{destination}/locations', [DestinationController::class, 'getLocations'])->name('api.destinations.locations');
+
+    // Hotel API Routes
+    Route::get('/api/hotels/countries/{country}/destinations', [\App\Http\Controllers\HotelController::class, 'getDestinationsByCountry'])->name('api.hotels.destinations');
+    Route::get('/api/hotels/destinations/{destination}/locations', [\App\Http\Controllers\HotelController::class, 'getLocationsByDestination'])->name('api.hotels.locations');
 
     // Incentives
     Route::middleware('permission:view incentives')->group(function () {
